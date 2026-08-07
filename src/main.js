@@ -1,3 +1,4 @@
+import './style.css';
 import { initPdfProcessor } from './js/pdf-processor.js';
 import { initMdFixer } from './js/md-fixer.js';
 import { initEpubPacker } from './js/epub-packer.js';

@@ -1,0 +1,72 @@
+{
+  "eslint.config.js": {
+    "mtime": 1786112448.9046805,
+    "ast_hash": "69f167591e90f9d812346e8e4b95cf8b",
+    "semantic_hash": "69f167591e90f9d812346e8e4b95cf8b"
+  },
+  "package.json": {
+    "mtime": 1786112448.9055183,
+    "ast_hash": "6926c2c4bf94dc9eec036471f679a857",
+    "semantic_hash": "6926c2c4bf94dc9eec036471f679a857"
+  },
+  "src/js/epub-packer.js": {
+    "mtime": 1786112448.9062815,
+    "ast_hash": "686267fec999d3a55e243990630ee2b0",
+    "semantic_hash": "686267fec999d3a55e243990630ee2b0"
+  },
+  "src/js/helpers.js": {
+    "mtime": 1786112448.906653,
+    "ast_hash": "d368bcf90750a42d99a384232b3a9eae",
+    "semantic_hash": "d368bcf90750a42d99a384232b3a9eae"
+  },
+  "src/js/md-fixer.js": {
+    "mtime": 1786112448.9067209,
+    "ast_hash": "ada5654bd2d956674abaaa7db6fc440c",
+    "semantic_hash": "ada5654bd2d956674abaaa7db6fc440c"
+  },
+  "src/js/pdf-processor.js": {
+    "mtime": 1786112448.9068086,
+    "ast_hash": "7f47781f8ed0a29305bab087e516b4c2",
+    "semantic_hash": "7f47781f8ed0a29305bab087e516b4c2"
+  },
+  "src/main.js": {
+    "mtime": 1786112448.9068782,
+    "ast_hash": "82d9e5248d4e5406146cb512ab03abf0",
+    "semantic_hash": "82d9e5248d4e5406146cb512ab03abf0"
+  },
+  "vite.config.js": {
+    "mtime": 1786112448.9069312,
+    "ast_hash": "b825f60b2f6b303ef5dd66b66e05438d",
+    "semantic_hash": "b825f60b2f6b303ef5dd66b66e05438d"
+  },
+  "index.html": {
+    "mtime": 1786112448.9051867,
+    "ast_hash": "a18b6094ace3ce5812667a0722b23d85",
+    "semantic_hash": "a18b6094ace3ce5812667a0722b23d85"
+  },
+  "public/favicon.svg": {
+    "mtime": 1786112448.9055183,
+    "ast_hash": "098c888910dd3b64d291f1f0dc9e7033",
+    "semantic_hash": "098c888910dd3b64d291f1f0dc9e7033"
+  },
+  "public/icons.svg": {
+    "mtime": 1786112448.9058251,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": "3b4fcfcf393eca4d264dca4a4663bc37"
+  },
+  "src/assets/hero.png": {
+    "mtime": 1786112448.906183,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": "aead493361b27e7510691c5d7072dfc1"
+  },
+  "src/assets/javascript.svg": {
+    "mtime": 1786112448.9062164,
+    "ast_hash": "067c459716da80af65db120e6c0404b9",
+    "semantic_hash": "067c459716da80af65db120e6c0404b9"
+  },
+  "src/assets/vite.svg": {
+    "mtime": 1786112448.9062815,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": "9960a24288958394ac50e57ff638b036"
+  }
+}

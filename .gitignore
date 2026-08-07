@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Graphify local machine temporary files
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+
