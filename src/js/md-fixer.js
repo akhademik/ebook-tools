@@ -28,13 +28,20 @@ export function initMdFixer() {
       biClose: mdBiCloseInput.value
     };
   }
+
   function updateMdSample(){
     const w = currentMdWrappers();
     mdSampleItalic.textContent = w.iOpen + 'nghiêng' + w.iClose;
     mdSampleBi.textContent = w.biOpen + 'đậm nghiêng' + w.biClose;
   }
+
   [mdItalicOpenInput, mdItalicCloseInput, mdBiOpenInput, mdBiCloseInput].forEach(el =>
-    el.addEventListener('input', updateMdSample)
+    el.addEventListener('input', () => {
+      updateMdSample();
+      if (mdSelectedFile) {
+        processMarkdownZip();
+      }
+    })
   );
 
   let mdSelectedFile = null;
@@ -57,9 +64,9 @@ export function initMdFixer() {
     if (mdInput.files[0]) handleMdFile(mdInput.files[0]);
   });
 
-  function handleMdFile(file){
+  async function handleMdFile(file){
     if (!/\.zip$/i.test(file.name)) {
-      mdStatus.textContent = 'Vui lòng chọn một file .zip hợp lệ.';
+      mdStatus.textContent = 'Vui lòng chọn một tệp .ZIP hợp lệ.';
       mdStatus.classList.add('err');
       return;
     }
@@ -69,11 +76,13 @@ export function initMdFixer() {
     mdFileChip.textContent = file.name;
     zipOutNameInput.value = slugify(file.name) + '-da-fix';
     updateMdZipPreview();
-    mdProcessBtn.disabled = false;
     mdDownloadBtn.disabled = true;
     mdOutZipBlob = null;
-    mdResultBox.classList.remove('show');
+    mdResultBox.classList.add('hidden');
     mdListEl.innerHTML = '';
+
+    // Automatically scan and process
+    await processMarkdownZip();
   }
 
   const MAX_SPAN = 150;
@@ -115,11 +124,11 @@ export function initMdFixer() {
     return { converted, count };
   }
 
-  mdProcessBtn.addEventListener('click', async () => {
+  async function processMarkdownZip() {
     if (!mdSelectedFile) return;
     mdProcessBtn.disabled = true;
     mdDownloadBtn.disabled = true;
-    mdStatus.textContent = 'Đang đọc file .zip…';
+    mdStatus.textContent = 'Đang đọc tệp .ZIP...';
     mdStatus.classList.remove('err');
     mdListEl.innerHTML = '';
 
@@ -148,29 +157,32 @@ export function initMdFixer() {
         }
       }
 
-      mdStatus.textContent = 'Đang nén file kết quả…';
+      mdStatus.textContent = 'Đang nén tệp kết quả...';
       mdOutZipBlob = await outZip.generateAsync({ type: 'blob' });
 
       mdFileCountEl.textContent = totalFiles;
       mdReplaceCountEl.textContent = totalReplacements;
       rows.sort((a, b) => b.count - a.count);
       mdListEl.innerHTML = rows.map(r =>
-        '<div class="md-row"><span class="path">' + r.path + '</span><span class="count">' + r.count + ' lượt</span></div>'
+        '<div class="flex justify-between gap-4 p-3.5 font-mono text-[12px] border-b border-border-color last:border-b-0"><span class="text-text-color overflow-hidden text-ellipsis whitespace-nowrap">' + r.path + '</span><span class="text-amber-color shrink-0">' + r.count + ' lượt</span></div>'
       ).join('');
-      mdResultBox.classList.add('show');
+      mdResultBox.classList.remove('hidden');
 
       mdStatus.textContent = totalFiles > 0
         ? 'Hoàn tất — sẵn sàng tải về.'
-        : 'Không tìm thấy file .md nào trong .zip này.';
+        : 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
       mdDownloadBtn.disabled = false;
     } catch (err) {
       console.error(err);
-      mdStatus.textContent = 'Có lỗi khi xử lý file: ' + err.message;
+      mdStatus.textContent = 'Có lỗi khi xử lý tệp: ' + err.message;
       mdStatus.classList.add('err');
     } finally {
       mdProcessBtn.disabled = false;
     }
-  });
+  }
+
+  // Keep manual click trigger as a refresh helper
+  mdProcessBtn.addEventListener('click', processMarkdownZip);
 
   mdDownloadBtn.addEventListener('click', () => {
     if (!mdOutZipBlob) return;

@@ -38,8 +38,11 @@ function initRouter() {
   window.addEventListener('hashchange', handleRoute);
   
   // Set up click handlers on cards & nav buttons
-  document.querySelectorAll('.tab-btn, .action-card-btn').forEach(el => {
+  document.querySelectorAll('[data-tab]').forEach(el => {
     el.addEventListener('click', (e) => {
+      if (el.classList.contains('disabled') || el.hasAttribute('disabled')) {
+        return;
+      }
       const tab = el.dataset.tab;
       if (tab) {
         window.location.hash = `#/${tab}`;
@@ -51,10 +54,43 @@ function initRouter() {
   handleRoute();
 }
 
+function initMobileMenu() {
+  const toggleBtn = document.getElementById('mobile-menu-toggle');
+  const closeBtn = document.getElementById('mobile-menu-close');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const sidebar = document.querySelector('.sidebar');
+
+  function openMenu() {
+    sidebar.classList.remove('-translate-x-full');
+    backdrop.classList.remove('hidden');
+  }
+
+  function closeMenu() {
+    sidebar.classList.add('-translate-x-full');
+    backdrop.classList.add('hidden');
+  }
+
+  if (toggleBtn && closeBtn && backdrop && sidebar) {
+    toggleBtn.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
+    
+    // Close menu when navigation option is clicked on mobile
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          closeMenu();
+        }
+      });
+    });
+  }
+}
+
 // Initialize all features once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   initPdfProcessor();
   initMdFixer();
   initEpubPacker();
   initRouter();
+  initMobileMenu();
 });

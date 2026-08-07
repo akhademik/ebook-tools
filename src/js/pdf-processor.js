@@ -88,7 +88,7 @@ export function initPdfProcessor() {
 
   function handlePdfFile(file){
     if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
-      pdfStatus.textContent = 'Vui lòng chọn một file .pdf hợp lệ.';
+      pdfStatus.textContent = 'Vui lòng chọn một tệp PDF hợp lệ.';
       pdfStatus.classList.add('err');
       return;
     }
@@ -263,7 +263,7 @@ export function initPdfProcessor() {
     pdfStatus.classList.remove('err');
     pdfProgressWrap.style.display = 'block';
     pdfProgressFill.style.width = '0%';
-    pdfProgressLabel.textContent = 'Đang mở file PDF…';
+    pdfProgressLabel.textContent = 'Đang mở tệp PDF...';
 
     try {
       const arrayBuffer = await pdfSelectedFile.arrayBuffer();
@@ -330,14 +330,14 @@ export function initPdfProcessor() {
       for (let w = 0; w < concurrency; w++) workers.push(runWorker(w));
       await Promise.all(workers);
 
-      pdfProgressLabel.textContent = 'Đang đóng gói thành file .zip…';
+      pdfProgressLabel.textContent = 'Đang đóng gói thành tệp .ZIP...';
       pdfZipBlob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
       pdfProgressFill.style.width = '100%';
       pdfProgressLabel.textContent = 'Hoàn tất — ' + numPages + ' trang đã sẵn sàng.';
       pdfDownloadBtn.disabled = false;
     } catch (err) {
       console.error(err);
-      pdfStatus.textContent = 'Có lỗi khi xử lý file: ' + err.message;
+      pdfStatus.textContent = 'Có lỗi khi xử lý tệp: ' + err.message;
       pdfStatus.classList.add('err');
     } finally {
       pdfProcessBtn.disabled = false;

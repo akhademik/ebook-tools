@@ -360,6 +360,9 @@ export function initEpubPacker() {
   const epubProcessBtn = document.getElementById('epub-process-btn');
   const epubDownloadBtn = document.getElementById('epub-download-btn');
   const epubStatus = document.getElementById('epub-status');
+  const epubCleanKeywordsInput = document.getElementById('epub-clean-keywords');
+  const epubHeuristicStartInput = document.getElementById('epub-heuristic-start');
+  const epubHeuristicEndInput = document.getElementById('epub-heuristic-end');
 
   let epubRawFiles = [];   // one entry per .md file, parsed but not yet grouped
   let epubChapters = [];   // grouped chapters actually used to build the epub
@@ -376,6 +379,73 @@ export function initEpubPacker() {
 
   function isDecorationOnly(s){
     return /^[\s*_]*$/.test(s);
+  }
+
+  function cleanHeaderFooterOcr(text, keywords) {
+    const lines = String(text).replace(/\r\n/g, '\n').split('\n');
+    if (lines.length === 0) return text;
+
+    // Check if the user specified {no} or {roman_no}
+    const cleanArabic = keywords.some(k => k.trim().toLowerCase() === '{no}');
+    const cleanRoman = keywords.some(k => k.trim().toLowerCase() === '{roman_no}');
+
+    // Filter out these special placeholders from the normal keyword list
+    const filteredKeywords = keywords.filter(k => {
+      const trimmed = k.trim().toLowerCase();
+      return trimmed !== '{no}' && trimmed !== '{roman_no}';
+    });
+
+    const normKeywords = filteredKeywords
+      .map(k => String(k).trim())
+      .filter(Boolean)
+      .map(k => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
+
+    function isHeaderFooter(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return false;
+
+      // Rule 1: Arabic numerals
+      if (cleanArabic) {
+        if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
+      }
+
+      // Rule 2: Roman numerals
+      if (cleanRoman) {
+        if (/^[ivxldcmIVXLDCM]+[-—–~]*$/.test(trimmed)) return true;
+      }
+
+      // Rule 3: Keywords
+      if (normKeywords.length > 0) {
+        const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
+        if (normLine) {
+          for (const nk of normKeywords) {
+            if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    const linesToRemove = new Set();
+
+    // Check top 3 lines
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
+      if (isHeaderFooter(lines[i])) {
+        linesToRemove.add(i);
+      }
+    }
+
+    // Check bottom 3 lines
+    for (let i = lines.length - 1; i >= Math.max(0, lines.length - 3); i--) {
+      if (isHeaderFooter(lines[i])) {
+        linesToRemove.add(i);
+      }
+    }
+
+    const resultLines = lines.filter((_, idx) => !linesToRemove.has(idx));
+    return resultLines.join('\n');
   }
 
   function stripDecoration(s){
@@ -430,36 +500,17 @@ export function initEpubPacker() {
     if (isDecorationOnly(prefix)) arr.push({ blockIndex, offset: lineStart, type });
   }
 
-  function makeMultiKeywordMatcher(keywords){
-    const normKeywords = keywords.map(k => normalizeCharPreserveLength(k.trim())).filter(Boolean);
-    return {
-      locate(text, fromIndex){
-        const norm = normalizeCharPreserveLength(text);
-        let best = null;
-        for (const nk of normKeywords) {
-          let from = fromIndex || 0;
-          while (true) {
-            const idx = norm.indexOf(nk, from);
-            if (idx === -1) break;
-            const prevChar = idx > 0 ? norm[idx - 1] : '';
-            if (idx === 0 || !/[a-z0-9]/.test(prevChar)) {
-              if (best === null || idx < best.index) best = { index: idx, length: nk.length };
-              break;
-            }
-            from = idx + 1;
-          }
-        }
-        return best;
-      }
-    };
-  }
 
-  const DEFAULT_BACK_MATTER_KEYWORDS = ['lời cảm ơn', 'lời cám ơn', 'vĩ thanh', 'lời kết', 'mục lục'];
 
   const HEURISTIC_THRESHOLD = 5;
   function scoreHeadingCandidate(rawText){
-    const plain = stripDecoration(rawText);
+    // Clean spaces, asterisks, underscores, and quotation marks from boundaries
+    const plain = rawText.replace(/^[\s*_“"‘«]+|[\s*_”"’»]+$/g, '').trim();
     if (!plain) return -99;
+
+    // Detect dialogue lines (starts with dash or dialogue symbol)
+    if (/^[-—–~]\s+\S+/.test(plain)) return -99;
+
     const isBold = /^\*\*[\s\S]+\*\*$/.test(rawText.trim()) || /^__[\s\S]+__$/.test(rawText.trim());
     const len = plain.length;
     const wordCount = plain.split(/\s+/).filter(Boolean).length;
@@ -475,35 +526,51 @@ export function initEpubPacker() {
     if (!hasEndPunct) score += 2;
     if (isBold) score += 2;
     if (/^[A-ZÀ-Ỹ]/.test(plain)) score += 1;
+
+    // Penalize full sentences or dialogue characteristics
+    if (hasEndPunct) score -= 5;
+    if (/[\x22\x27“”‘’«»]/.test(rawText)) score -= 5;
+
     return score;
   }
 
-  function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, backMatterMatcher){
+  function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, limitOneChapter){
     const raw = [];
+    let foundChapter = false;
     for (let i = 0; i < blocks.length; i++) {
       const b = blocks[i];
       if (b.type !== 'heading' && b.type !== 'p') continue;
 
-      if (useHeuristic) {
-        if (!b.text.includes('\n') && scoreHeadingCandidate(b.text) >= HEURISTIC_THRESHOLD) {
-          raw.push({ blockIndex: i, offset: 0, type: 'chapter' });
+      if (!limitOneChapter || !foundChapter) {
+        let isFirstNonEmpty = true;
+        if (limitOneChapter) {
+          for (let prev = 0; prev < i; prev++) {
+            const pb = blocks[prev];
+            if (pb && pb.text && pb.text.trim()) {
+              isFirstNonEmpty = false;
+              break;
+            }
+          }
         }
-      } else if (chapterMatcher) {
-        let from = 0;
-        while (true) {
-          const loc = chapterMatcher.locate(b.text, from);
-          if (!loc) break;
-          pushIfLineStart(raw, b.text, i, loc.index, 'chapter');
-          from = loc.index + 1;
-        }
-      }
 
-      let from = 0;
-      while (true) {
-        const loc = backMatterMatcher.locate(b.text, from);
-        if (!loc) break;
-        pushIfLineStart(raw, b.text, i, loc.index, 'backmatter');
-        from = loc.index + 1;
+        if (isFirstNonEmpty) {
+          if (useHeuristic) {
+            if (!b.text.includes('\n') && scoreHeadingCandidate(b.text) >= HEURISTIC_THRESHOLD) {
+              raw.push({ blockIndex: i, offset: 0, type: 'chapter' });
+              foundChapter = true;
+            }
+          } else if (chapterMatcher) {
+            let from = 0;
+            while (true) {
+              const loc = chapterMatcher.locate(b.text, from);
+              if (!loc) break;
+              pushIfLineStart(raw, b.text, i, loc.index, 'chapter');
+              foundChapter = true;
+              if (limitOneChapter) break;
+              from = loc.index + 1;
+            }
+          }
+        }
       }
     }
     raw.sort((a, b) => a.blockIndex - b.blockIndex || a.offset - b.offset);
@@ -535,34 +602,35 @@ export function initEpubPacker() {
     return result;
   }
 
-  function groupChapters(rawFiles, patternRaw, useHeuristic, backMatterKeywordsRaw){
+  function groupChapters(rawFiles, patternRaw, useHeuristic, startPage, endPage){
     const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-    const backMatterKeywords = (backMatterKeywordsRaw || '').split(',').map(s => s.trim()).filter(Boolean);
-    const backMatterMatcher = makeMultiKeywordMatcher(backMatterKeywords.length ? backMatterKeywords : DEFAULT_BACK_MATTER_KEYWORDS);
 
     const groups = [];
     let current = null;
     let seenMarker = false;
-    let inBackMatter = false;
 
-    for (const f of rawFiles) {
-      if (inBackMatter) {
-        const { html } = renderMarkdownBlocks(f.blocks);
-        current.html += '\n' + html;
-        current.sources.push(f.path);
-        continue;
-      }
+    for (let idx = 0; idx < rawFiles.length; idx++) {
+      const f = rawFiles[idx];
+      const pageNum = idx + 1;
+      const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
 
-      const cuts = findAllMarkerPositionsCombined(f.blocks, matcher, useHeuristic, backMatterMatcher);
+      const limitOneChapter = rawFiles.length > 1;
+      const cuts = findAllMarkerPositionsCombined(f.blocks, matcher, isHeuristicActive, limitOneChapter);
 
       if (cuts.length === 0) {
         const { html, title } = renderMarkdownBlocks(f.blocks);
         const chapTitle = (title && title.trim()) || f.baseName;
-        if ((matcher || useHeuristic) && seenMarker && current) {
+        if ((matcher || isHeuristicActive) && seenMarker && current) {
           current.html += '\n' + html;
           current.sources.push(f.path);
         } else {
-          current = { title: chapTitle, html, sources: [f.path] };
+          current = {
+            title: chapTitle,
+            html,
+            sources: [f.path],
+            isChapter: false,
+            firstSourcePageNum: pageNum
+          };
           groups.push(current);
         }
         continue;
@@ -575,38 +643,25 @@ export function initEpubPacker() {
           current.html += '\n' + leadHtml;
           current.sources.push(f.path + ' (phần trước mốc)');
         } else {
-          current = { title: (leadTitle && leadTitle.trim()) || f.baseName, html: leadHtml, sources: [f.path + ' (phần trước mốc)'] };
+          current = {
+            title: (leadTitle && leadTitle.trim()) || f.baseName,
+            html: leadHtml,
+            sources: [f.path + ' (phần trước mốc)'],
+            isChapter: false,
+            firstSourcePageNum: pageNum
+          };
           groups.push(current);
         }
       }
 
       for (let k = 0; k < cuts.length; k++) {
         const cut = cuts[k];
-
-        if (cut.type === 'backmatter') {
-          const chunkBlocks = extractChunkBlocks(f.blocks, cut, null);
-          const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks);
-          let chunkTitle = f.baseName;
-          if (chunkBlocks.length > 0) {
-            const relLoc = backMatterMatcher.locate(chunkBlocks[0].text, 0);
-            if (relLoc) {
-              const matched = chunkBlocks[0].text.slice(relLoc.index, relLoc.index + relLoc.length).trim();
-              chunkTitle = matched || f.baseName;
-            }
-          }
-          current = { title: chunkTitle, html: chunkHtml, sources: [f.path + ' (phần cuối sách)'] };
-          groups.push(current);
-          inBackMatter = true;
-          seenMarker = true;
-          break;
-        }
-
         const end = (k + 1 < cuts.length) ? cuts[k + 1] : null;
         const chunkBlocks = extractChunkBlocks(f.blocks, cut, end);
         const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks);
         let chunkTitle = f.baseName;
         if (chunkBlocks.length > 0) {
-          if (useHeuristic) {
+          if (isHeuristicActive) {
             chunkTitle = stripDecoration(chunkBlocks[0].text) || f.baseName;
           } else if (matcher) {
             const relLoc = matcher.locate(chunkBlocks[0].text, 0);
@@ -616,7 +671,9 @@ export function initEpubPacker() {
         current = {
           title: chunkTitle,
           html: chunkHtml,
-          sources: [f.path + (cuts.length > 1 || leadingBlocks.length > 0 ? ' (mốc ' + (k + 1) + '/' + cuts.length + ')' : '')]
+          sources: [f.path + (cuts.length > 1 || leadingBlocks.length > 0 ? ' (mốc ' + (k + 1) + '/' + cuts.length + ')' : '')],
+          isChapter: true,
+          firstSourcePageNum: pageNum
         };
         groups.push(current);
         seenMarker = true;
@@ -626,10 +683,22 @@ export function initEpubPacker() {
   }
 
   function assignSequentialChapterIds(chapters){
+    let chapCount = 0;
     const width = Math.max(2, String(chapters.length).length);
-    return chapters.map((c, idx) => {
-      const num = String(idx + 1).padStart(width, '0');
-      return Object.assign({}, c, { fileName: 'ch_' + num, xmlId: 'c' + num });
+    return chapters.map((c) => {
+      let fileName = '';
+      let xmlId = '';
+      if (c.isChapter) {
+        chapCount++;
+        const num = String(chapCount).padStart(width, '0');
+        fileName = 'chap_' + num;
+        xmlId = 'chap' + num;
+      } else {
+        const num = String(c.firstSourcePageNum).padStart(width, '0');
+        fileName = 'p' + num;
+        xmlId = 'p' + num;
+      }
+      return Object.assign({}, c, { fileName, xmlId });
     });
   }
 
@@ -645,26 +714,47 @@ export function initEpubPacker() {
         ? ' — gộp ' + c.sources.length + ' nguồn: ' + c.sources.join(', ')
         : ' — ' + c.sources[0];
       const rowText = c.fileName + '.xhtml' + mergedNote;
-      return '<div class="md-row"><span class="path" title="' + rowText.replace(/"/g, '&quot;') + '">' + rowText + '</span><span class="count">' + c.title + '</span></div>';
+      return '<div class="flex justify-between gap-4 p-3.5 font-mono text-[12px] border-b border-border-color last:border-b-0"><span class="text-text-color overflow-hidden text-ellipsis whitespace-nowrap" title="' + rowText.replace(/"/g, '&quot;') + '">' + rowText + '</span><span class="text-amber-color shrink-0">' + c.title + '</span></div>';
     }).join('');
   }
 
   const epubHeuristicCheckbox = document.getElementById('epub-heuristic-mode');
-  const epubBackMatterInput = document.getElementById('epub-backmatter-keywords');
 
   function applyEpubGrouping(){
+    const cleanKeywords = (epubCleanKeywordsInput.value || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    const titleVal = epubTitleInput.value.trim();
+    const authorVal = epubAuthorInput.value.trim();
+    if (titleVal) cleanKeywords.push(titleVal);
+    if (authorVal) cleanKeywords.push(authorVal);
+
+    const processedFiles = epubRawFiles.map(f => {
+      const cleanedMd = cleanHeaderFooterOcr(f.rawText, cleanKeywords);
+      return {
+        path: f.path,
+        baseName: f.baseName,
+        blocks: parseMarkdownBlocks(cleanedMd)
+      };
+    });
+
+    const startPage = parseInt(epubHeuristicStartInput.value, 10) || 1;
+    const endPage = parseInt(epubHeuristicEndInput.value, 10) || processedFiles.length;
+
     const grouped = groupChapters(
-      epubRawFiles,
+      processedFiles,
       epubMergePatternInput.value,
       epubHeuristicCheckbox.checked,
-      epubBackMatterInput.value
+      startPage,
+      endPage
     );
     epubChapters = assignSequentialChapterIds(grouped);
     renderEpubChapterList();
     if (epubRawFiles.length > 0) {
       const mergedCount = epubRawFiles.length - epubChapters.length;
       epubParseStatus.textContent = mergedCount > 0
-        ? 'Có ' + epubRawFiles.length + ' file .md, gộp thành ' + epubChapters.length + ' chương.'
+        ? 'Có ' + epubRawFiles.length + ' tệp Markdown, gộp thành ' + epubChapters.length + ' chương.'
         : 'Tìm thấy ' + epubChapters.length + ' chương — kiểm tra thứ tự & tiêu đề bên trên trước khi đóng gói.';
       epubParseStatus.classList.remove('err');
       epubProcessBtn.disabled = epubChapters.length === 0;
@@ -676,8 +766,10 @@ export function initEpubPacker() {
   epubHeuristicCheckbox.addEventListener('change', () => {
     if (epubRawFiles.length > 0) applyEpubGrouping();
   });
-  epubBackMatterInput.addEventListener('input', () => {
-    if (epubRawFiles.length > 0) applyEpubGrouping();
+  [epubCleanKeywordsInput, epubTitleInput, epubAuthorInput, epubHeuristicStartInput, epubHeuristicEndInput].forEach(el => {
+    el.addEventListener('input', () => {
+      if (epubRawFiles.length > 0) applyEpubGrouping();
+    });
   });
 
   function updateEpubOutNamePreview(){
@@ -699,7 +791,7 @@ export function initEpubPacker() {
 
   async function handleEpubZipFile(file){
     if (!/\.zip$/i.test(file.name)) {
-      epubStatus.textContent = 'Vui lòng chọn một file .zip hợp lệ.';
+      epubStatus.textContent = 'Vui lòng chọn một tệp .ZIP hợp lệ.';
       epubStatus.classList.add('err');
       return;
     }
@@ -714,7 +806,7 @@ export function initEpubPacker() {
     epubBlob = null;
     epubChapterListEl.style.display = 'none';
     epubChapterListEl.innerHTML = '';
-    epubParseStatus.textContent = 'Đang đọc các chương .md…';
+    epubParseStatus.textContent = 'Đang đọc các chương Markdown...';
     epubParseStatus.classList.remove('err');
 
     try {
@@ -730,7 +822,7 @@ export function initEpubPacker() {
         const baseName = entry.name.split('/').pop().replace(/\.md$/i, '');
         rawFiles.push({
           baseName: baseName.replace(/[-_]+/g, ' ').trim() || baseName,
-          blocks: parseMarkdownBlocks(mdText),
+          rawText: mdText,
           path: entry.name
         });
       }
@@ -740,7 +832,7 @@ export function initEpubPacker() {
         epubChapters = [];
         epubChapterListEl.style.display = 'none';
         epubChapterListEl.innerHTML = '';
-        epubParseStatus.textContent = 'Không tìm thấy file .md nào trong .zip này.';
+        epubParseStatus.textContent = 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
         epubParseStatus.classList.add('err');
         return;
       }
@@ -749,7 +841,7 @@ export function initEpubPacker() {
       epubProcessBtn.disabled = false;
     } catch (err) {
       console.error(err);
-      epubParseStatus.textContent = 'Lỗi khi đọc .zip: ' + err.message;
+      epubParseStatus.textContent = 'Lỗi khi đọc tệp .ZIP: ' + err.message;
       epubParseStatus.classList.add('err');
     }
   }
