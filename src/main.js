@@ -4,6 +4,49 @@ import { initMdFixer } from './js/md-fixer.js';
 import { initEpubPacker } from './js/epub-packer.js';
 
 // =======================================================
+// Theme Switcher (Dark / Light Mode)
+// =======================================================
+function initTheme() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-toggle-icon');
+  const themeLabel = document.getElementById('theme-toggle-label');
+
+  function getPreferredTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      return savedTheme;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      // When in dark mode, button option allows switching to light mode
+      if (themeIcon) themeIcon.textContent = '☀️';
+      if (themeLabel) themeLabel.textContent = 'Giao diện Sáng';
+    } else {
+      document.documentElement.classList.remove('dark');
+      // When in light mode, button option allows switching to dark mode
+      if (themeIcon) themeIcon.textContent = '🌙';
+      if (themeLabel) themeLabel.textContent = 'Giao diện Tối';
+    }
+    localStorage.setItem('theme', theme);
+  }
+
+  // Apply default theme immediately
+  const currentTheme = getPreferredTheme();
+  applyTheme(currentTheme);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    });
+  }
+}
+
+// =======================================================
 // SPA Router & Navigation Wiring
 // =======================================================
 function initRouter() {
@@ -40,7 +83,7 @@ function initRouter() {
   
   // Set up click handlers on cards & nav buttons
   document.querySelectorAll('[data-tab]').forEach(el => {
-    el.addEventListener('click', (e) => {
+    el.addEventListener('click', () => {
       if (el.classList.contains('disabled') || el.hasAttribute('disabled')) {
         return;
       }
@@ -89,6 +132,7 @@ function initMobileMenu() {
 
 // Initialize all features once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initPdfProcessor();
   initMdFixer();
   initEpubPacker();

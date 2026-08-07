@@ -1,104 +1,102 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-bg: #121214;     /* Softer charcoal background */
-  --color-sidebar-bg: #1a1a1e;  /* Darker grey sidebar */
-  --color-panel: #202024;       /* Slate-grey cards */
-  --color-panel-2: #2a2a30;     /* Nested elements */
-  --color-accent-color: #3b82f6; /* Soothing active blue */
-  --color-accent-soft: rgba(59, 130, 246, 0.12);
-  --color-accent-hover: #60a5fa;
-  --color-amber-color: #f59e0b;  /* Warm amber gold */
-  --color-text-color: #f3f4f6;   /* Cool soft white */
-  --color-text-mute: #9ca3af;    /* Soft grey muted text */
-  --color-border-color: #2d2d34; /* Elegant border grey */
-  --color-border-soft: #374151;  /* Soft divider grey */
+:root {
+  /* Solarized Light Theme (Warm Cream / Sand - No pure white) */
+  --color-brand-bg: #fdf6e3;       /* Solarized base3 warm cream background */
+  --color-sidebar-bg: #eee8d5;    /* Solarized base2 soft porcelain sidebar */
+  --color-panel: #eee8d5;         /* Solarized base2 panel cards */
+  --color-panel-2: #fdf6e3;       /* Solarized base3 inset inputs */
+  --color-accent-color: #268bd2;  /* Solarized Blue */
+  --color-accent-soft: rgba(38, 139, 210, 0.1);
+  --color-accent-hover: #1d75b8;
+  --color-amber-color: #b58900;   /* Solarized Yellow/Amber */
+  --color-text-color: #073642;    /* Solarized base02 deep teal navy text */
+  --color-text-mute: #586e75;     /* Solarized base01 slate text */
+  --color-border-color: #d3cbb7;  /* Solarized soft border */
+  --color-border-soft: #b58900;   /* Input border */
+  --card-shadow: 0 4px 20px -2px rgba(7, 54, 66, 0.08);
 
   --font-mono: 'Space Mono', monospace;
   --font-sans: 'Inter', sans-serif;
 }
 
+html.dark {
+  /* Solarized Dark Theme (Deep Cyan / Navy Teal - No pure black) */
+  --color-brand-bg: #002b36;       /* Solarized base03 deep teal navy background */
+  --color-sidebar-bg: #073642;    /* Solarized base02 navy teal sidebar */
+  --color-panel: #073642;         /* Solarized base02 cards */
+  --color-panel-2: #002129;       /* Solarized darker inset inputs */
+  --color-accent-color: #2aa198;  /* Solarized Cyan */
+  --color-accent-soft: rgba(42, 161, 152, 0.15);
+  --color-accent-hover: #35b6ab;
+  --color-amber-color: #b58900;   /* Solarized Yellow/Amber */
+  --color-text-color: #93a1a1;    /* Solarized base1 light teal text */
+  --color-text-mute: #657b83;     /* Solarized base0 muted text */
+  --color-border-color: #586e75;  /* Solarized base01 border */
+  --color-border-soft: #073642;   /* Input border */
+  --card-shadow: 0 10px 30px -8px rgba(0, 33, 41, 0.7);
+}
+
 body {
-  font-size: 15.5px;
-  line-height: 1.75;
-  letter-spacing: -0.011em;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
   background-color: var(--color-brand-bg);
   color: var(--color-text-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-/* Scaling up the font size of various text classes globally */
-.text-\[11px\] {
-  font-size: 12.5px !important;
-}
-.text-\[12px\] {
-  font-size: 13.5px !important;
-}
-.text-\[12\.5px\] {
-  font-size: 14.5px !important;
-}
-.text-\[13px\] {
-  font-size: 15px !important;
-}
-.text-\[14px\] {
-  font-size: 16px !important;
-}
-.text-\[14\.5px\] {
-  font-size: 16.5px !important;
-}
-.text-base {
-  font-size: 17px !important;
-}
-.text-sm {
-  font-size: 15px !important;
-}
-.text-xs {
-  font-size: 13px !important;
+/* Modern Glassmorphic Solarized Card Style */
+.modern-card {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border-color);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.2s ease, 
+              box-shadow 0.2s ease,
+              background-color 0.25s ease;
 }
 
-/* Make forms and inputs more comfortable */
-input[type="text"], 
-input[type="number"], 
-select, 
-button {
-  font-size: 15px !important;
+.modern-card:hover {
+  border-color: var(--color-accent-color);
 }
 
-/* Custom CSS utilities that aren't easily done in pure tailwind utilities */
+/* Form Inputs & Buttons readable font size */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 15px;
+}
+
+/* Minimalist Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-color);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-color);
+}
+
+/* Smooth Panel Animation */
 .panel {
   display: none;
 }
 .panel.active {
   display: block;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #10b981; /* emerald-500 */
-  border-radius: 50%;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  animation: pulse 1.6s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-  }
 }
 
 /* Active state for preview count selection buttons */
