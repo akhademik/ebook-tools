@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg: var(--color-brand-bg);
+  --color-sidebar-bg: var(--color-sidebar-bg);
+  --color-panel: var(--color-panel);
+  --color-panel-2: var(--color-panel-2);
+  --color-accent-color: var(--color-accent-color);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-amber-color: var(--color-amber-color);
+  --color-text-color: var(--color-text-color);
+  --color-text-mute: var(--color-text-mute);
+  --color-border-color: var(--color-border-color);
+  --color-border-soft: var(--color-border-soft);
+  --font-mono: 'Space Mono', monospace;
+  --font-sans: 'Inter', sans-serif;
+}
+
 :root {
   /* Solarized Light Theme (Warm Cream / Sand - No pure white) */
   --color-brand-bg: #fdf6e3;       /* Solarized base3 warm cream background */
@@ -58,9 +75,31 @@ body {
               box-shadow 0.2s ease,
               background-color 0.25s ease;
 }
-
 .modern-card:hover {
   border-color: var(--color-accent-color);
+  box-shadow: 0 10px 25px -5px rgba(38, 139, 210, 0.25), 
+              0 8px 10px -6px rgba(38, 139, 210, 0.2);
+}
+
+html.dark .modern-card:hover {
+  box-shadow: 0 10px 30px -5px rgba(42, 161, 152, 0.35), 
+              0 8px 15px -6px rgba(42, 161, 152, 0.3);
+}
+
+/* Sidebar Tab Buttons Hover & Active States */
+.tab-btn {
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.tab-btn:hover {
+  border-color: rgba(38, 139, 210, 0.3);
+  box-shadow: 0 4px 12px rgba(38, 139, 210, 0.08);
+}
+
+html.dark .tab-btn:hover {
+  border-color: rgba(42, 161, 152, 0.3);
+  box-shadow: 0 4px 12px rgba(42, 161, 152, 0.12);
 }
 
 /* Form Inputs & Buttons readable font size */
@@ -83,26 +122,4 @@ input, select, textarea, button {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-color);
-}
-
-/* Smooth Panel Animation */
-.panel {
-  display: none;
-}
-.panel.active {
-  display: block;
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Active state for preview count selection buttons */
-#preview-count-10.active,
-#preview-count-20.active {
-  border-color: var(--color-accent-color) !important;
-  color: var(--color-accent-color) !important;
-  background-color: var(--color-accent-soft) !important;
 }
