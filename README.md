@@ -106,10 +106,29 @@ npm run dev
 ```bash
 npm run build
 ```
-Kết quả đóng gói sẽ được tạo tại thư mục `.svelte-kit/`. Bạn có thể xem trước sản phẩm build bằng:
+Kết quả đóng gói sẽ được tạo tại thư mục `.svelte-kit/cloudflare`. Bạn có thể xem trước sản phẩm build bằng:
 ```bash
 npm run preview
 ```
+
+### ☁️ Triển khai lên Cloudflare Pages
+Dự án đã sử dụng `@sveltejs/adapter-cloudflare` để tương thích hoàn toàn với nền tảng Cloudflare Pages & Workers:
+
+1. **Triển khai tự động qua Git (Khuyên dùng)**:
+   * Kết nối tài khoản GitHub của bạn với Cloudflare Dashboard.
+   * Tạo một dự án Pages mới và chọn repository của dự án này.
+   * Thiết lập Build Settings:
+     * **Framework preset**: `SvelteKit`
+     * **Build command**: `npm run build`
+     * **Build output directory**: `.svelte-kit/cloudflare`
+   * Cloudflare sẽ tự động đồng bộ và deploy sau mỗi lần push commit mới lên nhánh `main`.
+
+2. **Triển khai thủ công bằng Wrangler CLI**:
+   * Build dự án: `npm run build`
+   * Sử dụng lệnh Wrangler để triển khai thư mục output:
+     ```bash
+     npx wrangler pages deploy .svelte-kit/cloudflare
+     ```
 
 ---
 
