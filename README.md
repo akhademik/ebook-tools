@@ -1,16 +1,16 @@
 # ⚒️ Ebook Forge — Bàn Xử Lý Tài Liệu
 
-> **Xưởng Sách Ebook**: Trung tâm chuẩn hóa và đóng gói sách điện tử hiệu năng cao, hoạt động 100% ngoại tuyến (offline) trên trình duyệt web của bạn.
+> **Xưởng Sách Ebook**: Trung tâm chuẩn hóa và đóng gói sách điện tử hiệu năng cao, hoạt động 100% ngoại tuyến (offline) trên trình duyệt web của bạn, kết hợp với ứng dụng phụ trợ Desktop chuyên dụng.
 
 ---
 
 ## 📖 Giới thiệu
 
-**Ebook Forge** là ứng dụng web đơn trang (SPA) hỗ trợ các quy trình chuẩn hóa và chế bản sách điện tử. Ứng dụng hoạt động hoàn toàn ở phía client (trình duyệt), đảm bảo tính an toàn dữ liệu tuyệt đối (Sandbox) mà không gửi tài liệu lên bất kỳ máy chủ bên ngoài nào.
+**Ebook Forge** là ứng dụng web đơn trang (SPA) được phát triển bằng **SvelteKit** hỗ trợ các quy trình chuẩn hóa và chế bản sách điện tử. Ứng dụng web hoạt động hoàn toàn ở phía client (trình duyệt), đảm bảo tính an toàn dữ liệu tuyệt đối (Sandbox) mà không gửi tài liệu lên bất kỳ máy chủ bên ngoài nào.
 
 ---
 
-## 🚀 Tính năng chính
+## 🚀 Các tính năng chính
 
 ### 1. 📄 Tách trang PDF → JPG (PDF Processor)
 * Trích xuất các trang từ tệp PDF thành bộ ảnh JPG độc lập dạng nén `.zip`.
@@ -26,38 +26,57 @@
 * Nhận diện chương bằng từ khóa hoặc thuật toán **Heuristic thông minh** (dựa trên tiêu đề in hoa, độ dài, dấu câu).
 * Tự động tạo mục lục (TOC), nhận diện vĩ thanh, lọc header/footer thừa và đóng gói XHTML chuẩn.
 
+### 4. 💻 Desktop App: TXT → PDF CJK
+* Trang giới thiệu và tải xuống công cụ desktop chuyên dụng dành cho hệ điều hành Windows (chạy độc lập, không cần cài đặt).
+* Chuyển đổi file `.txt` chữ Hán sang PDF sạch, giữ đúng font và ký tự.
+* Tự động phát hiện và sửa lỗi các ký tự PUA (chữ hiếm bị mã hóa sai) sang chữ Hán chuẩn, xuất báo cáo PUA kèm ngữ cảnh.
+* Nhúng sẵn font Noto Serif CJK + HanaMin dự phòng để bảo đảm hiển thị đầy đủ mọi chữ cổ/chữ hiếm trên các thiết bị đọc và phục vụ tốt đầu vào cho NotebookLM.
+
 ---
 
 ## 🛠️ Công nghệ sử dụng
 
-* **Frontend Framework**: Vanilla JavaScript (ES Modules) + Vite
-* **Styling**: Tailwind CSS v4
+* **Frontend Framework**: [SvelteKit](https://kit.svelte.dev/) (Svelte 5) + Vite
+* **Styling**: Tailwind CSS v4 (Cấu hình theme trực tiếp qua CSS `@theme`)
 * **Xử lý Offline**: `pdf.js` (render PDF) & `jszip` (nén/giải nén ZIP)
-* **Testing & QA**: Vitest (Unit Testing), ESLint (Linting), Knip (Dead Code Analysis)
+* **Testing & QA**: ESLint (Linting)
 * **Đồ thị Tri thức**: Graphify Knowledge Graph
 
 ---
 
 ## 📂 Cấu trúc dự án
 
+Dự án được tổ chức theo cấu trúc tự điều hành (Modular/Self-contained routing) của SvelteKit. Mỗi chức năng/trang sẽ nằm gọn trong một thư mục route riêng biệt, chứa cả giao diện Svelte và mã logic xử lý đặc thù của chức năng đó:
+
 ```text
 ebook-tools/
-├── index.html              # Giao diện chính SPA & router panel
-├── package.json            # Scripts & dependencies
-├── vite.config.js          # Cấu hình Vite & Tailwind v4 plugin
-├── knip.json               # Cấu hình kiểm tra code thừa (Knip)
+├── package.json            # Các tập lệnh build & dependencies
+├── vite.config.js          # Cấu hình Vite & Tailwind v4
+├── jsconfig.json           # Cấu hình đường dẫn alias $lib
 ├── graphify-out/           # Đồ thị tri thức kiến trúc dự án (Graphify)
-├── public/                 # Favicon & assets tĩnh
+├── static/                 # Tài nguyên tĩnh (favicon, file zip tải về...)
+│   └── txt-to-pdf.zip      # Ứng dụng Desktop TXT -> PDF CJK
 └── src/
-    ├── style.css           # Design system & Tailwind CSS imports
-    ├── main.js             # Entry point & SPA router
-    └── js/
-        ├── helpers.js      # Utility functions (download, slugify, XML escape)
-        ├── pdf-processor.js # Logic xử lý PDF -> JPG
-        ├── md-fixer.js     # Logic xử lý Regex Markdown
-        ├── epub-packer.js  # Logic nhận diện & đóng gói EPUB
-        └── __tests__/
-            └── helpers.test.js # Bộ Unit Test cho helpers
+    ├── app.html            # File HTML khung của ứng dụng
+    ├── lib/                # Thư viện dùng chung của ứng dụng
+    │   ├── helpers/
+    │   │   └── helpers.js  # Các hàm helper dùng chung (download, slugify, XML escape)
+    │   └── index.js        # File entry mặc định của SvelteKit lib
+    └── routes/             # Định tuyến của SvelteKit (Mỗi chức năng nằm trong 1 folder)
+        ├── +layout.svelte  # Bố cục giao diện chung (Sidebar, đổi giao diện Sáng/Tối)
+        ├── layout.css      # Định nghĩa CSS toàn cục & biến theme màu sắc
+        ├── +page.svelte    # Trang chủ tổng quan/bàn làm việc giới thiệu các công cụ
+        ├── pdf/            # [Feature] PDF -> JPG (Giao diện + code xử lý)
+        │   ├── +page.svelte
+        │   └── pdf-utils.js
+        ├── md/             # [Feature] Markdown Fixer (Giao diện + code xử lý)
+        │   ├── +page.svelte
+        │   └── md-utils.js
+        ├── epub/           # [Feature] Đóng gói EPUB (Giao diện + code xử lý)
+        │   ├── +page.svelte
+        │   └── epub-utils.js
+        └── txt-to-pdf/     # [Feature] Trang tải app Desktop TXT -> PDF CJK
+            └── +page.svelte
 ```
 
 ---
@@ -87,7 +106,7 @@ npm run dev
 ```bash
 npm run build
 ```
-Kết quả đóng gói sẽ được tạo tại thư mục `dist/`. Bạn có thể xem trước sản phẩm build bằng:
+Kết quả đóng gói sẽ được tạo tại thư mục `.svelte-kit/`. Bạn có thể xem trước sản phẩm build bằng:
 ```bash
 npm run preview
 ```
@@ -96,33 +115,24 @@ npm run preview
 
 ## 🧪 Kiểm định Chất lượng & Sửa lỗi (Quality Assurance)
 
-Dự án tích hợp sẵn bộ công cụ QA tự động:
+Dự án tích hợp sẵn bộ kiểm tra chất lượng code tự động:
 
 ```bash
-# 1. Chạy bộ kiểm thử tự động Unit Test (Vitest)
-npm test
-
-# 2. Kiểm tra lỗi cú pháp & Code Style (ESLint)
+# 1. Kiểm tra lỗi cú pháp & Code Style (ESLint)
 npm run lint
 
-# 3. Tự động sửa các lỗi Linting nhỏ
-npm run lint:fix
-
-# 4. Quét tìm mã nguồn / file / package thừa không sử dụng (Knip)
-npx knip
-
-# 5. Chạy toàn bộ quy trình kiểm định trong 1 dòng lệnh
-npm test && npx knip && npm run lint && npm run build
+# 2. Chạy toàn bộ quy trình kiểm định và build kiểm tra
+npm run lint && npm run build
 ```
 
 ---
 
 ## 🕸️ Đồ thị Tri thức Kiến trúc (Graphify)
 
-Dự án này duy trì một đồ thị tri thức kiến trúc mã nguồn trong thư mục `graphify-out/`.
+Dự án này duy trì một đồ thị tri thức kiến trúc mã nguồn trong thư mục `graphify-out/` giúp lập bản đồ các phụ thuộc và cấu trúc thư mục.
 
-- Xem đồ thị trực quan: Mở file [`graphify-out/graph.html`](file:///home/ha/hajdev/ebook-tools/graphify-out/graph.html) trên trình duyệt.
-- Đọc báo cáo kiến trúc: [`graphify-out/GRAPH_REPORT.md`](file:///home/ha/hajdev/ebook-tools/graphify-out/GRAPH_REPORT.md).
+- Xem đồ thị trực quan: Mở file [`graphify-out/graph.html`](file:///home/hajtran/dev/ebook-tools/graphify-out/graph.html) trên trình duyệt.
+- Đọc báo cáo kiến trúc: [`graphify-out/GRAPH_REPORT.md`](file:///home/hajtran/dev/ebook-tools/graphify-out/GRAPH_REPORT.md).
 - Cập nhật đồ thị sau khi chỉnh sửa mã nguồn:
   ```bash
   graphify update .
@@ -132,5 +142,5 @@ Dự án này duy trì một đồ thị tri thức kiến trúc mã nguồn tro
 
 ## 🛡️ Bảo mật & Quyền riêng tư
 
-* **100% Client-side**: Mọi thao tác xử lý tệp PDF, Markdown, nén ZIP và tạo tệp EPUB đều diễn ra trong bộ nhớ tạm của trình duyệt.
-* KHÔNG có dữ liệu nào được tải lên server hoặc bên thứ ba.
+* **100% Client-side**: Mọi thao tác xử lý tệp PDF, Markdown, nén ZIP và tạo tệp EPUB đều diễn ra trực tiếp trong bộ nhớ tạm của trình duyệt của bạn.
+* KHÔNG có bất kỳ dữ liệu nào được tải lên máy chủ bên ngoài hoặc chia sẻ cho bên thứ ba.

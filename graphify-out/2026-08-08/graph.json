@@ -1505,50 +1505,6 @@
       "norm_label": "\ud83d\udee1\ufe0f bao mat & quyen rieng tu"
     },
     {
-      "label": "txt-to-pdf.md",
-      "file_type": "document",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "txt_to_pdf",
-      "community": 9,
-      "community_name": "TXT \u2192 PDF CJK",
-      "norm_label": "txt-to-pdf.md"
-    },
-    {
-      "label": "TXT \u2192 PDF CJK",
-      "file_type": "document",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "txt_to_pdf_txt_pdf_cjk",
-      "community": 9,
-      "community_name": "TXT \u2192 PDF CJK",
-      "norm_label": "txt \u2192 pdf cjk"
-    },
-    {
-      "label": "C\u00f4ng d\u1ee5ng",
-      "file_type": "document",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "txt_to_pdf_c\u00f4ng_d\u1ee5ng",
-      "community": 9,
-      "community_name": "TXT \u2192 PDF CJK",
-      "norm_label": "cong dung"
-    },
-    {
-      "label": "M\u1ee5c \u0111\u00edch",
-      "file_type": "document",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L13",
-      "_origin": "ast",
-      "id": "txt_to_pdf_m\u1ee5c_\u0111\u00edch",
-      "community": 9,
-      "community_name": "TXT \u2192 PDF CJK",
-      "norm_label": "muc \u0111ich"
-    },
-    {
       "label": "Graphify Agent Rule",
       "file_type": "concept",
       "source_file": ".agents/rules/graphify.md",
@@ -3465,39 +3421,6 @@
       "_origin": "ast",
       "source": "readme_h\u01b0\u1edbng_d\u1eabn_c\u00e0i_\u0111\u1eb7t_ch\u1ea1y_\u1ee9ng_d\u1ee5ng",
       "target": "readme_\u0111\u00f3ng_g\u00f3i_s\u1ea3n_ph\u1ea9m_production_build",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "txt_to_pdf",
-      "target": "txt_to_pdf_txt_pdf_cjk",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L5",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "txt_to_pdf_txt_pdf_cjk",
-      "target": "txt_to_pdf_c\u00f4ng_d\u1ee5ng",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "txt-to-pdf.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "txt_to_pdf_txt_pdf_cjk",
-      "target": "txt_to_pdf_m\u1ee5c_\u0111\u00edch",
       "confidence_score": 1.0
     },
     {
