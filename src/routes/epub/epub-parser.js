@@ -161,34 +161,31 @@ function isRealParagraph(line) {
 	return endsSentence && (wordCount > 5 || trim.length > 30);
 }
 
-export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
-	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
-	if (lines.length < 6) return text;
-
-	// Check for real paragraph at start or end
-	let firstNonEmpty = '';
-	for (let i = 0; i < lines.length; i++) {
-		if (lines[i].trim()) {
-			firstNonEmpty = lines[i];
-			break;
-		}
-	}
-	let lastNonEmpty = '';
+function shouldSkipHeaderFooter(lines) {
+	if (lines.length < 6) return true;
+	const first = lines.find(l => l.trim()) || '';
+	let last = '';
 	for (let i = lines.length - 1; i >= 0; i--) {
 		if (lines[i].trim()) {
-			lastNonEmpty = lines[i];
+			last = lines[i];
 			break;
 		}
 	}
+	return isRealParagraph(first) || isRealParagraph(last);
+}
 
-	if (isRealParagraph(firstNonEmpty) || isRealParagraph(lastNonEmpty)) {
-		return text;
+function compileCleanKeywords(keywords) {
+	let keywordsList = [];
+	if (Array.isArray(keywords)) {
+		keywordsList = keywords;
+	} else if (typeof keywords === 'string') {
+		keywordsList = keywords.split(',').map(s => s.trim()).filter(Boolean);
 	}
 
-	const cleanArabic = keywords.some(k => k.trim().toLowerCase() === '{no}');
-	const cleanRoman = keywords.some(k => k.trim().toLowerCase() === '{roman_no}');
+	const cleanArabic = keywordsList.some(k => k.trim().toLowerCase() === '{no}');
+	const cleanRoman = keywordsList.some(k => k.trim().toLowerCase() === '{roman_no}');
 
-	const filteredKeywords = keywords.filter(k => {
+	const filteredKeywords = keywordsList.filter(k => {
 		const trimmed = k.trim().toLowerCase();
 		return trimmed !== '{no}' && trimmed !== '{roman_no}';
 	});
@@ -198,37 +195,46 @@ export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 		.filter(Boolean)
 		.map(k => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
 
-	function isHeaderFooter(line) {
-		const trimmed = line.trim();
-		if (!trimmed) return false;
+	return { cleanArabic, cleanRoman, normKeywords };
+}
 
-		if (cleanArabic) {
-			if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
-		}
+function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
+	const trimmed = line.trim();
+	if (!trimmed) return false;
 
-		if (cleanRoman) {
-			if (/^[ivxldcmIVXLDCM]+[-—–~]*$/.test(trimmed)) return true;
-		}
+	if (cleanArabic) {
+		if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
+	}
 
-		if (normKeywords.length > 0) {
-			const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
-			if (normLine) {
-				for (const nk of normKeywords) {
-					if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
-						return true;
-					}
+	if (cleanRoman) {
+		if (/^[ivxldcmIVXLDCM]+[-—–~]*$/.test(trimmed)) return true;
+	}
+
+	if (normKeywords && normKeywords.length > 0) {
+		const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
+		if (normLine) {
+			for (const nk of normKeywords) {
+				if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
+					return true;
 				}
 			}
 		}
-		return false;
 	}
+	return false;
+}
+
+export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
+	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
+	if (shouldSkipHeaderFooter(lines)) return text;
+
+	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
 
 	const linesToRemove = [];
 	for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
-		if (isHeaderFooter(lines[i])) linesToRemove.push(i);
+		if (isLineHeaderFooter(lines[i], cleanArabic, cleanRoman, normKeywords)) linesToRemove.push(i);
 	}
 	for (let i = lines.length - 1; i >= Math.max(0, lines.length - lineLimit); i--) {
-		if (isHeaderFooter(lines[i])) linesToRemove.push(i);
+		if (isLineHeaderFooter(lines[i], cleanArabic, cleanRoman, normKeywords)) linesToRemove.push(i);
 	}
 
 	const resultLines = lines.filter((_, idx) => !linesToRemove.includes(idx));
@@ -236,74 +242,13 @@ export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 }
 
 export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
-	const keywordsList = (keywords || '')
-		.split(',')
-		.map(s => s.trim())
-		.filter(Boolean);
-	
 	const report = [];
+	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
 		const lines = String(f.rawText).replace(/\r\n/g, '\n').split('\n');
-		if (lines.length < 6) continue;
-
-		let firstNonEmpty = '';
-		for (let i = 0; i < lines.length; i++) {
-			if (lines[i].trim()) {
-				firstNonEmpty = lines[i];
-				break;
-			}
-		}
-		let lastNonEmpty = '';
-		for (let i = lines.length - 1; i >= 0; i--) {
-			if (lines[i].trim()) {
-				lastNonEmpty = lines[i];
-				break;
-			}
-		}
-
-		if (isRealParagraph(firstNonEmpty) || isRealParagraph(lastNonEmpty)) {
-			continue;
-		}
-
-		const cleanArabic = keywordsList.some(k => k.trim().toLowerCase() === '{no}');
-		const cleanRoman = keywordsList.some(k => k.trim().toLowerCase() === '{roman_no}');
-
-		const filteredKeywords = keywordsList.filter(k => {
-			const trimmed = k.trim().toLowerCase();
-			return trimmed !== '{no}' && trimmed !== '{roman_no}';
-		});
-
-		const normKeywords = filteredKeywords
-			.map(k => String(k).trim())
-			.filter(Boolean)
-			.map(k => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
-
-		function isHeaderFooter(line) {
-			const trimmed = line.trim();
-			if (!trimmed) return false;
-
-			if (cleanArabic) {
-				if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
-			}
-
-			if (cleanRoman) {
-				if (/^[ivxldcmIVXLDCM]+[-—–~]*$/.test(trimmed)) return true;
-			}
-
-			if (normKeywords.length > 0) {
-				const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
-				if (normLine) {
-					for (const nk of normKeywords) {
-						if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		}
+		if (shouldSkipHeaderFooter(lines)) continue;
 
 		const scanned = [];
 		for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
@@ -311,7 +256,7 @@ export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
 				lineNum: i + 1,
 				text: lines[i],
 				location: 'Đầu file',
-				isRemoved: isHeaderFooter(lines[i])
+				isRemoved: isLineHeaderFooter(lines[i], cleanArabic, cleanRoman, normKeywords)
 			});
 		}
 		for (let i = lines.length - 1; i >= Math.max(0, lines.length - lineLimit); i--) {
@@ -320,7 +265,7 @@ export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
 				lineNum: i + 1,
 				text: lines[i],
 				location: 'Cuối file',
-				isRemoved: isHeaderFooter(lines[i])
+				isRemoved: isLineHeaderFooter(lines[i], cleanArabic, cleanRoman, normKeywords)
 			});
 		}
 
