@@ -1,6 +1,6 @@
 <script>
-import JSZip from 'jszip';
 	import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers.js';
+	import { fixMarkdownZip } from '$lib/md-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let mdSelectedFile = $state(null);
@@ -25,41 +25,6 @@ import JSZip from 'jszip';
 	let zipNamePreview = $derived(ensureZipExt(zipOutName.trim() || 'ten-file-goc-da-fix'));
 	let italicSample = $derived(`${italicOpen}nghiêng${italicClose}`);
 	let biSample = $derived(`${biOpen}đậm nghiêng${biClose}`);
-
-	// Regular expression patterns matching original implementation
-	const MAX_SPAN = 150;
-	const SPAN = '(?:(?!\\n[ \\t]*\\n)[\\s\\S]){1,' + MAX_SPAN + '}?';
-
-	const BOLD_ITALIC_PATTERNS = [
-		new RegExp('\\*\\*\\*(' + SPAN + ')\\*\\*\\*', 'g'),
-		new RegExp('(?<!_)___(' + SPAN + ')___(?!_)', 'g'),
-		new RegExp('\\*\\*_(' + SPAN + ')_\\*\\*', 'g'),
-		new RegExp('__\\*(' + SPAN + ')\\*__', 'g'),
-		new RegExp('\\*__(' + SPAN + ')__\\*', 'g'),
-		new RegExp('_\\*\\*(' + SPAN + ')\\*\\*_', 'g')
-	];
-	const ITALIC_PATTERNS = [
-		new RegExp('(?<!\\*)\\*(?!\\*)(' + SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'),
-		new RegExp('(?<![\\w_])_(?!_)(' + SPAN + ')(?<!_)_(?![\\w_])', 'g')
-	];
-
-	function convertBrackets(text) {
-		let count = 0;
-		let converted = text;
-		for (const pattern of BOLD_ITALIC_PATTERNS) {
-			converted = converted.replace(pattern, (match, inner) => {
-				count++;
-				return biOpen + inner + biClose;
-			});
-		}
-		for (const pattern of ITALIC_PATTERNS) {
-			converted = converted.replace(pattern, (match, inner) => {
-				count++;
-				return italicOpen + inner + italicClose;
-			});
-		}
-		return { converted, count };
-	}
 
 	function handleFile(file) {
 		if (!file) return;
@@ -104,37 +69,16 @@ import JSZip from 'jszip';
 		isError = false;
 
 		try {
-			const arrayBuffer = await mdSelectedFile.arrayBuffer();
-			const inZip = await JSZip.loadAsync(arrayBuffer);
-			const outZip = new JSZip();
-
-			let fileCount = 0;
-			let replaceCount = 0;
-			const rows = [];
-
-			const entries = Object.values(inZip.files);
-			for (const entry of entries) {
-				if (entry.dir) continue;
-				if (/\.md$/i.test(entry.name)) {
-					const content = await entry.async('string');
-					const { converted, count } = convertBrackets(content);
-					outZip.file(entry.name, converted);
-					fileCount++;
-					replaceCount += count;
-					rows.push({ path: entry.name, count });
-				} else {
-					const blob = await entry.async('blob');
-					outZip.file(entry.name, blob);
-				}
-			}
-
-			status = 'Đang nén tệp kết quả...';
-			mdOutZipBlob = await outZip.generateAsync({ type: 'blob' });
-
-			totalFiles = fileCount;
-			totalReplacements = replaceCount;
-			rows.sort((a, b) => b.count - a.count);
-			processedFilesList = rows;
+			const res = await fixMarkdownZip(mdSelectedFile, {
+				italicOpen,
+				italicClose,
+				biOpen,
+				biClose
+			});
+			mdOutZipBlob = res.zipBlob;
+			totalFiles = res.totalFiles;
+			totalReplacements = res.totalReplacements;
+			processedFilesList = res.processedFilesList;
 
 			status = totalFiles > 0
 				? 'Hoàn tất — sẵn sàng tải về.'
