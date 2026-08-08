@@ -257,26 +257,26 @@
       "norm_label": "@eslint/js"
     },
     {
-      "label": "@sveltejs/adapter-auto",
+      "label": "@sveltejs/adapter-cloudflare",
       "file_type": "code",
       "source_file": "package.json",
       "source_location": "L15",
       "_origin": "ast",
-      "id": "package_devdependencies_sveltejs_adapter_auto",
+      "id": "package_devdependencies_sveltejs_adapter_cloudflare",
       "community": 1,
       "community_name": "devDependencies",
-      "norm_label": "@sveltejs/adapter-auto"
+      "norm_label": "@sveltejs/adapter-cloudflare"
     },
     {
-      "label": "@sveltejs/adapter-auto",
+      "label": "@sveltejs/adapter-cloudflare",
       "file_type": "concept",
       "source_file": "package.json",
       "source_location": "L15",
       "_origin": "ast",
-      "id": "sveltejs_adapter_auto",
+      "id": "sveltejs_adapter_cloudflare",
       "community": 1,
       "community_name": "devDependencies",
-      "norm_label": "@sveltejs/adapter-auto"
+      "norm_label": "@sveltejs/adapter-cloudflare"
     },
     {
       "label": "@sveltejs/kit",
@@ -1483,10 +1483,21 @@
       "norm_label": "\u0111ong goi san pham (production build)"
     },
     {
+      "label": "\u2601\ufe0f Tri\u1ec3n khai l\u00ean Cloudflare Pages",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L114",
+      "_origin": "ast",
+      "id": "readme_tri\u1ec3n_khai_l\u00ean_cloudflare_pages",
+      "community": 4,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u00e0n X\u1eed L\u00fd T\u00e0i Li\u1ec7u",
+      "norm_label": "\u2601\ufe0f trien khai len cloudflare pages"
+    },
+    {
       "label": "\ud83e\uddea Ki\u1ec3m \u0111\u1ecbnh Ch\u1ea5t l\u01b0\u1ee3ng & S\u1eeda l\u1ed7i (Quality Assurance)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L116",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "readme_ki\u1ec3m_\u0111\u1ecbnh_ch\u1ea5t_l\u01b0\u1ee3ng_s\u1eeda_l\u1ed7i_quality_assurance",
       "community": 4,
@@ -1497,7 +1508,7 @@
       "label": "\ud83d\udd78\ufe0f \u0110\u1ed3 th\u1ecb Tri th\u1ee9c Ki\u1ebfn tr\u00fac (Graphify)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L130",
+      "source_location": "L149",
       "_origin": "ast",
       "id": "readme_\u0111\u1ed3_th\u1ecb_tri_th\u1ee9c_ki\u1ebfn_tr\u00fac_graphify",
       "community": 4,
@@ -1508,7 +1519,7 @@
       "label": "\ud83d\udee1\ufe0f B\u1ea3o m\u1eadt & Quy\u1ec1n ri\u00eang t\u01b0",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L143",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "readme_b\u1ea3o_m\u1eadt_quy\u1ec1n_ri\u00eang_t\u01b0",
       "community": 4,
@@ -1820,7 +1831,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "package_devdependencies",
-      "target": "package_devdependencies_sveltejs_adapter_auto",
+      "target": "package_devdependencies_sveltejs_adapter_cloudflare",
       "confidence_score": 1.0
     },
     {
@@ -1909,8 +1920,8 @@
       "weight": 1.0,
       "context": "import",
       "_origin": "ast",
-      "source": "package_devdependencies_sveltejs_adapter_auto",
-      "target": "sveltejs_adapter_auto",
+      "source": "package_devdependencies_sveltejs_adapter_cloudflare",
+      "target": "sveltejs_adapter_cloudflare",
       "confidence_score": 1.0
     },
     {
@@ -3273,7 +3284,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L143",
+      "source_location": "L162",
       "weight": 1.0,
       "_origin": "ast",
       "source": "readme_ebook_forge_b\u00e0n_x\u1eed_l\u00fd_t\u00e0i_li\u1ec7u",
@@ -3339,7 +3350,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L116",
+      "source_location": "L135",
       "weight": 1.0,
       "_origin": "ast",
       "source": "readme_ebook_forge_b\u00e0n_x\u1eed_l\u00fd_t\u00e0i_li\u1ec7u",
@@ -3350,7 +3361,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L130",
+      "source_location": "L149",
       "weight": 1.0,
       "_origin": "ast",
       "source": "readme_ebook_forge_b\u00e0n_x\u1eed_l\u00fd_t\u00e0i_li\u1ec7u",
@@ -3427,6 +3438,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
+      "source_location": "L114",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "readme_h\u01b0\u1edbng_d\u1eabn_c\u00e0i_\u0111\u1eb7t_ch\u1ea1y_\u1ee9ng_d\u1ee5ng",
+      "target": "readme_tri\u1ec3n_khai_l\u00ean_cloudflare_pages",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
       "source_location": "L86",
       "weight": 1.0,
       "_origin": "ast",
@@ -3458,5 +3480,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "823e8a6a3b5613469a852fb760bf30d24572dcb1"
+  "built_at_commit": "eab3377b0dbc43900afcfba5306560e6b55d5d1f"
 }

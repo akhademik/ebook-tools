@@ -54,9 +54,10 @@ ebook-tools/
 ├── vite.config.js          # Cấu hình Vite & Tailwind v4
 ├── jsconfig.json           # Cấu hình đường dẫn alias $lib
 ├── graphify-out/           # Đồ thị tri thức kiến trúc dự án (Graphify)
-├── static/                 # Tài nguyên tĩnh (favicon, file zip tải về...)
-│   └── txt-to-pdf.zip      # Ứng dụng Desktop TXT -> PDF CJK
+├── static/                 # Tài nguyên tĩnh (favicon, logo, v.v.)
 └── src/
+    ├── assets/             # Tài nguyên thô không build (txt-to-pdf.zip)
+    │   └── txt-to-pdf.zip  # Ứng dụng Desktop TXT -> PDF CJK
     ├── app.html            # File HTML khung của ứng dụng
     ├── lib/                # Thư viện dùng chung của ứng dụng
     │   ├── helpers/
