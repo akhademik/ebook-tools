@@ -1,5 +1,5 @@
 {
-  "0": "scripts",
+  "0": "package.json",
   "1": "devDependencies",
   "2": "pdf-utils.js",
   "3": "jszip",
@@ -10,7 +10,6 @@
   "8": "eslint.config.js",
   "10": "vite.config.js",
   "11": "compilerOptions",
-  "12": "knip.json",
   "16": "+layout.svelte",
   "17": "index.js",
   "18": "routes/+page.svelte",

@@ -4,7 +4,7 @@
 </div>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-	<a href="/pdf" class="group modern-card rounded-2xl p-7 flex flex-col hover:-translate-y-1 transition-all duration-200">
+	<a href="/pdf" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
 		<div class="flex items-center justify-between mb-5">
 			<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">01</span>
 			<div class="text-2xl">📄</div>
@@ -14,7 +14,7 @@
 		<div class="text-center font-mono text-sm tracking-wide py-3 px-5 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover active:scale-[0.98]">Mở công cụ</div>
 	</a>
 
-	<a href="/md" class="group modern-card rounded-2xl p-7 flex flex-col hover:-translate-y-1 transition-all duration-200">
+	<a href="/md" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
 		<div class="flex items-center justify-between mb-5">
 			<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">02</span>
 			<div class="text-2xl">✍️</div>
@@ -24,7 +24,7 @@
 		<div class="text-center font-mono text-sm tracking-wide py-3 px-5 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover active:scale-[0.98]">Mở công cụ</div>
 	</a>
 
-	<a href="/epub" class="group modern-card rounded-2xl p-7 flex flex-col hover:-translate-y-1 transition-all duration-200">
+	<a href="/epub" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
 		<div class="flex items-center justify-between mb-5">
 			<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">03</span>
 			<div class="text-2xl">📦</div>

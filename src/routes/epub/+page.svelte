@@ -1,6 +1,6 @@
 <script>
 	import JSZip from 'jszip';
-	import { slugify, ensureEpubExt, triggerDownload } from '$lib/helpers.js';
+	import { slugify, ensureEpubExt, triggerDownload } from '$lib/helpers/helpers.js';
 	import {
 		cleanHeaderFooterOcr,
 		parseMarkdownBlocks,
@@ -8,7 +8,7 @@
 		assignSequentialChapterIds,
 		buildEpubBlob,
 		EPUB_CSS
-	} from '$lib/epub-utils.js';
+	} from '$lib/utils/epub-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let epubFileSelected = $state(null);
@@ -201,6 +201,7 @@
 
 <div class="modern-card rounded-2xl p-7 mb-6">
 	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Tệp .ZIP chứa các chương (.md)</span>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="border border-dashed border-border-color rounded-xl p-10 text-center cursor-pointer transition-colors relative {isDragOver ? 'border-accent-color bg-accent-soft/30' : 'hover:border-accent-color hover:bg-accent-soft/10'}"
 		ondragover={handleDragOver}

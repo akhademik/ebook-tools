@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { escapeXml } from './helpers.js';
+import { escapeXml } from '../helpers/helpers.js';
 
 export const EPUB_CSS = `@page {
     margin-top: 0; 

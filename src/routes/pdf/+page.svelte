@@ -1,6 +1,6 @@
 <script>
-	import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers.js';
-	import { loadPdfPreview, processPdfToJpg } from '$lib/pdf-utils.js';
+	import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
+	import { loadPdfPreview, processPdfToJpg } from '$lib/utils/pdf-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let pdfSelectedFile = $state(null);
@@ -160,6 +160,7 @@
 
 <div class="modern-card rounded-2xl p-7 mb-6">
 	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Tệp PDF nguồn</span>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="border border-dashed border-border-color rounded-xl p-10 text-center cursor-pointer transition-colors relative {isDragOver ? 'border-accent-color bg-accent-soft/30' : 'hover:border-accent-color hover:bg-accent-soft/10'}"
 		ondragover={handleDragOver}
