@@ -1,6 +1,5 @@
 import { escapeXml } from '$lib/helpers/helpers.js';
 
-
 function convertInline(text) {
 	const codeSpans = [];
 	let t = String(text).replace(/`([^`]+)`/g, (m, code) => {
@@ -19,7 +18,7 @@ function convertInline(text) {
 	t = t.replace(new RegExp('\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'), (m, s) => '<strong>' + s + '</strong>');
 	t = t.replace(new RegExp('(?<![\\w_])__(' + INLINE_SPAN + ')__(?![\\w_])', 'g'), (m, s) => '<strong>' + s + '</strong>');
 	t = t.replace(new RegExp('(?<!\\*)\\*(?!\\*)(' + INLINE_SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'), (m, s) => '<em>' + s + '</em>');
-	t = t.replace(new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')(?<!_)_(?![\\w_])', 'g'), (m, s) => '<em>' + s + '</em>');
+	t = t.replace(new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')$(?<!_)_(?![\\w_])', 'g'), (m, s) => '<em>' + s + '</em>');
 	
 	t = t.replace(/___CODESPAN___(\d+)___CODESPAN___/g, (m, idx) => '<code>' + escapeXml(codeSpans[Number(idx)]) + '</code>');
 	return t;

@@ -1,0 +1,21 @@
+<script>
+	let {
+		onclick,
+		disabled = false,
+		variant = 'primary', // 'primary' | 'secondary'
+		type = 'button',
+		children
+	} = $props();
+</script>
+
+<button
+	{type}
+	{disabled}
+	{onclick}
+	class="w-full py-3 rounded-xl font-mono text-base font-semibold transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer flex justify-center items-center gap-2
+		{variant === 'primary' 
+			? 'bg-accent-color text-white hover:bg-accent-hover shadow-lg shadow-accent-color/20' 
+			: 'bg-amber-color hover:bg-amber-600 text-brand-bg shadow-lg shadow-amber-color/10'}"
+>
+	{@render children()}
+</button>

@@ -1,7 +1,8 @@
-<div class="mb-10 animate-fade-in">
-	<h1 class="font-mono text-3xl font-bold mb-2 tracking-tight text-text-color">TXT → PDF CJK</h1>
-	<p class="text-text-mute text-base max-w-xl leading-relaxed">Giới thiệu và tải xuống công cụ chuyển đổi tài liệu chữ Hán chuyên dụng cho Desktop.</p>
-</div>
+<script>
+	import PageHeader from '$lib/components/PageHeader.svelte';
+</script>
+
+<PageHeader title="TXT → PDF CJK" description="Giới thiệu và tải xuống công cụ chuyển đổi tài liệu chữ Hán chuyên dụng cho Desktop." />
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.1s;">
 	<!-- Left 2 columns: Description & Features -->
