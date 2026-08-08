@@ -160,8 +160,9 @@ function isRealParagraph(line) {
 	return endsSentence && (wordCount > 5 || trim.length > 30);
 }
 
-function shouldSkipHeaderFooter(lines) {
+function shouldSkipHeaderFooter(lines, normKeywords = []) {
 	if (lines.length < 6) return true;
+	if (normKeywords && normKeywords.length > 0) return false;
 	const first = lines.find(l => l.trim()) || '';
 	let last = '';
 	for (let i = lines.length - 1; i >= 0; i--) {
@@ -224,9 +225,8 @@ function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
 
 export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
-	if (shouldSkipHeaderFooter(lines)) return text;
-
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
+	if (shouldSkipHeaderFooter(lines, normKeywords)) return text;
 
 	const linesToRemove = [];
 	for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
@@ -247,7 +247,7 @@ export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
 		const lines = String(f.rawText).replace(/\r\n/g, '\n').split('\n');
-		if (shouldSkipHeaderFooter(lines)) continue;
+		if (shouldSkipHeaderFooter(lines, normKeywords)) continue;
 
 		const scanned = [];
 		for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
@@ -578,3 +578,161 @@ export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic,
 	}
 	return candidates;
 }
+
+function escapeRegExp(str) {
+	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function convertTxtInline(text, rules = {}) {
+	const h2Delim = (rules.h2Delim || '#').trim();
+	const emDelim = (rules.emDelim || '*').trim();
+	const strongDelim = (rules.strongDelim || '**').trim();
+
+	let t = escapeXml(String(text || ''));
+
+	if (strongDelim) {
+		const reStrong = new RegExp(escapeRegExp(strongDelim) + '(.+?)' + escapeRegExp(strongDelim), 'g');
+		t = t.replace(reStrong, (m, content) => '<strong>' + content + '</strong>');
+	}
+
+	if (h2Delim) {
+		const reH2 = new RegExp(escapeRegExp(h2Delim) + '(.+?)' + escapeRegExp(h2Delim), 'g');
+		t = t.replace(reH2, (m, content) => '<h2>' + content + '</h2>');
+	}
+
+	if (emDelim) {
+		const reEm = new RegExp(escapeRegExp(emDelim) + '(.+?)' + escapeRegExp(emDelim), 'g');
+		t = t.replace(reEm, (m, content) => '<em>' + content + '</em>');
+	}
+
+	return t;
+}
+
+export function normalizeMultiLineChapterTags(text, h1Delim = '##') {
+	const delim = (h1Delim || '##').trim();
+	if (!delim) return String(text || '');
+	const escaped = escapeRegExp(delim);
+	const reMulti = new RegExp(escaped + '([\\s\\S]{1,300}?)' + escaped, 'g');
+	return String(text || '').replace(reMulti, (m, inner) => {
+		const cleanedInner = inner.replace(/\r?\n\s*/g, ' ').trim();
+		return delim + cleanedInner + delim;
+	});
+}
+
+export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chương 1') {
+	const h1Delim = (rules.h1Delim || '##').trim();
+	const h2Delim = (rules.h2Delim || '#').trim();
+	console.log('[parseTxtToChapters] Starting parse. h1Delim:', h1Delim, 'h2Delim:', h2Delim, 'fallbackTitle:', fallbackTitle);
+
+	const normalizedText = normalizeMultiLineChapterTags(rawText, h1Delim);
+
+	const reH1Exact = h1Delim
+		? new RegExp('^\\s*' + escapeRegExp(h1Delim) + '\\s*(.*?)(?:\\s*' + escapeRegExp(h1Delim) + ')?\\s*$', 'i')
+		: null;
+
+	const reH2Exact = h2Delim
+		? new RegExp('^\\s*' + escapeRegExp(h2Delim) + '\\s*(.*?)(?:\\s*' + escapeRegExp(h2Delim) + ')?\\s*$', 'i')
+		: null;
+
+	const rawBlocks = String(normalizedText || '').replace(/\r\n/g, '\n').split(/\n\s*\n+/);
+	console.log('[parseTxtToChapters] Total raw blocks:', rawBlocks.length);
+
+	const chapters = [];
+	let currentChapter = null;
+
+	for (const block of rawBlocks) {
+		const trimmedBlock = block.trim();
+		if (!trimmedBlock) continue;
+
+		const lines = trimmedBlock.split('\n');
+		let currentParaLines = [];
+
+		const flushPara = () => {
+			if (currentParaLines.length > 0 && currentChapter) {
+				const breakDelim = (rules.breakDelim || '•••').trim();
+				for (const lineText of currentParaLines) {
+					const trimmed = lineText.trim();
+					if (!trimmed) continue;
+					if (breakDelim && trimmed === breakDelim) {
+						currentChapter.html += '<p class="sbreak">' + escapeXml(trimmed) + '</p>\n';
+					} else {
+						const pContent = convertTxtInline(trimmed, rules);
+						currentChapter.html += '<p>' + pContent + '</p>\n';
+					}
+				}
+				currentParaLines = [];
+			}
+		};
+
+		for (const line of lines) {
+			const trimmedLine = line.trim();
+			if (!trimmedLine) continue;
+
+			const mH1 = reH1Exact ? trimmedLine.match(reH1Exact) : null;
+			if (mH1 && mH1[1].trim()) {
+				flushPara();
+				const h1Title = mH1[1].trim();
+				currentChapter = {
+					title: h1Title || `Chương ${chapters.length + 1}`,
+					html: '<h1>' + escapeXml(h1Title) + '</h1>\n',
+					sources: ['Tệp TXT'],
+					isChapter: true,
+					firstSourcePageNum: chapters.length + 1
+				};
+				chapters.push(currentChapter);
+				continue;
+			}
+
+			const mH2 = reH2Exact ? trimmedLine.match(reH2Exact) : null;
+			if (mH2 && mH2[1].trim()) {
+				flushPara();
+				if (!currentChapter) {
+					currentChapter = {
+						title: fallbackTitle,
+						html: '',
+						sources: ['Tệp TXT'],
+						isChapter: true,
+						firstSourcePageNum: 1
+					};
+					chapters.push(currentChapter);
+				}
+				const h2Title = mH2[1].trim();
+				const h2Content = convertTxtInline(h2Title, { ...rules, h2Delim: '' });
+				currentChapter.html += '<h2>' + h2Content + '</h2>\n';
+				continue;
+			}
+
+			if (!currentChapter) {
+				currentChapter = {
+					title: fallbackTitle,
+					html: '',
+					sources: ['Tệp TXT'],
+					isChapter: true,
+					firstSourcePageNum: 1
+				};
+				chapters.push(currentChapter);
+			}
+			currentParaLines.push(trimmedLine);
+		}
+
+		flushPara();
+	}
+
+	if (chapters.length === 0) {
+		console.warn('[parseTxtToChapters] No chapters created, creating fallback chapter.');
+		chapters.push({
+			title: fallbackTitle,
+			html: '<p>' + convertTxtInline(rawText, rules) + '</p>\n',
+			sources: ['Tệp TXT'],
+			isChapter: true,
+			firstSourcePageNum: 1
+		});
+	}
+
+	console.log('[parseTxtToChapters] Parse complete. Total chapters:', chapters.length, chapters.map(c => c.title));
+	return chapters;
+}
+
+
+
+

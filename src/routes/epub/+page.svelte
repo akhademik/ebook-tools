@@ -8,26 +8,12 @@
 
 	const state = new EpubState();
 
-	$effect(() => {
-		if (state.epubRawFiles.length > 0) {
-			// Trigger reactive updates when grouping parameters adjust
-			state.mergePattern;
-			state.heuristicMode;
-			state.heuristicStart;
-			state.heuristicEnd;
-			state.heuristicThreshold;
-			state.cleanKeywords;
-			state.cleanLineLimit;
-			state.title;
-			state.author;
-
-			state.applyGrouping();
-		}
-	});
-
 	function downloadEpub() {
+		console.log('[+page.svelte] downloadEpub button clicked. epubBlob:', state.epubBlob, 'name:', state.epubOutNamePreview);
 		if (state.epubBlob) {
 			triggerDownload(state.epubBlob, state.epubOutNamePreview);
+		} else {
+			console.warn('[+page.svelte] state.epubBlob is empty, cannot download.');
 		}
 	}
 </script>
@@ -36,25 +22,57 @@
 	<title>Đóng gói EPUB — Ebook Forge</title>
 </svelte:head>
 
-<PageHeader title="Đóng gói EPUB" description="Gộp các chương Markdown thành một tệp sách điện tử .EPUB hoàn chỉnh." />
+<PageHeader title="Đóng gói EPUB" description="Gộp tệp .ZIP chứa nhiều tệp Markdown hoặc 1 tệp .TXT duy nhất thành tệp sách điện tử .EPUB hoàn chỉnh." />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Tệp .ZIP chứa các chương (.md)</span>
+	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Chọn tệp nguồn (.ZIP hoặc .TXT)</span>
 	<DropZone
-		accept=".zip,application/zip"
+		accept=".zip,.txt,application/zip,text/plain"
 		onSelect={(f) => state.handleFile(f)}
-		title="Kéo thả hoặc click để chọn tệp .ZIP"
-		subtitle="Tự động sắp xếp và tạo XHTML chương tuần tự 01, 02..."
+		title="Kéo thả hoặc click để chọn tệp .ZIP hoặc .TXT"
+		subtitle="Hỗ trợ tệp .ZIP chứa các chương (.md) hoặc 1 tệp văn bản .TXT duy nhất"
 		selectedFile={state.epubFileSelected}
 	/>
 
-	{#if state.epubRawFiles.length > 0}
+	{#if state.fileType === 'txt' && state.rawTxtText}
+		<!-- Custom Syntax Config for TXT -->
+		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
+			<div class="flex items-center gap-2 text-xs font-mono text-accent-color bg-accent-soft p-3 rounded-lg border border-accent-color/20">
+				<span>ℹ️</span>
+				<span>Chế độ tệp .TXT đơn — Đã tự động bỏ qua các quy trình lọc OCR, Header/Footer và Heuristic ghép dòng.</span>
+			</div>
+			
+			<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Cấu hình ký hiệu cú pháp cho tệp .TXT</span>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<div>
+					<Input bind:value={state.txtH1Delim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Tiêu đề Chương (<h1>)" placeholder="Ví dụ: ##" />
+					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">##Chương 1##</code> &rarr; <code>&lt;h1&gt;Chương 1&lt;/h1&gt;</code> (Tự động tách chương)</span>
+				</div>
+				<div>
+					<Input bind:value={state.txtH2Delim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Tiêu đề Phụ (<h2>)" placeholder="Ví dụ: #" />
+					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">#Mục phụ#</code> &rarr; <code>&lt;h2&gt;Mục phụ&lt;/h2&gt;</code></span>
+				</div>
+				<div>
+					<Input bind:value={state.txtEmDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu In nghiêng (<em>)" placeholder="Ví dụ: *" />
+					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">*nghiêng*</code> &rarr; <code>&lt;em&gt;nghiêng&lt;/em&gt;</code></span>
+				</div>
+				<div>
+					<Input bind:value={state.txtStrongDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu In đậm (<strong>)" placeholder="Ví dụ: **" />
+					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">**in đậm**</code> &rarr; <code>&lt;strong&gt;in đậm&lt;/strong&gt;</code></span>
+				</div>
+				<div>
+					<Input bind:value={state.txtBreakDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Phân đoạn / Ngắt trang (Page Break)" placeholder="Ví dụ: •••" />
+					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">•••</code> &rarr; <code>&lt;p class="sbreak"&gt;•••&lt;/p&gt;</code></span>
+				</div>
+			</div>
+		</div>
+	{:else if state.epubRawFiles.length > 0}
 		<div class="mt-5 animate-fade-in">
-			<Input bind:value={state.mergePattern} label="Từ khóa nhận diện tiêu đề chương mới" placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương" />
+			<Input bind:value={state.mergePattern} oninput={() => state.applyGrouping()} label="Từ khóa nhận diện tiêu đề chương mới" placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương" />
 		</div>
 
 		<div class="flex items-center gap-3 mt-5">
-			<input type="checkbox" id="epub-heuristic-mode" bind:checked={state.heuristicMode} class="w-4 h-4 accent-accent-color cursor-pointer" />
+			<input type="checkbox" id="epub-heuristic-mode" bind:checked={state.heuristicMode} onchange={() => state.applyGrouping()} class="w-4 h-4 accent-accent-color cursor-pointer" />
 			<div>
 				<label for="epub-heuristic-mode" class="text-sm text-text-color cursor-pointer font-medium">Nhận diện bằng Heuristic thông minh</label>
 				<span class="block text-xs text-text-mute mt-0.5">Tính điểm tiêu đề dựa trên chữ viết HOA, độ dài và dấu câu</span>
@@ -65,13 +83,13 @@
 			<div class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color">
 				<div class="flex items-center gap-3 w-full flex-wrap">
 					<span class="font-mono text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
-					<input type="number" bind:value={state.heuristicStart} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
+					<input type="number" bind:value={state.heuristicStart} oninput={() => state.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
 					<span class="font-mono text-sm text-text-mute">đến trang</span>
-					<input type="number" bind:value={state.heuristicEnd} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
+					<input type="number" bind:value={state.heuristicEnd} oninput={() => state.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
 				</div>
 				<div class="flex items-center gap-3 w-full mt-4 flex-wrap border-t border-border-color pt-4">
 					<span class="font-mono text-sm text-text-mute">Ngưỡng điểm (Threshold):</span>
-					<input type="range" min="1" max="10" step="1" bind:value={state.heuristicThreshold} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40" />
+					<input type="range" min="1" max="10" step="1" bind:value={state.heuristicThreshold} oninput={() => state.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40" />
 					<span class="font-mono text-sm font-semibold text-accent-color w-8 text-center">{state.heuristicThreshold}</span>
 					<p class="text-xs text-text-mute w-full mt-1.5 leading-relaxed">
 						Giảm ngưỡng để bắt nhiều tiêu đề hơn (cho sách quét OCR xấu). Tăng ngưỡng để tránh nhận diện nhầm đoạn văn thường thành chương.
@@ -83,11 +101,11 @@
 		<div class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex flex-col gap-3">
 			<div>
 				<span class="font-mono text-xs text-text-mute uppercase mb-1.5 block">Lọc Header/Footer (Tùy chọn)</span>
-				<input type="text" bind:value={state.cleanKeywords} class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
+				<input type="text" bind:value={state.cleanKeywords} oninput={() => state.applyGrouping()} class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
 			</div>
 			<div class="flex items-center gap-3 mt-1.5 flex-wrap border-t border-border-color pt-3">
 				<span class="font-mono text-sm text-text-mute">Số dòng quét đầu/cuối trang:</span>
-				<input type="range" min="1" max="5" step="1" bind:value={state.cleanLineLimit} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32" />
+				<input type="range" min="1" max="5" step="1" bind:value={state.cleanLineLimit} oninput={() => state.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32" />
 				<span class="font-mono text-sm font-semibold text-accent-color w-6 text-center">{state.cleanLineLimit}</span>
 				<p class="text-xs text-text-mute w-full leading-relaxed mt-1">
 					Chỉ quét các file có từ 6 dòng trở lên. Tự động bỏ qua lọc nếu dòng đầu hoặc cuối là đoạn văn đầy đủ (để tránh mất nội dung truyện).
@@ -103,15 +121,17 @@
 				type="button" 
 				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {state.activeTab === 'toc' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
 				onclick={() => { state.activeTab = 'toc'; }}
-			>Mục lục kết quả</button>
+			>Mục lục kết quả ({state.epubChapters.length} chương)</button>
 			
-			<button 
-				type="button" 
-				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {state.activeTab === 'diff' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
-				onclick={() => { state.activeTab = 'diff'; }}
-			>
-				Lọc Header/Footer ({state.cleanedLinesReport.length})
-			</button>
+			{#if state.fileType === 'zip'}
+				<button 
+					type="button" 
+					class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {state.activeTab === 'diff' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
+					onclick={() => { state.activeTab = 'diff'; }}
+				>
+					Lọc Header/Footer ({state.cleanedLinesReport.length})
+				</button>
+			{/if}
 		</div>
 
 		<!-- Tab Contents -->
@@ -132,7 +152,7 @@
 					</div>
 				{/each}
 			</div>
-		{:else if state.activeTab === 'diff'}
+		{:else if state.activeTab === 'diff' && state.fileType === 'zip'}
 			<div class="mt-5 flex flex-col gap-4 animate-fade-in max-h-[400px] overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color">
 				{#if state.cleanedLinesReport.length === 0}
 					<p class="text-sm text-text-mute font-mono text-center py-6">Không phát hiện Header/Footer nào khớp bộ lọc.</p>
@@ -169,7 +189,7 @@
 	{/if}
 </div>
 
-{#if state.epubRawFiles.length > 0}
+{#if state.epubChapters.length > 0}
 	<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
 		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Siêu dữ liệu sách (Metadata)</span>
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -230,3 +250,4 @@
 		to { opacity: 1; transform: translateY(0); }
 	}
 </style>
+

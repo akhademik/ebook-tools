@@ -47,11 +47,13 @@ export function ensureEpubExt(name) {
  * @param {string} filename - Desired output filename.
  */
 export function triggerDownload(blob, filename) {
+  console.log('[triggerDownload] Called with filename:', filename, 'blob:', blob);
   if (!blob || !(blob instanceof Blob)) {
-    console.error('triggerDownload invalid blob:', blob);
+    console.error('[triggerDownload] Invalid blob:', blob);
     return;
   }
   const safeFilename = filename || 'download';
+  console.log('[triggerDownload] Creating ObjectURL for safeFilename:', safeFilename, 'blob size:', blob.size);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -59,6 +61,7 @@ export function triggerDownload(blob, filename) {
   document.body.appendChild(a);
   a.click();
   a.remove();
+  console.log('[triggerDownload] Download anchor clicked successfully.');
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 

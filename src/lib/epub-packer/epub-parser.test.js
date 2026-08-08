@@ -4,7 +4,9 @@ import {
 	parseMarkdownBlocks,
 	groupChapters,
 	getCleanedLinesReport,
-	analyzeChapterCandidates
+	analyzeChapterCandidates,
+	convertTxtInline,
+	parseTxtToChapters
 } from './epub-parser.js';
 
 describe('epub-parser tests', () => {
@@ -172,4 +174,74 @@ describe('epub-parser tests', () => {
 			expect(candidates[1].isMatch).toBe(false);
 		});
 	});
+
+	describe('convertTxtInline & parseTxtToChapters', () => {
+		it('should convert custom syntax tags to HTML tags correctly', () => {
+			const text = 'Nội dung với #tiêu đề phụ#, *nghiêng* và **đậm**';
+			const html = convertTxtInline(text, { h2Delim: '#', emDelim: '*', strongDelim: '**' });
+			expect(html).toBe('Nội dung với <h2>tiêu đề phụ</h2>, <em>nghiêng</em> và <strong>đậm</strong>');
+		});
+
+		it('should parse single .txt file into chapters based on ##h1## delimiter', () => {
+			const txt = `## Giới thiệu ##
+Lời mở đầu bài viết.
+
+## Chương 1: Bắt đầu ##
+# 1.1 Khởi động #
+Đoạn văn chương 1.
+Có từ *quan trọng*.`;
+
+			const chapters = parseTxtToChapters(txt, {
+				h1Delim: '##',
+				h2Delim: '#',
+				emDelim: '*',
+				strongDelim: '**'
+			}, 'Default Title');
+
+			expect(chapters).toHaveLength(2);
+
+			expect(chapters[0].title).toBe('Giới thiệu');
+			expect(chapters[0].html).toContain('<h1>Giới thiệu</h1>');
+			expect(chapters[0].html).toContain('<p>Lời mở đầu bài viết.</p>');
+
+			expect(chapters[1].title).toBe('Chương 1: Bắt đầu');
+			expect(chapters[1].html).toContain('<h1>Chương 1: Bắt đầu</h1>');
+			expect(chapters[1].html).toContain('<h2>1.1 Khởi động</h2>');
+			expect(chapters[1].html).toContain('<em>quan trọng</em>');
+		});
+
+		it('should join broken multi-line ##noi \\n dung## tags into a single chapter', () => {
+			const txt = `##Chương 1:
+Mở đầu##
+Nội dung chương 1.
+
+##Chương 2: Thử
+nghiệm##
+Nội dung chương 2.`;
+
+			const chapters = parseTxtToChapters(txt, { h1Delim: '##' }, 'Mặc định');
+
+			expect(chapters).toHaveLength(2);
+			expect(chapters[0].title).toBe('Chương 1: Mở đầu');
+			expect(chapters[0].html).toContain('<h1>Chương 1: Mở đầu</h1>');
+			expect(chapters[1].title).toBe('Chương 2: Thử nghiệm');
+			expect(chapters[1].html).toContain('<h1>Chương 2: Thử nghiệm</h1>');
+		});
+
+		it('should render page break sbreak class when encountering ••• delimiter', () => {
+			const txt = `##Chương 1##
+Nội dung phần 1.
+
+•••
+
+Nội dung phần 2.`;
+
+			const chapters = parseTxtToChapters(txt, { h1Delim: '##', breakDelim: '•••' }, 'Chương 1');
+
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<p class="sbreak">•••</p>');
+		});
+	});
 });
+
+

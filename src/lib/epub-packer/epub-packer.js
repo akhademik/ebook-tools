@@ -20,6 +20,15 @@ export const EPUB_CSS = `@page {
     margin: 0;
   }
 
+  p.sbreak {
+    text-indent: 0;
+    text-align: center;
+    margin: 1.3em 0;
+    letter-spacing: 0.2em;
+    opacity: 0.65;
+    page-break-inside: avoid;
+  }
+
   a {
     text-decoration: none;
     font-size: 0.6em;
@@ -38,6 +47,16 @@ export const EPUB_CSS = `@page {
 
   p:last-of-type {
     margin-bottom: 2.5em; 
+  }
+
+  h1 {
+    margin-top: 1em !important;
+    padding-top: 0 !important; 
+    line-height: 1.2; 
+    text-align: center;
+    margin-bottom: 1em;
+    font-size: 1.25em;
+    font-weight: bold;
   }
 
   h2 {
@@ -150,23 +169,28 @@ export function mergeBrokenParagraphs(html) {
 	return result;
 }
 
-export function buildChapterXhtml(meta, chapter) {
+export function buildChapterXhtml(meta, chapter, skipParagraphMerge = false) {
+	const content = skipParagraphMerge ? chapter.html : mergeBrokenParagraphs(chapter.html);
 	return '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' + meta.language + '">\n' +
 		'<head>\n  <meta charset="utf-8"/>\n  <title>' + escapeXml(chapter.title) + '</title>\n' +
 		'  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n</head>\n' +
-		'<body>\n' + mergeBrokenParagraphs(chapter.html) + '\n</body>\n</html>';
+		'<body>\n' + content + '\n</body>\n</html>';
 }
 
-export async function buildEpubBlob(metadata, chapters, css) {
+export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge = false) {
+	console.log('[buildEpubBlob] Called with metadata:', metadata, 'chapters count:', chapters.length, 'skipParagraphMerge:', skipParagraphMerge);
 	const meta = {
 		title: metadata.title || 'Không tên',
 		author: metadata.author || 'Không rõ tác giả',
 		language: metadata.language || 'vi',
-		identifier: metadata.identifier || ('urn:uuid:' + (window.crypto && crypto.randomUUID ? crypto.randomUUID() : ('id-' + Date.now() + '-' + Math.random().toString(16).slice(2)))),
+		identifier: metadata.identifier || ('urn:uuid:' + (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : ('id-' + Date.now() + '-' + Math.random().toString(16).slice(2)))),
 		publisher: metadata.publisher || ''
 	};
-	if (!chapters.length) throw new Error('Không có chương nào để đóng gói.');
+	if (!chapters.length) {
+		console.error('[buildEpubBlob] Error: chapters array is empty!');
+		throw new Error('Không có chương nào để đóng gói.');
+	}
 
 	const zip = new JSZip();
 	zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
@@ -182,14 +206,21 @@ export async function buildEpubBlob(metadata, chapters, css) {
 	oebps.folder('styles').file('style.css', css);
 
 	const textFolder = oebps.folder('text');
-	for (const chapter of chapters) {
-		textFolder.file(chapter.fileName + '.xhtml', buildChapterXhtml(meta, chapter));
+	for (let i = 0; i < chapters.length; i++) {
+		const chapter = chapters[i];
+		const xhtmlContent = buildChapterXhtml(meta, chapter, skipParagraphMerge);
+		textFolder.file(chapter.fileName + '.xhtml', xhtmlContent);
 	}
 
-	return zip.generateAsync({
+	console.log('[buildEpubBlob] All chapters added to zip, generating blob with JSZip...');
+	const blob = await zip.generateAsync({
 		type: 'blob',
 		mimeType: 'application/epub+zip',
 		compression: 'DEFLATE',
 		compressionOptions: { level: 9 }
 	});
+	console.log('[buildEpubBlob] Blob generated successfully, size:', blob.size, 'type:', blob.type);
+	return blob;
 }
+
+
