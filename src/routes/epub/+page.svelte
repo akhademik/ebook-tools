@@ -8,7 +8,7 @@
 		assignSequentialChapterIds,
 		buildEpubBlob,
 		EPUB_CSS
-	} from '$lib/utils/epub-utils.js';
+	} from './epub-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let epubFileSelected = $state(null);

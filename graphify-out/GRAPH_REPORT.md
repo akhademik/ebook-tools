@@ -1,16 +1,16 @@
 # Graph Report - ebook-tools  (2026-08-08)
 
 ## Corpus Check
-- 17 files · ~10,269 words
+- 18 files · ~11,282 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 133 nodes · 168 edges · 16 communities (14 shown, 2 thin omitted)
+- 134 nodes · 168 edges · 17 communities (15 shown, 2 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a4e97598`
+- Built from commit: `02187b64`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,11 +40,11 @@
 
 ## Surprising Connections (you probably didn't know these)
 - `buildEpubBlob()` --references--> `jszip`  [EXTRACTED]
-  src/lib/utils/epub-utils.js → package.json
+  src/routes/epub/epub-utils.js → package.json
 - `processPdfToJpg()` --references--> `jszip`  [EXTRACTED]
-  src/lib/utils/pdf-utils.js → package.json
+  src/routes/pdf/pdf-utils.js → package.json
 - `fixMarkdownZip()` --references--> `jszip`  [EXTRACTED]
-  src/lib/utils/md-utils.js → package.json
+  src/routes/md/md-utils.js → package.json
 - `handleFile()` --calls--> `slugify()`  [EXTRACTED]
   src/routes/pdf/+page.svelte → src/lib/helpers/helpers.js
 - `downloadZip()` --calls--> `triggerDownload()`  [EXTRACTED]
@@ -53,7 +53,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (16 total, 2 thin omitted)
+## Communities (17 total, 2 thin omitted)
 
 ### Community 0 - "package.json"
 Cohesion: 0.18
@@ -65,7 +65,7 @@ Nodes (25): eslint, @eslint/js, eslint-plugin-svelte, globals, devDependencies, 
 
 ### Community 2 - "pdf-utils.js"
 Cohesion: 0.28
-Nodes (6): applyGrayscale(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), loadPreview(), processPdf()
+Nodes (6): loadPreview(), processPdf(), applyGrayscale(), loadPdfPreview(), pickConcurrency(), processPdfToJpg()
 
 ### Community 3 - "jszip"
 Cohesion: 0.29
@@ -96,11 +96,11 @@ Nodes (6): compilerOptions, allowJs, checkJs, moduleResolution, extends, ./.svel
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `jszip` connect `jszip` to `pdf-utils.js`, `epub-utils.js`?**
-  _High betweenness centrality (0.279) - this node is a cross-community bridge._
+  _High betweenness centrality (0.275) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `jszip` to `package.json`?**
-  _High betweenness centrality (0.254) - this node is a cross-community bridge._
+  _High betweenness centrality (0.250) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `package.json`?**
-  _High betweenness centrality (0.233) - this node is a cross-community bridge._
+  _High betweenness centrality (0.230) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json` to the rest of the system?**
   _46 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `devDependencies` be split into smaller, more focused modules?**

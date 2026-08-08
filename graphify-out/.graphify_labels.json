@@ -10,6 +10,7 @@
   "8": "eslint.config.js",
   "10": "vite.config.js",
   "11": "compilerOptions",
+  "12": "txt-to-pdf/+page.svelte",
   "16": "+layout.svelte",
   "17": "index.js",
   "18": "routes/+page.svelte",

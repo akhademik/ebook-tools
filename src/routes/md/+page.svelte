@@ -1,6 +1,6 @@
 <script>
 	import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
-	import { fixMarkdownZip } from '$lib/utils/md-utils.js';
+	import { fixMarkdownZip } from './md-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let mdSelectedFile = $state(null);

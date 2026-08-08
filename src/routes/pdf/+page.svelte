@@ -1,6 +1,6 @@
 <script>
 	import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
-	import { loadPdfPreview, processPdfToJpg } from '$lib/utils/pdf-utils.js';
+	import { loadPdfPreview, processPdfToJpg } from './pdf-utils.js';
 
 	// State variables (Svelte 5 runes)
 	let pdfSelectedFile = $state(null);
