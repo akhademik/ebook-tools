@@ -1,6 +1,5 @@
 import { escapeXml } from '$lib/helpers/helpers.js';
 
-const HEURISTIC_THRESHOLD = 5;
 
 function convertInline(text) {
 	const codeSpans = [];
@@ -154,9 +153,37 @@ function isDecorationOnly(s) {
 	return /^[\s*_]*$/.test(s);
 }
 
-export function cleanHeaderFooterOcr(text, keywords) {
+function isRealParagraph(line) {
+	const trim = line.trim();
+	if (!trim) return false;
+	const endsSentence = /[.!?…”"’]/.test(trim.slice(-1));
+	const wordCount = trim.split(/\s+/).filter(Boolean).length;
+	return endsSentence && (wordCount > 5 || trim.length > 30);
+}
+
+export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
-	if (lines.length === 0) return text;
+	if (lines.length < 6) return text;
+
+	// Check for real paragraph at start or end
+	let firstNonEmpty = '';
+	for (let i = 0; i < lines.length; i++) {
+		if (lines[i].trim()) {
+			firstNonEmpty = lines[i];
+			break;
+		}
+	}
+	let lastNonEmpty = '';
+	for (let i = lines.length - 1; i >= 0; i--) {
+		if (lines[i].trim()) {
+			lastNonEmpty = lines[i];
+			break;
+		}
+	}
+
+	if (isRealParagraph(firstNonEmpty) || isRealParagraph(lastNonEmpty)) {
+		return text;
+	}
 
 	const cleanArabic = keywords.some(k => k.trim().toLowerCase() === '{no}');
 	const cleanRoman = keywords.some(k => k.trim().toLowerCase() === '{roman_no}');
@@ -197,15 +224,116 @@ export function cleanHeaderFooterOcr(text, keywords) {
 	}
 
 	const linesToRemove = [];
-	for (let i = 0; i < Math.min(3, lines.length); i++) {
+	for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
 		if (isHeaderFooter(lines[i])) linesToRemove.push(i);
 	}
-	for (let i = lines.length - 1; i >= Math.max(0, lines.length - 3); i--) {
+	for (let i = lines.length - 1; i >= Math.max(0, lines.length - lineLimit); i--) {
 		if (isHeaderFooter(lines[i])) linesToRemove.push(i);
 	}
 
 	const resultLines = lines.filter((_, idx) => !linesToRemove.includes(idx));
 	return resultLines.join('\n');
+}
+
+export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
+	const keywordsList = (keywords || '')
+		.split(',')
+		.map(s => s.trim())
+		.filter(Boolean);
+	
+	const report = [];
+
+	for (let idx = 0; idx < rawFilesList.length; idx++) {
+		const f = rawFilesList[idx];
+		const lines = String(f.rawText).replace(/\r\n/g, '\n').split('\n');
+		if (lines.length < 6) continue;
+
+		let firstNonEmpty = '';
+		for (let i = 0; i < lines.length; i++) {
+			if (lines[i].trim()) {
+				firstNonEmpty = lines[i];
+				break;
+			}
+		}
+		let lastNonEmpty = '';
+		for (let i = lines.length - 1; i >= 0; i--) {
+			if (lines[i].trim()) {
+				lastNonEmpty = lines[i];
+				break;
+			}
+		}
+
+		if (isRealParagraph(firstNonEmpty) || isRealParagraph(lastNonEmpty)) {
+			continue;
+		}
+
+		const cleanArabic = keywordsList.some(k => k.trim().toLowerCase() === '{no}');
+		const cleanRoman = keywordsList.some(k => k.trim().toLowerCase() === '{roman_no}');
+
+		const filteredKeywords = keywordsList.filter(k => {
+			const trimmed = k.trim().toLowerCase();
+			return trimmed !== '{no}' && trimmed !== '{roman_no}';
+		});
+
+		const normKeywords = filteredKeywords
+			.map(k => String(k).trim())
+			.filter(Boolean)
+			.map(k => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
+
+		function isHeaderFooter(line) {
+			const trimmed = line.trim();
+			if (!trimmed) return false;
+
+			if (cleanArabic) {
+				if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
+			}
+
+			if (cleanRoman) {
+				if (/^[ivxldcmIVXLDCM]+[-—–~]*$/.test(trimmed)) return true;
+			}
+
+			if (normKeywords.length > 0) {
+				const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
+				if (normLine) {
+					for (const nk of normKeywords) {
+						if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+		const scanned = [];
+		for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
+			scanned.push({
+				lineNum: i + 1,
+				text: lines[i],
+				location: 'Đầu file',
+				isRemoved: isHeaderFooter(lines[i])
+			});
+		}
+		for (let i = lines.length - 1; i >= Math.max(0, lines.length - lineLimit); i--) {
+			if (i < lineLimit) continue; 
+			scanned.push({
+				lineNum: i + 1,
+				text: lines[i],
+				location: 'Cuối file',
+				isRemoved: isHeaderFooter(lines[i])
+			});
+		}
+
+		scanned.sort((a, b) => a.lineNum - b.lineNum);
+
+		if (scanned.length > 0) {
+			report.push({
+				fileName: f.baseName,
+				scanned
+			});
+		}
+	}
+	return report;
 }
 
 function stripDecoration(s) {
@@ -287,7 +415,7 @@ function scoreHeadingCandidate(rawText) {
 	return score;
 }
 
-function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, limitOneChapter) {
+function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, limitOneChapter, heuristicThreshold = 5) {
 	const raw = [];
 	let foundChapter = false;
 	for (let i = 0; i < blocks.length; i++) {
@@ -308,7 +436,7 @@ function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, li
 
 			if (isFirstNonEmpty) {
 				if (useHeuristic) {
-					if (!b.text.includes('\n') && scoreHeadingCandidate(b.text) >= HEURISTIC_THRESHOLD) {
+					if (!b.text.includes('\n') && scoreHeadingCandidate(b.text) >= heuristicThreshold) {
 						raw.push({ blockIndex: i, offset: 0, type: 'chapter' });
 						foundChapter = true;
 					}
@@ -355,7 +483,7 @@ function extractChunkBlocks(blocks, start, end) {
 	return result;
 }
 
-export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage, endPage) {
+export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups = [];
 	let current = null;
@@ -366,7 +494,7 @@ export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage,
 		const pageNum = idx + 1;
 		const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
 		const limitOneChapter = rawFilesList.length > 1;
-		const cuts = findAllMarkerPositionsCombined(f.blocks, matcher, isHeuristicActive, limitOneChapter);
+		const cuts = findAllMarkerPositionsCombined(f.blocks, matcher, isHeuristicActive, limitOneChapter, heuristicThreshold);
 
 		if (cuts.length === 0) {
 			const { html, title: t } = renderMarkdownBlocks(f.blocks);
@@ -448,4 +576,61 @@ export function assignSequentialChapterIds(chapters) {
 			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
 		return { ...c, fileName, xmlId };
 	});
+}
+
+export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
+	const candidates = [];
+
+	for (let idx = 0; idx < rawFilesList.length; idx++) {
+		const f = rawFilesList[idx];
+		const pageNum = idx + 1;
+		const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
+
+		for (let i = 0; i < f.blocks.length; i++) {
+			const b = f.blocks[i];
+			if (b.type !== 'heading' && b.type !== 'p') continue;
+
+			const score = scoreHeadingCandidate(b.text);
+			
+			let regexMatch = false;
+			if (matcher) {
+				const loc = matcher.locate(b.text, 0);
+				if (loc) {
+					const lastNewline = b.text.lastIndexOf('\n', loc.index - 1);
+					const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
+					const prefix = b.text.slice(lineStart, loc.index);
+					if (isDecorationOnly(prefix)) regexMatch = true;
+				}
+			}
+
+			const heuristicMatch = isHeuristicActive && !b.text.includes('\n') && score >= heuristicThreshold;
+			const isMatch = regexMatch || heuristicMatch;
+			
+			if (b.type === 'heading' || score > -10 || isMatch) {
+				const nextBlocks = [];
+				let count = 0;
+				for (let j = i + 1; j < f.blocks.length && count < 2; j++) {
+					if (f.blocks[j].text && f.blocks[j].text.trim()) {
+						nextBlocks.push(f.blocks[j].text.slice(0, 150) + (f.blocks[j].text.length > 150 ? '...' : ''));
+						count++;
+					}
+				}
+
+				candidates.push({
+					pageNum,
+					fileName: f.baseName,
+					blockIndex: i,
+					text: b.text,
+					type: b.type,
+					score: score,
+					regexMatch,
+					heuristicMatch,
+					isMatch,
+					snippet: nextBlocks.join('\n\n')
+				});
+			}
+		}
+	}
+	return candidates;
 }

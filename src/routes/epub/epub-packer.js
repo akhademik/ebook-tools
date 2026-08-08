@@ -66,7 +66,7 @@ export const EPUB_CSS = `@page {
     text-transform: capitalize;
   }`;
 
-function buildContainerXml() {
+export function buildContainerXml() {
 	return '<?xml version="1.0" encoding="UTF-8"?>\n' +
 		'<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n' +
 		'  <rootfiles>\n' +
@@ -75,7 +75,7 @@ function buildContainerXml() {
 		'</container>';
 }
 
-function buildContentOpf(meta, chapters) {
+export function buildContentOpf(meta, chapters) {
 	const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 	const manifestItems = [
 		'<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
@@ -102,7 +102,7 @@ function buildContentOpf(meta, chapters) {
 		'</package>';
 }
 
-function buildNavXhtml(meta, chapters) {
+export function buildNavXhtml(meta, chapters) {
 	const items = chapters.map(c => '<li><a href="text/' + c.fileName + '.xhtml">' + escapeXml(c.title) + '</a></li>').join('\n      ');
 	return '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' + meta.language + '">\n' +
@@ -110,7 +110,7 @@ function buildNavXhtml(meta, chapters) {
 		'<body>\n  <nav epub:type="toc" id="toc">\n    <h1>Mục lục</h1>\n    <ol>\n      ' + items + '\n    </ol>\n  </nav>\n</body>\n</html>';
 }
 
-function buildTocNcx(meta, chapters) {
+export function buildTocNcx(meta, chapters) {
 	const navPoints = chapters.map((c, i) =>
 		'<navPoint id="navPoint-' + (i + 1) + '" playOrder="' + (i + 1) + '">\n' +
 		'      <navLabel><text>' + escapeXml(c.title) + '</text></navLabel>\n' +
@@ -129,7 +129,7 @@ function buildTocNcx(meta, chapters) {
 		'</ncx>';
 }
 
-function mergeBrokenParagraphs(html) {
+export function mergeBrokenParagraphs(html) {
 	let result = html;
 	let changed = true;
 	while (changed) {
@@ -150,7 +150,7 @@ function mergeBrokenParagraphs(html) {
 	return result;
 }
 
-function buildChapterXhtml(meta, chapter) {
+export function buildChapterXhtml(meta, chapter) {
 	return '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' + meta.language + '">\n' +
 		'<head>\n  <meta charset="utf-8"/>\n  <title>' + escapeXml(chapter.title) + '</title>\n' +

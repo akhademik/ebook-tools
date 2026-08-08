@@ -7,7 +7,8 @@
 		groupChapters,
 		assignSequentialChapterIds,
 		buildEpubBlob,
-		EPUB_CSS
+		EPUB_CSS,
+		getCleanedLinesReport
 	} from './epub-utils.js';
 
 	// State variables (Svelte 5 runes)
@@ -35,6 +36,12 @@
 	let processing = $state(false);
 	let isDragOver = $state(false);
 
+	let heuristicThreshold = $state(5);
+	let activeTab = $state('toc'); // 'toc' | 'diff'
+	let cleanedLinesReport = $state([]);
+	let visibleCleanedCount = $state(20);
+	let cleanLineLimit = $state(2);
+
 	// Derived state
 	let epubOutNamePreview = $derived(ensureEpubExt(epubOutName.trim() || 'ten-sach'));
 
@@ -52,7 +59,7 @@
 		if (authorVal) keywords.push(authorVal);
 
 		const processedFiles = epubRawFiles.map(f => {
-			const cleanedMd = cleanHeaderFooterOcr(f.rawText, keywords);
+			const cleanedMd = cleanHeaderFooterOcr(f.rawText, keywords, cleanLineLimit);
 			return {
 				path: f.path,
 				baseName: f.baseName,
@@ -68,9 +75,13 @@
 			mergePattern,
 			heuristicMode,
 			startPage,
-			endPage
+			endPage,
+			heuristicThreshold
 		);
-		epubChapters = assignSequentialChapterIds(grouped);
+		const newChapters = assignSequentialChapterIds(grouped);
+		epubChapters = newChapters;
+
+		cleanedLinesReport = getCleanedLinesReport(epubRawFiles, cleanKeywords, cleanLineLimit);
 
 		const mergedCount = epubRawFiles.length - grouped.length;
 		parseStatus = mergedCount > 0
@@ -94,6 +105,7 @@
 		epubBlob = null;
 		epubChapters = [];
 		epubRawFiles = [];
+		visibleCleanedCount = 20;
 
 		loadZipContent(file);
 	}
@@ -231,31 +243,111 @@
 		</div>
 
 		{#if heuristicMode}
-			<div class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in">
-				<span class="font-mono text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
-				<input type="number" bind:value={heuristicStart} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
-				<span class="font-mono text-sm text-text-mute">đến trang</span>
-				<input type="number" bind:value={heuristicEnd} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
+			<div class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color">
+				<div class="flex items-center gap-3 w-full flex-wrap">
+					<span class="font-mono text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
+					<input type="number" bind:value={heuristicStart} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
+					<span class="font-mono text-sm text-text-mute">đến trang</span>
+					<input type="number" bind:value={heuristicEnd} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
+				</div>
+				<div class="flex items-center gap-3 w-full mt-4 flex-wrap border-t border-border-color pt-4">
+					<span class="font-mono text-sm text-text-mute">Ngưỡng điểm (Threshold):</span>
+					<input type="range" min="1" max="10" step="1" bind:value={heuristicThreshold} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40" />
+					<span class="font-mono text-sm font-semibold text-accent-color w-8 text-center">{heuristicThreshold}</span>
+					<p class="text-xs text-text-mute w-full mt-1.5 leading-relaxed">
+						Giảm ngưỡng để bắt nhiều tiêu đề hơn (cho sách quét OCR xấu). Tăng ngưỡng để tránh nhận diện nhầm đoạn văn thường thành chương.
+					</p>
+				</div>
 			</div>
 		{/if}
 
-		<div class="mt-5">
-			<span class="font-mono text-xs text-text-mute uppercase mb-1.5 block">Lọc Header/Footer (Tùy chọn)</span>
-			<input type="text" bind:value={cleanKeywords} class="w-full bg-panel-2 border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
+		<div class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex flex-col gap-3">
+			<div>
+				<span class="font-mono text-xs text-text-mute uppercase mb-1.5 block">Lọc Header/Footer (Tùy chọn)</span>
+				<input type="text" bind:value={cleanKeywords} class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
+			</div>
+			<div class="flex items-center gap-3 mt-1.5 flex-wrap border-t border-border-color pt-3">
+				<span class="font-mono text-sm text-text-mute">Số dòng quét đầu/cuối trang:</span>
+				<input type="range" min="1" max="5" step="1" bind:value={cleanLineLimit} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32" />
+				<span class="font-mono text-sm font-semibold text-accent-color w-6 text-center">{cleanLineLimit}</span>
+				<p class="text-xs text-text-mute w-full leading-relaxed mt-1">
+					Chỉ quét các file có từ 6 dòng trở lên. Tự động bỏ qua lọc nếu dòng đầu hoặc cuối là đoạn văn đầy đủ (để tránh mất nội dung truyện).
+				</p>
+			</div>
 		</div>
 	{/if}
 
 	{#if epubChapters.length > 0}
-		<div class="mt-5 border border-border-color rounded-xl max-h-[240px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm animate-fade-in">
-			{#each epubChapters as chapter (chapter.xmlId)}
-				<div class="flex justify-between gap-4 p-3.5 font-mono text-[12px] border-b border-border-color last:border-b-0">
-					<span class="text-text-color overflow-hidden text-ellipsis whitespace-nowrap" title="{chapter.fileName}.xhtml — {chapter.sources.length > 1 ? `gộp ${chapter.sources.length} nguồn: ${chapter.sources.join(', ')}` : chapter.sources[0]}">
-						{chapter.fileName}.xhtml — {chapter.sources.length > 1 ? `gộp ${chapter.sources.length} nguồn` : chapter.sources[0]}
-					</span>
-					<span class="text-amber-color shrink-0">{chapter.title}</span>
-				</div>
-			{/each}
+		<!-- Tab Navigation -->
+		<div class="flex border-b border-border-color mt-6 font-mono text-xs">
+			<button 
+				type="button" 
+				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {activeTab === 'toc' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
+				onclick={() => { activeTab = 'toc'; }}
+			>Mục lục kết quả</button>
+			
+			<button 
+				type="button" 
+				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {activeTab === 'diff' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
+				onclick={() => { activeTab = 'diff'; }}
+			>
+				Lọc Header/Footer ({cleanedLinesReport.length})
+			</button>
 		</div>
+
+		<!-- Tab Contents -->
+		{#if activeTab === 'toc'}
+			<div class="mt-4 border border-border-color rounded-xl max-h-[300px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm animate-fade-in">
+				{#each epubChapters as chapter (chapter.xmlId)}
+					<div class="flex justify-between gap-4 p-3.5 font-mono text-[12px] border-b border-border-color last:border-b-0">
+						<span class="text-text-color overflow-hidden text-ellipsis whitespace-nowrap" title="{chapter.fileName}.xhtml — {chapter.sources.length > 1 ? `gộp ${chapter.sources.length} nguồn: ${chapter.sources.join(', ')}` : chapter.sources[0]}">
+							{chapter.fileName}.xhtml — {chapter.sources.length > 1 ? `gộp ${chapter.sources.length} nguồn` : chapter.sources[0]}
+						</span>
+						<span class="text-amber-color shrink-0">{chapter.title}</span>
+					</div>
+				{/each}
+			</div>
+		{:else if activeTab === 'diff'}
+			<div class="mt-4 border border-border-color rounded-xl max-h-[350px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm animate-fade-in flex flex-col gap-4">
+				{#if cleanedLinesReport.length === 0}
+					<div class="p-8 text-center text-text-mute font-sans">Không có tệp tin Markdown nào đủ điều kiện quét lọc (> 5 dòng và không có đoạn văn thực sự).</div>
+				{:else}
+					{#each cleanedLinesReport.slice(0, visibleCleanedCount) as fileReport, fIdx (fileReport.fileName + '_' + fIdx)}
+						<div class="border border-border-color rounded-lg overflow-hidden bg-panel-2/30 shrink-0">
+							<div class="bg-panel-2 py-2 px-3 text-[11px] font-semibold text-accent-color border-b border-border-color flex justify-between">
+								<span>{fileReport.fileName}.md</span>
+								<span class="text-text-mute font-normal font-sans">Đang quét {fileReport.scanned.length} dòng (đầu/cuối)</span>
+							</div>
+							<div class="p-2 flex flex-col gap-1.5 font-mono text-[11px]">
+								{#each fileReport.scanned as line, lIdx (line.lineNum + '_' + lIdx)}
+									{#if line.isRemoved}
+										<div class="flex flex-col gap-0.5 p-2 bg-red-500/5 border border-red-500/10 rounded text-red-400">
+											<span class="text-[9px] opacity-60 font-semibold">[Dòng {line.lineNum} · {line.location} · Sẽ xóa]</span>
+											<span class="line-through leading-relaxed break-all">- {line.text || '(Dòng trống)'}</span>
+										</div>
+									{:else}
+										<div class="flex flex-col gap-0.5 p-2 bg-green-500/5 border border-green-500/10 rounded text-green-400">
+											<span class="text-[9px] opacity-60 font-semibold">[Dòng {line.lineNum} · {line.location} · Giữ lại]</span>
+											<span class="leading-relaxed break-all">+ {line.text || '(Dòng trống)'}</span>
+										</div>
+									{/if}
+								{/each}
+							</div>
+						</div>
+					{/each}
+					{#if cleanedLinesReport.length > visibleCleanedCount}
+						<button 
+							type="button" 
+							class="w-full text-center py-2.5 bg-panel-2 border border-border-color hover:border-accent-color rounded-lg text-text-color transition-colors mt-2 text-xs font-semibold cursor-pointer shrink-0"
+							onclick={() => { visibleCleanedCount += 20; }}
+						>
+							Xem thêm {cleanedLinesReport.length - visibleCleanedCount} tệp nữa...
+						</button>
+					{/if}
+				{/if}
+			</div>
+
+		{/if}
 	{/if}
 
 	{#if parseStatus}
