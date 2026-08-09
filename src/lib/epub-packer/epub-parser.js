@@ -1,4 +1,5 @@
 import { escapeXml } from '$lib/helpers/helpers.js';
+import * as logger from '$lib/helpers/logger.js';
 
 function convertInline(text) {
 	const codeSpans = [];
@@ -37,6 +38,7 @@ function startsWithLowercaseLetter(str) {
 }
 
 export function parseMarkdownBlocks(md) {
+	logger.log('epub-parser', 'parseMarkdownBlocks called, input length:', (md || '').length);
 	const lines = String(md).replace(/\r\n/g, '\n').split('\n');
 	const blocks = [];
 	let i = 0;
@@ -108,6 +110,7 @@ export function parseMarkdownBlocks(md) {
 		}
 		blocks.push({ type: 'p', text: paraLines.join('\n').trim() });
 	}
+	logger.log('epub-parser', 'parseMarkdownBlocks finished, total blocks:', blocks.length);
 	return blocks;
 }
 
@@ -224,9 +227,13 @@ function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
 }
 
 export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
+	logger.log('epub-parser', 'cleanHeaderFooterOcr called, lines:', String(text || '').split('\n').length, 'keywords:', keywords);
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
-	if (shouldSkipHeaderFooter(lines, normKeywords)) return text;
+	if (shouldSkipHeaderFooter(lines, normKeywords)) {
+		logger.log('epub-parser', 'cleanHeaderFooterOcr: skipped cleaning (real paragraphs at boundary)');
+		return text;
+	}
 
 	const linesToRemove = [];
 	for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
@@ -237,6 +244,7 @@ export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 	}
 
 	const resultLines = lines.filter((_, idx) => !linesToRemove.includes(idx));
+	logger.log('epub-parser', `cleanHeaderFooterOcr: removed ${linesToRemove.length} header/footer lines`);
 	return resultLines.join('\n');
 }
 
@@ -428,6 +436,7 @@ function extractChunkBlocks(blocks, start, end) {
 }
 
 export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+	logger.log('epub-parser', 'groupChapters called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups = [];
 	let current = null;
@@ -502,13 +511,15 @@ export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage,
 			seenMarker = true;
 		}
 	}
+	logger.log('epub-parser', 'groupChapters finished, total groups created:', groups.length);
 	return groups;
 }
 
 export function assignSequentialChapterIds(chapters) {
+	logger.log('epub-parser', 'assignSequentialChapterIds called for chapters count:', chapters.length);
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
-	return chapters.map((c) => {
+	const result = chapters.map((c) => {
 		if (c.isChapter) {
 			chapCount++;
 		}
@@ -520,9 +531,12 @@ export function assignSequentialChapterIds(chapters) {
 			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
 		return { ...c, fileName, xmlId };
 	});
+	logger.log('epub-parser', 'assignSequentialChapterIds finished: total chapters =', chapCount);
+	return result;
 }
 
 export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+	logger.log('epub-parser', 'analyzeChapterCandidates called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic, 'threshold:', heuristicThreshold);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const candidates = [];
 
@@ -576,6 +590,7 @@ export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic,
 			}
 		}
 	}
+	logger.log('epub-parser', 'analyzeChapterCandidates finished, total candidates:', candidates.length);
 	return candidates;
 }
 
@@ -622,7 +637,7 @@ export function normalizeMultiLineChapterTags(text, h1Delim = '##') {
 export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chương 1') {
 	const h1Delim = (rules.h1Delim || '##').trim();
 	const h2Delim = (rules.h2Delim || '#').trim();
-	console.log('[parseTxtToChapters] Starting parse. h1Delim:', h1Delim, 'h2Delim:', h2Delim, 'fallbackTitle:', fallbackTitle);
+	logger.log('epub-parser', 'parseTxtToChapters starting parse. h1Delim:', h1Delim, 'h2Delim:', h2Delim, 'fallbackTitle:', fallbackTitle);
 
 	const normalizedText = normalizeMultiLineChapterTags(rawText, h1Delim);
 
@@ -635,7 +650,7 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 		: null;
 
 	const rawBlocks = String(normalizedText || '').replace(/\r\n/g, '\n').split(/\n\s*\n+/);
-	console.log('[parseTxtToChapters] Total raw blocks:', rawBlocks.length);
+	logger.log('epub-parser', 'parseTxtToChapters total raw blocks:', rawBlocks.length);
 
 	const chapters = [];
 	let currentChapter = null;
@@ -719,7 +734,7 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 	}
 
 	if (chapters.length === 0) {
-		console.warn('[parseTxtToChapters] No chapters created, creating fallback chapter.');
+		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
 		chapters.push({
 			title: fallbackTitle,
 			html: '<p>' + convertTxtInline(rawText, rules) + '</p>\n',
@@ -729,7 +744,7 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 		});
 	}
 
-	console.log('[parseTxtToChapters] Parse complete. Total chapters:', chapters.length, chapters.map(c => c.title));
+	logger.log('epub-parser', 'parseTxtToChapters parse complete. Total chapters:', chapters.length, chapters.map(c => c.title));
 	return chapters;
 }
 

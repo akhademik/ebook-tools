@@ -1,4 +1,5 @@
 // helpers.js
+import * as logger from './logger.js';
 
 /**
  * Configure PDF.js worker URL if PDF.js library is loaded globally via CDN.
@@ -13,8 +14,11 @@ if (typeof window !== 'undefined' && window.pdfjsLib) {
  * @returns {string} Cleaned slug name or 'untitled' if empty.
  */
 export function slugify(name) {
+  logger.log('helpers', 'slugify called with:', name);
   if (typeof name !== 'string') return 'untitled';
-  return name.trim().replace(/\.[^.]+$/, '').replace(/\s+/g, '-') || 'untitled';
+  const result = name.trim().replace(/\.[^.]+$/, '').replace(/\s+/g, '-') || 'untitled';
+  logger.log('helpers', 'slugify result:', result);
+  return result;
 }
 
 /**
@@ -23,10 +27,13 @@ export function slugify(name) {
  * @returns {string} Normalized filename ending in '.zip'.
  */
 export function ensureZipExt(name) {
+  logger.log('helpers', 'ensureZipExt called with:', name);
   if (typeof name !== 'string') return 'output.zip';
   name = name.trim();
   if (!name) return 'output.zip';
-  return /\.zip$/i.test(name) ? name : name + '.zip';
+  const result = /\.zip$/i.test(name) ? name : name + '.zip';
+  logger.log('helpers', 'ensureZipExt result:', result);
+  return result;
 }
 
 /**
@@ -35,10 +42,13 @@ export function ensureZipExt(name) {
  * @returns {string} Normalized filename ending in '.epub'.
  */
 export function ensureEpubExt(name) {
+  logger.log('helpers', 'ensureEpubExt called with:', name);
   if (typeof name !== 'string') return 'output.epub';
   name = name.trim();
   if (!name) return 'output.epub';
-  return /\.epub$/i.test(name) ? name : name + '.epub';
+  const result = /\.epub$/i.test(name) ? name : name + '.epub';
+  logger.log('helpers', 'ensureEpubExt result:', result);
+  return result;
 }
 
 /**
@@ -47,13 +57,13 @@ export function ensureEpubExt(name) {
  * @param {string} filename - Desired output filename.
  */
 export function triggerDownload(blob, filename) {
-  console.log('[triggerDownload] Called with filename:', filename, 'blob:', blob);
+  logger.log('helpers', 'triggerDownload called with filename:', filename, 'blob:', blob);
   if (!blob || !(blob instanceof Blob)) {
-    console.error('[triggerDownload] Invalid blob:', blob);
+    logger.error('helpers', 'Invalid blob:', blob);
     return;
   }
   const safeFilename = filename || 'download';
-  console.log('[triggerDownload] Creating ObjectURL for safeFilename:', safeFilename, 'blob size:', blob.size);
+  logger.log('helpers', 'Creating ObjectURL for safeFilename:', safeFilename, 'blob size:', blob.size);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -61,7 +71,7 @@ export function triggerDownload(blob, filename) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  console.log('[triggerDownload] Download anchor clicked successfully.');
+  logger.log('helpers', 'Download anchor clicked successfully.');
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 

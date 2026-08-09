@@ -1,6 +1,6 @@
 import { cleanHeaderFooterOcr, parseMarkdownBlocks, groupChapters, getCleanedLinesReport, assignSequentialChapterIds, parseTxtToChapters } from './epub-parser.js';
 import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
-import { slugify, ensureEpubExt, triggerDownload } from '$lib/helpers/helpers.js';
+import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import JSZip from 'jszip';
 
 export class EpubState {

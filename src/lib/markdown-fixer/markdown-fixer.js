@@ -1,4 +1,5 @@
 import JSZip from 'jszip';
+import * as logger from '../helpers/logger.js';
 
 const MAX_SPAN = 150;
 const SPAN = '(?:(?!\\n[ \\t]*\\n)[\\s\\S]){1,' + MAX_SPAN + '}?';
@@ -17,6 +18,7 @@ const ITALIC_PATTERNS = [
 ];
 
 export function convertBrackets(text, config = {}) {
+	logger.log('markdown-fixer', 'convertBrackets called, input length:', text.length);
 	const { italicOpen = '[', italicClose = ']', biOpen = '[', biClose = ']' } = config;
 	let count = 0;
 	let converted = text;
@@ -33,13 +35,16 @@ export function convertBrackets(text, config = {}) {
 			return italicOpen + inner + italicClose;
 		});
 	}
+	logger.log('markdown-fixer', 'convertBrackets finished, replaced:', count, 'matches');
 	return { converted, count };
 }
 
 export async function fixMarkdownZip(mdSelectedFile, wrappers) {
 	if (!mdSelectedFile) {
+		logger.error('markdown-fixer', 'fixMarkdownZip called without file');
 		throw new Error('Chưa chọn tệp .ZIP.');
 	}
+	logger.log('markdown-fixer', 'fixMarkdownZip called, size:', mdSelectedFile.size, 'wrappers:', wrappers);
 
 	const arrayBuffer = await mdSelectedFile.arrayBuffer();
 	const inZip = await JSZip.loadAsync(arrayBuffer);
@@ -59,15 +64,18 @@ export async function fixMarkdownZip(mdSelectedFile, wrappers) {
 			fileCount++;
 			replaceCount += count;
 			rows.push({ path: entry.name, count });
+			logger.log('markdown-fixer', 'Processed markdown file:', entry.name, 'replaced:', count);
 		} else {
 			const blob = await entry.async('blob');
 			outZip.file(entry.name, blob);
+			logger.log('markdown-fixer', 'Copied non-markdown file:', entry.name);
 		}
 	}
 
 	const zipBlob = await outZip.generateAsync({ type: 'blob' });
 	rows.sort((a, b) => b.count - a.count);
 
+	logger.log('markdown-fixer', 'fixMarkdownZip finished, processed:', fileCount, 'markdown files, total replacements:', replaceCount);
 	return {
 		zipBlob,
 		totalFiles: fileCount,

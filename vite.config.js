@@ -17,5 +17,13 @@ export default defineConfig({
 			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 			adapter: adapter()
 		})
-	]
+	],
+	test: {
+		coverage: {
+			provider: 'v8',
+			all: true,
+			include: ['src/**/*.js'],
+			exclude: ['src/**/*.test.js', 'src/**/*.spec.js'],
+		},
+	},
 });

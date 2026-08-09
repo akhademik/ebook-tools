@@ -85,8 +85,8 @@
     "semantic_hash": "3b4fcfcf393eca4d264dca4a4663bc37"
   },
   "src/lib/helpers/helpers.js": {
-    "mtime": 1786238653.8025618,
-    "ast_hash": "50cc103dfe4933aebdd2e982d9bea26c",
+    "mtime": 1786235039.9985518,
+    "ast_hash": "461bfd0619924c0e337d254a33fb7f45",
     "semantic_hash": ""
   },
   "src/routes/txt-to-pdf/+page.svelte": {
@@ -120,13 +120,13 @@
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-packer.js": {
-    "mtime": 1786238674.7905626,
-    "ast_hash": "3628353913cf7e106a4fd7eb2cb736ae",
+    "mtime": 1786235039.9985518,
+    "ast_hash": "d40bb8cd76d3b3d7a69c01a9b4eb973e",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-parser.js": {
-    "mtime": 1786238699.8745573,
-    "ast_hash": "731c860fc2f9953726b4bbf67c7e9153",
+    "mtime": 1786235039.9985518,
+    "ast_hash": "b87198d439c5b11dfb6a817b78f7a6bb",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-state.svelte.js": {
@@ -140,8 +140,8 @@
     "semantic_hash": ""
   },
   "src/lib/markdown-fixer/markdown-fixer.js": {
-    "mtime": 1786238710.3705544,
-    "ast_hash": "98d7d5fb67415f8d9f4bba62dcf4310f",
+    "mtime": 1786194186.8317301,
+    "ast_hash": "44901e952e3c15b15ac0b46ab47c1772",
     "semantic_hash": ""
   },
   "src/lib/pdf-splitter/pdf-splitter-state.svelte.js": {
@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "src/lib/pdf-splitter/pdf-splitter.js": {
-    "mtime": 1786238669.7665615,
-    "ast_hash": "64eb032aece5560d2a725fffc50b30be",
+    "mtime": 1786194186.8325877,
+    "ast_hash": "13336110f69212402561ecf2110ea5c9",
     "semantic_hash": ""
   },
   "tests/epub-packer.test.js": {
@@ -177,16 +177,6 @@
   "tests/pdf-splitter.test.js": {
     "mtime": 1786237819.4946108,
     "ast_hash": "f3d27498a89443027c700a8fba2371b8",
-    "semantic_hash": ""
-  },
-  "src/lib/helpers/logger.js": {
-    "mtime": 1786238717.3225558,
-    "ast_hash": "0023a94d8d9b2c51a709327ed316ed5f",
-    "semantic_hash": ""
-  },
-  "tests/logger.test.js": {
-    "mtime": 1786238736.2665572,
-    "ast_hash": "0aab72e1accb0f84e3c95faa40ff4cbc",
     "semantic_hash": ""
   }
 }
