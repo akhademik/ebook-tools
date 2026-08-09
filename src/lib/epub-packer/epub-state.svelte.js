@@ -7,10 +7,12 @@ export class EpubState {
 	epubFileSelected = $state(null);
 	epubRawFiles = $state([]);
 	epubChapters = $state([]);
-	epubBlob = $state(null);
+		epubBlob = $state(null);
 	
 	fileType = $state('zip'); // 'zip' | 'txt'
 	rawTxtText = $state('');
+	customDefinitions = $state([]);
+
 	txtH1Delim = $state('##');
 	txtH2Delim = $state('#');
 	txtEmDelim = $state('*');
@@ -41,6 +43,15 @@ export class EpubState {
 	epubOutName = $state('');
 
 	epubOutNamePreview = $derived(ensureEpubExt(this.epubOutName.trim() || 'ten-sach'));
+
+	addCustomDefinition() {
+		this.customDefinitions.push({ pattern: '', tag: '' });
+	}
+
+	removeCustomDefinition(idx) {
+		this.customDefinitions.splice(idx, 1);
+		this.applyTxtGrouping();
+	}
 
 	applyGrouping() {
 		if (this.fileType === 'txt') {
@@ -93,17 +104,30 @@ export class EpubState {
 	applyTxtGrouping() {
 		console.log('[EpubState] applyTxtGrouping called. rawTxtText length:', this.rawTxtText?.length);
 		if (!this.rawTxtText) return;
-		const rules = {
-			h1Delim: this.txtH1Delim,
-			h2Delim: this.txtH2Delim,
-			emDelim: this.txtEmDelim,
-			strongDelim: this.txtStrongDelim,
-			breakDelim: this.txtBreakDelim
-		};
-		console.log('[EpubState] TXT rules:', rules);
+		
 		const fallbackTitle = this.title.trim() || 'Chương 1';
-		const chapters = parseTxtToChapters(this.rawTxtText, rules, fallbackTitle);
+		const chapters = parseTxtToChapters(this.rawTxtText, { customDefinitions: this.customDefinitions }, fallbackTitle);
 		this.epubChapters = assignSequentialChapterIds(chapters);
+
+		// Resolve footnote backlinks
+		const footnoteMap = {};
+		for (const chap of this.epubChapters) {
+			if (chap.fileName !== 'notes') {
+				const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
+				for (const match of matches) {
+					footnoteMap[match[1]] = chap.fileName;
+				}
+			}
+		}
+
+		// Replace placeholders in notes chapter
+		const notesChap = this.epubChapters.find(c => c.fileName === 'notes');
+		if (notesChap) {
+			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (match, n) => {
+				return footnoteMap[n] || 'chap_01';
+			});
+		}
+
 		this.cleanedLinesReport = [];
 		this.parseStatus = `Đã xử lý tệp .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói tệp EPUB" để xuất file.`;
 		this.parseIsError = false;
@@ -130,6 +154,7 @@ export class EpubState {
 		this.epubChapters = [];
 		this.epubRawFiles = [];
 		this.rawTxtText = '';
+		this.customDefinitions = [];
 		this.visibleCleanedCount = 20;
 
 		if (isTxt) {

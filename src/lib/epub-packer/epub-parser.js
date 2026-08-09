@@ -520,6 +520,9 @@ export function assignSequentialChapterIds(chapters) {
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
+		if (c.fileName === 'notes' || c.isNotes) {
+			return { ...c, fileName: 'notes', xmlId: 'notes' };
+		}
 		if (c.isChapter) {
 			chapCount++;
 		}
@@ -598,80 +601,128 @@ function escapeRegExp(str) {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function convertTxtInline(text, rules = {}) {
-	const h2Delim = (rules.h2Delim || '#').trim();
-	const emDelim = (rules.emDelim || '*').trim();
-	const strongDelim = (rules.strongDelim || '**').trim();
+function getClosingTag(openTag) {
+	const match = openTag.match(/<([a-zA-Z0-9]+)/);
+	return match ? `</${match[1]}>` : '';
+}
 
+export function convertTxtInline(text, customDefinitions = []) {
 	let t = escapeXml(String(text || ''));
 
-	if (strongDelim) {
-		const reStrong = new RegExp(escapeRegExp(strongDelim) + '(.+?)' + escapeRegExp(strongDelim), 'g');
-		t = t.replace(reStrong, (m, content) => '<strong>' + content + '</strong>');
+	// 1. Process custom definitions first
+	if (Array.isArray(customDefinitions)) {
+		for (const def of customDefinitions) {
+			if (def.pattern && def.tag) {
+				const escapedP = escapeRegExp(def.pattern);
+				const reCustom = new RegExp(escapedP + '(.+?)' + escapedP, 'g');
+				t = t.replace(reCustom, (m, content) => {
+					const closingTag = getClosingTag(def.tag);
+					return def.tag + content + closingTag;
+				});
+			}
+		}
 	}
 
-	if (h2Delim) {
-		const reH2 = new RegExp(escapeRegExp(h2Delim) + '(.+?)' + escapeRegExp(h2Delim), 'g');
-		t = t.replace(reH2, (m, content) => '<h2>' + content + '</h2>');
-	}
+	// 2. Default rule: [đậm] -> <strong>đậm</strong>
+	t = t.replace(/\[([^\]]+)\]/g, (m, content) => '<strong>' + content + '</strong>');
 
-	if (emDelim) {
-		const reEm = new RegExp(escapeRegExp(emDelim) + '(.+?)' + escapeRegExp(emDelim), 'g');
-		t = t.replace(reEm, (m, content) => '<em>' + content + '</em>');
-	}
+	// 3. Default rule: *nghiêng* -> <em>nghiêng</em>
+	t = t.replace(/\*([^*]+)\*/g, (m, content) => '<em>' + content + '</em>');
+
+	// 4. Default rule: {n} -> <a class="noteref" epub:type="noteref" id="fnref{n}" href="notes.xhtml#fn{n}"><sup>{n}</sup></a>
+	t = t.replace(/\{(\d+)\}/g, (m, n) => {
+		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
+	});
 
 	return t;
 }
 
-export function normalizeMultiLineChapterTags(text, h1Delim = '##') {
-	const delim = (h1Delim || '##').trim();
-	if (!delim) return String(text || '');
-	const escaped = escapeRegExp(delim);
-	const reMulti = new RegExp(escaped + '([\\s\\S]{1,300}?)' + escaped, 'g');
-	return String(text || '').replace(reMulti, (m, inner) => {
+export function normalizeMultiLineChapterTags(text) {
+	let t = String(text || '');
+	// Normalize ##...#
+	t = t.replace(/##([\s\S]{1,300}?)#+/g, (m, inner) => {
 		const cleanedInner = inner.replace(/\r?\n\s*/g, ' ').trim();
-		return delim + cleanedInner + delim;
+		return '##' + cleanedInner + '#';
 	});
+	// Normalize #...#
+	t = t.replace(/#([\s\S]{1,300}?)#+/g, (m, inner) => {
+		if (inner.startsWith('#')) return m;
+		const cleanedInner = inner.replace(/\r?\n\s*/g, ' ').trim();
+		return '#' + cleanedInner + '#';
+	});
+	return t;
 }
 
-export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chương 1') {
-	const h1Delim = (rules.h1Delim || '##').trim();
-	const h2Delim = (rules.h2Delim || '#').trim();
-	logger.log('epub-parser', 'parseTxtToChapters starting parse. h1Delim:', h1Delim, 'h2Delim:', h2Delim, 'fallbackTitle:', fallbackTitle);
+export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
+	const customDefinitions = options.customDefinitions || [];
+	logger.log('epub-parser', 'parseTxtToChapters starting parse. customDefinitions count:', customDefinitions.length);
 
-	const normalizedText = normalizeMultiLineChapterTags(rawText, h1Delim);
+	// 1. Footnotes split
+	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
+	const footnoteIdx = lines.findIndex(l => l.includes('Chú thích:'));
 
-	const reH1Exact = h1Delim
-		? new RegExp('^\\s*' + escapeRegExp(h1Delim) + '\\s*(.*?)(?:\\s*' + escapeRegExp(h1Delim) + ')?\\s*$', 'i')
-		: null;
+	let mainLines = lines;
+	let hasFootnotes = false;
+	let notesHtml = '';
 
-	const reH2Exact = h2Delim
-		? new RegExp('^\\s*' + escapeRegExp(h2Delim) + '\\s*(.*?)(?:\\s*' + escapeRegExp(h2Delim) + ')?\\s*$', 'i')
-		: null;
+	if (footnoteIdx !== -1) {
+		mainLines = lines.slice(0, footnoteIdx);
+		hasFootnotes = true;
 
-	const rawBlocks = String(normalizedText || '').replace(/\r\n/g, '\n').split(/\n\s*\n+/);
-	logger.log('epub-parser', 'parseTxtToChapters total raw blocks:', rawBlocks.length);
+		notesHtml += '<h1 class="chapter">Chú thích:</h1>\n';
+		const footnoteContentLines = lines.slice(footnoteIdx + 1);
+		for (const line of footnoteContentLines) {
+			const trimmed = line.trim();
+			if (!trimmed) continue;
+			
+			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
+			if (fnMatch) {
+				const n = fnMatch[1];
+				const content = fnMatch[2].trim();
+				const convertedContent = convertTxtInline(content, customDefinitions);
+				notesHtml += `<aside epub:type="footnote" id="fn${n}" class="note">\n` +
+					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
+					`</aside>\n`;
+			} else {
+				const converted = convertTxtInline(trimmed, customDefinitions);
+				notesHtml += `<p>${converted}</p>\n`;
+			}
+		}
+	}
 
+	// Join main lines back
+	const mainText = mainLines.join('\n');
+	const normalizedText = normalizeMultiLineChapterTags(mainText);
+
+	// 2. Parse main text into blocks by double newlines (paragraphs)
+	const rawBlocks = normalizedText.split(/\n\s*\n+/);
 	const chapters = [];
 	let currentChapter = null;
+
+	const reH1Exact = /^\s*##(.*?)#+\s*$/;
+	const reH2Exact = /^\s*#(?!#)(.*?)#+\s*$/;
 
 	for (const block of rawBlocks) {
 		const trimmedBlock = block.trim();
 		if (!trimmedBlock) continue;
 
-		const lines = trimmedBlock.split('\n');
+		const blockLines = trimmedBlock.split('\n');
 		let currentParaLines = [];
 
 		const flushPara = () => {
 			if (currentParaLines.length > 0 && currentChapter) {
-				const breakDelim = (rules.breakDelim || '•••').trim();
 				for (const lineText of currentParaLines) {
 					const trimmed = lineText.trim();
 					if (!trimmed) continue;
-					if (breakDelim && trimmed === breakDelim) {
-						currentChapter.html += '<p class="sbreak">' + escapeXml(trimmed) + '</p>\n';
+					
+					if (trimmed === '•••') {
+						currentChapter.html += '<p class="sbreak sbreak-big" role="separator">• • •</p>\n';
+					} else if (trimmed.startsWith('$') && trimmed.endsWith('$') && trimmed.length >= 2) {
+						const inner = trimmed.slice(1, -1).trim();
+						const pContent = convertTxtInline(inner, customDefinitions);
+						currentChapter.html += '<p class="boldright">' + pContent + '</p>\n';
 					} else {
-						const pContent = convertTxtInline(trimmed, rules);
+						const pContent = convertTxtInline(trimmed, customDefinitions);
 						currentChapter.html += '<p>' + pContent + '</p>\n';
 					}
 				}
@@ -679,17 +730,17 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 			}
 		};
 
-		for (const line of lines) {
+		for (const line of blockLines) {
 			const trimmedLine = line.trim();
 			if (!trimmedLine) continue;
 
-			const mH1 = reH1Exact ? trimmedLine.match(reH1Exact) : null;
-			if (mH1 && mH1[1].trim()) {
+			const mH1 = trimmedLine.match(reH1Exact);
+			if (mH1) {
 				flushPara();
 				const h1Title = mH1[1].trim();
 				currentChapter = {
 					title: h1Title || `Chương ${chapters.length + 1}`,
-					html: '<h1>' + escapeXml(h1Title) + '</h1>\n',
+					html: '<h1 class="chapter">' + convertTxtInline(h1Title, customDefinitions) + '</h1>\n',
 					sources: ['Tệp TXT'],
 					isChapter: true,
 					firstSourcePageNum: chapters.length + 1
@@ -698,8 +749,8 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 				continue;
 			}
 
-			const mH2 = reH2Exact ? trimmedLine.match(reH2Exact) : null;
-			if (mH2 && mH2[1].trim()) {
+			const mH2 = trimmedLine.match(reH2Exact);
+			if (mH2) {
 				flushPara();
 				if (!currentChapter) {
 					currentChapter = {
@@ -712,8 +763,7 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 					chapters.push(currentChapter);
 				}
 				const h2Title = mH2[1].trim();
-				const h2Content = convertTxtInline(h2Title, { ...rules, h2Delim: '' });
-				currentChapter.html += '<h2>' + h2Content + '</h2>\n';
+				currentChapter.html += '<h2 class="chno">' + convertTxtInline(h2Title, customDefinitions) + '</h2>\n';
 				continue;
 			}
 
@@ -737,14 +787,27 @@ export function parseTxtToChapters(rawText, rules = {}, fallbackTitle = 'Chươn
 		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
 		chapters.push({
 			title: fallbackTitle,
-			html: '<p>' + convertTxtInline(rawText, rules) + '</p>\n',
+			html: '<p>' + convertTxtInline(mainText, customDefinitions) + '</p>\n',
 			sources: ['Tệp TXT'],
 			isChapter: true,
 			firstSourcePageNum: 1
 		});
 	}
 
-	logger.log('epub-parser', 'parseTxtToChapters parse complete. Total chapters:', chapters.length, chapters.map(c => c.title));
+	if (hasFootnotes) {
+		const notesChapter = {
+			title: 'Chú thích',
+			html: notesHtml,
+			sources: ['Tệp TXT'],
+			isChapter: true,
+			fileName: 'notes',
+			isNotes: true,
+			firstSourcePageNum: chapters.length + 1
+		};
+		chapters.push(notesChapter);
+	}
+
+	logger.log('epub-parser', 'parseTxtToChapters parse complete. Total chapters:', chapters.length);
 	return chapters;
 }
 

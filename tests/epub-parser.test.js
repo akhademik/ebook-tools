@@ -386,10 +386,11 @@ describe('epub-parser tests', () => {
 				{ isChapter: false, firstSourcePageNum: 1 },
 				{ isChapter: true, firstSourcePageNum: 5 },
 				{ isChapter: false, firstSourcePageNum: 12 },
-				{ isChapter: true, firstSourcePageNum: 20 }
+				{ isChapter: true, firstSourcePageNum: 20 },
+				{ isChapter: true, fileName: 'notes', isNotes: true }
 			];
 			const assigned = assignSequentialChapterIds(chapters);
-			expect(assigned).toHaveLength(4);
+			expect(assigned).toHaveLength(5);
 			expect(assigned[0]).toEqual({
 				isChapter: false,
 				firstSourcePageNum: 1,
@@ -414,80 +415,81 @@ describe('epub-parser tests', () => {
 				fileName: 'chap_02',
 				xmlId: 'chap02'
 			});
+			expect(assigned[4]).toEqual({
+				isChapter: true,
+				fileName: 'notes',
+				isNotes: true,
+				xmlId: 'notes'
+			});
 		});
 	});
 
 	describe('convertTxtInline & parseTxtToChapters', () => {
 		it('should convert custom syntax tags to HTML tags correctly', () => {
-			const text = 'Nội dung với #tiêu đề phụ#, *nghiêng* và **đậm**';
-			const html = convertTxtInline(text, { h2Delim: '#', emDelim: '*', strongDelim: '**' });
-			expect(html).toBe('Nội dung với <h2>tiêu đề phụ</h2>, <em>nghiêng</em> và <strong>đậm</strong>');
+			const text = 'Nội dung với *nghiêng*, [đậm] và $$$định nghĩa$$$';
+			const html = convertTxtInline(text, [{ pattern: '$$$', tag: '<span class="xya">' }]);
+			expect(html).toBe('Nội dung với <em>nghiêng</em>, <strong>đậm</strong> và <span class="xya">định nghĩa</span>');
 		});
 
-		it('should parse single .txt file into chapters based on ##h1## delimiter', () => {
-			const txt = `## Giới thiệu ##
+		it('should parse single .txt file into chapters based on ##h1# delimiter', () => {
+			const txt = `## Giới thiệu #
 Lời mở đầu bài viết.
 
-## Chương 1: Bắt đầu ##
+## Chương 1: Bắt đầu #
 # 1.1 Khởi động #
 Đoạn văn chương 1.
 Có từ *quan trọng*.`;
 
-			const chapters = parseTxtToChapters(txt, {
-				h1Delim: '##',
-				h2Delim: '#',
-				emDelim: '*',
-				strongDelim: '**'
-			}, 'Default Title');
+			const chapters = parseTxtToChapters(txt, {}, 'Default Title');
 
 			expect(chapters).toHaveLength(2);
 
 			expect(chapters[0].title).toBe('Giới thiệu');
-			expect(chapters[0].html).toContain('<h1>Giới thiệu</h1>');
+			expect(chapters[0].html).toContain('<h1 class="chapter">Giới thiệu</h1>');
 			expect(chapters[0].html).toContain('<p>Lời mở đầu bài viết.</p>');
 
 			expect(chapters[1].title).toBe('Chương 1: Bắt đầu');
-			expect(chapters[1].html).toContain('<h1>Chương 1: Bắt đầu</h1>');
-			expect(chapters[1].html).toContain('<h2>1.1 Khởi động</h2>');
+			expect(chapters[1].html).toContain('<h1 class="chapter">Chương 1: Bắt đầu</h1>');
+			expect(chapters[1].html).toContain('<h2 class="chno">1.1 Khởi động</h2>');
 			expect(chapters[1].html).toContain('<em>quan trọng</em>');
 		});
 
-		it('should join broken multi-line ##noi \\n dung## tags into a single chapter', () => {
+		it('should join broken multi-line ##noi \\n dung# tags into a single chapter', () => {
 			const txt = `##Chương 1:
-Mở đầu##
+Mở đầu#
 Nội dung chương 1.
 
 ##Chương 2: Thử
-nghiệm##
+nghiệm#
 Nội dung chương 2.`;
 
-			const chapters = parseTxtToChapters(txt, { h1Delim: '##' }, 'Mặc định');
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
 
 			expect(chapters).toHaveLength(2);
 			expect(chapters[0].title).toBe('Chương 1: Mở đầu');
-			expect(chapters[0].html).toContain('<h1>Chương 1: Mở đầu</h1>');
+			expect(chapters[0].html).toContain('<h1 class="chapter">Chương 1: Mở đầu</h1>');
 			expect(chapters[1].title).toBe('Chương 2: Thử nghiệm');
-			expect(chapters[1].html).toContain('<h1>Chương 2: Thử nghiệm</h1>');
+			expect(chapters[1].html).toContain('<h1 class="chapter">Chương 2: Thử nghiệm</h1>');
 		});
 
 		it('should render page break sbreak class when encountering ••• delimiter', () => {
-			const txt = `##Chương 1##
+			const txt = `##Chương 1#
 Nội dung phần 1.
 
 •••
 
 Nội dung phần 2.`;
 
-			const chapters = parseTxtToChapters(txt, { h1Delim: '##', breakDelim: '•••' }, 'Chương 1');
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
 
 			expect(chapters).toHaveLength(1);
-			expect(chapters[0].html).toContain('<p class="sbreak">•••</p>');
+			expect(chapters[0].html).toContain('<p class="sbreak sbreak-big" role="separator">• • •</p>');
 		});
 
 		it('should create a fallback chapter if text starts immediately without h1 delimiter', () => {
 			const txt = `Lời mở đầu không có tiêu đề H1.
 Tiếp tục lời mở đầu.`;
-			const chapters = parseTxtToChapters(txt, { h1Delim: '##' }, 'Mở đầu mặc định');
+			const chapters = parseTxtToChapters(txt, {}, 'Mở đầu mặc định');
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].title).toBe('Mở đầu mặc định');
 			expect(chapters[0].html).toContain('<p>Lời mở đầu không có tiêu đề H1.</p>\n<p>Tiếp tục lời mở đầu.</p>');
@@ -495,7 +497,7 @@ Tiếp tục lời mở đầu.`;
 
 		it('should create an empty fallback chapter if input text is empty', () => {
 			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-			const chapters = parseTxtToChapters('', { h1Delim: '##' }, 'Mặc định trống');
+			const chapters = parseTxtToChapters('', {}, 'Mặc định trống');
 			
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].title).toBe('Mặc định trống');
@@ -508,11 +510,48 @@ Tiếp tục lời mở đầu.`;
 		it('should create a fallback chapter if text starts with an h2 header but no h1 header', () => {
 			const txt = `# Tiêu đề phụ #
 Nội dung phụ.`;
-			const chapters = parseTxtToChapters(txt, { h1Delim: '##', h2Delim: '#' }, 'Mặc định');
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].title).toBe('Mặc định');
-			expect(chapters[0].html).toContain('<h2>Tiêu đề phụ</h2>');
+			expect(chapters[0].html).toContain('<h2 class="chno">Tiêu đề phụ</h2>');
 			expect(chapters[0].html).toContain('<p>Nội dung phụ.</p>');
+		});
+
+		it('should process footnotes correctly and separate them into a notes chapter', () => {
+			const txt = `## Chương 1 #
+Đây là chương {1} và chương {2}.
+
+Chú thích:
+{1} Chú thích thứ nhất.
+{2} Chú thích thứ hai.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+
+			expect(chapters).toHaveLength(2);
+
+			expect(chapters[0].title).toBe('Chương 1');
+			expect(chapters[0].html).toContain('<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>');
+			expect(chapters[0].html).toContain('<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>');
+
+			const notes = chapters[1];
+			expect(notes.title).toBe('Chú thích');
+			expect(notes.fileName).toBe('notes');
+			expect(notes.isNotes).toBe(true);
+			expect(notes.html).toContain('<h1 class="chapter">Chú thích:</h1>');
+			expect(notes.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
+			expect(notes.html).toContain('<a class="notenum" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a> Chú thích thứ nhất.');
+			expect(notes.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
+			expect(notes.html).toContain('<a class="notenum" href="__FNREF_SRC_2__.xhtml#fnref2">2.</a> Chú thích thứ hai.');
+		});
+
+		it('should process boldright paragraph formatting correctly', () => {
+			const txt = `## Chương 1 #
+$Đây là văn bản kéo về lề bên phải$`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<p class="boldright">Đây là văn bản kéo về lề bên phải</p>');
 		});
 	});
 });

@@ -37,34 +37,82 @@
 	{#if state.fileType === 'txt' && state.rawTxtText}
 		<!-- Custom Syntax Config for TXT -->
 		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
-			<div class="flex items-center gap-2 text-xs font-mono text-accent-color bg-accent-soft p-3 rounded-lg border border-accent-color/20">
-				<span>ℹ️</span>
-				<span>Chế độ tệp .TXT đơn — Đã tự động bỏ qua các quy trình lọc OCR, Header/Footer và Heuristic ghép dòng.</span>
+			<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Quy tắc cú pháp mặc định</span>
+			<div class="overflow-x-auto">
+				<table class="w-full text-left font-mono text-xs border-collapse text-text-color">
+					<thead>
+						<tr class="border-b border-border-color text-text-mute">
+							<th class="py-2 px-3">Cú pháp trong TXT</th>
+							<th class="py-2 px-3">Kết quả HTML</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-border-color">
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">*nghiêng*</code></td>
+							<td class="py-2.5 px-3"><code>&lt;em&gt;nghiêng&lt;/em&gt;</code></td>
+						</tr>
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">##chap lớn#</code></td>
+							<td class="py-2.5 px-3"><code>&lt;h1 class="chapter"&gt;chap lớn&lt;/h1&gt;</code> (Tách chương mới)</td>
+						</tr>
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">#chap nhỏ#</code></td>
+							<td class="py-2.5 px-3"><code>&lt;h2 class="chno"&gt;chap nhỏ&lt;/h2&gt;</code></td>
+						</tr>
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">$đậm kéo về lề bên phải$</code></td>
+							<td class="py-2.5 px-3"><code>&lt;p class="boldright"&gt;đậm kéo về lề bên phải&lt;/p&gt;</code></td>
+						</tr>
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">[đậm]</code></td>
+							<td class="py-2.5 px-3"><code>&lt;strong&gt;đậm&lt;/strong&gt;</code></td>
+						</tr>
+						<tr>
+							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">•••</code></td>
+							<td class="py-2.5 px-3"><code>&lt;p class="sbreak sbreak-big" role="separator"&gt;• • •&lt;/p&gt;</code></td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-			
-			<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Cấu hình ký hiệu cú pháp cho tệp .TXT</span>
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				<div>
-					<Input bind:value={state.txtH1Delim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Tiêu đề Chương (<h1>)" placeholder="Ví dụ: ##" />
-					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">##Chương 1##</code> &rarr; <code>&lt;h1&gt;Chương 1&lt;/h1&gt;</code> (Tự động tách chương)</span>
-				</div>
-				<div>
-					<Input bind:value={state.txtH2Delim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Tiêu đề Phụ (<h2>)" placeholder="Ví dụ: #" />
-					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">#Mục phụ#</code> &rarr; <code>&lt;h2&gt;Mục phụ&lt;/h2&gt;</code></span>
-				</div>
-				<div>
-					<Input bind:value={state.txtEmDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu In nghiêng (<em>)" placeholder="Ví dụ: *" />
-					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">*nghiêng*</code> &rarr; <code>&lt;em&gt;nghiêng&lt;/em&gt;</code></span>
-				</div>
-				<div>
-					<Input bind:value={state.txtStrongDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu In đậm (<strong>)" placeholder="Ví dụ: **" />
-					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">**in đậm**</code> &rarr; <code>&lt;strong&gt;in đậm&lt;/strong&gt;</code></span>
-				</div>
-				<div>
-					<Input bind:value={state.txtBreakDelim} oninput={() => state.applyTxtGrouping()} label="Ký hiệu Phân đoạn / Ngắt trang (Page Break)" placeholder="Ví dụ: •••" />
-					<span class="text-[11px] text-text-mute mt-1 block font-mono">Ví dụ: <code class="text-accent-color">•••</code> &rarr; <code>&lt;p class="sbreak"&gt;•••&lt;/p&gt;</code></span>
-				</div>
+		</div>
+
+		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
+			<div class="flex justify-between items-center">
+				<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Định nghĩa tùy chỉnh (Custom Patterns)</span>
+				<button
+					type="button"
+					class="bg-accent-color text-white font-mono text-xs font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
+					onclick={() => state.addCustomDefinition()}
+				>
+					+ Thêm định nghĩa
+				</button>
 			</div>
+
+			{#if state.customDefinitions.length === 0}
+				<p class="text-xs text-text-mute font-mono italic">Chưa có định nghĩa tùy chỉnh nào.</p>
+			{:else}
+				<div class="flex flex-col gap-3">
+					{#each state.customDefinitions as def, idx (idx)}
+						<div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end bg-brand-bg p-3.5 rounded-lg border border-border-color animate-fade-in">
+							<div>
+								<Input bind:value={def.pattern} oninput={() => state.applyTxtGrouping()} label="Ký hiệu (Pattern)" placeholder="Ví dụ: $$$" />
+							</div>
+							<div>
+								<Input bind:value={def.tag} oninput={() => state.applyTxtGrouping()} label="Thẻ HTML thay thế" placeholder="Ví dụ: &lt;span class=&quot;xya&quot;&gt;" />
+							</div>
+							<div>
+								<button
+									type="button"
+									class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-[42px] flex items-center justify-center font-mono"
+									onclick={() => state.removeCustomDefinition(idx)}
+								>
+									Xóa
+								</button>
+							</div>
+						</div>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	{:else if state.epubRawFiles.length > 0}
 		<div class="mt-5 animate-fade-in">

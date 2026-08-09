@@ -84,6 +84,58 @@ export const EPUB_CSS = `@page {
     display: block;
     font-size: 1.05em;
     text-transform: capitalize;
+  }
+
+  /* --- chú thích --- */
+  .noteref {
+    text-decoration: none;
+    font-size: 0.8em;
+    vertical-align: super;
+    line-height: 0;
+  }
+  .notes .note {
+    margin: 0 0 0.9em;
+  }
+  .notes .note p {
+    text-indent: 0;
+    font-size: 0.92em;
+    text-align: left;
+  }
+  .notenum {
+    text-decoration: none;
+    font-weight: bold;
+  }
+  em {
+    font-style: italic;
+  }
+  h1, h2 {
+    font-weight: normal;
+    text-align: center;
+    page-break-after: avoid;
+  }
+  .chapter {
+    font-size: 1.6em;
+  }
+  .chno {
+    font-size: 1.35em;
+  }
+  p.boldright {
+    text-indent: 0;
+    text-align: right;
+    font-weight: bold;
+    margin: 0.8em 0 1.8em;
+  }
+  p.sbreak {
+    text-indent: 0;
+    text-align: center;
+    margin: 1.6em 0;
+    letter-spacing: 0.2em;
+    opacity: 0.65;
+    page-break-inside: avoid;
+  }
+  p.sbreak-big {
+    margin: 2.8em 0;
+    opacity: 0.8;
   }`;
 
 export function buildContainerXml() {
