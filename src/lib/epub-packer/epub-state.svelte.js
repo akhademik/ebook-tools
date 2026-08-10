@@ -41,6 +41,10 @@ export class EpubState {
 	lang = $state('vi');
 	publisher = $state('');
 	epubOutName = $state('');
+	
+	jacketTemplateId = $state(1);
+	originalTitle = $state('');
+	distributor = $state('');
 
 	epubOutNamePreview = $derived(ensureEpubExt(this.epubOutName.trim() || 'ten-sach'));
 
@@ -234,8 +238,17 @@ export class EpubState {
 				publisher: this.publisher.trim()
 			};
 			const isTxtMode = this.fileType === 'txt';
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode);
-			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode);
+			const jacket = {
+				enabled: true,
+				templateId: this.jacketTemplateId,
+				title: this.title.trim() || 'Không tên',
+				author: this.author.trim() || 'Khuyết danh',
+				originalTitle: this.originalTitle.trim(),
+				publisher: this.publisher.trim(),
+				distributor: this.distributor.trim()
+			};
+			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket);
+			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket);
 			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;

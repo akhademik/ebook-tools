@@ -706,10 +706,31 @@ $Đây là văn bản kéo về lề bên phải$`;
 		});
 
 		it('should correctly ignore page55.md continuation and merge into page54.md', () => {
-			const fs = require('fs');
-			const path = require('path');
-			const p54 = fs.readFileSync(path.join(__dirname, '../page54.md'), 'utf8');
-			const p55 = fs.readFileSync(path.join(__dirname, '../page55.md'), 'utf8');
+			const p54 = `Alexander Đại đế là đúc tiền ở khắp mọi nơi ông đi qua, những đồng xu tetradrachm này có thể được xem là đồng tiền toàn cầu đầu tiên trên thế giới. Chẳng hạn, hầu như chắc chắn là Judas đã được trả bằng tiền xu tetradrachm để phản bội Chúa Jesus: ba mươi đồng xu – khoảng mười sáu ounce – tức là tương đương khoảng 120 ngày công.
+
+Tetradrachm được đúc với số lượng nhiều hơn bất kỳ đồng tiền cổ nào khác, thậm chí còn được đúc trong suốt hơn 300 năm. Đến nay vẫn còn hàng nghìn đồng xu dạng này, nhiều đồng ở tình trạng rất tốt. Bạn thử xem trên eBay sẽ thấy đôi khi chúng không được giao dịch với mức chênh lệch lớn so với lượng kim loại chứa trong đó như bạn tưởng. Mặt trước của xu là đầu Hercules, vị thần sức mạnh và người được coi là thủy tổ của Macedonia, khoác tấm da sư tử. Mặt sau là Zeus, vị thần quyền lực, ngồi trên ngai, một tay cầm vương trượng, tay kia giữ một con đại bàng. Cũng như trên đồng stater, phía sau Zeus ta lại thấy chữ *Alexandrou*. Hình Hercules – thường là một gương mặt trẻ trung, không có râu – có nét tương đồng đáng kể với Alexander Đại đế thời trẻ. Với cách làm của mình, Alexander Đại đế đã mở đường cho tập quan đóng dấu chân dung các nhà cai trị lên tiền xu thay vì các vị thần.
+
+Alexander qua đời năm 323 TCN, và một trong những người kế tục ông là vua Ptolemy I còn đi xa hơn một bước khi khắc lên tiền xu chân dung của chính Alexander. Có một ví dụ cho thấy Alexander mang diện mạo giống Hercules, đội trên đầu một mảnh da đầu của voi với ngà và vòi, tượng trưng cho cuộc chinh phục Ấn Độ, nơi Alexander lần đầu đem tiền xu tới. Chỉ trong vài thập kỷ, có lẽ với Demetrius I là người đầu tiên, các vị vua đã công khai đặt hình đầu mình lên tiền xu. Chân dung trở thành một công cụ tuyên truyền quan trọng.
+
+Đế chế của Alexander, xét theo diện tích lãnh thổ, là một trong những đế chế lớn nhất lịch sử. Chỉ các đế chế Mông Cổ, Anh và Liên Xô là lớn hơn nó mà thôi. Ông có thể đã chinh phục bằng`;
+
+			const p55 = `quân đội, nhưng ông củng cố đế chế bằng tiền tệ: kiểm soát nguồn cung vàng và bạc rồi dùng nó để áp đặt đồng tiền của mình, thứ tiền mang tính quốc tế nhất mà thế giới từng thấy. Vàng có thể tạo điều kiện cho chiến tranh, và nó cũng tạo điều kiện cho sự cai trị. Kể từ ngày đó, chưa từng có một đồng tiền dự trữ toàn cầu nào mà không bắt đầu từ nền tảng vàng, và đôi khi là cả bạc. Đây là một bài học mà chúng ta sẽ thấy hết lần này đến lần khác: ai nắm vàng sẽ đặt ra luật chơi.
+
+**Người La Mã đã hủy hoại tiền tệ của họ như thế nào**
+
+"*Aurum potestas est* (Vàng là quyền lực)."
+
+– Tục ngữ La Mã
+
+Đồng bạc *denarius* của La Mã lúc ban đầu có hàm lượng 95-98% bạc. Nhưng đến năm 275 thì hàm lượng bạc trong đồng xu này chỉ còn chưa tới 1%. Lượng vàng trong một đồng tiền vàng cũng bị giảm gần một nửa.
+
+Làm thế nào đồng tiền của đế chế quyền lực nhất thế giới có thể đi từ gần như bạc nguyên chất đến gần như không còn bạc?
+
+Người La Mã có lẽ nổi tiếng vì việc làm giảm hàm lượng kim loại quý trong tiền tệ của họ hơn là vì chính đồng tiền đó, nhưng để cả một quá trình kéo dài đến vậy (diễn ra trong hàng trăm năm), và theo một số người là có hiệu quả, thì ngay từ đầu họ phải có một đồng tiền được thiết lập vững vàng, được thừa nhận rộng rãi và đáng tin cậy.
+
+Ở thời cực thịnh, có tới 50 triệu người sống trong Đế quốc La Mã. Hòa bình được duy trì nhờ đạo quân La Mã hùng mạnh với hơn mười vạn binh sĩ, tất cả đều được trả bằng tiền thực, bằng vàng và bạc.
+
+Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có, và phải tới các cơn sốt vàng của thế kỷ XIX người ta mới lại chứng kiến mức tương đương. Một phép tính cho thấy vào thời`;
 
 			const files = [
 				{

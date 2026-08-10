@@ -5,21 +5,80 @@
 	import Button from '$lib/components/Button.svelte';
 	import { EpubState } from '$lib/epub-packer/epub-state.svelte.js';
 	import { triggerDownload } from '$lib/helpers/helpers.js';
+	import { JACKET_TEMPLATES } from '$lib/epub-packer/jacket-templates.js';
 
-	const state = new EpubState();
+	const epubState = new EpubState();
+
+	let showJacketModal = $state(false);
+	let currentPreviewTemplateIdx = $state(0);
 
 	function downloadEpub() {
-		console.log('[+page.svelte] downloadEpub button clicked. epubBlob:', state.epubBlob, 'name:', state.epubOutNamePreview);
-		if (state.epubBlob) {
-			triggerDownload(state.epubBlob, state.epubOutNamePreview);
+		console.log('[+page.svelte] downloadEpub button clicked. epubBlob:', epubState.epubBlob, 'name:', epubState.epubOutNamePreview);
+		if (epubState.epubBlob) {
+			triggerDownload(epubState.epubBlob, epubState.epubOutNamePreview);
 		} else {
-			console.warn('[+page.svelte] state.epubBlob is empty, cannot download.');
+			console.warn('[+page.svelte] epubState.epubBlob is empty, cannot download.');
 		}
 	}
+
+	function openJacketPreviewModal() {
+		const idx = JACKET_TEMPLATES.findIndex(t => t.id === epubState.jacketTemplateId);
+		currentPreviewTemplateIdx = idx !== -1 ? idx : 0;
+		showJacketModal = true;
+	}
+
+	function nextTemplate() {
+		currentPreviewTemplateIdx = (currentPreviewTemplateIdx + 1) % JACKET_TEMPLATES.length;
+	}
+
+	function prevTemplate() {
+		currentPreviewTemplateIdx = (currentPreviewTemplateIdx - 1 + JACKET_TEMPLATES.length) % JACKET_TEMPLATES.length;
+	}
+
+	function selectTemplate() {
+		epubState.jacketTemplateId = JACKET_TEMPLATES[currentPreviewTemplateIdx].id;
+		showJacketModal = false;
+	}
+
+	const selectedTemplateName = $derived(
+		JACKET_TEMPLATES.find(t => t.id === epubState.jacketTemplateId)?.name || ''
+	);
 </script>
 
 <svelte:head>
 	<title>Đóng gói EPUB — Ebook Forge</title>
+	<style>
+		.preview-wrap {
+			background: #ffffff;
+			margin: 1.5em auto;
+			width: 380px;
+			height: 540px;
+			border: 1px solid #cccccc;
+			box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+			border-radius: 4px;
+			color: #000000;
+			box-sizing: border-box;
+			overflow: hidden;
+			position: relative;
+			text-align: left;
+		}
+		
+		.preview-wrap p {
+			margin: 0 !important;
+			padding: 0 !important;
+			font-size: 1em;
+			line-height: normal;
+			text-indent: 0 !important;
+			text-align: inherit !important;
+		}
+		
+		.preview-wrap hr {
+			margin: 0;
+			padding: 0;
+			opacity: 1;
+			background-color: transparent;
+		}
+	</style>
 </svelte:head>
 
 <PageHeader title="Đóng gói EPUB" description="Gộp tệp .ZIP chứa nhiều tệp Markdown hoặc 1 tệp .TXT duy nhất thành tệp sách điện tử .EPUB hoàn chỉnh." />
@@ -28,13 +87,13 @@
 	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Chọn tệp nguồn (.ZIP hoặc .TXT)</span>
 	<DropZone
 		accept=".zip,.txt,application/zip,text/plain"
-		onSelect={(f) => state.handleFile(f)}
+		onSelect={(f) => epubState.handleFile(f)}
 		title="Kéo thả hoặc click để chọn tệp .ZIP hoặc .TXT"
 		subtitle="Hỗ trợ tệp .ZIP chứa các chương (.md) hoặc 1 tệp văn bản .TXT duy nhất"
-		selectedFile={state.epubFileSelected}
+		selectedFile={epubState.epubFileSelected}
 	/>
 
-	{#if state.fileType === 'txt' && state.rawTxtText}
+	{#if epubState.fileType === 'txt' && epubState.rawTxtText}
 		<!-- Custom Syntax Config for TXT -->
 		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
 			<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Quy tắc cú pháp mặc định</span>
@@ -82,29 +141,29 @@
 				<button
 					type="button"
 					class="bg-accent-color text-white font-mono text-xs font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
-					onclick={() => state.addCustomDefinition()}
+					onclick={() => epubState.addCustomDefinition()}
 				>
 					+ Thêm định nghĩa
 				</button>
 			</div>
 
-			{#if state.customDefinitions.length === 0}
+			{#if epubState.customDefinitions.length === 0}
 				<p class="text-xs text-text-mute font-mono italic">Chưa có định nghĩa tùy chỉnh nào.</p>
 			{:else}
 				<div class="flex flex-col gap-3">
-					{#each state.customDefinitions as def, idx (idx)}
+					{#each epubState.customDefinitions as def, idx (idx)}
 						<div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end bg-brand-bg p-3.5 rounded-lg border border-border-color animate-fade-in">
 							<div>
-								<Input bind:value={def.pattern} oninput={() => state.applyTxtGrouping()} label="Ký hiệu (Pattern)" placeholder="Ví dụ: $$$" />
+								<Input bind:value={def.pattern} oninput={() => epubState.applyTxtGrouping()} label="Ký hiệu (Pattern)" placeholder="Ví dụ: $$$" />
 							</div>
 							<div>
-								<Input bind:value={def.tag} oninput={() => state.applyTxtGrouping()} label="Thẻ HTML thay thế" placeholder="Ví dụ: &lt;span class=&quot;xya&quot;&gt;" />
+								<Input bind:value={def.tag} oninput={() => epubState.applyTxtGrouping()} label="Thẻ HTML thay thế" placeholder="Ví dụ: &lt;span class=&quot;xya&quot;&gt;" />
 							</div>
 							<div>
 								<button
 									type="button"
 									class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-[42px] flex items-center justify-center font-mono"
-									onclick={() => state.removeCustomDefinition(idx)}
+									onclick={() => epubState.removeCustomDefinition(idx)}
 								>
 									Xóa
 								</button>
@@ -114,31 +173,31 @@
 				</div>
 			{/if}
 		</div>
-	{:else if state.epubRawFiles.length > 0}
+	{:else if epubState.epubRawFiles.length > 0}
 		<div class="mt-5 animate-fade-in">
-			<Input bind:value={state.mergePattern} oninput={() => state.applyGrouping()} label="Từ khóa nhận diện tiêu đề chương mới" placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương" />
+			<Input bind:value={epubState.mergePattern} oninput={() => epubState.applyGrouping()} label="Từ khóa nhận diện tiêu đề chương mới" placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương" />
 		</div>
 
 		<div class="flex items-center gap-3 mt-5">
-			<input type="checkbox" id="epub-heuristic-mode" bind:checked={state.heuristicMode} onchange={() => state.applyGrouping()} class="w-4 h-4 accent-accent-color cursor-pointer" />
+			<input type="checkbox" id="epub-heuristic-mode" bind:checked={epubState.heuristicMode} onchange={() => epubState.applyGrouping()} class="w-4 h-4 accent-accent-color cursor-pointer" />
 			<div>
 				<label for="epub-heuristic-mode" class="text-sm text-text-color cursor-pointer font-medium">Nhận diện bằng Heuristic thông minh</label>
 				<span class="block text-xs text-text-mute mt-0.5">Tính điểm tiêu đề dựa trên chữ viết HOA, độ dài và dấu câu</span>
 			</div>
 		</div>
 
-		{#if state.heuristicMode}
+		{#if epubState.heuristicMode}
 			<div class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color">
 				<div class="flex items-center gap-3 w-full flex-wrap">
 					<span class="font-mono text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
-					<input type="number" bind:value={state.heuristicStart} oninput={() => state.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
+					<input type="number" bind:value={epubState.heuristicStart} oninput={() => epubState.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Đầu" />
 					<span class="font-mono text-sm text-text-mute">đến trang</span>
-					<input type="number" bind:value={state.heuristicEnd} oninput={() => state.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
+					<input type="number" bind:value={epubState.heuristicEnd} oninput={() => epubState.applyGrouping()} class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color" min="1" placeholder="Cuối" />
 				</div>
 				<div class="flex items-center gap-3 w-full mt-4 flex-wrap border-t border-border-color pt-4">
 					<span class="font-mono text-sm text-text-mute">Ngưỡng điểm (Threshold):</span>
-					<input type="range" min="1" max="10" step="1" bind:value={state.heuristicThreshold} oninput={() => state.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40" />
-					<span class="font-mono text-sm font-semibold text-accent-color w-8 text-center">{state.heuristicThreshold}</span>
+					<input type="range" min="1" max="10" step="1" bind:value={epubState.heuristicThreshold} oninput={() => epubState.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40" />
+					<span class="font-mono text-sm font-semibold text-accent-color w-8 text-center">{epubState.heuristicThreshold}</span>
 					<p class="text-xs text-text-mute w-full mt-1.5 leading-relaxed">
 						Giảm ngưỡng để bắt nhiều tiêu đề hơn (cho sách quét OCR xấu). Tăng ngưỡng để tránh nhận diện nhầm đoạn văn thường thành chương.
 					</p>
@@ -149,12 +208,12 @@
 		<div class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex flex-col gap-3">
 			<div>
 				<span class="font-mono text-xs text-text-mute uppercase mb-1.5 block">Lọc Header/Footer (Tùy chọn)</span>
-				<input type="text" bind:value={state.cleanKeywords} oninput={() => state.applyGrouping()} class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
+				<input type="text" bind:value={epubState.cleanKeywords} oninput={() => epubState.applyGrouping()} class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color" placeholder="Tên sách, Nhà xuất bản" />
 			</div>
 			<div class="flex items-center gap-3 mt-1.5 flex-wrap border-t border-border-color pt-3">
 				<span class="font-mono text-sm text-text-mute">Số dòng quét đầu/cuối trang:</span>
-				<input type="range" min="1" max="5" step="1" bind:value={state.cleanLineLimit} oninput={() => state.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32" />
-				<span class="font-mono text-sm font-semibold text-accent-color w-6 text-center">{state.cleanLineLimit}</span>
+				<input type="range" min="1" max="5" step="1" bind:value={epubState.cleanLineLimit} oninput={() => epubState.applyGrouping()} class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32" />
+				<span class="font-mono text-sm font-semibold text-accent-color w-6 text-center">{epubState.cleanLineLimit}</span>
 				<p class="text-xs text-text-mute w-full leading-relaxed mt-1">
 					Chỉ quét các file có từ 6 dòng trở lên. Tự động bỏ qua lọc nếu dòng đầu hoặc cuối là đoạn văn đầy đủ (để tránh mất nội dung truyện).
 				</p>
@@ -162,30 +221,30 @@
 		</div>
 	{/if}
 
-	{#if state.epubChapters.length > 0}
+	{#if epubState.epubChapters.length > 0}
 		<!-- Tab Navigation -->
 		<div class="flex border-b border-border-color mt-6 font-mono text-xs">
 			<button 
 				type="button" 
-				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {state.activeTab === 'toc' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
-				onclick={() => { state.activeTab = 'toc'; }}
-			>Mục lục kết quả ({state.epubChapters.length} chương)</button>
+				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {epubState.activeTab === 'toc' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
+				onclick={() => { epubState.activeTab = 'toc'; }}
+			>Mục lục kết quả ({epubState.epubChapters.length} chương)</button>
 			
-			{#if state.fileType === 'zip'}
+			{#if epubState.fileType === 'zip'}
 				<button 
 					type="button" 
-					class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {state.activeTab === 'diff' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
-					onclick={() => { state.activeTab = 'diff'; }}
+					class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {epubState.activeTab === 'diff' ? 'border-accent-color text-accent-color' : 'border-transparent text-text-mute hover:text-text-color'}"
+					onclick={() => { epubState.activeTab = 'diff'; }}
 				>
-					Lọc Header/Footer ({state.cleanedLinesReport.length})
+					Lọc Header/Footer ({epubState.cleanedLinesReport.length})
 				</button>
 			{/if}
 		</div>
 
 		<!-- Tab Contents -->
-		{#if state.activeTab === 'toc'}
+		{#if epubState.activeTab === 'toc'}
 			<div class="mt-5 border border-border-color rounded-xl max-h-[300px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in">
-				{#each state.epubChapters as chap (chap.fileName)}
+				{#each epubState.epubChapters as chap (chap.fileName)}
 					<div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
 						<div class="flex justify-between items-start gap-4">
 							<span class="font-semibold text-text-color">
@@ -206,12 +265,12 @@
 					</div>
 				{/each}
 			</div>
-		{:else if state.activeTab === 'diff' && state.fileType === 'zip'}
+		{:else if epubState.activeTab === 'diff' && epubState.fileType === 'zip'}
 			<div class="mt-5 flex flex-col gap-4 animate-fade-in max-h-[400px] overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color">
-				{#if state.cleanedLinesReport.length === 0}
+				{#if epubState.cleanedLinesReport.length === 0}
 					<p class="text-sm text-text-mute font-mono text-center py-6">Không phát hiện Header/Footer nào khớp bộ lọc.</p>
 				{:else}
-					{#each state.cleanedLinesReport.slice(0, state.visibleCleanedCount) as reportItem (reportItem.fileName)}
+					{#each epubState.cleanedLinesReport.slice(0, epubState.visibleCleanedCount) as reportItem (reportItem.fileName)}
 						<div class="p-4 rounded-xl bg-panel-2 border border-border-color flex flex-col gap-2 shrink-0">
 							<span class="font-mono text-xs font-semibold text-text-color border-b border-border-color pb-1.5">{reportItem.fileName}.md</span>
 							<div class="flex flex-col gap-1.5">
@@ -226,62 +285,90 @@
 						</div>
 					{/each}
 
-					{#if state.visibleCleanedCount < state.cleanedLinesReport.length}
+					{#if epubState.visibleCleanedCount < epubState.cleanedLinesReport.length}
 						<button 
 							type="button"
 							class="w-full py-2.5 bg-panel-2 border border-border-color rounded-xl text-xs font-semibold text-amber-color hover:border-amber-color cursor-pointer transition-colors"
-							onclick={() => { state.visibleCleanedCount += 20; }}
-						>Xem thêm ({state.cleanedLinesReport.length - state.visibleCleanedCount} trang ẩn)</button>
+							onclick={() => { epubState.visibleCleanedCount += 20; }}
+						>Xem thêm ({epubState.cleanedLinesReport.length - epubState.visibleCleanedCount} trang ẩn)</button>
 					{/if}
 				{/if}
 			</div>
 		{/if}
 	{/if}
 
-	{#if state.parseStatus}
-		<div class="font-mono text-sm mt-3 {state.parseIsError ? 'text-red-500' : 'text-text-mute'}">{state.parseStatus}</div>
+	{#if epubState.parseStatus}
+		<div class="font-mono text-sm mt-3 {epubState.parseIsError ? 'text-red-500' : 'text-text-mute'}">{epubState.parseStatus}</div>
 	{/if}
 </div>
 
-{#if state.epubChapters.length > 0}
+{#if epubState.epubChapters.length > 0}
 	<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Siêu dữ liệu sách (Metadata)</span>
+		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Siêu dữ liệu & Thiết kế trang giới thiệu (Metadata & Jacket Page)</span>
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 			<div>
-				<Input bind:value={state.title} label="Tiêu đề sách" placeholder="Nhập tên sách" />
+				<Input bind:value={epubState.title} label="Tác phẩm / Tiêu đề sách" placeholder="Nhập tên sách" />
 			</div>
 			<div>
-				<Input bind:value={state.author} label="Tác giả" placeholder="Tên tác giả" />
+				<Input bind:value={epubState.author} label="Tác giả" placeholder="Tên tác giả" />
 			</div>
 			<div>
-				<Input bind:value={state.lang} label="Ngôn ngữ" />
+				<Input bind:value={epubState.originalTitle} label="Tựa gốc (Nguyên tác)" placeholder="Tựa gốc (nếu có)" />
 			</div>
 			<div>
-				<Input bind:value={state.publisher} label="Nhà xuất bản" placeholder="NXB Ebook" />
+				<Input bind:value={epubState.lang} label="Ngôn ngữ sách" />
+			</div>
+			<div>
+				<Input bind:value={epubState.publisher} label="Nhà xuất bản" placeholder="NXB Ebook" />
+			</div>
+			<div>
+				<Input bind:value={epubState.distributor} label="Nhà phát hành" placeholder="Nhà phát hành (nếu có)" />
+			</div>
+		</div>
+		
+		<div class="mt-6 pt-5 border-t border-border-color flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+			<div>
+				<p class="font-mono text-xs text-text-mute uppercase tracking-wider font-semibold">Trang giới thiệu sách (Mặc định được tạo)</p>
+				{#if selectedTemplateName}
+					<p class="text-xs text-text-mute font-mono mt-1">Mẫu đang chọn: <span class="text-accent-color font-semibold">{selectedTemplateName}</span></p>
+				{/if}
+			</div>
+			<div>
+				<button
+					type="button"
+					class="w-full sm:w-auto bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-[42px] flex items-center justify-center gap-2"
+					onclick={() => openJacketPreviewModal()}
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+						<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+					</svg>
+					Xem trước & Chọn mẫu thiết kế
+				</button>
 			</div>
 		</div>
 	</div>
 
 	<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
 		<div class="mb-5">
-			<Input bind:value={state.epubOutName} label="Tên tệp EPUB đầu ra (.epub)" placeholder="ten-sach" />
-			<p class="text-sm text-text-mute mt-2">Tệp tải về: <span class="text-text-color font-mono">{state.epubOutNamePreview}</span></p>
+			<Input bind:value={epubState.epubOutName} label="Tên tệp EPUB đầu ra (.epub)" placeholder="ten-sach" />
+			<p class="text-sm text-text-mute mt-2">Tệp tải về: <span class="text-text-color font-mono">{epubState.epubOutNamePreview}</span></p>
 		</div>
 
 		<div class="flex items-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			<div class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0">
 				<Button 
-					onclick={() => state.processEpub()} 
-					disabled={state.epubChapters.length === 0 || state.processing}
+					onclick={() => epubState.processEpub()} 
+					disabled={epubState.epubChapters.length === 0 || epubState.processing}
 					variant="primary"
 				>
-					{state.processing ? 'Đang đóng gói...' : 'Đóng gói tệp EPUB'}
+					{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói tệp EPUB'}
 				</Button>
 			</div>
 			<div class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0">
 				<Button 
 					onclick={downloadEpub} 
-					disabled={!state.epubBlob}
+					disabled={!epubState.epubBlob}
 					variant="secondary"
 				>
 					Tải tệp .EPUB
@@ -289,9 +376,78 @@
 			</div>
 		</div>
 
-		{#if state.status}
-			<div class="font-mono text-sm mt-4 {state.isError ? 'text-red-500' : 'text-text-mute'}">{state.status}</div>
+		{#if epubState.status}
+			<div class="font-mono text-sm mt-4 {epubState.isError ? 'text-red-500' : 'text-text-mute'}">{epubState.status}</div>
 		{/if}
+	</div>
+{/if}
+
+
+{#if showJacketModal}
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html `<style>${JACKET_TEMPLATES[currentPreviewTemplateIdx].css}</style>`}
+
+	<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true">
+		<!-- Modal box -->
+		<div class="bg-panel-1 border border-border-color w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up">
+			<!-- Header -->
+			<div class="p-4 border-b border-border-color flex justify-between items-center bg-panel-2">
+				<span class="font-mono text-sm font-bold text-text-color">Xem trước & chọn mẫu thiết kế</span>
+				<button 
+					type="button" 
+					class="text-text-mute hover:text-text-color transition-colors font-mono text-xs font-bold"
+					onclick={() => showJacketModal = false}
+				>
+					Đóng
+				</button>
+			</div>
+			
+			<!-- Body -->
+			<div class="p-6 flex flex-col items-center overflow-y-auto flex-1 gap-4 bg-brand-bg">
+				<span class="font-mono text-xs text-text-mute uppercase tracking-wider font-semibold">
+					Mẫu {currentPreviewTemplateIdx + 1}/{JACKET_TEMPLATES.length}: {JACKET_TEMPLATES[currentPreviewTemplateIdx].name}
+				</span>
+				
+				<div class="preview-wrap">
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					{@html JACKET_TEMPLATES[currentPreviewTemplateIdx].render(
+						epubState.title.trim() || "Tác phẩm mẫu",
+						epubState.originalTitle.trim(),
+						epubState.author.trim() || "Tác giả mẫu",
+						epubState.publisher.trim(),
+						epubState.distributor.trim()
+					)}
+				</div>
+			</div>
+			
+			<!-- Footer -->
+			<div class="p-4 border-t border-border-color flex justify-between items-center bg-panel-2 gap-3">
+				<div class="flex gap-2">
+					<button
+						type="button"
+						class="bg-brand-bg border border-border-color text-text-color hover:border-text-color font-mono text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
+						onclick={() => prevTemplate()}
+					>
+						Trước đó
+					</button>
+					<button
+						type="button"
+						class="bg-brand-bg border border-border-color text-text-color hover:border-text-color font-mono text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
+						onclick={() => nextTemplate()}
+					>
+						Tiếp theo
+					</button>
+				</div>
+				
+				<button
+					type="button"
+					class="bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
+					onclick={() => selectTemplate()}
+				>
+					Chọn mẫu này
+				</button>
+			</div>
+		</div>
 	</div>
 {/if}
 
@@ -301,6 +457,13 @@
 	}
 	@keyframes fadeIn {
 		from { opacity: 0; transform: translateY(6px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+	.animate-slide-up {
+		animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	@keyframes slideUp {
+		from { opacity: 0; transform: translateY(12px); }
 		to { opacity: 1; transform: translateY(0); }
 	}
 </style>

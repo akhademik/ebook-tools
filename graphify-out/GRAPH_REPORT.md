@@ -1,16 +1,16 @@
 # Graph Report - ebook-tools  (2026-08-10)
 
 ## Corpus Check
-- 38 files · ~22,577 words
+- 37 files · ~24,221 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 205 nodes · 355 edges · 26 communities (19 shown, 7 thin omitted)
+- 206 nodes · 363 edges · 25 communities (18 shown, 7 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ba291a31`
+- Built from commit: `3443a0dc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,6 +23,7 @@
 - Ebook Forge
 - epub-packer.js
 - logger.js
+- pdf-splitter.js
 - Bluesky Icon
 - Graphify Agent Rule
 - Application Branding
@@ -35,8 +36,8 @@
 - helpers.test.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `buildEpubBlob()` - 10 edges
-2. `escapeXml()` - 10 edges
+1. `buildEpubBlob()` - 11 edges
+2. `escapeXml()` - 11 edges
 3. `groupChaptersSingle()` - 9 edges
 4. `groupChaptersZip()` - 9 edges
 5. `PdfSplitterState` - 9 edges
@@ -65,7 +66,7 @@
 - **Ebook Forge Web Features** — readme_pdf_processor, readme_markdown_fixer, readme_epub_packer [EXTRACTED 1.00]
 - **Icons SVG Sprite Sheet Collection** — static_icons_bluesky_icon, static_icons_discord_icon, static_icons_documentation_icon, static_icons_github_icon, static_icons_social_icon, static_icons_x_icon [EXTRACTED 1.00]
 
-## Communities (26 total, 7 thin omitted)
+## Communities (25 total, 7 thin omitted)
 
 ### Community 0 - "devDependencies"
 Cohesion: 0.07
@@ -92,12 +93,16 @@ Cohesion: 0.18
 Nodes (11): Cloudflare Pages Deployment, Ebook Forge, EPUB Packer, jszip, Markdown Fixer, PDF Processor, pdf.js, SvelteKit (+3 more)
 
 ### Community 6 - "epub-packer.js"
-Cohesion: 0.33
-Nodes (11): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, mergeBrokenParagraphs() (+3 more)
+Cohesion: 0.26
+Nodes (12): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, mergeBrokenParagraphs() (+4 more)
 
-### Community 8 - "logger.js"
-Cohesion: 0.14
-Nodes (14): error(), isDebug(), log(), setDebug(), warn(), applyGrayscale(), formatEta(), loadPdfPreview() (+6 more)
+### Community 7 - "logger.js"
+Cohesion: 0.52
+Nodes (5): error(), isDebug(), log(), setDebug(), warn()
+
+### Community 8 - "pdf-splitter.js"
+Cohesion: 0.20
+Nodes (9): applyGrayscale(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), createdCanvases, mockDoc, mockPage (+1 more)
 
 ### Community 9 - "Bluesky Icon"
 Cohesion: 0.67
@@ -119,10 +124,10 @@ Nodes (3): mockAnchor, mockDocument, mockPdfjsLib
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `jszip` connect `scripts` to `logger.js`, `helpers.js`, `EpubState`, `epub-packer.js`?**
-  _High betweenness centrality (0.242) - this node is a cross-community bridge._
+- **Why does `jszip` connect `scripts` to `pdf-splitter.js`, `helpers.js`, `EpubState`, `epub-packer.js`?**
+  _High betweenness centrality (0.246) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `scripts`?**
-  _High betweenness centrality (0.176) - this node is a cross-community bridge._
+  _High betweenness centrality (0.178) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json` to the rest of the system?**
   _60 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `devDependencies` be split into smaller, more focused modules?**
@@ -131,5 +136,3 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.13768115942028986 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.125 - nodes in this community are weakly interconnected._
-- **Should `logger.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._

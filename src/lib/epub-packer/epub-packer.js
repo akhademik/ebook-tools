@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { escapeXml } from '$lib/helpers/helpers.js';
 import * as logger from '$lib/helpers/logger.js';
+import { JACKET_TEMPLATES } from './jacket-templates.js';
 
 export const EPUB_CSS = `@page {
     margin-top: 0; 
@@ -225,18 +226,20 @@ export function mergeBrokenParagraphs(html) {
 	return result;
 }
 
-export function buildChapterXhtml(meta, chapter, skipParagraphMerge = false) {
+export function buildChapterXhtml(meta, chapter, skipParagraphMerge = false, customCss = '') {
 	logger.log('epub-packer', 'buildChapterXhtml called for:', chapter.title, 'skipParagraphMerge:', skipParagraphMerge);
 	const content = skipParagraphMerge ? chapter.html : mergeBrokenParagraphs(chapter.html);
+	const styleBlock = customCss ? `  <style>\n${customCss}\n  </style>\n` : '';
+	const linkStyle = chapter.fileName === 'jacket' ? '' : '  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n';
 	return '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' + meta.language + '">\n' +
 		'<head>\n  <meta charset="utf-8"/>\n  <title>' + escapeXml(chapter.title) + '</title>\n' +
-		'  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n</head>\n' +
+		linkStyle + styleBlock + '</head>\n' +
 		'<body>\n' + content + '\n</body>\n</html>';
 }
 
-export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge = false) {
-	logger.log('epub-packer', 'buildEpubBlob called, chapters count:', chapters.length, 'skipParagraphMerge:', skipParagraphMerge);
+export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge = false, jacket = null) {
+	logger.log('epub-packer', 'buildEpubBlob called, chapters count:', chapters.length, 'skipParagraphMerge:', skipParagraphMerge, 'jacket:', jacket);
 	const meta = {
 		title: metadata.title || 'Không tên',
 		author: metadata.author || 'Không rõ tác giả',
@@ -249,6 +252,30 @@ export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge 
 		throw new Error('Không có chương nào để đóng gói.');
 	}
 
+	let chaptersToPack = [...chapters];
+	let finalCss = css;
+
+	if (jacket && jacket.enabled) {
+		const template = JACKET_TEMPLATES.find(t => t.id === jacket.templateId);
+		if (template) {
+			const jacketHtml = template.render(
+				jacket.title,
+				jacket.originalTitle,
+				jacket.author,
+				jacket.publisher,
+				jacket.distributor
+			);
+			const jacketChapter = {
+				title: 'Giới thiệu',
+				fileName: 'jacket',
+				xmlId: 'jacket',
+				isChapter: true,
+				html: jacketHtml
+			};
+			chaptersToPack.unshift(jacketChapter);
+		}
+	}
+
 	const zip = new JSZip();
 	zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
 
@@ -256,16 +283,24 @@ export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge 
 	metaInf.file('container.xml', buildContainerXml());
 
 	const oebps = zip.folder('OEBPS');
-	oebps.file('content.opf', buildContentOpf(meta, chapters));
-	oebps.file('nav.xhtml', buildNavXhtml(meta, chapters));
-	oebps.file('toc.ncx', buildTocNcx(meta, chapters));
+	oebps.file('content.opf', buildContentOpf(meta, chaptersToPack));
+	oebps.file('nav.xhtml', buildNavXhtml(meta, chaptersToPack));
+	oebps.file('toc.ncx', buildTocNcx(meta, chaptersToPack));
 
-	oebps.folder('styles').file('style.css', css);
+	oebps.folder('styles').file('style.css', finalCss);
 
 	const textFolder = oebps.folder('text');
-	for (let i = 0; i < chapters.length; i++) {
-		const chapter = chapters[i];
-		const xhtmlContent = buildChapterXhtml(meta, chapter, skipParagraphMerge);
+	for (let i = 0; i < chaptersToPack.length; i++) {
+		const chapter = chaptersToPack[i];
+		const isJacket = chapter.fileName === 'jacket';
+		let localCss = '';
+		if (isJacket && jacket && jacket.enabled) {
+			const template = JACKET_TEMPLATES.find(t => t.id === jacket.templateId);
+			if (template) {
+				localCss = template.css;
+			}
+		}
+		const xhtmlContent = buildChapterXhtml(meta, chapter, isJacket || skipParagraphMerge, localCss);
 		textFolder.file(chapter.fileName + '.xhtml', xhtmlContent);
 	}
 
@@ -279,5 +314,7 @@ export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge 
 	logger.log('epub-packer', 'Blob generated successfully, size:', blob.size, 'type:', blob.type);
 	return blob;
 }
+
+
 
 

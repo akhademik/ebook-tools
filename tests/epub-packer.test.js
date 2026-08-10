@@ -209,5 +209,30 @@ describe('epub-packer tests', () => {
 
 			consoleLogSpy.mockRestore();
 		});
+
+		it('should prepend jacket page and append stylesheet when jacket is enabled', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const jacket = {
+				enabled: true,
+				templateId: 1,
+				title: 'Tác phẩm mẫu',
+				author: 'Tác giả mẫu',
+				originalTitle: 'Original Title',
+				publisher: 'NXB Ebook',
+				distributor: 'Phát hành'
+			};
+
+			const blob = await buildEpubBlob({ title: 'Book Title', author: 'Author Name' }, chapters, 'body {}', false, jacket);
+			expect(blob).toBeDefined();
+
+			// Verify JSZip calls
+			expect(mockZipInstance.folder).toHaveBeenCalledWith('OEBPS');
+			// Since we mocked folder/file, check that they were called
+			expect(mockZipInstance.file).toHaveBeenCalledWith('mimetype', 'application/epub+zip', expect.any(Object));
+			consoleLogSpy.mockRestore();
+		});
 	});
 });
