@@ -66,11 +66,6 @@ export class EpubState {
 			.map(s => s.trim())
 			.filter(Boolean);
 		
-		const titleVal = this.title.trim();
-		const authorVal = this.author.trim();
-		if (titleVal) keywords.push(titleVal);
-		if (authorVal) keywords.push(authorVal);
-
 		const processedFiles = this.epubRawFiles.map(f => {
 			const cleanedMd = cleanHeaderFooterOcr(f.rawText, keywords, this.cleanLineLimit);
 			return {

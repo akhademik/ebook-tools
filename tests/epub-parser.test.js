@@ -341,6 +341,153 @@ describe('epub-parser tests', () => {
 			expect(grouped).toHaveLength(1);
 			expect(grouped[0].title).toBe('Chương 1');
 		});
+
+		it('should match keyword chapter markers even if not the first non-empty block of the file', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'p', text: 'Tác giả: Nguyễn Văn A' },
+						{ type: 'p', text: 'Thể loại: Truyện dài' },
+						{ type: 'heading', level: 1, text: 'Chương 1: Khởi hành' },
+						{ type: 'p', text: 'Nội dung truyện ở đây.' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, 'Chương', false, 1, 1);
+			expect(grouped).toHaveLength(2);
+			expect(grouped[0].title).toBe('File 1');
+			expect(grouped[0].isChapter).toBe(false);
+			expect(grouped[1].title).toBe('Chương 1: Khởi hành');
+			expect(grouped[1].isChapter).toBe(true);
+		});
+
+		it('should skip paragraph blocks in heuristic mode if they are in the middle of the file', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'heading', level: 1, text: 'Chương 1' },
+						{ type: 'p', text: 'Dòng 1.' },
+						{ type: 'p', text: 'Dòng 2.' },
+						{ type: 'p', text: 'Dòng 3.' },
+						{ type: 'p', text: 'Dòng 4.' },
+						{ type: 'p', text: 'Dòng 5.' },
+						{ type: 'p', text: 'Dòng 6.' },
+						// This bold paragraph has high score but is at blockIndex 7 (nonEmptyCount = 8)
+						{ type: 'p', text: '**Người La Mã đã hủy hoại tiền tệ của họ như thế nào**' },
+						{ type: 'p', text: 'Dòng 8.' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, '', true, 1, 1, 5);
+			// It should split at block 0 (Chương 1) but NOT at block 7
+			expect(grouped).toHaveLength(1);
+			expect(grouped[0].title).toBe('Chương 1');
+		});
+
+		it('should ignore the file entirely in heuristic mode if the first block is a long paragraph', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'p', text: 'Đây là một đoạn văn rất dài và đầy đủ ý nghĩa, đóng vai trò là một phần nội dung tiếp diễn của chương trước đó chứ không phải là một tiêu đề chương mới.' },
+						{ type: 'heading', level: 1, text: 'Chương 1' }
+					]
+				},
+				{
+					baseName: 'File 2',
+					path: 'file2.md',
+					blocks: [
+						{ type: 'p', text: 'Nội dung tiếp theo.' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, '', true, 1, 2, 5);
+			// Since File 1 starts with a long paragraph, it ignores File 1's chapter marker.
+			// And File 2 has no markers.
+			// So it should return 2 items with isChapter = false.
+			expect(grouped).toHaveLength(2);
+			expect(grouped[0].isChapter).toBe(false);
+			expect(grouped[0].title).toBe('Chương 1');
+			expect(grouped[1].isChapter).toBe(false);
+			expect(grouped[1].title).toBe('File 2');
+		});
+
+		it('should ignore the file entirely in heuristic mode if the first block is regular prose even if split into small paragraphs', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'p', text: 'kiến mọi thứ đổ vỡ. Như chúng ta sẽ thấy, trong lịch sử nghề đi' },
+						{ type: 'p', text: 'tìm vàng, kiểu cốt truyện này tuyệt nhiên không phải là hiểm gặp.' },
+						{ type: 'p', text: '**Một quả táo vàng châm ngòi cho cuộc đại chiến đầu tiên**\n**của lịch sử**' },
+						{ type: 'p', text: '“Chỉ cần phân tích là sẽ thấy rất đơn giản... nguyên nhân của\nmọi cuộc chiến đều là vàng.”' }
+					]
+				},
+				{
+					baseName: 'File 2',
+					path: 'file2.md',
+					blocks: [
+						{ type: 'p', text: 'Nội dung tiếp theo.' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, '', true, 1, 2, 5);
+			// Since File 1 starts with a regular paragraph, it ignores the entire file including the bold header.
+			expect(grouped).toHaveLength(2);
+			expect(grouped[0].isChapter).toBe(false);
+			expect(grouped[0].title).toBe('File 1');
+			expect(grouped[1].isChapter).toBe(false);
+			expect(grouped[1].title).toBe('File 2');
+		});
+
+		it('should ignore the file entirely in heuristic mode if the first block starts with lowercase prose (user case)', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'p', text: 'quân đội, nhưng ông củng cố đế chế bằng tiền tệ: kiểm soát nguồn cung vàng và bạc rồi dùng nó để áp đặt đồng tiền của mình, thứ tiền mang tính quốc tế nhất mà thế giới từng thấy. Vàng có thể tạo điều kiện cho chiến tranh, và nó cũng tạo điều kiện cho sự cai trị. Kể từ ngày đó, chưa từng có một đồng tiền dự trữ toàn cầu nào mà không bắt đầu từ nền tảng vàng, và đôi khi là cả bạc. Đây là một bài học mà chúng ta sẽ thấy hết lần này đến lần khác: ai nắm vàng sẽ đặt ra luật chơi.' },
+						{ type: 'p', text: '**Người La Mã đã hủy hoại tiền tệ của họ như thế nào**' },
+						{ type: 'p', text: '"*Aurum potestas est* (Vàng là quyền lực)."' }
+					]
+				},
+				{
+					baseName: 'File 2',
+					path: 'file2.md',
+					blocks: [
+						{ type: 'p', text: 'Nội dung tiếp theo.' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, '', true, 1, 2, 5);
+			expect(grouped).toHaveLength(2);
+			expect(grouped[0].isChapter).toBe(false);
+			expect(grouped[0].title).toBe('File 1');
+			expect(grouped[1].isChapter).toBe(false);
+			expect(grouped[1].title).toBe('File 2');
+		});
+
+		it('should match lowercase accentless keyword "chuong" against "Chương"', () => {
+			const files = [
+				{
+					baseName: 'File 1',
+					path: 'file1.md',
+					blocks: [
+						{ type: 'heading', level: 1, text: 'Chương 1' }
+					]
+				}
+			];
+			const grouped = groupChapters(files, 'chuong', false, 1, 1);
+			expect(grouped).toHaveLength(1);
+			expect(grouped[0].isChapter).toBe(true);
+			expect(grouped[0].title).toBe('Chương 1');
+		});
 	});
 
 	describe('analyzeChapterCandidates', () => {
@@ -395,25 +542,29 @@ describe('epub-parser tests', () => {
 				isChapter: false,
 				firstSourcePageNum: 1,
 				fileName: 'p01',
-				xmlId: 'p01'
+				xmlId: 'p01',
+				chapterIndex: null
 			});
 			expect(assigned[1]).toEqual({
 				isChapter: true,
 				firstSourcePageNum: 5,
 				fileName: 'chap_01',
-				xmlId: 'chap01'
+				xmlId: 'chap01',
+				chapterIndex: 1
 			});
 			expect(assigned[2]).toEqual({
 				isChapter: false,
 				firstSourcePageNum: 12,
 				fileName: 'p12',
-				xmlId: 'p12'
+				xmlId: 'p12',
+				chapterIndex: null
 			});
 			expect(assigned[3]).toEqual({
 				isChapter: true,
 				firstSourcePageNum: 20,
 				fileName: 'chap_02',
-				xmlId: 'chap02'
+				xmlId: 'chap02',
+				chapterIndex: 2
 			});
 			expect(assigned[4]).toEqual({
 				isChapter: true,
@@ -552,6 +703,47 @@ $Đây là văn bản kéo về lề bên phải$`;
 
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].html).toContain('<p class="boldright">Đây là văn bản kéo về lề bên phải</p>');
+		});
+
+		it('should correctly ignore page55.md continuation and merge into page54.md', () => {
+			const fs = require('fs');
+			const path = require('path');
+			const p54 = fs.readFileSync(path.join(__dirname, '../page54.md'), 'utf8');
+			const p55 = fs.readFileSync(path.join(__dirname, '../page55.md'), 'utf8');
+
+			const files = [
+				{
+					baseName: 'CHƯƠNG 4',
+					path: 'page50.md',
+					rawText: 'CHƯƠNG 4'
+				},
+				{
+					baseName: 'page54',
+					path: 'page54.md',
+					rawText: p54
+				},
+				{
+					baseName: 'Chương 13: Người La Mã đã hủy hoại tiền tệ của họ như thế nào',
+					path: 'page55.md',
+					rawText: p55
+				}
+			];
+
+			const keywords = ['{no}', '{roman_no}', 'Tên sách'];
+			const processedFiles = files.map(f => {
+				const cleaned = cleanHeaderFooterOcr(f.rawText, keywords, 2);
+				return {
+					path: f.path,
+					baseName: f.baseName,
+					blocks: parseMarkdownBlocks(cleaned)
+				};
+			});
+
+			const grouped = groupChapters(processedFiles, '', true, 1, 3, 5);
+			console.log("GROUPED COUNT:", grouped.length);
+			for (const g of grouped) {
+				console.log("GROUP TITLE:", g.title, "isChapter:", g.isChapter, "sources:", g.sources);
+			}
 		});
 	});
 });

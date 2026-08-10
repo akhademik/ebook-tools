@@ -155,7 +155,7 @@ function isDecorationOnly(s) {
 	return /^[\s*_]*$/.test(s);
 }
 
-function isRealParagraph(line) {
+export function isRealParagraph(line) {
 	const trim = line.trim();
 	if (!trim) return false;
 	const endsSentence = /[.!?…”"’]/.test(trim.slice(-1));
@@ -204,6 +204,12 @@ function compileCleanKeywords(keywords) {
 function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
 	const trimmed = line.trim();
 	if (!trimmed) return false;
+
+	// A header or footer line is never a long prose line
+	const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+	if (trimmed.length > 80 || wordCount > 15) {
+		return false;
+	}
 
 	if (cleanArabic) {
 		if (/^[-—–~]*\s*\d+\s*[-—–~]*$/.test(trimmed)) return true;
@@ -288,11 +294,11 @@ export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
 	return report;
 }
 
-function stripDecoration(s) {
+export function stripDecoration(s) {
 	return String(s || '').replace(/^[\s*_]+|[\s*_]+$/g, '').trim();
 }
 
-function makeChapterMatcher(patternRaw) {
+export function makeChapterMatcher(patternRaw) {
 	const pattern = (patternRaw || '').trim();
 	if (!pattern) return null;
 	const asRegex = pattern.match(/^\/(.+)\/([a-z]*)$/i);
@@ -326,30 +332,41 @@ function makeChapterMatcher(patternRaw) {
 	};
 }
 
-function extractMarkerTitle(text, matchIndex, fallback) {
+export function extractMarkerTitle(text, matchIndex, fallback) {
 	const rest = text.slice(matchIndex);
 	const m = rest.match(/^(\S+(?:\s+[IVXLCDM]+|\s+\d+)?(?:\s*[:\-–—]\s*[^.?!\n]{0,40})?)/);
 	const t = (m ? m[1] : rest.slice(0, 30)).trim();
 	return t || fallback;
 }
 
-function pushIfLineStart(arr, text, blockIndex, matchIndex, type) {
+export function pushIfLineStart(arr, text, blockIndex, matchIndex, type) {
 	const lastNewline = text.lastIndexOf('\n', matchIndex - 1);
 	const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
 	const prefix = text.slice(lineStart, matchIndex);
-	if (isDecorationOnly(prefix)) arr.push({ blockIndex, offset: lineStart, type });
+	if (isDecorationOnly(prefix)) {
+		arr.push({ blockIndex, offset: lineStart, type });
+		return true;
+	}
+	return false;
 }
 
-function scoreHeadingCandidate(rawText) {
+export function scoreHeadingCandidate(rawText, blockType = 'p', isFirstBlock = false) {
 	const plain = rawText.replace(/^[\s*_“"‘«]+|[\s*_”"’»]+$/g, '').trim();
 	if (!plain) return -99;
 	if (/^[-—–~]\s+\S+/.test(plain)) return -99;
+
+	// Reject if the first letter character in the block is lowercase (Unicode property escape)
+	const firstLetterMatch = plain.match(/\p{L}/u);
+	if (firstLetterMatch && /^\p{Ll}/u.test(firstLetterMatch[0])) {
+		console.log(`[scoreHeadingCandidate] REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
+		return -99;
+	}
 
 	const isBold = /^\*\*[\s\S]+\*\*$/.test(rawText.trim()) || /^__[\s\S]+__$/.test(rawText.trim());
 	const len = plain.length;
 	const wordCount = plain.split(/\s+/).filter(Boolean).length;
 	const hasEndPunct = /[.!?,;:]$/.test(plain);
-	const hasLetters = /[a-zA-ZÀ-ỹ]/.test(plain);
+	const hasLetters = /\p{L}/u.test(plain);
 	const isAllCaps = hasLetters && plain === plain.toUpperCase() && plain !== plain.toLowerCase();
 
 	let score = 0;
@@ -359,7 +376,19 @@ function scoreHeadingCandidate(rawText) {
 	if (wordCount <= 6) score += 1;
 	if (!hasEndPunct) score += 2;
 	if (isBold) score += 2;
-	if (/^[A-ZÀ-Ỹ]/.test(plain)) score += 1;
+	if (/^\p{Lu}/u.test(plain)) score += 1;
+
+	// Pure heuristic bonuses:
+	// 1. Bonus for explicit markdown heading blocks
+	if (blockType === 'heading') {
+		score += 3;
+	}
+	// 2. Bonus for bold paragraph blocks at the top of the file
+	if (blockType === 'p' && isBold && isFirstBlock) {
+		score += 2;
+	}
+
+
 
 	if (hasEndPunct) score -= 5;
 	if (/[\x22\x27“”‘’«»]/.test(rawText)) score -= 5;
@@ -367,55 +396,18 @@ function scoreHeadingCandidate(rawText) {
 	return score;
 }
 
-function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, limitOneChapter, heuristicThreshold = 5) {
-	const raw = [];
-	let foundChapter = false;
-	for (let i = 0; i < blocks.length; i++) {
-		const b = blocks[i];
-		if (b.type !== 'heading' && b.type !== 'p') continue;
+import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper.js';
+import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper.js';
 
-		if (!limitOneChapter || !foundChapter) {
-			let isFirstNonEmpty = true;
-			if (limitOneChapter) {
-				for (let prev = 0; prev < i; prev++) {
-					const pb = blocks[prev];
-					if (pb && pb.text && pb.text.trim()) {
-						isFirstNonEmpty = false;
-						break;
-					}
-				}
-			}
-
-			if (isFirstNonEmpty) {
-				if (useHeuristic) {
-					if (!b.text.includes('\n') && scoreHeadingCandidate(b.text) >= heuristicThreshold) {
-						raw.push({ blockIndex: i, offset: 0, type: 'chapter' });
-						foundChapter = true;
-					}
-				} else if (chapterMatcher) {
-					let from = 0;
-					while (true) {
-						const loc = chapterMatcher.locate(b.text, from);
-						if (!loc) break;
-						pushIfLineStart(raw, b.text, i, loc.index, 'chapter');
-						foundChapter = true;
-						if (limitOneChapter) break;
-						from = loc.index + 1;
-					}
-				}
-			}
-		}
+export function findAllMarkerPositionsCombined(blocks, chapterMatcher, useHeuristic, limitOneChapter, heuristicThreshold = 5) {
+	if (limitOneChapter) {
+		return findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristicThreshold);
+	} else {
+		return findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuristicThreshold);
 	}
-	raw.sort((a, b) => a.blockIndex - b.blockIndex || a.offset - b.offset);
-	const deduped = [];
-	for (const p of raw) {
-		const last = deduped[deduped.length - 1];
-		if (!last || last.blockIndex !== p.blockIndex || last.offset !== p.offset) deduped.push(p);
-	}
-	return deduped;
 }
 
-function extractChunkBlocks(blocks, start, end) {
+export function extractChunkBlocks(blocks, start, end) {
 	const startBI = start ? start.blockIndex : 0;
 	const startOff = start ? start.offset : 0;
 	const lastBI = end ? end.blockIndex : blocks.length - 1;
@@ -436,83 +428,11 @@ function extractChunkBlocks(blocks, start, end) {
 }
 
 export function groupChapters(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
-	logger.log('epub-parser', 'groupChapters called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic);
-	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const groups = [];
-	let current = null;
-	let seenMarker = false;
-
-	for (let idx = 0; idx < rawFilesList.length; idx++) {
-		const f = rawFilesList[idx];
-		const pageNum = idx + 1;
-		const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
-		const limitOneChapter = rawFilesList.length > 1;
-		const cuts = findAllMarkerPositionsCombined(f.blocks, matcher, isHeuristicActive, limitOneChapter, heuristicThreshold);
-
-		if (cuts.length === 0) {
-			const { html, title: t } = renderMarkdownBlocks(f.blocks);
-			const chapTitle = (t && t.trim()) || f.baseName;
-			if ((matcher || isHeuristicActive) && seenMarker && current) {
-				current.html += '\n' + html;
-				current.sources.push(f.path);
-			} else {
-				current = {
-					title: chapTitle,
-					html,
-					sources: [f.path],
-					isChapter: false,
-					firstSourcePageNum: pageNum
-				};
-				groups.push(current);
-			}
-			continue;
-		}
-
-		const leadingBlocks = extractChunkBlocks(f.blocks, null, cuts[0]);
-		if (leadingBlocks.length > 0) {
-			const { html: leadHtml, title: leadTitle } = renderMarkdownBlocks(leadingBlocks);
-			if (seenMarker && current) {
-				current.html += '\n' + leadHtml;
-				current.sources.push(f.path + ' (phần trước mốc)');
-			} else {
-				current = {
-					title: (leadTitle && leadTitle.trim()) || f.baseName,
-					html: leadHtml,
-					sources: [f.path + ' (phần trước mốc)'],
-					isChapter: false,
-					firstSourcePageNum: pageNum
-				};
-				groups.push(current);
-			}
-		}
-
-		for (let k = 0; k < cuts.length; k++) {
-			const cut = cuts[k];
-			const end = (k + 1 < cuts.length) ? cuts[k + 1] : null;
-			const chunkBlocks = extractChunkBlocks(f.blocks, cut, end);
-			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks);
-			let chunkTitle = f.baseName;
-			if (chunkBlocks.length > 0) {
-				if (isHeuristicActive) {
-					chunkTitle = stripDecoration(chunkBlocks[0].text) || f.baseName;
-				} else if (matcher) {
-					const relLoc = matcher.locate(chunkBlocks[0].text, 0);
-					if (relLoc) chunkTitle = extractMarkerTitle(chunkBlocks[0].text, relLoc.index, f.baseName);
-				}
-			}
-			current = {
-				title: chunkTitle,
-				html: chunkHtml,
-				sources: [f.path + (cuts.length > 1 || leadingBlocks.length > 0 ? ' (mốc ' + (k + 1) + '/' + cuts.length + ')' : '')],
-				isChapter: true,
-				firstSourcePageNum: pageNum
-			};
-			groups.push(current);
-			seenMarker = true;
-		}
+	if (rawFilesList.length > 1) {
+		return groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold);
+	} else {
+		return groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold);
 	}
-	logger.log('epub-parser', 'groupChapters finished, total groups created:', groups.length);
-	return groups;
 }
 
 export function assignSequentialChapterIds(chapters) {
@@ -532,7 +452,7 @@ export function assignSequentialChapterIds(chapters) {
 		const xmlId = c.isChapter
 			? 'chap' + String(chapCount).padStart(width, '0')
 			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
-		return { ...c, fileName, xmlId };
+		return { ...c, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null };
 	});
 	logger.log('epub-parser', 'assignSequentialChapterIds finished: total chapters =', chapCount);
 	return result;
@@ -653,163 +573,7 @@ export function normalizeMultiLineChapterTags(text) {
 	return t;
 }
 
-export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
-	const customDefinitions = options.customDefinitions || [];
-	logger.log('epub-parser', 'parseTxtToChapters starting parse. customDefinitions count:', customDefinitions.length);
-
-	// 1. Footnotes split
-	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
-	const footnoteIdx = lines.findIndex(l => l.includes('Chú thích:'));
-
-	let mainLines = lines;
-	let hasFootnotes = false;
-	let notesHtml = '';
-
-	if (footnoteIdx !== -1) {
-		mainLines = lines.slice(0, footnoteIdx);
-		hasFootnotes = true;
-
-		notesHtml += '<h1 class="chapter">Chú thích:</h1>\n';
-		const footnoteContentLines = lines.slice(footnoteIdx + 1);
-		for (const line of footnoteContentLines) {
-			const trimmed = line.trim();
-			if (!trimmed) continue;
-			
-			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
-			if (fnMatch) {
-				const n = fnMatch[1];
-				const content = fnMatch[2].trim();
-				const convertedContent = convertTxtInline(content, customDefinitions);
-				notesHtml += `<aside epub:type="footnote" id="fn${n}" class="note">\n` +
-					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
-					`</aside>\n`;
-			} else {
-				const converted = convertTxtInline(trimmed, customDefinitions);
-				notesHtml += `<p>${converted}</p>\n`;
-			}
-		}
-	}
-
-	// Join main lines back
-	const mainText = mainLines.join('\n');
-	const normalizedText = normalizeMultiLineChapterTags(mainText);
-
-	// 2. Parse main text into blocks by double newlines (paragraphs)
-	const rawBlocks = normalizedText.split(/\n\s*\n+/);
-	const chapters = [];
-	let currentChapter = null;
-
-	const reH1Exact = /^\s*##(.*?)#+\s*$/;
-	const reH2Exact = /^\s*#(?!#)(.*?)#+\s*$/;
-
-	for (const block of rawBlocks) {
-		const trimmedBlock = block.trim();
-		if (!trimmedBlock) continue;
-
-		const blockLines = trimmedBlock.split('\n');
-		let currentParaLines = [];
-
-		const flushPara = () => {
-			if (currentParaLines.length > 0 && currentChapter) {
-				for (const lineText of currentParaLines) {
-					const trimmed = lineText.trim();
-					if (!trimmed) continue;
-					
-					if (trimmed === '•••') {
-						currentChapter.html += '<p class="sbreak sbreak-big" role="separator">• • •</p>\n';
-					} else if (trimmed.startsWith('$') && trimmed.endsWith('$') && trimmed.length >= 2) {
-						const inner = trimmed.slice(1, -1).trim();
-						const pContent = convertTxtInline(inner, customDefinitions);
-						currentChapter.html += '<p class="boldright">' + pContent + '</p>\n';
-					} else {
-						const pContent = convertTxtInline(trimmed, customDefinitions);
-						currentChapter.html += '<p>' + pContent + '</p>\n';
-					}
-				}
-				currentParaLines = [];
-			}
-		};
-
-		for (const line of blockLines) {
-			const trimmedLine = line.trim();
-			if (!trimmedLine) continue;
-
-			const mH1 = trimmedLine.match(reH1Exact);
-			if (mH1) {
-				flushPara();
-				const h1Title = mH1[1].trim();
-				currentChapter = {
-					title: h1Title || `Chương ${chapters.length + 1}`,
-					html: '<h1 class="chapter">' + convertTxtInline(h1Title, customDefinitions) + '</h1>\n',
-					sources: ['Tệp TXT'],
-					isChapter: true,
-					firstSourcePageNum: chapters.length + 1
-				};
-				chapters.push(currentChapter);
-				continue;
-			}
-
-			const mH2 = trimmedLine.match(reH2Exact);
-			if (mH2) {
-				flushPara();
-				if (!currentChapter) {
-					currentChapter = {
-						title: fallbackTitle,
-						html: '',
-						sources: ['Tệp TXT'],
-						isChapter: true,
-						firstSourcePageNum: 1
-					};
-					chapters.push(currentChapter);
-				}
-				const h2Title = mH2[1].trim();
-				currentChapter.html += '<h2 class="chno">' + convertTxtInline(h2Title, customDefinitions) + '</h2>\n';
-				continue;
-			}
-
-			if (!currentChapter) {
-				currentChapter = {
-					title: fallbackTitle,
-					html: '',
-					sources: ['Tệp TXT'],
-					isChapter: true,
-					firstSourcePageNum: 1
-				};
-				chapters.push(currentChapter);
-			}
-			currentParaLines.push(trimmedLine);
-		}
-
-		flushPara();
-	}
-
-	if (chapters.length === 0) {
-		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
-		chapters.push({
-			title: fallbackTitle,
-			html: '<p>' + convertTxtInline(mainText, customDefinitions) + '</p>\n',
-			sources: ['Tệp TXT'],
-			isChapter: true,
-			firstSourcePageNum: 1
-		});
-	}
-
-	if (hasFootnotes) {
-		const notesChapter = {
-			title: 'Chú thích',
-			html: notesHtml,
-			sources: ['Tệp TXT'],
-			isChapter: true,
-			fileName: 'notes',
-			isNotes: true,
-			firstSourcePageNum: chapters.length + 1
-		};
-		chapters.push(notesChapter);
-	}
-
-	logger.log('epub-parser', 'parseTxtToChapters parse complete. Total chapters:', chapters.length);
-	return chapters;
-}
+export { parseTxtToChapters } from './epub-single-grouper.js';
 
 
 

@@ -185,10 +185,16 @@
 		<!-- Tab Contents -->
 		{#if state.activeTab === 'toc'}
 			<div class="mt-5 border border-border-color rounded-xl max-h-[300px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in">
-				{#each state.epubChapters as chap, idx (chap.fileName)}
+				{#each state.epubChapters as chap (chap.fileName)}
 					<div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
 						<div class="flex justify-between items-start gap-4">
-							<span class="font-semibold text-text-color">Chương {idx + 1}: {chap.title}</span>
+							<span class="font-semibold text-text-color">
+								{#if chap.isChapter}
+									{chap.chapterIndex}: {chap.title}
+								{:else}
+									{chap.title}
+								{/if}
+							</span>
 							<span class="text-text-mute text-xs shrink-0">{chap.fileName}.xhtml</span>
 						</div>
 						<div class="text-[11px] text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
