@@ -90,3 +90,17 @@ export function escapeXml(s) {
     .replace(/'/g, '&apos;');
 }
 
+/**
+ * Normalizes characters by stripping Vietnamese diacritics but preserving string length.
+ * @param {string} text - Input text.
+ * @returns {string} Normalized lowercased string.
+ */
+export function normalizeCharPreserveLength(text) {
+  let out = '';
+  for (const ch of String(text || '')) {
+    if (ch === 'đ' || ch === 'Đ') { out += 'd'; continue; }
+    out += ch.normalize('NFD')[0].toLowerCase();
+  }
+  return out;
+}
+

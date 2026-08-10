@@ -5,9 +5,9 @@ import {
 	scoreHeadingCandidate,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks,
-	renderMarkdownBlocks
-} from './epub-parser.js';
+	extractChunkBlocks
+} from './epub-chapter-utils.js';
+import { renderMarkdownBlocks } from './epub-markdown-utils.js';
 
 // ZIP mode marker finder (at most one chapter candidate near the top of each file)
 export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristicThreshold = 5) {

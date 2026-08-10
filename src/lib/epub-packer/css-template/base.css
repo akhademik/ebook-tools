@@ -1,0 +1,28 @@
+@page {
+  margin-top: 0;
+}
+body {
+  font-family: "Bookerly", serif;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+p {
+  display: block;
+  text-align: justify;
+  line-height: 1.4;
+  text-indent: 1.25em;
+  padding-top: 0.5em;
+  margin: 0;
+}
+b {
+  font-weight: bold;
+}
+i {
+  font-style: italic;
+}
+u {
+  text-decoration: underline;
+}
+a {
+  text-decoration: none;
+}

@@ -43,7 +43,7 @@ Object.defineProperty(globalThis, 'document', {
 
 // Dynamic import to capture the top-level window.pdfjsLib check
 const helpersModule = await import('../src/lib/helpers/helpers.js');
-const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml } = helpersModule;
+const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml, normalizeCharPreserveLength } = helpersModule;
 
 describe('helpers tests', () => {
 	beforeEach(() => {
@@ -159,6 +159,19 @@ describe('helpers tests', () => {
 		it('should handle null/undefined', () => {
 			expect(escapeXml(null)).toBe('');
 			expect(escapeXml(undefined)).toBe('');
+		});
+	});
+
+	describe('normalizeCharPreserveLength', () => {
+		it('should normalize Vietnamese characters to standard lowercase representation without diacritics', () => {
+			expect(normalizeCharPreserveLength('Đường')).toBe('duong');
+			expect(normalizeCharPreserveLength('Tiếng Việt')).toBe('tieng viet');
+		});
+
+		it('should handle null, undefined or empty values gracefully', () => {
+			expect(normalizeCharPreserveLength(null)).toBe('');
+			expect(normalizeCharPreserveLength(undefined)).toBe('');
+			expect(normalizeCharPreserveLength('')).toBe('');
 		});
 	});
 });

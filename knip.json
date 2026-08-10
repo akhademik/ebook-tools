@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "project": ["src/**/*.{js,svelte}", "tests/**/*.js"],
+  "entry": [
+    "src/routes/**/+page.{svelte,js,ts}",
+    "src/routes/**/+layout.{svelte,js,ts}",
+    "tests/**/*.test.js",
+    "src/lib/epub-packer/epub-parser.js"
+  ],
+  "ignore": ["src/lib/index.js"]
+}

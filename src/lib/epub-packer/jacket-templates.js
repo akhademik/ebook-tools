@@ -1,7 +1,7 @@
 import { escapeXml } from '../helpers/helpers.js';
-import introCss from './intro-css.css?raw';
+import introCss from './css-template/intro-css.css?raw';
 
-export function getJacketCss(templateId) {
+function getJacketCss(templateId) {
 	const regex = new RegExp(`\\/\\*\\s*intro-${templateId}\\s*\\*\\/([\\s\\S]*?)(?:\\/\\*\\s*intro-\\d+\\s*\\*\\/|$)`);
 	const match = introCss.match(regex);
 	return match ? match[1].trim() : '';

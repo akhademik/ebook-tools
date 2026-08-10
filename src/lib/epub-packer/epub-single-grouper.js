@@ -1,16 +1,15 @@
 import * as logger from '$lib/helpers/logger.js';
+import { escapeXml } from '$lib/helpers/helpers.js';
 import {
 	makeChapterMatcher,
 	pushIfLineStart,
 	scoreHeadingCandidate,
-	isRealParagraph,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks,
-	renderMarkdownBlocks,
-	normalizeMultiLineChapterTags,
-	convertTxtInline
-} from './epub-parser.js';
+	extractChunkBlocks
+} from './epub-chapter-utils.js';
+import { isRealParagraph } from './epub-ocr-utils.js';
+import { renderMarkdownBlocks } from './epub-markdown-utils.js';
 
 // Single File mode marker finder
 export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuristicThreshold = 5) {
@@ -146,13 +145,84 @@ export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, star
 	return groups;
 }
 
+function escapeRegExp(str) {
+	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getClosingTag(openTag) {
+	const match = openTag.match(/<([a-zA-Z0-9]+)/);
+	return match ? `</${match[1]}>` : '';
+}
+
+function stripHtmlTags(html) {
+	return html.replace(/<[^>]+>/g, '').trim();
+}
+
+function applyInlineFormatting(text, customDefinitions = []) {
+	let t = escapeXml(String(text || ''));
+
+	const customTags = [];
+
+	if (Array.isArray(customDefinitions)) {
+		for (const def of customDefinitions) {
+			if (def.pattern && def.tag) {
+				const escapedP = escapeRegExp(def.pattern);
+				const reCustom = new RegExp(escapedP + '(.+?)' + escapedP, 'g');
+				t = t.replace(reCustom, (m, content) => {
+					const closingTag = getClosingTag(def.tag);
+					const openIdx = customTags.length;
+					customTags.push(def.tag);
+					const closeIdx = customTags.length;
+					customTags.push(closingTag);
+					return `XCUSTOMXTAGX${openIdx}X${content}XCUSTOMXTAGX${closeIdx}X`;
+				});
+			}
+		}
+	}
+
+	const boldRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
+	t = t.replace(boldRegex, 'XBOLDXOPENX$1XBOLDXCLOSEX');
+
+	const italicRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
+	t = t.replace(italicRegex, (match, content) => {
+		const trimmed = content.trim();
+		if (/^\d+$/.test(trimmed)) {
+			return match;
+		}
+		if (trimmed.length <= 2 && /^\d+$/.test(trimmed.replace(/[^0-9]/g, ''))) {
+			return match;
+		}
+		return `XITALICXOPENX${content}XITALICXCLOSEX`;
+	});
+
+	const underlineRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
+	t = t.replace(underlineRegex, 'XUNDERLINEXOPENX$1XUNDERLINEXCLOSEX');
+
+	// Restore all placeholders
+	t = t.replace(/XBOLDXOPENX/g, '<b>')
+	     .replace(/XBOLDXCLOSEX/g, '</b>')
+	     .replace(/XITALICXOPENX/g, '<i>')
+	     .replace(/XITALICXCLOSEX/g, '</i>')
+	     .replace(/XUNDERLINEXOPENX/g, '<u>')
+	     .replace(/XUNDERLINEXCLOSEX/g, '</u>');
+
+	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (m, idx) => {
+		return customTags[Number(idx)];
+	});
+
+	t = t.replace(/\{(\d+)\}/g, (m, n) => {
+		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
+	});
+
+	return t;
+}
+
 export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
 	const customDefinitions = options.customDefinitions || [];
-	logger.log('epub-parser', 'parseTxtToChapters starting parse. customDefinitions count:', customDefinitions.length);
+	logger.log('epub-parser', 'parseTxtToChapters starting parse with new conventions.');
 
-	// 1. Footnotes split
 	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
-	const footnoteIdx = lines.findIndex(l => l.includes('Chú thích:'));
+	const footnoteIdx = lines.findIndex(l => /^\s*chú thích:?\s*$/i.test(l));
 
 	let mainLines = lines;
 	let hasFootnotes = false;
@@ -162,7 +232,7 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		mainLines = lines.slice(0, footnoteIdx);
 		hasFootnotes = true;
 
-		notesHtml += '<h1 class="chapter">Chú thích:</h1>\n';
+		notesHtml += `<h1 class="main-chap center">Chú thích:</h1>\n`;
 		const footnoteContentLines = lines.slice(footnoteIdx + 1);
 		for (const line of footnoteContentLines) {
 			const trimmed = line.trim();
@@ -172,115 +242,162 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 			if (fnMatch) {
 				const n = fnMatch[1];
 				const content = fnMatch[2].trim();
-				const convertedContent = convertTxtInline(content, customDefinitions);
+				const convertedContent = applyInlineFormatting(content, customDefinitions);
 				notesHtml += `<aside epub:type="footnote" id="fn${n}" class="note">\n` +
 					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
 					`</aside>\n`;
 			} else {
-				const converted = convertTxtInline(trimmed, customDefinitions);
+				const converted = applyInlineFormatting(trimmed, customDefinitions);
 				notesHtml += `<p>${converted}</p>\n`;
 			}
 		}
 	}
 
-	// Join main lines back
-	const mainText = mainLines.join('\n');
-	const normalizedText = normalizeMultiLineChapterTags(mainText);
+	const rawLines = mainLines;
+	const preprocessedLines = [];
+	let lastWasEmpty = false;
+	for (let i = 0; i < rawLines.length; i++) {
+		const line = rawLines[i];
+		const isEmpty = line.trim() === '';
+		if (isEmpty) {
+			if (!lastWasEmpty) {
+				preprocessedLines.push('');
+				lastWasEmpty = true;
+			}
+		} else {
+			preprocessedLines.push(line);
+			lastWasEmpty = false;
+		}
+	}
 
-	// 2. Parse main text into blocks by double newlines (paragraphs)
-	const rawBlocks = normalizedText.split(/\n\s*\n+/);
 	const chapters = [];
 	let currentChapter = null;
 
-	const reH1Exact = /^\s*##(.*?)#+\s*$/;
-	const reH2Exact = /^\s*#(?!#)(.*?)#+\s*$/;
+	const ensureChapterOpen = () => {
+		if (!currentChapter) {
+			currentChapter = {
+				title: `${fallbackTitle}`,
+				html: '',
+				sources: ['Tệp TXT'],
+				isChapter: true,
+				firstSourcePageNum: chapters.length + 1
+			};
+			chapters.push(currentChapter);
+		}
+	};
 
-	for (const block of rawBlocks) {
-		const trimmedBlock = block.trim();
-		if (!trimmedBlock) continue;
+	let lineIdx = 0;
+	while (lineIdx < preprocessedLines.length) {
+		const origLine = preprocessedLines[lineIdx];
+		const stripped = origLine.trim();
 
-		const blockLines = trimmedBlock.split('\n');
-		let currentParaLines = [];
+		if (stripped === '') {
+			lineIdx++;
+			continue;
+		}
 
-		const flushPara = () => {
-			if (currentParaLines.length > 0 && currentChapter) {
-				for (const lineText of currentParaLines) {
-					const trimmed = lineText.trim();
-					if (!trimmed) continue;
-					
-					if (trimmed === '•••') {
-						currentChapter.html += '<p class="sbreak sbreak-big" role="separator">• • •</p>\n';
-					} else if (trimmed.startsWith('$') && trimmed.endsWith('$') && trimmed.length >= 2) {
-						const inner = trimmed.slice(1, -1).trim();
-						const pContent = convertTxtInline(inner, customDefinitions);
-						currentChapter.html += '<p class="boldright">' + pContent + '</p>\n';
-					} else {
-						const pContent = convertTxtInline(trimmed, customDefinitions);
-						currentChapter.html += '<p>' + pContent + '</p>\n';
-					}
-				}
-				currentParaLines = [];
-			}
-		};
+		let isEscaped = false;
+		let lineToProcess = origLine;
+		if (stripped.startsWith('\\') && stripped.length > 1 && ['@', '~', '>', '#', '*', '/', '_'].includes(stripped.charAt(1))) {
+			isEscaped = true;
+			const backslashIdx = origLine.indexOf('\\');
+			lineToProcess = origLine.slice(0, backslashIdx) + origLine.slice(backslashIdx + 1);
+		}
 
-		for (const line of blockLines) {
-			const trimmedLine = line.trim();
-			if (!trimmedLine) continue;
+		if (isEscaped) {
+			ensureChapterOpen();
+			const formatted = applyInlineFormatting(lineToProcess.trim(), customDefinitions);
+			currentChapter.html += `<p>${formatted}</p>\n`;
+			lineIdx++;
+			continue;
+		}
 
-			const mH1 = trimmedLine.match(reH1Exact);
-			if (mH1) {
-				flushPara();
-				const h1Title = mH1[1].trim();
+		const headingMatch = stripped.match(/^(@{1,3})(t|p)?\s+(.+)$/);
+		if (headingMatch) {
+			const atCount = headingMatch[1].length;
+			const alignChar = headingMatch[2];
+			const titleRaw = headingMatch[3].trim();
+			
+			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
+			const titlePlain = stripHtmlTags(titleFormatted);
+
+			if (atCount === 3) {
 				currentChapter = {
-					title: h1Title || `Chương ${chapters.length + 1}`,
-					html: '<h1 class="chapter">' + convertTxtInline(h1Title, customDefinitions) + '</h1>\n',
+					title: titlePlain || `Phần ${chapters.length + 1}`,
+					html: `<h1 class="break-main-chap ${align}">${titleFormatted}</h1>\n`,
 					sources: ['Tệp TXT'],
 					isChapter: true,
 					firstSourcePageNum: chapters.length + 1
 				};
 				chapters.push(currentChapter);
-				continue;
-			}
-
-			const mH2 = trimmedLine.match(reH2Exact);
-			if (mH2) {
-				flushPara();
-				if (!currentChapter) {
-					currentChapter = {
-						title: fallbackTitle,
-						html: '',
-						sources: ['Tệp TXT'],
-						isChapter: true,
-						firstSourcePageNum: 1
-					};
-					chapters.push(currentChapter);
-				}
-				const h2Title = mH2[1].trim();
-				currentChapter.html += '<h2 class="chno">' + convertTxtInline(h2Title, customDefinitions) + '</h2>\n';
-				continue;
-			}
-
-			if (!currentChapter) {
+				currentChapter = null;
+			} else if (atCount === 2) {
 				currentChapter = {
-					title: fallbackTitle,
-					html: '',
+					title: titlePlain || `Chương ${chapters.length + 1}`,
+					html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
 					sources: ['Tệp TXT'],
 					isChapter: true,
-					firstSourcePageNum: 1
+					firstSourcePageNum: chapters.length + 1
 				};
 				chapters.push(currentChapter);
+			} else {
+				ensureChapterOpen();
+				currentChapter.html += `<h2 class="side-chap ${align}">${titleFormatted}</h2>\n`;
 			}
-			currentParaLines.push(trimmedLine);
+			lineIdx++;
+			continue;
 		}
 
-		flushPara();
+		const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
+		if (quoteMatch) {
+			ensureChapterOpen();
+			const alignChar = quoteMatch[1];
+			const quoteRaw = quoteMatch[2].trim();
+			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
+
+			let nextLineIdx = lineIdx + 1;
+			let nextStripped = '';
+			while (nextLineIdx < preprocessedLines.length) {
+				if (preprocessedLines[nextLineIdx].trim() !== '') {
+					nextStripped = preprocessedLines[nextLineIdx].trim();
+					break;
+				}
+				nextLineIdx++;
+			}
+
+			const authorMatch = nextStripped.match(/^>\s*(.+)$/);
+			if (authorMatch) {
+				const authorRaw = authorMatch[1].trim();
+				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
+				lineIdx = nextLineIdx + 1;
+			} else {
+				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
+				lineIdx++;
+			}
+			continue;
+		}
+
+		if (stripped === '###') {
+			ensureChapterOpen();
+			currentChapter.html += `<p class="scene-break" role="separator">• • •</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		ensureChapterOpen();
+		const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+		currentChapter.html += `<p>${formatted}</p>\n`;
+		lineIdx++;
 	}
 
 	if (chapters.length === 0) {
 		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
 		chapters.push({
 			title: fallbackTitle,
-			html: '<p>' + convertTxtInline(mainText, customDefinitions) + '</p>\n',
+			html: '',
 			sources: ['Tệp TXT'],
 			isChapter: true,
 			firstSourcePageNum: 1
@@ -300,6 +417,6 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		chapters.push(notesChapter);
 	}
 
-	logger.log('epub-parser', 'parseTxtToChapters parse complete. Total chapters:', chapters.length);
+	logger.log('epub-parser', 'parseTxtToChapters completed, total chapters:', chapters.length);
 	return chapters;
 }

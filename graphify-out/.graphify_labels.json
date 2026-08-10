@@ -6,7 +6,7 @@
   "4": "scripts",
   "5": "Ebook Forge",
   "6": "epub-packer.js",
-  "7": "logger.js",
+  "7": "entry",
   "8": "pdf-splitter.js",
   "9": "Bluesky Icon",
   "10": "Graphify Agent Rule",
@@ -23,5 +23,6 @@
   "21": "app.html",
   "22": "eslint.config.js",
   "23": "helpers.test.js",
-  "24": "epub/+page.svelte"
+  "26": "epub-markdown-utils.js",
+  "27": "epub-ocr-utils.js"
 }

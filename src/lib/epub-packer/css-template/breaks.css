@@ -1,0 +1,8 @@
+p.scene-break {
+  text-indent: 0;
+  text-align: center;
+  margin: 1.3em 0;
+  letter-spacing: 0.2em;
+  opacity: 0.65;
+  page-break-inside: avoid;
+}

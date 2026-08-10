@@ -3,141 +3,45 @@ import { escapeXml } from '$lib/helpers/helpers.js';
 import * as logger from '$lib/helpers/logger.js';
 import { JACKET_TEMPLATES } from './jacket-templates.js';
 
-export const EPUB_CSS = `@page {
-    margin-top: 0; 
-  }
+import baseCss from './css-template/base.css?raw';
+import headingsCss from './css-template/headings.css?raw';
+import quotesCss from './css-template/quotes.css?raw';
+import breaksCss from './css-template/breaks.css?raw';
+import notesCss from './css-template/notes.css?raw';
 
-  body {
-    font-family: "Bookerly", serif;
-    margin-top: 0 !important; 
-    padding-top: 0 !important;
-  }
+export const EPUB_CSS = baseCss + '\n' + headingsCss + '\n' + quotesCss + '\n' + breaksCss + '\n' + notesCss;
 
-  p {
-    display: block;
-    text-align: justify;
-    line-height: 1.4;
-    text-indent: 1.25em;
-    padding-top: 0.5em;
-    margin: 0;
-  }
+function getDynamicCss(chapters) {
+	let css = baseCss;
+	let hasHeadings = false;
+	let hasQuotes = false;
+	let hasBreaks = false;
+	let hasNotes = false;
 
-  p.sbreak {
-    text-indent: 0;
-    text-align: center;
-    margin: 1.3em 0;
-    letter-spacing: 0.2em;
-    opacity: 0.65;
-    page-break-inside: avoid;
-  }
+	for (const ch of chapters) {
+		const html = ch.html || '';
+		if (html.includes('break-main-chap') || html.includes('main-chap') || html.includes('side-chap') || html.includes('chno') || html.includes('chapter')) {
+			hasHeadings = true;
+		}
+		if (html.includes('<blockquote') || html.includes('blockquote')) {
+			hasQuotes = true;
+		}
+		if (html.includes('scene-break') || html.includes('sbreak') || html.includes('sbreak-big')) {
+			hasBreaks = true;
+		}
+		if (html.includes('noteref') || html.includes('note') || html.includes('footnote')) {
+			hasNotes = true;
+		}
+	}
 
-  a {
-    text-decoration: none;
-    font-size: 0.6em;
-    vertical-align: super;
-  }
+	if (hasHeadings) css += '\n' + headingsCss;
+	if (hasQuotes) css += '\n' + quotesCss;
+	if (hasBreaks) css += '\n' + breaksCss;
+	if (hasNotes) css += '\n' + notesCss;
 
-  aside.footnote {
-    display: block;
-    color: green; 
-    padding-bottom: 0.5em;
-  }
+	return css;
+}
 
-  div#book-columns aside.footnote { 	
-      display: none; 	
-  }
-
-  p:last-of-type {
-    margin-bottom: 2.5em; 
-  }
-
-  h1 {
-    margin-top: 1em !important;
-    padding-top: 0 !important; 
-    line-height: 1.2; 
-    text-align: center;
-    margin-bottom: 1em;
-    font-size: 1.25em;
-    font-weight: bold;
-  }
-
-  h2 {
-    margin-top: 0 !important;
-    padding-top: 0 !important; 
-    line-height: 1.1; 
-    text-align: center;
-    margin-bottom: 0.5em;
-    font-size: 1.05em;
-  }
-  h2 span.ch-num {  
-    display: inline-block;
-    font-size: 0.35em;
-    letter-spacing: 0.1em;
-    opacity: 0.6;
-    text-transform: uppercase;
-    padding-bottom: 0.4em;
-    border-bottom: 1px solid currentColor;
-  }
-  h2 span.sep {
-    display: none;
-  }
-  h2 span.ch-title {
-    display: block;
-    font-size: 1.05em;
-    text-transform: capitalize;
-  }
-
-  /* --- chú thích --- */
-  .noteref {
-    text-decoration: none;
-    font-size: 0.8em;
-    vertical-align: super;
-    line-height: 0;
-  }
-  .notes .note {
-    margin: 0 0 0.9em;
-  }
-  .notes .note p {
-    text-indent: 0;
-    font-size: 0.92em;
-    text-align: left;
-  }
-  .notenum {
-    text-decoration: none;
-    font-weight: bold;
-  }
-  em {
-    font-style: italic;
-  }
-  h1, h2 {
-    font-weight: normal;
-    text-align: center;
-    page-break-after: avoid;
-  }
-  .chapter {
-    font-size: 1.6em;
-  }
-  .chno {
-    font-size: 1.35em;
-  }
-  p.boldright {
-    text-indent: 0;
-    text-align: right;
-    font-weight: bold;
-    margin: 0.8em 0 1.8em;
-  }
-  p.sbreak {
-    text-indent: 0;
-    text-align: center;
-    margin: 1.6em 0;
-    letter-spacing: 0.2em;
-    opacity: 0.65;
-    page-break-inside: avoid;
-  }
-  p.sbreak-big {
-    margin: 2.8em 0;
-    opacity: 0.8;
-  }`;
 
 export function buildContainerXml() {
 	return '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -253,7 +157,7 @@ export async function buildEpubBlob(metadata, chapters, css, skipParagraphMerge 
 	}
 
 	let chaptersToPack = [...chapters];
-	let finalCss = css;
+	let finalCss = (css && css !== EPUB_CSS) ? css : getDynamicCss(chaptersToPack);
 
 	if (jacket && jacket.enabled) {
 		const template = JACKET_TEMPLATES.find(t => t.id === jacket.templateId);

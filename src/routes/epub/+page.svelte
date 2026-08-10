@@ -10,6 +10,7 @@
 	const epubState = new EpubState();
 
 	let showJacketModal = $state(false);
+	let showSyntaxModal = $state(false);
 	let currentPreviewTemplateIdx = $state(0);
 
 	function downloadEpub() {
@@ -95,44 +96,15 @@
 
 	{#if epubState.fileType === 'txt' && epubState.rawTxtText}
 		<!-- Custom Syntax Config for TXT -->
-		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
+		<div class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex justify-between items-center animate-fade-in gap-4">
 			<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider">Quy tắc cú pháp mặc định</span>
-			<div class="overflow-x-auto">
-				<table class="w-full text-left font-mono text-xs border-collapse text-text-color">
-					<thead>
-						<tr class="border-b border-border-color text-text-mute">
-							<th class="py-2 px-3">Cú pháp trong TXT</th>
-							<th class="py-2 px-3">Kết quả HTML</th>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-border-color">
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">*nghiêng*</code></td>
-							<td class="py-2.5 px-3"><code>&lt;em&gt;nghiêng&lt;/em&gt;</code></td>
-						</tr>
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">##chap lớn#</code></td>
-							<td class="py-2.5 px-3"><code>&lt;h1 class="chapter"&gt;chap lớn&lt;/h1&gt;</code> (Tách chương mới)</td>
-						</tr>
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">#chap nhỏ#</code></td>
-							<td class="py-2.5 px-3"><code>&lt;h2 class="chno"&gt;chap nhỏ&lt;/h2&gt;</code></td>
-						</tr>
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">$đậm kéo về lề bên phải$</code></td>
-							<td class="py-2.5 px-3"><code>&lt;p class="boldright"&gt;đậm kéo về lề bên phải&lt;/p&gt;</code></td>
-						</tr>
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">[đậm]</code></td>
-							<td class="py-2.5 px-3"><code>&lt;strong&gt;đậm&lt;/strong&gt;</code></td>
-						</tr>
-						<tr>
-							<td class="py-2.5 px-3"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">•••</code></td>
-							<td class="py-2.5 px-3"><code>&lt;p class="sbreak sbreak-big" role="separator"&gt;• • •&lt;/p&gt;</code></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+			<button
+				type="button"
+				class="bg-brand-bg border border-border-color hover:border-text-color text-text-color font-mono text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
+				onclick={() => showSyntaxModal = true}
+			>
+				Xem quy tắc cú pháp
+			</button>
 		</div>
 
 		<div class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in">
@@ -445,6 +417,134 @@
 					onclick={() => selectTemplate()}
 				>
 					Chọn mẫu này
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+{#if showSyntaxModal}
+	<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true">
+		<!-- Modal box -->
+		<div class="bg-panel-1 border border-border-color w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up">
+			<!-- Header -->
+			<div class="p-4 border-b border-border-color flex justify-between items-center bg-panel-2">
+				<span class="font-mono text-sm font-bold text-text-color">Quy tắc cú pháp mặc định</span>
+				<button 
+					type="button" 
+					class="text-text-mute hover:text-text-color transition-colors font-mono text-xs font-bold"
+					onclick={() => showSyntaxModal = false}
+				>
+					Đóng
+				</button>
+			</div>
+			
+			<!-- Body -->
+			<div class="p-6 overflow-y-auto flex-1 bg-brand-bg flex flex-col gap-4">
+				<div class="overflow-x-auto">
+					<table class="w-full text-left font-mono text-xs border-collapse text-text-color">
+						<thead>
+							<tr class="border-b border-border-color text-text-mute">
+								<th class="py-2.5 px-3 whitespace-nowrap">Cú pháp trong TXT</th>
+								<th class="py-2.5 px-3">Ý nghĩa & Cấu trúc HTML sinh ra</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-border-color">
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">@@@ Tiêu đề</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;h1 class="break-main-chap center"&gt;Tiêu đề&lt;/h1&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Tách file "solo" — file mới chỉ chứa tiêu đề này, không kéo theo nội dung phía sau.</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">@@ Tiêu đề</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;h1 class="main-chap center"&gt;Tiêu đề&lt;/h1&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Tách file gom nội dung — gom toàn bộ nội dung phía sau cho đến tiêu đề tiếp theo.</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">@ Tiêu đề</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;h2 class="side-chap center"&gt;Tiêu đề&lt;/h2&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Tiêu đề phụ / Chương nhỏ — không tách file.</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">@@t / @t</code></td>
+								<td class="py-3 px-3">
+									<span class="text-text-mute">Hậu tố căn trái:</span> <code>t</code> &rarr; class <code>left</code> (e.g. <code>&lt;h1 class="main-chap left"&gt;</code>)
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">@@p / @p</code></td>
+								<td class="py-3 px-3">
+									<span class="text-text-mute">Hậu tố căn phải:</span> <code>p</code> &rarr; class <code>right</code> (e.g. <code>&lt;h1 class="main-chap right"&gt;</code>)
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">Không có hậu tố</code></td>
+								<td class="py-3 px-3">
+									<span class="text-text-mute">Căn giữa mặc định:</span> class <code>center</code> (e.g. <code>&lt;h1 class="main-chap center"&gt;</code>)
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">~ Lời thoại</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;blockquote class="center"&gt;&lt;p&gt;Lời thoại&lt;/p&gt;&lt;/blockquote&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Quote / Lời thoại (hỗ trợ <code>~t</code> căn trái, <code>~p</code> căn phải).</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">&gt; Tác giả</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;footer&gt;Tác giả&lt;/footer&gt;</code> (bên trong blockquote)<br/>
+									<span class="text-[11px] text-text-mute">Chỉ có tác dụng khi đứng ngay sau dòng <code>~</code> trích dẫn.</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">###</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;p class="scene-break" role="separator"&gt;• • •&lt;/p&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Dấu ngắt cảnh (phải đứng riêng một dòng).</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">*in đậm*</code></td>
+								<td class="py-3 px-3"><code>&lt;b&gt;in đậm&lt;/b&gt;</code></td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">/in nghiêng/</code></td>
+								<td class="py-3 px-3"><code>&lt;i&gt;in nghiêng&lt;/i&gt;</code></td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">_gạch chân_</code></td>
+								<td class="py-3 px-3"><code>&lt;u&gt;gạch chân&lt;/u&gt;</code></td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap">
+									<code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">&#123;n&#125;</code>
+								</td>
+								<td class="py-3 px-3">
+									<span class="text-text-mute">Liên kết chú thích qua lại (Footnotes):</span><br/>
+									- Phải có một dòng riêng biệt ghi: <code>Chú thích</code> hoặc <code>Chú thích:</code> (chấp nhận mọi kiểu chữ hoa/thường, có hoặc không có dấu hai chấm).<br/>
+									- Chú thích đi theo cặp <code>&#123;n&#125;</code> (trong nội dung truyện) và <code>&#123;n&#125;</code> ở sau dòng <code>Chú thích</code> để tự động tạo liên kết và thẻ <code>&lt;aside&gt;</code> qua lại chính xác.
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			<!-- Footer -->
+			<div class="p-4 border-t border-border-color flex justify-end bg-panel-2">
+				<button
+					type="button"
+					class="bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
+					onclick={() => showSyntaxModal = false}
+				>
+					Đồng ý
 				</button>
 			</div>
 		</div>
