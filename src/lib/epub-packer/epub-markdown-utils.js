@@ -1,7 +1,10 @@
 import { escapeXml } from '$lib/helpers/helpers.js';
 import * as logger from '$lib/helpers/logger.js';
 
-function convertInline(text) {
+function convertInline(text, ignoreFormat = false) {
+	if (ignoreFormat) {
+		return escapeXml(String(text || ''));
+	}
 	const codeSpans = [];
 	let t = String(text).replace(/`([^`]+)`/g, (m, code) => {
 		codeSpans.push(code);
@@ -11,6 +14,9 @@ function convertInline(text) {
 	t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (m, alt, src) => '<img alt="' + alt + '" src="' + src + '"/>');
 	t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, txt, href) => '<a href="' + href + '">' + txt + '</a>');
 	
+	t = t.replace(/&lt;u&gt;([\s\S]{1,150}?)&lt;\/u&gt;/gi, (m, s) => '<u>' + s + '</u>');
+	t = t.replace(/&lt;ins&gt;([\s\S]{1,150}?)&lt;\/ins&gt;/gi, (m, s) => '<u>' + s + '</u>');
+	
 	const INLINE_SPAN = '[\\s\\S]{1,150}?';
 	t = t.replace(new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*\\*', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
 	t = t.replace(new RegExp('___(' + INLINE_SPAN + ')___', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
@@ -19,7 +25,7 @@ function convertInline(text) {
 	t = t.replace(new RegExp('\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'), (m, s) => '<b>' + s + '</b>');
 	t = t.replace(new RegExp('(?<![\\w_])__(' + INLINE_SPAN + ')__(?![\\w_])', 'g'), (m, s) => '<b>' + s + '</b>');
 	t = t.replace(new RegExp('(?<!\\*)\\*(?!\\*)(' + INLINE_SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'), (m, s) => '<i>' + s + '</i>');
-	t = t.replace(new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')$(?<!_)_(?![\\w_])', 'g'), (m, s) => '<i>' + s + '</i>');
+	t = t.replace(new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')(?<!_)_(?![\\w_])', 'g'), (m, s) => '<i>' + s + '</i>');
 	
 	t = t.replace(/___CODESPAN___(\d+)___CODESPAN___/g, (m, idx) => '<code>' + escapeXml(codeSpans[Number(idx)]) + '</code>');
 	return t;
@@ -114,16 +120,17 @@ export function parseMarkdownBlocks(md) {
 	return blocks;
 }
 
-export function renderMarkdownBlocks(blocks) {
+export function renderMarkdownBlocks(blocks, options = {}) {
+	const ignoreFormat = options.ignoreMarkdownFormat || false;
 	let html = '';
 	let t = null;
 	for (const b of blocks) {
 		if (b.type === 'heading') {
 			if (t === null && (b.level === 1 || b.level === 2)) t = b.text;
 			if (b.level === 2) {
-				html += '<h2><span class="ch-title">' + convertInline(b.text) + '</span></h2>\n';
+				html += '<h2><span class="ch-title">' + convertInline(b.text, ignoreFormat) + '</span></h2>\n';
 			} else {
-				html += '<h' + b.level + '>' + convertInline(b.text) + '</h' + b.level + '>\n';
+				html += '<h' + b.level + '>' + convertInline(b.text, ignoreFormat) + '</h' + b.level + '>\n';
 			}
 		} else if (b.type === 'p') {
 			if (b.text.trim() === '###') {
@@ -131,14 +138,14 @@ export function renderMarkdownBlocks(blocks) {
 			} else if (b.text.trim() === '##') {
 				html += '<p class="scene-break-small" role="separator">*</p>\n';
 			} else {
-				html += '<p>' + convertInline(b.text.replace(/\n+/g, ' ')) + '</p>\n';
+				html += '<p>' + convertInline(b.text.replace(/\n+/g, ' '), ignoreFormat) + '</p>\n';
 			}
 		} else if (b.type === 'blockquote') {
-			html += '<blockquote><p>' + convertInline(b.text) + '</p></blockquote>\n';
+			html += '<blockquote><p>' + convertInline(b.text, ignoreFormat) + '</p></blockquote>\n';
 		} else if (b.type === 'ul') {
-			html += '<ul>\n' + b.items.map(it => '<li>' + convertInline(it) + '</li>').join('\n') + '\n</ul>\n';
+			html += '<ul>\n' + b.items.map(it => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ul>\n';
 		} else if (b.type === 'ol') {
-			html += '<ol>\n' + b.items.map(it => '<li>' + convertInline(it) + '</li>').join('\n') + '\n</ol>\n';
+			html += '<ol>\n' + b.items.map(it => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ol>\n';
 		} else if (b.type === 'hr') {
 			html += '<hr/>\n';
 		} else if (b.type === 'code') {

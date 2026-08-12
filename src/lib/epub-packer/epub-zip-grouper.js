@@ -77,7 +77,7 @@ export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristi
 	return raw;
 }
 
-export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5, options = {}) {
 	logger.log('epub-parser', 'groupChaptersZip called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups = [];
@@ -91,7 +91,7 @@ export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPa
 		const cuts = findMarkersForZip(f.blocks, matcher, isHeuristicActive, heuristicThreshold);
 
 		if (cuts.length === 0) {
-			const { html, title: t } = renderMarkdownBlocks(f.blocks);
+			const { html, title: t } = renderMarkdownBlocks(f.blocks, options);
 			const chapTitle = (t && t.trim()) || f.baseName;
 			if ((matcher || isHeuristicActive) && seenMarker && current) {
 				current.html += '\n' + html;
@@ -110,7 +110,7 @@ export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPa
 			const cut = cuts[0];
 			const leadingBlocks = extractChunkBlocks(f.blocks, null, cut);
 			if (leadingBlocks.length > 0) {
-				const { html: leadHtml, title: leadTitle } = renderMarkdownBlocks(leadingBlocks);
+				const { html: leadHtml, title: leadTitle } = renderMarkdownBlocks(leadingBlocks, options);
 				if ((matcher || isHeuristicActive) && seenMarker && current) {
 					current.html += '\n' + leadHtml;
 					current.sources.push(f.path + ' (phần trước mốc)');
@@ -127,7 +127,7 @@ export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPa
 			}
 
 			const chunkBlocks = extractChunkBlocks(f.blocks, cut, null);
-			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks);
+			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks, options);
 			let chunkTitle = f.baseName;
 			if (chunkBlocks.length > 0) {
 				if (isHeuristicActive) {

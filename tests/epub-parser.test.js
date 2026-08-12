@@ -114,7 +114,7 @@ describe('epub-parser tests', () => {
 				{ type: 'heading', level: 1, text: 'Title' },
 				{ type: 'heading', level: 2, text: 'Subtitle with `code span`' },
 				{ type: 'heading', level: 3, text: 'Heading 3' },
-				{ type: 'p', text: 'Paragraph with **bold** and *italic* and ***bold italic*** and _other italic_' },
+				{ type: 'p', text: 'Paragraph with **bold** and *italic* and ***bold italic*** and _other italic_ and <u>underline</u> and <ins>ins</ins>' },
 				{ type: 'blockquote', text: 'Quote text with [link](http://url)' },
 				{ type: 'ul', items: ['Item 1 with ![img](img.png)', 'Item 2'] },
 				{ type: 'ol', items: ['Num 1', 'Num 2'] },
@@ -128,12 +128,22 @@ describe('epub-parser tests', () => {
 			expect(result.html).toContain('<h1>Title</h1>');
 			expect(result.html).toContain('<h2><span class="ch-title">Subtitle with <b><i>CODESPAN</i></b>0<b><i>CODESPAN</i></b></span></h2>');
 			expect(result.html).toContain('<h3>Heading 3</h3>');
-			expect(result.html).toContain('<p>Paragraph with <b>bold</b> and <i>italic</i> and <b><i>bold italic</i></b> and _other italic_</p>');
+			expect(result.html).toContain('<p>Paragraph with <b>bold</b> and <i>italic</i> and <b><i>bold italic</i></b> and <i>other italic</i> and <u>underline</u> and <u>ins</u></p>');
 			expect(result.html).toContain('<blockquote><p>Quote text with <a href="http://url">link</a></p></blockquote>');
 			expect(result.html).toContain('<ul>\n<li>Item 1 with <img alt="img" src="img.png"/></li>\n<li>Item 2</li>\n</ul>');
 			expect(result.html).toContain('<ol>\n<li>Num 1</li>\n<li>Num 2</li>\n</ol>');
 			expect(result.html).toContain('<hr/>');
 			expect(result.html).toContain('<pre><code>const x = 1;</code></pre>');
+		});
+
+		it('should bypass formatting if ignoreMarkdownFormat option is true', () => {
+			const blocks = [
+				{ type: 'p', text: 'Paragraph with **bold** and *italic* and _underscore_ and <u>underline</u> and `code` and [link](url)' }
+			];
+
+			const result = renderMarkdownBlocks(blocks, { ignoreMarkdownFormat: true });
+
+			expect(result.html).toBe('<p>Paragraph with **bold** and *italic* and _underscore_ and &lt;u&gt;underline&lt;/u&gt; and `code` and [link](url)</p>\n');
 		});
 	});
 

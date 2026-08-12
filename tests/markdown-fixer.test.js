@@ -30,7 +30,7 @@ describe('markdown-fixer tests', () => {
 			const input = 'Here is ***bold italic 1*** and ___bold italic 2___, also **_bold italic 3_** and __*bold italic 4*__. Additionally **bold 1**, __bold 2__, *italic 1*, _italic 2_ and <u>underline 1</u>, <ins>underline 2</ins>.';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('Here is \\b{\\i{bold italic 1}i\\}b\\ and \\b{\\i{bold italic 2}i\\}b\\, also \\b{\\i{bold italic 3}i\\}b\\ and \\b{\\i{bold italic 4}i\\}b\\. Additionally \\b{bold 1}b\\, \\b{bold 2}b\\, \\i{italic 1}i\\, \\i{italic 2}i\\ and \\u{underline 1}u\\, \\u{underline 2}u\\.');
+			expect(converted).toBe('Here is */bold italic 1/* and */bold italic 2/*, also */bold italic 3/* and */bold italic 4/*. Additionally *bold 1*, *bold 2*, /italic 1/, /italic 2/ and _underline 1_, _underline 2_.');
 			expect(count).toBe(10);
 		});
 
@@ -38,7 +38,7 @@ describe('markdown-fixer tests', () => {
 			const input = 'This is *__bold italic 5__* and _**bold italic 6**_.';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('This is \\b{\\i{bold italic 5}i\\}b\\ and \\b{\\i{bold italic 6}i\\}b\\.');
+			expect(converted).toBe('This is */bold italic 5/* and */bold italic 6/*.');
 			expect(count).toBe(2);
 		});
 
@@ -46,7 +46,7 @@ describe('markdown-fixer tests', () => {
 			const input = 'This is **bold** and __bold__';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('This is \\b{bold}b\\ and \\b{bold}b\\');
+			expect(converted).toBe('This is *bold* and *bold*');
 			expect(count).toBe(2);
 		});
 
@@ -64,7 +64,7 @@ describe('markdown-fixer tests', () => {
 			const input = `***${longText}***`;
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe(`\\b{\\i{${longText}}i\\}b\\`);
+			expect(converted).toBe(`*/${longText}/*`);
 			expect(count).toBe(1);
 		});
 
@@ -80,7 +80,7 @@ describe('markdown-fixer tests', () => {
 			const input = '***line 1\nline 2***';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('\\b{\\i{line 1\nline 2}i\\}b\\');
+			expect(converted).toBe('*/line 1\nline 2/*');
 			expect(count).toBe(1);
 		});
 	});
@@ -120,7 +120,7 @@ describe('markdown-fixer tests', () => {
 			expect(JSZip.loadAsync).toHaveBeenCalledWith(expect.any(ArrayBuffer));
 
 			// Verify markdown was converted and stored in outZip
-			expect(mockZipInstance.file).toHaveBeenCalledWith('readme.md', '\\b{\\i{bold italic}i\\}b\\ and \\i{italic}i\\');
+			expect(mockZipInstance.file).toHaveBeenCalledWith('readme.md', '*/bold italic/* and /italic/');
 			
 			// Verify image.png was read as blob and stored unchanged
 			expect(mockFiles['image.png'].async).toHaveBeenCalledWith('blob');

@@ -32,22 +32,28 @@
 
 	<div class="mt-5 flex flex-col gap-2.5 font-mono text-sm border border-border-color bg-panel-2 p-4 rounded-xl">
 		<div class="flex gap-3 items-center flex-wrap">
-			<span class="text-text-mute w-24">Đậm:</span>
+			<span class="text-text-mute w-28">Đậm:</span>
 			<code>**chữ đậm**</code> hoặc <code>__chữ đậm__</code>
 			<span class="text-accent-color">→</span>
-			<span class="text-amber-color"><code>\b&#123;chữ đậm&#125;b\</code></span>
+			<span class="text-amber-color"><code>*chữ đậm*</code></span>
 		</div>
 		<div class="flex gap-3 items-center flex-wrap">
-			<span class="text-text-mute w-24">Nghiêng:</span>
+			<span class="text-text-mute w-28">Nghiêng:</span>
 			<code>*chữ nghiêng*</code> hoặc <code>_chữ nghiêng_</code>
 			<span class="text-accent-color">→</span>
-			<span class="text-amber-color"><code>\i&#123;chữ nghiêng&#125;i\</code></span>
+			<span class="text-amber-color"><code>/chữ nghiêng/</code></span>
 		</div>
 		<div class="flex gap-3 items-center flex-wrap">
-			<span class="text-text-mute w-24">Gạch chân:</span>
+			<span class="text-text-mute w-28">Gạch chân:</span>
 			<code>&lt;u&gt;gạch chân&lt;/u&gt;</code> hoặc <code>&lt;ins&gt;gạch chân&lt;/ins&gt;</code>
 			<span class="text-accent-color">→</span>
-			<span class="text-amber-color"><code>\u&#123;gạch chân&#125;u\</code></span>
+			<span class="text-amber-color"><code>_gạch chân_</code></span>
+		</div>
+		<div class="flex gap-3 items-center flex-wrap">
+			<span class="text-text-mute w-28">Đậm nghiêng:</span>
+			<code>***đậm nghiêng***</code> hoặc <code>___đậm nghiêng___</code>
+			<span class="text-accent-color">→</span>
+			<span class="text-amber-color"><code>*/đậm nghiêng/*</code></span>
 		</div>
 	</div>
 

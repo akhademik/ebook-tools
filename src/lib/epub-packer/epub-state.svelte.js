@@ -16,6 +16,7 @@ export class EpubState {
 	fileType = $state('zip'); // 'zip' | 'txt'
 	rawTxtText = $state('');
 	customDefinitions = $state([]);
+	ignoreMarkdownFormat = $state(false);
 
 	txtH1Delim = $state('##');
 	txtH2Delim = $state('#');
@@ -107,7 +108,8 @@ export class EpubState {
 			this.heuristicMode,
 			startPage,
 			endPage,
-			this.heuristicThreshold
+			this.heuristicThreshold,
+			{ ignoreMarkdownFormat: this.ignoreMarkdownFormat }
 		);
 		this.epubChapters = assignSequentialChapterIds(grouped);
 		this.cleanedLinesReport = getCleanedLinesReport(this.epubRawFiles, this.cleanKeywords, this.cleanLineLimit);
@@ -173,6 +175,7 @@ export class EpubState {
 		this.epubRawFiles = [];
 		this.rawTxtText = '';
 		this.customDefinitions = [];
+		this.ignoreMarkdownFormat = false;
 		this.visibleCleanedCount = 20;
 
 		if (isTxt) {

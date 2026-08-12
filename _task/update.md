@@ -1,10 +1,7 @@
-1. hãy sửa lại markdown fixer, trong đó quét cái file .md trong file .zip để tìm các mã qui định của markdown và chuyển đổi nó thành
+1. sửa lại logic đóng epub từ file .zip như sau:
 
-nếu là đậm markdown -> \b{nội dung}b\
-nếu là nghiêng markdown -> \i{nội dung}i\
-nếu là gạch chân markdown -> \u{nội dung}u\
+`**hai dấu sao**` thì sẽ chuyển thành ĐẬM `<b> ... </b>`
+`*một dấu sao*` thì sẽ chuyển thành NGHIÊNG `<i> ... </i>`
+`***ba dấu sao**` thì sẽ chuyển thành ĐẬM + NGHIÊNG `<b><i> ... </i></b>`
 
-thay cho các logic đang dùng trước đây, đồng thời ở nội dung hướng dẫn bên dưới markdown fixer, bỏ hết các nội dung input đi, chỉ ghi lại việc chuyển đổi từ đậm -> \b{nội dung}b\ và các thẻ còn lại cho user biết.
-
-2. ở trong mục đóng gói epub, đưa nội dung 'xem bảng quy ước' ra trước khi upload file, để user biết mà điều chỉnh file cho phù hợp trước khi đóng gói, nghĩa là chỉ cần clik vào tab "Đóng gói Epub" là bên dưới cái File Browser, sẽ đưa cái div
-   "Bảng quy ước Xem bảng quy ước" vào ngay bên dưới đó
+ngoài ra khi upload file .zip để đóng epub, cho thêm 1 radio check/toggle để bỏ qua mọi format, nghĩa là cái file markdown nó như thế nào thì print ra y nguyên như vậy chứ ko chuyển code, ví dụ trong file md tìm thấy `**hai dấu sao**` hoặc `*tôi*` thì vẫn hiện nguyên vậy là `**hai dấu sao**`, `*tôi*` chứ ko được phép chuyển thành `<b>hai dấu sao</b>` và `<i>tôi</i>'. Nếu check bỏ qua thì bỏ qua hết, còn không check bỏ qua thì xử lý như logic ở trên để chuyển đổi sang các thẻ html tương ứng. Tuy nhiên phải đảm bảo heuristic cho file .zip vẫn hoạt động bình thường dù cho radio check/toggler có chọn true/false gì đi nữa

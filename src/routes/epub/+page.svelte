@@ -238,6 +238,26 @@
       </div>
     </div>
 
+    <div class="flex items-center gap-3 mt-4">
+      <input
+        type="checkbox"
+        id="epub-ignore-markdown-format"
+        bind:checked={epubState.ignoreMarkdownFormat}
+        onchange={() => epubState.applyGrouping()}
+        class="w-4 h-4 accent-accent-color cursor-pointer"
+      />
+      <div>
+        <label
+          for="epub-ignore-markdown-format"
+          class="text-sm text-text-color cursor-pointer font-medium"
+          >Bỏ qua định dạng Markdown</label
+        >
+        <span class="block text-xs text-text-mute mt-0.5"
+          >Giữ nguyên các ký tự định dạng như **, *, _ trong nội dung hiển thị</span
+        >
+      </div>
+    </div>
+
     {#if epubState.heuristicMode}
       <div
         class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color"

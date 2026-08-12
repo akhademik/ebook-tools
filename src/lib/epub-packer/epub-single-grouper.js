@@ -80,7 +80,7 @@ export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuri
 	return deduped;
 }
 
-export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5, options = {}) {
 	logger.log('epub-parser', 'groupChaptersSingle called, pattern:', patternRaw, 'useHeuristic:', useHeuristic);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups = [];
@@ -91,7 +91,7 @@ export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, star
 	const cuts = findMarkersForSingle(f.blocks, matcher, useHeuristic, heuristicThreshold);
 
 	if (cuts.length === 0) {
-		const { html, title: t } = renderMarkdownBlocks(f.blocks);
+		const { html, title: t } = renderMarkdownBlocks(f.blocks, options);
 		const chapTitle = (t && t.trim()) || f.baseName;
 		groups.push({
 			title: chapTitle,
@@ -106,7 +106,7 @@ export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, star
 		if (firstCut.blockIndex > 0 || firstCut.offset > 0) {
 			const leadingBlocks = extractChunkBlocks(f.blocks, null, firstCut);
 			if (leadingBlocks.length > 0) {
-				const { html: leadingHtml } = renderMarkdownBlocks(leadingBlocks);
+				const { html: leadingHtml } = renderMarkdownBlocks(leadingBlocks, options);
 				groups.push({
 					title: f.baseName,
 					html: leadingHtml,
@@ -122,7 +122,7 @@ export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, star
 			const cut = cuts[k];
 			const end = (k + 1 < cuts.length) ? cuts[k + 1] : null;
 			const chunkBlocks = extractChunkBlocks(f.blocks, cut, end);
-			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks);
+			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks, options);
 			let chunkTitle = f.baseName;
 			if (chunkBlocks.length > 0) {
 				if (useHeuristic) {

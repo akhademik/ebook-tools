@@ -33,27 +33,38 @@ export function convertBrackets(text) {
 	for (const pattern of BOLD_ITALIC_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return '\\b{\\i{' + inner + '}i\\}b\\';
+			return '%%BI_OPEN%%' + inner + '%%BI_CLOSE%%';
 		});
 	}
 	for (const pattern of BOLD_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return '\\b{' + inner + '}b\\';
+			return '%%B_OPEN%%' + inner + '%%B_CLOSE%%';
 		});
 	}
 	for (const pattern of ITALIC_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return '\\i{' + inner + '}i\\';
+			return '%%I_OPEN%%' + inner + '%%I_CLOSE%%';
 		});
 	}
 	for (const pattern of UNDERLINE_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return '\\u{' + inner + '}u\\';
+			return '%%U_OPEN%%' + inner + '%%U_CLOSE%%';
 		});
 	}
+
+	converted = converted
+		.replaceAll('%%BI_OPEN%%', '*/')
+		.replaceAll('%%BI_CLOSE%%', '/*')
+		.replaceAll('%%B_OPEN%%', '*')
+		.replaceAll('%%B_CLOSE%%', '*')
+		.replaceAll('%%I_OPEN%%', '/')
+		.replaceAll('%%I_CLOSE%%', '/')
+		.replaceAll('%%U_OPEN%%', '_')
+		.replaceAll('%%U_CLOSE%%', '_');
+
 	logger.log('markdown-fixer', 'convertBrackets finished, replaced:', count, 'matches');
 	return { converted, count };
 }
