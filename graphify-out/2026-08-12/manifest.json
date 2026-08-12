@@ -5,7 +5,7 @@
     "semantic_hash": "e1fd19ed322fd178e15a306e0db24ce7"
   },
   "package.json": {
-    "mtime": 1786359953.0644174,
+    "mtime": 1786358653.6352437,
     "ast_hash": "c1b5d02149a3db57967f60fc464af040",
     "semantic_hash": ""
   },
@@ -45,12 +45,12 @@
     "semantic_hash": "b63f393b90ac36f104e6210d56afb467"
   },
   "src/routes/epub/+page.svelte": {
-    "mtime": 1786503520.2279217,
-    "ast_hash": "4b0675f1a01ec8745cb234ea49b860df",
+    "mtime": 1786359835.645926,
+    "ast_hash": "772a7d22a36f768f79316819d9ee76bc",
     "semantic_hash": ""
   },
   "src/routes/md/+page.svelte": {
-    "mtime": 1786502569.3542967,
+    "mtime": 1786194186.8336177,
     "ast_hash": "daa0c6b8c0e23fc4f9ac3846392e9423",
     "semantic_hash": ""
   },
@@ -85,7 +85,7 @@
     "semantic_hash": "3b4fcfcf393eca4d264dca4a4663bc37"
   },
   "src/lib/helpers/helpers.js": {
-    "mtime": 1786359953.0686526,
+    "mtime": 1786358232.2397003,
     "ast_hash": "54c3824ca4487c013f657debcef60002",
     "semantic_hash": ""
   },
@@ -120,27 +120,27 @@
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-packer.js": {
-    "mtime": 1786503476.262823,
-    "ast_hash": "97b903c77bd2f18d065804cefc3af4ba",
+    "mtime": 1786358640.1473858,
+    "ast_hash": "046cc5b77861b0861ac2de8b872bb00c",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-parser.js": {
-    "mtime": 1786410587.3230045,
+    "mtime": 1786357919.8300254,
     "ast_hash": "58d60c4dd339834e4edf861e2f8027f3",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-state.svelte.js": {
-    "mtime": 1786503496.5242398,
-    "ast_hash": "297fcd5932fd41a6d914a23c2de99f44",
+    "mtime": 1786342107.498986,
+    "ast_hash": "334979b8cfac2060e51206a79761d439",
     "semantic_hash": ""
   },
   "src/lib/markdown-fixer/markdown-fixer-state.svelte.js": {
-    "mtime": 1786502569.3538709,
+    "mtime": 1786194186.8303428,
     "ast_hash": "1f478f0537bfb0483f65da50bfad2656",
     "semantic_hash": ""
   },
   "src/lib/markdown-fixer/markdown-fixer.js": {
-    "mtime": 1786502569.3540785,
+    "mtime": 1786244897.4240434,
     "ast_hash": "98d7d5fb67415f8d9f4bba62dcf4310f",
     "semantic_hash": ""
   },
@@ -160,17 +160,17 @@
     "semantic_hash": ""
   },
   "tests/epub-parser.test.js": {
-    "mtime": 1786503542.5291781,
-    "ast_hash": "1356587a1ac3eb7dfaa3440e6938d8cf",
+    "mtime": 1786359844.3755455,
+    "ast_hash": "cd51ae8aeb2319f65fa7993df4602053",
     "semantic_hash": ""
   },
   "tests/helpers.test.js": {
-    "mtime": 1786359953.0700336,
+    "mtime": 1786358251.74398,
     "ast_hash": "e2d3d4b5f5692ce30d31a8aa35633ffc",
     "semantic_hash": ""
   },
   "tests/markdown-fixer.test.js": {
-    "mtime": 1786502569.3549354,
+    "mtime": 1786244897.42562,
     "ast_hash": "4798a7debabf842195bdfbf7741bcc24",
     "semantic_hash": ""
   },
@@ -190,48 +190,38 @@
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-single-grouper.js": {
-    "mtime": 1786503481.885332,
-    "ast_hash": "464d8b22559c95af4917f0b2290781ba",
+    "mtime": 1786359828.5230293,
+    "ast_hash": "8d125447a648761565686be478e671da",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-zip-grouper.js": {
-    "mtime": 1786410587.3230045,
+    "mtime": 1786357923.0985718,
     "ast_hash": "52f147ac0066cf85d21c5dfc50b8cad9",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/jacket-templates.js": {
-    "mtime": 1786503465.0378265,
-    "ast_hash": "5fb08bd8266c24fb3136a456ac2e8d80",
+    "mtime": 1786358649.7166767,
+    "ast_hash": "cb2236a1e34e62190930fd08134a97c3",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-chapter-utils.js": {
-    "mtime": 1786359953.0663881,
+    "mtime": 1786358636.4491942,
     "ast_hash": "db6ebd8b4cefe0eb5d7ab2005cf15d51",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-markdown-utils.js": {
-    "mtime": 1786503488.4228618,
-    "ast_hash": "19841acab4251c2e8c79534a08059982",
+    "mtime": 1786357901.6352088,
+    "ast_hash": "122c93b9276aa3e198761ac0473c0b2f",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-ocr-utils.js": {
-    "mtime": 1786359953.0666978,
+    "mtime": 1786358239.3925228,
     "ast_hash": "dc36766a32aa7786028a4d72e0a18be1",
     "semantic_hash": ""
   },
   "knip.json": {
-    "mtime": 1786502569.3536246,
+    "mtime": 1786358626.6711695,
     "ast_hash": "c43183610c651cccd1cb105ac99f556b",
-    "semantic_hash": ""
-  },
-  "_task/preview-5-mau.html": {
-    "mtime": 1786502519.5047014,
-    "ast_hash": "7c30677a2d0b725bd48b5713a22ec424",
-    "semantic_hash": ""
-  },
-  "_task/update.md": {
-    "mtime": 1786503144.4589708,
-    "ast_hash": "b8c4f290ca3d241737364daee93d1856",
     "semantic_hash": ""
   }
 }

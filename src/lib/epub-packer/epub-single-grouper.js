@@ -382,7 +382,14 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 
 		if (stripped === '###') {
 			ensureChapterOpen();
-			currentChapter.html += `<p class="scene-break" role="separator">• • •</p>\n`;
+			currentChapter.html += `<p class="scene-break-big" role="separator">• • •</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		if (stripped === '##') {
+			ensureChapterOpen();
+			currentChapter.html += `<p class="scene-break-small" role="separator">*</p>\n`;
 			lineIdx++;
 			continue;
 		}

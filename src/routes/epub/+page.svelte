@@ -288,7 +288,7 @@
 				<Input bind:value={epubState.originalTitle} label="Tựa gốc (Nguyên tác)" placeholder="Tựa gốc (nếu có)" />
 			</div>
 			<div>
-				<Input bind:value={epubState.lang} label="Ngôn ngữ sách" />
+				<Input bind:value={epubState.translator} label="Dịch giả" placeholder="Tên dịch giả (nếu có)" />
 			</div>
 			<div>
 				<Input bind:value={epubState.publisher} label="Nhà xuất bản" placeholder="NXB Ebook" />
@@ -319,6 +319,88 @@
 				</button>
 			</div>
 		</div>
+	</div>
+
+	<!-- Cover Section -->
+	<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Ảnh bìa sách (Book Cover)</span>
+		
+		<DropZone
+			accept=".pdf,.png,.jpg,.jpeg,.webp"
+			onSelect={(f) => epubState.handleCoverFile(f)}
+			title="Kéo thả hoặc click để chọn ảnh bìa (PDF, PNG, JPG...)"
+			subtitle="Ảnh bìa sẽ được tự động co dãn, tối ưu dung lượng và chèn trước trang giới thiệu"
+			selectedFile={epubState.coverFile}
+		/>
+
+		{#if epubState.coverOriginalUrl}
+			<div class="mt-5 pt-5 border-t border-border-color animate-fade-in">
+				<div class="relative max-w-[280px] mx-auto bg-panel-2 border border-border-color rounded-xl overflow-hidden shadow-md">
+					<img src={epubState.coverOriginalUrl} class="w-full block" alt="Xem trước ảnh bìa" />
+					<div 
+						class="absolute top-0 left-0 right-0 bg-red-500/40 border-b border-dashed border-red-500 pointer-events-none" 
+						style="height: {epubState.coverHeight > 0 ? Math.min(100, (epubState.coverCropTop / epubState.coverHeight) * 100) : 0}%"
+					></div>
+					<div 
+						class="absolute bottom-0 left-0 right-0 bg-red-500/40 border-t border-dashed border-red-500 pointer-events-none" 
+						style="height: {epubState.coverHeight > 0 ? Math.min(100, (epubState.coverCropBottom / epubState.coverHeight) * 100) : 0}%"
+					></div>
+					<div 
+						class="absolute top-0 bottom-0 left-0 bg-red-500/40 border-r border-dashed border-red-500 pointer-events-none" 
+						style="width: {epubState.coverWidth > 0 ? Math.min(100, (epubState.coverCropLeft / epubState.coverWidth) * 100) : 0}%; top: {epubState.coverHeight > 0 ? (epubState.coverCropTop / epubState.coverHeight) * 100 : 0}%; bottom: {epubState.coverHeight > 0 ? (epubState.coverCropBottom / epubState.coverHeight) * 100 : 0}%"
+					></div>
+					<div 
+						class="absolute top-0 bottom-0 right-0 bg-red-500/40 border-l border-dashed border-red-500 pointer-events-none" 
+						style="width: {epubState.coverWidth > 0 ? Math.min(100, (epubState.coverCropRight / epubState.coverWidth) * 100) : 0}%; top: {epubState.coverHeight > 0 ? (epubState.coverCropTop / epubState.coverHeight) * 100 : 0}%; bottom: {epubState.coverHeight > 0 ? (epubState.coverCropBottom / epubState.coverHeight) * 100 : 0}%"
+					></div>
+				</div>
+
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+					<div>
+						<span class="font-mono text-xs text-text-mute uppercase mb-2 block">Cắt lề trên / dưới (px)</span>
+						<div class="flex items-center gap-2">
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('top', -20)} type="button">T −20</button>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('top', 20)} type="button">T +20</button>
+							<div class="flex-1"></div>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('bottom', -20)} type="button">B −20</button>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('bottom', 20)} type="button">B +20</button>
+						</div>
+						<div class="flex gap-4 mt-3">
+							<div class="flex-1">
+								<Input type="number" bind:value={epubState.coverCropTop} label="Lề trên (px)" min="0" />
+							</div>
+							<div class="flex-1">
+								<Input type="number" bind:value={epubState.coverCropBottom} label="Lề dưới (px)" min="0" />
+							</div>
+						</div>
+					</div>
+
+					<div>
+						<span class="font-mono text-xs text-text-mute uppercase mb-2 block">Cắt lề trái / phải (px)</span>
+						<div class="flex items-center gap-2">
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('left', -20)} type="button">L −20</button>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('left', 20)} type="button">L +20</button>
+							<div class="flex-1"></div>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('right', -20)} type="button">R −20</button>
+							<button class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer" onclick={() => epubState.adjustCoverCrop('right', 20)} type="button">R +20</button>
+						</div>
+						<div class="flex gap-4 mt-3">
+							<div class="flex-1">
+								<Input type="number" bind:value={epubState.coverCropLeft} label="Lề trái (px)" min="0" />
+							</div>
+							<div class="flex-1">
+								<Input type="number" bind:value={epubState.coverCropRight} label="Lề phải (px)" min="0" />
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-5 flex justify-between items-center">
+					<button class="bg-transparent text-text-mute hover:text-text-color font-mono text-xs py-1.5 px-3 rounded cursor-pointer" onclick={() => epubState.resetCoverCrop()} type="button">Khôi phục lề</button>
+					<button class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer" onclick={() => epubState.removeCoverFile()} type="button">Xóa ảnh bìa</button>
+				</div>
+			</div>
+		{/if}
 	</div>
 
 	<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
@@ -386,6 +468,7 @@
 						epubState.title.trim() || "Tác phẩm mẫu",
 						epubState.originalTitle.trim(),
 						epubState.author.trim() || "Tác giả mẫu",
+						epubState.translator.trim() || "Dịch giả mẫu",
 						epubState.publisher.trim(),
 						epubState.distributor.trim()
 					)}
@@ -506,8 +589,15 @@
 							<tr>
 								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">###</code></td>
 								<td class="py-3 px-3">
-									<code>&lt;p class="scene-break" role="separator"&gt;• • •&lt;/p&gt;</code><br/>
-									<span class="text-[11px] text-text-mute">Dấu ngắt cảnh (phải đứng riêng một dòng).</span>
+									<code>&lt;p class="scene-break-big" role="separator"&gt;• • •&lt;/p&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Dấu ngắt cảnh lớn (phải đứng riêng một dòng).</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"><code class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color">##</code></td>
+								<td class="py-3 px-3">
+									<code>&lt;p class="scene-break-small" role="separator"&gt;*&lt;/p&gt;</code><br/>
+									<span class="text-[11px] text-text-mute">Dấu ngắt cảnh nhỏ (phải đứng riêng một dòng).</span>
 								</td>
 							</tr>
 							<tr>

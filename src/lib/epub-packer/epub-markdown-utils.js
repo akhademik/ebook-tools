@@ -126,7 +126,13 @@ export function renderMarkdownBlocks(blocks) {
 				html += '<h' + b.level + '>' + convertInline(b.text) + '</h' + b.level + '>\n';
 			}
 		} else if (b.type === 'p') {
-			html += '<p>' + convertInline(b.text.replace(/\n+/g, ' ')) + '</p>\n';
+			if (b.text.trim() === '###') {
+				html += '<p class="scene-break-big" role="separator">• • •</p>\n';
+			} else if (b.text.trim() === '##') {
+				html += '<p class="scene-break-small" role="separator">*</p>\n';
+			} else {
+				html += '<p>' + convertInline(b.text.replace(/\n+/g, ' ')) + '</p>\n';
+			}
 		} else if (b.type === 'blockquote') {
 			html += '<blockquote><p>' + convertInline(b.text) + '</p></blockquote>\n';
 		} else if (b.type === 'ul') {

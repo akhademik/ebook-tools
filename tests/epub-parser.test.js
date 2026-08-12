@@ -625,7 +625,7 @@ Có từ *quan trọng*.`;
 			expect(chapters[1].html).toContain('<h2 class="side-chap right">Subtitle căn phải</h2>');
 		});
 
-		it('should render page break scene-break class when encountering ### delimiter', () => {
+		it('should render page break scene-break-big class when encountering ### delimiter', () => {
 			const txt = `@@ Chương 1
 Nội dung phần 1.
 
@@ -636,7 +636,21 @@ Nội dung phần 2.`;
 			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
 
 			expect(chapters).toHaveLength(1);
-			expect(chapters[0].html).toContain('<p class="scene-break" role="separator">• • •</p>');
+			expect(chapters[0].html).toContain('<p class="scene-break-big" role="separator">• • •</p>');
+		});
+
+		it('should render page break scene-break-small class when encountering ## delimiter', () => {
+			const txt = `@@ Chương 1
+Nội dung phần 1.
+
+##
+
+Nội dung phần 2.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<p class="scene-break-small" role="separator">*</p>');
 		});
 
 		it('should create a fallback chapter if text starts immediately without delimiter', () => {

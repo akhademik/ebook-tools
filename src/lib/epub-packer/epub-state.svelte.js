@@ -7,7 +7,7 @@ export class EpubState {
 	epubFileSelected = $state(null);
 	epubRawFiles = $state([]);
 	epubChapters = $state([]);
-		epubBlob = $state(null);
+	epubBlob = $state(null);
 	
 	fileType = $state('zip'); // 'zip' | 'txt'
 	rawTxtText = $state('');
@@ -45,6 +45,17 @@ export class EpubState {
 	jacketTemplateId = $state(1);
 	originalTitle = $state('');
 	distributor = $state('');
+	translator = $state(''); // Translator field
+
+	// Cover Image States
+	coverFile = $state(null);
+	coverOriginalUrl = $state(null);
+	coverWidth = $state(0);
+	coverHeight = $state(0);
+	coverCropTop = $state(0);
+	coverCropBottom = $state(0);
+	coverCropLeft = $state(0);
+	coverCropRight = $state(0);
 
 	epubOutNamePreview = $derived(ensureEpubExt(this.epubOutName.trim() || 'ten-sach'));
 
@@ -218,6 +229,121 @@ export class EpubState {
 		}
 	}
 
+	// Cover Image Crop logic
+	adjustCoverCrop(side, value) {
+		if (side === 'top') this.coverCropTop = Math.max(0, this.coverCropTop + value);
+		if (side === 'bottom') this.coverCropBottom = Math.max(0, this.coverCropBottom + value);
+		if (side === 'left') this.coverCropLeft = Math.max(0, this.coverCropLeft + value);
+		if (side === 'right') this.coverCropRight = Math.max(0, this.coverCropRight + value);
+	}
+
+	resetCoverCrop() {
+		this.coverCropTop = 0;
+		this.coverCropBottom = 0;
+		this.coverCropLeft = 0;
+		this.coverCropRight = 0;
+	}
+
+	async handleCoverFile(file) {
+		if (!file) return;
+		this.coverFile = file;
+		this.resetCoverCrop();
+		
+		const isPdf = /\.pdf$/i.test(file.name);
+		if (isPdf) {
+			if (!window.pdfjsLib) {
+				console.error('[EpubState] pdfjsLib is missing');
+				this.status = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';
+				this.isError = true;
+				return;
+			}
+			try {
+				this.status = 'Đang trích xuất trang bìa từ tệp PDF...';
+				const arrayBuffer = await file.arrayBuffer();
+				const doc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+				const page = await doc.getPage(1);
+				// Cover page render (scale 2.0 is good for high quality)
+				const viewport = page.getViewport({ scale: 2.0 });
+				const canvas = document.createElement('canvas');
+				canvas.width = viewport.width;
+				canvas.height = viewport.height;
+				const ctx = canvas.getContext('2d');
+				await page.render({ canvasContext: ctx, viewport }).promise;
+				this.coverOriginalUrl = canvas.toDataURL('image/jpeg', 0.9);
+				this.coverWidth = canvas.width;
+				this.coverHeight = canvas.height;
+				page.cleanup();
+				doc.destroy();
+				this.status = '';
+				this.isError = false;
+			} catch (err) {
+				console.error('[EpubState] Error extracting PDF page 1:', err);
+				this.status = 'Lỗi trích xuất PDF: ' + err.message;
+				this.isError = true;
+			}
+		} else {
+			// Read standard image file
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				const img = new Image();
+				img.onload = () => {
+					this.coverOriginalUrl = e.target.result;
+					this.coverWidth = img.naturalWidth;
+					this.coverHeight = img.naturalHeight;
+				};
+				img.src = e.target.result;
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+
+	removeCoverFile() {
+		this.coverFile = null;
+		this.coverOriginalUrl = null;
+		this.coverWidth = 0;
+		this.coverHeight = 0;
+		this.resetCoverCrop();
+	}
+
+	async getOptimizedCoverBlob() {
+		if (!this.coverOriginalUrl) return null;
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => {
+				const w = img.naturalWidth;
+				const h = img.naturalHeight;
+				const safeTop = Math.max(0, Math.min(this.coverCropTop, h - 1));
+				const safeBottom = Math.max(0, Math.min(this.coverCropBottom, h - 1 - safeTop));
+				const safeLeft = Math.max(0, Math.min(this.coverCropLeft, w - 1));
+				const safeRight = Math.max(0, Math.min(this.coverCropRight, w - 1 - safeLeft));
+				
+				const croppedW = w - safeLeft - safeRight;
+				const croppedH = h - safeTop - safeBottom;
+				
+				const canvas = document.createElement('canvas');
+				const maxDim = 1400; // Optimize dimensions
+				let scale = 1.0;
+				if (croppedW > maxDim || croppedH > maxDim) {
+					scale = maxDim / Math.max(croppedW, croppedH);
+				}
+				canvas.width = Math.round(croppedW * scale);
+				canvas.height = Math.round(croppedH * scale);
+				
+				const ctx = canvas.getContext('2d');
+				ctx.drawImage(
+					img,
+					safeLeft, safeTop, croppedW, croppedH,
+					0, 0, canvas.width, canvas.height
+				);
+				canvas.toBlob((blob) => {
+					resolve(blob);
+				}, 'image/jpeg', 0.82); // Good compression quality
+			};
+			img.onerror = (err) => reject(new Error('Lỗi tải ảnh bìa: ' + err.message));
+			img.src = this.coverOriginalUrl;
+		});
+	}
+
 	async processEpub() {
 		console.log('[EpubState] processEpub invoked. epubChapters.length:', this.epubChapters.length, 'fileType:', this.fileType);
 		if (this.epubChapters.length === 0) {
@@ -231,6 +357,13 @@ export class EpubState {
 		this.isError = false;
 
 		try {
+			// Extract and optimize cover if uploaded
+			let coverBlob = null;
+			if (this.coverOriginalUrl) {
+				this.status = 'Đang tối ưu hóa ảnh bìa...';
+				coverBlob = await this.getOptimizedCoverBlob();
+			}
+
 			const metadata = {
 				title: this.title.trim() || 'Không tên',
 				author: this.author.trim() || 'Khuyết danh',
@@ -245,10 +378,12 @@ export class EpubState {
 				author: this.author.trim() || 'Khuyết danh',
 				originalTitle: this.originalTitle.trim(),
 				publisher: this.publisher.trim(),
-				distributor: this.distributor.trim()
+				distributor: this.distributor.trim(),
+				translator: this.translator.trim() // Pass translator to jacket
 			};
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket);
-			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket);
+			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob);
+			this.status = 'Đang đóng gói cấu trúc EPUB...';
+			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob);
 			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;
@@ -261,8 +396,4 @@ export class EpubState {
 			console.log('[EpubState] processEpub finished. Status:', this.status, 'processing:', this.processing);
 		}
 	}
-
-
-
 }
-
