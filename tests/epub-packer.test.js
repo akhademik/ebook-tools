@@ -221,8 +221,8 @@ describe('epub-packer tests', () => {
 				title: 'Tác phẩm mẫu',
 				author: 'Tác giả mẫu',
 				originalTitle: 'Original Title',
-				publisher: 'NXB Ebook',
-				distributor: 'Phát hành'
+				publisher: 'Phát hành',
+				distributor: 'NXB Ebook'
 			};
 
 			const blob = await buildEpubBlob({ title: 'Book Title', author: 'Author Name' }, chapters, 'body {}', false, jacket);

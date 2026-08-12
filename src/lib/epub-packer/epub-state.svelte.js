@@ -139,7 +139,7 @@ export class EpubState {
 		}
 
 		this.cleanedLinesReport = [];
-		this.parseStatus = `Đã xử lý tệp .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói tệp EPUB" để xuất file.`;
+		this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
 		this.parseIsError = false;
 		console.log('[EpubState] applyTxtGrouping completed. Chapters count:', this.epubChapters.length);
 	}
