@@ -23,6 +23,8 @@
   "21": "app.html",
   "22": "eslint.config.js",
   "23": "helpers.test.js",
+  "24": "logger.js",
+  "25": "update.md",
   "26": "epub-markdown-utils.js",
   "27": "epub-ocr-utils.js"
 }

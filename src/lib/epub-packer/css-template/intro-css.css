@@ -5,7 +5,6 @@
   margin: 0;
 }
 .jacket-1 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 2.1em;
   line-height: 1.15em;
@@ -13,7 +12,6 @@
   overflow-wrap: break-word;
 }
 .jacket-1 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.95em;
   color: #555555;
@@ -26,27 +24,24 @@
   margin: 0 0 1.6em 0;
 }
 .jacket-1 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 1em;
   font-weight: bold;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-align: right;
+  text-align: left;
   margin: 0 0 0.3em 0;
 }
 .jacket-1 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.78em;
   color: #555555;
-  text-align: right;
+  text-align: left;
   letter-spacing: 0.02em;
   margin: 0 0 0.9em 0;
 }
 .jacket-1 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #444444;
-  text-align: right;
+  text-align: left;
   letter-spacing: 0.02em;
   margin: 0.1em 0;
 }
@@ -78,7 +73,6 @@
   justify-content: center;
 }
 .jacket-2 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.5em;
   line-height: 1.3em;
@@ -86,27 +80,23 @@
   overflow-wrap: break-word;
 }
 .jacket-2 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.9em;
   color: #555555;
   margin: 0 0 1.2em 0;
 }
 .jacket-2 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95em;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin: 0 0 0.3em 0;
 }
 .jacket-2 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 0.8em 0;
 }
 .jacket-2 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.7em;
   color: #444444;
   margin: 0.1em 0;
@@ -126,7 +116,6 @@
   transform: rotate(-2.5deg);
 }
 .jacket-3 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.6em;
   line-height: 1.3em;
@@ -135,7 +124,6 @@
   overflow-wrap: break-word;
 }
 .jacket-3 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
@@ -143,7 +131,6 @@
 }
 .jacket-3 .author {
   display: inline-block;
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95em;
   font-weight: bold;
   letter-spacing: 0.1em;
@@ -155,7 +142,6 @@
 }
 .jacket-3 .translator {
   display: block;
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.3em 0;
@@ -168,7 +154,6 @@
   transform: rotate(2deg);
 }
 .jacket-3 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #444444;
   margin: 0.1em 0;
@@ -199,7 +184,6 @@
   margin: 0;
 }
 .jacket-4 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.5em;
   line-height: 1.3em;
@@ -207,27 +191,23 @@
   overflow-wrap: break-word;
 }
 .jacket-4 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
   margin: 0 0 1.2em 0;
 }
 .jacket-4 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95em;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin: 0 0 0.4em 0;
 }
 .jacket-4 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.1em 0;
 }
 .jacket-4 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #444444;
   margin: 0.1em 0;
@@ -270,7 +250,6 @@
   border-right: 0.1em solid #000000;
 }
 .jacket-5 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.55em;
   line-height: 1.3em;
@@ -278,27 +257,23 @@
   overflow-wrap: break-word;
 }
 .jacket-5 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
   margin: 0 0 1.2em 0;
 }
 .jacket-5 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95em;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin: 0 0 0.4em 0;
 }
 .jacket-5 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.1em 0;
 }
 .jacket-5 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #444444;
   margin: 0.15em 0;
@@ -315,7 +290,6 @@
   text-align: center;
 }
 .jacket-6 .top .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.75em;
   line-height: 1.3em;
@@ -323,27 +297,23 @@
   overflow-wrap: break-word;
 }
 .jacket-6 .top .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.88em;
   color: #555555;
   margin: 0;
 }
 .jacket-6 .bottom .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.95em;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 0.4em 0;
 }
 .jacket-6 .bottom .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #555555;
   margin: 0 0 1em 0;
 }
 .jacket-6 .bottom .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.68em;
   letter-spacing: 0.05em;
   color: #444444;
@@ -367,7 +337,6 @@
   margin: 0 0 1.4em 0;
 }
 .jacket-7 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   text-transform: uppercase;
   font-size: 1.5em;
@@ -377,14 +346,12 @@
   overflow-wrap: break-word;
 }
 .jacket-7 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
   margin: 0 0 1.1em 0;
 }
 .jacket-7 .byline {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.85em;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -397,14 +364,12 @@
   content: " —";
 }
 .jacket-7 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   font-style: italic;
   color: #555555;
   margin: 0 0 1.4em 0;
 }
 .jacket-7 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.7em;
   color: #444444;
   margin: 0.9em 0 0 0;
@@ -417,7 +382,6 @@
   margin: 0;
 }
 .jacket-8 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.6em;
   line-height: 1.3em;
@@ -425,14 +389,12 @@
   overflow-wrap: break-word;
 }
 .jacket-8 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
   margin: 0 0 1.3em 0;
 }
 .jacket-8 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -440,7 +402,6 @@
   margin: 0 0 0.4em 0;
 }
 .jacket-8 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.4em 0;
@@ -461,7 +422,6 @@
   padding: 0.3em 0.9em;
   font-size: 0.68em;
   letter-spacing: 0.04em;
-  font-family: "Helvetica Neue", Arial, sans-serif;
 }
 
 /* intro-9 */
@@ -473,7 +433,6 @@
   text-align: center;
 }
 .jacket-9 .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.6em;
   line-height: 1.3em;
@@ -481,14 +440,12 @@
   overflow-wrap: break-word;
 }
 .jacket-9 .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
   margin: 0 0 1.3em 0;
 }
 .jacket-9 .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -496,13 +453,11 @@
   margin: 0 0 0.4em 0;
 }
 .jacket-9 .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.2em 0;
 }
 .jacket-9 .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.72em;
   color: #444444;
   margin: 0.15em 0;
@@ -515,7 +470,6 @@
   margin: 0;
 }
 .jacket-10b .title {
-  font-family: Georgia, "Times New Roman", serif;
   font-weight: bold;
   font-size: 1.6em;
   line-height: 1.3em;
@@ -523,7 +477,6 @@
   overflow-wrap: break-word;
 }
 .jacket-10b .original {
-  font-family: Georgia, serif;
   font-style: italic;
   font-size: 0.85em;
   color: #555555;
@@ -537,7 +490,6 @@
   transform: rotate(45deg);
 }
 .jacket-10b .author {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -545,13 +497,11 @@
   margin: 0 0 0.4em 0;
 }
 .jacket-10b .translator {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75em;
   color: #555555;
   margin: 0 0 1.1em 0;
 }
 .jacket-10b .meta {
-  font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.7em;
   color: #444444;
   margin: 0.15em 0;

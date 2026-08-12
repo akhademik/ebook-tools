@@ -83,6 +83,15 @@ describe('epub-packer tests', () => {
 			expect(xml).toContain('<item id="chap1" href="text/chap_01.xhtml"');
 			expect(xml).toContain('<itemref idref="chap1"');
 		});
+
+		it('should include fonts in manifest if activeFonts is specified', () => {
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
+			];
+			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' }, chapters, false, ['Akashi', 'Polliwog']);
+			expect(xml).toContain('<item id="font-akashi" href="fonts/UTM_Akashi.ttf" media-type="font/ttf"/>');
+			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog-Regular.otf" media-type="font/otf"/>');
+		});
 	});
 
 	describe('buildNavXhtml', () => {
@@ -232,6 +241,29 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('OEBPS');
 			// Since we mocked folder/file, check that they were called
 			expect(mockZipInstance.file).toHaveBeenCalledWith('mimetype', 'application/epub+zip', expect.any(Object));
+			consoleLogSpy.mockRestore();
+		});
+
+		it('should package fonts inside ZIP and declare them in content.opf and styles', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const fonts = {
+				jacketFont: 'Akashi',
+				h1Font: 'Polliwog',
+				h2Font: 'Charlotte',
+				blobs: {
+					'Akashi': new Blob(['akashi-binary']),
+					'Polliwog': new Blob(['polliwog-binary'])
+				}
+			};
+
+			const blob = await buildEpubBlob({ title: 'Book Title' }, chapters, 'body {}', false, null, null, fonts);
+			expect(blob).toBeDefined();
+
+			// Verify fonts folder calls
+			expect(mockZipInstance.folder).toHaveBeenCalledWith('fonts');
 			consoleLogSpy.mockRestore();
 		});
 	});

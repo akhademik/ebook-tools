@@ -3,6 +3,10 @@ import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import JSZip from 'jszip';
 
+import akashiUrl from '../../assets/fonts/UTM_Akashi.ttf';
+import polliwogUrl from '../../assets/fonts/Polliwog-Regular.otf';
+import charlotteUrl from '../../assets/fonts/UTM_Charlotte.ttf';
+
 export class EpubState {
 	epubFileSelected = $state(null);
 	epubRawFiles = $state([]);
@@ -46,6 +50,10 @@ export class EpubState {
 	originalTitle = $state('');
 	distributor = $state('');
 	translator = $state(''); // Translator field
+
+	jacketFont = $state('default'); // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
+	h1Font = $state('default');     // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
+	h2Font = $state('default');     // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
 
 	// Cover Image States
 	coverFile = $state(null);
@@ -381,9 +389,39 @@ export class EpubState {
 				distributor: this.distributor.trim(),
 				translator: this.translator.trim() // Pass translator to jacket
 			};
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob);
+			let fontBlobs = {};
+			const neededFonts = new Set();
+			if (this.jacketFont !== 'default') neededFonts.add(this.jacketFont);
+			if (this.h1Font !== 'default') neededFonts.add(this.h1Font);
+			if (this.h2Font !== 'default') neededFonts.add(this.h2Font);
+
+			for (const fontName of neededFonts) {
+				let url = null;
+				if (fontName === 'Akashi') url = akashiUrl;
+				else if (fontName === 'Polliwog') url = polliwogUrl;
+				else if (fontName === 'Charlotte') url = charlotteUrl;
+
+				if (url) {
+					this.status = `Đang tải phông chữ ${fontName}...`;
+					const res = await fetch(url);
+					if (!res.ok) {
+						throw new Error(`Không thể tải tệp phông chữ cho ${fontName}`);
+					}
+					const fontBlob = await res.blob();
+					fontBlobs[fontName] = fontBlob;
+				}
+			}
+
+			const fontsConfig = {
+				jacketFont: this.jacketFont,
+				h1Font: this.h1Font,
+				h2Font: this.h2Font,
+				blobs: fontBlobs
+			};
+
+			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig);
 			this.status = 'Đang đóng gói cấu trúc EPUB...';
-			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob);
+			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig);
 			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;

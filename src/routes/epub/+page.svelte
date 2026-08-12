@@ -6,6 +6,9 @@
   import { EpubState } from "$lib/epub-packer/epub-state.svelte.js";
   import { triggerDownload } from "$lib/helpers/helpers.js";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/jacket-templates.js";
+  import akashiUrl from "../../assets/fonts/UTM_Akashi.ttf";
+  import polliwogUrl from "../../assets/fonts/Polliwog-Regular.otf";
+  import charlotteUrl from "../../assets/fonts/UTM_Charlotte.ttf";
 
   const epubState = new EpubState();
 
@@ -61,6 +64,22 @@
 
 <svelte:head>
   <title>Đóng gói EPUB — Ebook Forge</title>
+  {@html `
+  <style>
+    @font-face {
+      font-family: "Akashi";
+      src: url("${akashiUrl}");
+    }
+    @font-face {
+      font-family: "Polliwog";
+      src: url("${polliwogUrl}");
+    }
+    @font-face {
+      font-family: "Charlotte";
+      src: url("${charlotteUrl}");
+    }
+  </style>
+  `}
   <style>
     .preview-wrap {
       background: #ffffff;
@@ -493,6 +512,23 @@
           placeholder="NXB Văn hóa Thông tin"
         />
       </div>
+      <div>
+        <label
+          for="jacket-font-select"
+          class="font-mono text-xs text-text-mute uppercase mb-2.5 block font-semibold"
+          >Phông chữ trang giới thiệu (Jacket Font)</label
+        >
+        <select
+          id="jacket-font-select"
+          bind:value={epubState.jacketFont}
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+        >
+          <option value="default">Mặc định (Không dùng font)</option>
+          <option value="Akashi">Akashi</option>
+          <option value="Polliwog">Polliwog</option>
+          <option value="Charlotte">Charlotte</option>
+        </select>
+      </div>
     </div>
 
     <div
@@ -726,6 +762,84 @@
     {/if}
   </div>
 
+  <!-- Font Settings & Chapter Preview Section -->
+  <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+    <span
+      class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block font-semibold"
+      >Cấu hình phông chữ nội dung & Xem trước chương</span
+    >
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+      <div>
+        <label
+          for="h1-font-select"
+          class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
+          >Phông chữ cho tiêu đề lớn (H1)</label
+        >
+        <select
+          id="h1-font-select"
+          bind:value={epubState.h1Font}
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+        >
+          <option value="default">Mặc định (Không dùng font)</option>
+          <option value="Akashi">Akashi</option>
+          <option value="Polliwog">Polliwog</option>
+          <option value="Charlotte">Charlotte</option>
+        </select>
+      </div>
+      <div>
+        <label
+          for="h2-font-select"
+          class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
+          >Phông chữ cho tiêu đề nhỏ (H2)</label
+        >
+        <select
+          id="h2-font-select"
+          bind:value={epubState.h2Font}
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+        >
+          <option value="default">Mặc định (Không dùng font)</option>
+          <option value="Akashi">Akashi</option>
+          <option value="Polliwog">Polliwog</option>
+          <option value="Charlotte">Charlotte</option>
+        </select>
+      </div>
+    </div>
+
+    <span
+      class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
+      >Xem trước hiển thị nội dung chương (Preview)</span
+    >
+    <div
+      class="border border-border-color rounded-xl p-6 bg-white shadow-inner max-w-lg mx-auto"
+      style="color: #000000; font-family: sans-serif;"
+    >
+      <h1
+        class="text-2xl font-bold mb-2 text-center"
+        style="font-family: {epubState.h1Font === 'default'
+          ? 'inherit'
+          : epubState.h1Font};"
+      >
+        Đây là chapter lớn
+      </h1>
+      <h2
+        class="text-lg font-semibold mb-4 text-center"
+        style="font-family: {epubState.h2Font === 'default'
+          ? 'inherit'
+          : epubState.h2Font}; color: #333333;"
+      >
+        Đây là chapter nhỏ
+      </h2>
+      <p class="text-sm leading-relaxed text-gray-700 font-sans">
+        Đây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị
+        trong cuốn sách của bạn sau khi xuất bản. Tiêu đề lớn (h1) và tiêu đề
+        nhỏ (h2) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p)
+        vẫn sử dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc
+        sách.
+      </p>
+    </div>
+  </div>
+
   <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
     <div class="mb-5">
       <Input
@@ -819,6 +933,9 @@
         </span>
 
         <div class="preview-wrap">
+          {#if epubState.jacketFont !== "default"}
+            {@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2 { font-family: "${epubState.jacketFont}" !important; }</style>`}
+          {/if}
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html JACKET_TEMPLATES[currentPreviewTemplateIdx].render(
             epubState.title.trim() || "Tác phẩm mẫu",
