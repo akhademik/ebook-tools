@@ -133,24 +133,24 @@
     selectedFile={epubState.epubFileSelected}
   />
 
-  {#if epubState.fileType === "txt" && epubState.rawTxtText}
-    <!-- Custom Syntax Config for TXT -->
-    <div
-      class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex justify-between items-center animate-fade-in gap-4"
+  <!-- Custom Syntax Config for TXT -->
+  <div
+    class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex justify-between items-center gap-4"
+  >
+    <span
+      class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider"
+      >Bảng quy ước</span
     >
-      <span
-        class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider"
-        >Bảng quy ước</span
-      >
-      <button
-        type="button"
-        class="bg-brand-bg border border-border-color hover:border-text-color text-text-color font-mono text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
-        onclick={() => (showSyntaxModal = true)}
-      >
-        Xem bảng quy ước
-      </button>
-    </div>
+    <button
+      type="button"
+      class="bg-brand-bg border border-border-color hover:border-text-color text-text-color font-mono text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
+      onclick={() => (showSyntaxModal = true)}
+    >
+      Xem bảng quy ước
+    </button>
+  </div>
 
+  {#if epubState.fileType === "txt" && epubState.rawTxtText}
     <div
       class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in"
     >

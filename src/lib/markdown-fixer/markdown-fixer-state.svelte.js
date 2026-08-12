@@ -6,11 +6,6 @@ export class MarkdownFixerState {
 	mdOutZipBlob = $state(null);
 	zipOutName = $state('');
 
-	italicOpen = $state('[');
-	italicClose = $state(']');
-	biOpen = $state('[');
-	biClose = $state(']');
-
 	status = $state('');
 	isError = $state(false);
 	processing = $state(false);
@@ -20,8 +15,6 @@ export class MarkdownFixerState {
 	processedFilesList = $state([]);
 
 	zipNamePreview = $derived(ensureZipExt(this.zipOutName.trim() || 'ten-file-goc-da-fix'));
-	italicSample = $derived(`${this.italicOpen}nghiêng${this.italicClose}`);
-	biSample = $derived(`${this.biOpen}đậm nghiêng${this.biClose}`);
 
 	handleFile(file) {
 		if (!file) return;
@@ -45,12 +38,7 @@ export class MarkdownFixerState {
 		this.isError = false;
 
 		try {
-			const res = await fixMarkdownZip(this.mdSelectedFile, {
-				italicOpen: this.italicOpen,
-				italicClose: this.italicClose,
-				biOpen: this.biOpen,
-				biClose: this.biClose
-			});
+			const res = await fixMarkdownZip(this.mdSelectedFile);
 			this.mdOutZipBlob = res.zipBlob;
 			this.totalFiles = res.totalFiles;
 			this.totalReplacements = res.totalReplacements;

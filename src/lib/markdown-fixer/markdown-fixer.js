@@ -12,39 +12,58 @@ const BOLD_ITALIC_PATTERNS = [
 	new RegExp('\\*__(' + SPAN + ')__\\*', 'g'),
 	new RegExp('_\\*\\*(' + SPAN + ')\\*\\*_', 'g')
 ];
+const BOLD_PATTERNS = [
+	new RegExp('\\*\\*(' + SPAN + ')\\*\\*', 'g'),
+	new RegExp('(?<![\\w_])__(' + SPAN + ')__(?![\\w_])', 'g')
+];
 const ITALIC_PATTERNS = [
 	new RegExp('(?<!\\*)\\*(?!\\*)(' + SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'),
 	new RegExp('(?<![\\w_])_(?!_)(' + SPAN + ')(?<!_)_(?![\\w_])', 'g')
 ];
+const UNDERLINE_PATTERNS = [
+	new RegExp('<u>(' + SPAN + ')</u>', 'gi'),
+	new RegExp('<ins>(' + SPAN + ')</ins>', 'gi')
+];
 
-export function convertBrackets(text, config = {}) {
+export function convertBrackets(text) {
 	logger.log('markdown-fixer', 'convertBrackets called, input length:', text.length);
-	const { italicOpen = '[', italicClose = ']', biOpen = '[', biClose = ']' } = config;
 	let count = 0;
 	let converted = text;
 	
 	for (const pattern of BOLD_ITALIC_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return biOpen + inner + biClose;
+			return '\\b{\\i{' + inner + '}i\\}b\\';
+		});
+	}
+	for (const pattern of BOLD_PATTERNS) {
+		converted = converted.replace(pattern, (match, inner) => {
+			count++;
+			return '\\b{' + inner + '}b\\';
 		});
 	}
 	for (const pattern of ITALIC_PATTERNS) {
 		converted = converted.replace(pattern, (match, inner) => {
 			count++;
-			return italicOpen + inner + italicClose;
+			return '\\i{' + inner + '}i\\';
+		});
+	}
+	for (const pattern of UNDERLINE_PATTERNS) {
+		converted = converted.replace(pattern, (match, inner) => {
+			count++;
+			return '\\u{' + inner + '}u\\';
 		});
 	}
 	logger.log('markdown-fixer', 'convertBrackets finished, replaced:', count, 'matches');
 	return { converted, count };
 }
 
-export async function fixMarkdownZip(mdSelectedFile, wrappers) {
+export async function fixMarkdownZip(mdSelectedFile) {
 	if (!mdSelectedFile) {
 		logger.error('markdown-fixer', 'fixMarkdownZip called without file');
 		throw new Error('Chưa chọn tệp .ZIP.');
 	}
-	logger.log('markdown-fixer', 'fixMarkdownZip called, size:', mdSelectedFile.size, 'wrappers:', wrappers);
+	logger.log('markdown-fixer', 'fixMarkdownZip called, size:', mdSelectedFile.size);
 
 	const arrayBuffer = await mdSelectedFile.arrayBuffer();
 	const inZip = await JSZip.loadAsync(arrayBuffer);
@@ -59,7 +78,7 @@ export async function fixMarkdownZip(mdSelectedFile, wrappers) {
 		if (entry.dir) continue;
 		if (/\.md$/i.test(entry.name)) {
 			const content = await entry.async('string');
-			const { converted, count } = convertBrackets(content, wrappers);
+			const { converted, count } = convertBrackets(content);
 			outZip.file(entry.name, converted);
 			fileCount++;
 			replaceCount += count;

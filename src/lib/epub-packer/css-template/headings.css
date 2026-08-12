@@ -1,12 +1,24 @@
-h1,
-h2 {
-  font-size: 1.5rem;
-  margin: 1.5rem 0 3rem 0;
-}
-
 h1 + p,
 h2 + p {
   text-indent: 0 !important;
+}
+
+h1.main-chap + h1.main-chap {
+  margin-top: 0.3em !important;
+}
+h1.main-chap + p {
+  margin-top: 1.5em !important;
+}
+
+h2.side-chap + h2.side-chap {
+  margin-top: -0.6em !important;
+}
+h2.side-chap + p {
+  margin-top: 1.5em;
+}
+
+h1.main-chap + h2.side-chap {
+  margin-top: 1.2em !important;
 }
 
 .dropcap {
@@ -19,7 +31,7 @@ h2 + p {
 }
 
 .break-main-chap {
-  margin-top: 2em !important;
+  margin-top: 2em;
   line-height: 1.2;
   margin-bottom: 2em;
   font-size: 1.4em;
@@ -27,16 +39,14 @@ h2 + p {
   page-break-before: always;
 }
 .main-chap {
-  margin-top: 1.5em !important;
+  margin-top: 1.5em;
   line-height: 1.2;
-  margin-bottom: 1.2em;
   font-size: 1.25em;
   font-weight: bold;
 }
 .side-chap {
-  margin-top: 1.2em !important;
+  margin-top: 1.2em;
   line-height: 1.1;
-  margin-bottom: 0.8em;
   font-size: 1.1em;
   font-weight: bold;
 }

@@ -1,7 +1,7 @@
 p.scene-break-small {
   text-indent: 0;
   text-align: center;
-  margin: 1em 0;
+  margin: 0.5em 0;
   letter-spacing: 0.2em;
   opacity: 0.65;
   page-break-inside: avoid;
@@ -10,7 +10,7 @@ p.scene-break-small {
 p.scene-break-big {
   text-indent: 0;
   text-align: center;
-  margin: 2.8em 0;
+  margin: 1.1em 0;
   letter-spacing: 0.2em;
   opacity: 0.8;
   page-break-inside: avoid;

@@ -9,11 +9,6 @@
 
 	$effect(() => {
 		if (state.mdSelectedFile) {
-			// Trigger reactive updates when wrappers adjust
-			state.italicOpen;
-			state.italicClose;
-			state.biOpen;
-			state.biClose;
 			state.processMarkdownZip();
 		}
 	});
@@ -23,7 +18,7 @@
 	<title>Markdown Fixer — Ebook Forge</title>
 </svelte:head>
 
-<PageHeader title="Markdown Fixer" description="Chuẩn hóa định dạng chữ nghiêng/đậm nghiêng trong tệp Markdown thô." />
+<PageHeader title="Markdown Fixer" description="Chuẩn hóa định dạng chữ nghiêng/đậm nghiêng/gạch chân trong tệp Markdown thô." />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
 	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">Tệp .ZIP chứa các tệp Markdown (.md)</span>
@@ -35,24 +30,24 @@
 		selectedFile={state.mdSelectedFile}
 	/>
 
-	<div class="mt-5 flex gap-3 items-center font-mono text-sm flex-wrap">
-		<span class="text-text-mute">Trước:</span> <code>*nghiêng*</code> · <code>***đậm nghiêng***</code>
-		<span class="text-accent-color">→</span>
-		<span class="text-amber-color">Sau:</span> <code>{state.italicSample}</code> · <code>{state.biSample}</code>
-	</div>
-
-	<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5">
-		<div>
-			<Input bind:value={state.italicOpen} label="Nghiêng mở" />
+	<div class="mt-5 flex flex-col gap-2.5 font-mono text-sm border border-border-color bg-panel-2 p-4 rounded-xl">
+		<div class="flex gap-3 items-center flex-wrap">
+			<span class="text-text-mute w-24">Đậm:</span>
+			<code>**chữ đậm**</code> hoặc <code>__chữ đậm__</code>
+			<span class="text-accent-color">→</span>
+			<span class="text-amber-color"><code>\b&#123;chữ đậm&#125;b\</code></span>
 		</div>
-		<div>
-			<Input bind:value={state.italicClose} label="Nghiêng đóng" />
+		<div class="flex gap-3 items-center flex-wrap">
+			<span class="text-text-mute w-24">Nghiêng:</span>
+			<code>*chữ nghiêng*</code> hoặc <code>_chữ nghiêng_</code>
+			<span class="text-accent-color">→</span>
+			<span class="text-amber-color"><code>\i&#123;chữ nghiêng&#125;i\</code></span>
 		</div>
-		<div>
-			<Input bind:value={state.biOpen} label="Đậm+nghiêng mở" />
-		</div>
-		<div>
-			<Input bind:value={state.biClose} label="Đậm+nghiêng đóng" />
+		<div class="flex gap-3 items-center flex-wrap">
+			<span class="text-text-mute w-24">Gạch chân:</span>
+			<code>&lt;u&gt;gạch chân&lt;/u&gt;</code> hoặc <code>&lt;ins&gt;gạch chân&lt;/ins&gt;</code>
+			<span class="text-accent-color">→</span>
+			<span class="text-amber-color"><code>\u&#123;gạch chân&#125;u\</code></span>
 		</div>
 	</div>
 

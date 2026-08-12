@@ -26,56 +26,28 @@ describe('markdown-fixer tests', () => {
 	});
 
 	describe('convertBrackets', () => {
-		it('should convert bold italic and italic patterns using default brackets', () => {
-			const input = 'Here is ***bold italic 1*** and ___bold italic 2___, also **_bold italic 3_** and __*bold italic 4*__. Additionally *italic 1* and _italic 2_.';
+		it('should convert bold italic, bold, italic and underline patterns', () => {
+			const input = 'Here is ***bold italic 1*** and ___bold italic 2___, also **_bold italic 3_** and __*bold italic 4*__. Additionally **bold 1**, __bold 2__, *italic 1*, _italic 2_ and <u>underline 1</u>, <ins>underline 2</ins>.';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('Here is [bold italic 1] and [bold italic 2], also [bold italic 3] and [bold italic 4]. Additionally [italic 1] and [italic 2].');
-			expect(count).toBe(6);
+			expect(converted).toBe('Here is \\b{\\i{bold italic 1}i\\}b\\ and \\b{\\i{bold italic 2}i\\}b\\, also \\b{\\i{bold italic 3}i\\}b\\ and \\b{\\i{bold italic 4}i\\}b\\. Additionally \\b{bold 1}b\\, \\b{bold 2}b\\, \\i{italic 1}i\\, \\i{italic 2}i\\ and \\u{underline 1}u\\, \\u{underline 2}u\\.');
+			expect(count).toBe(10);
 		});
 
 		it('should convert bold italic patterns using other variations: *__ and _**', () => {
 			const input = 'This is *__bold italic 5__* and _**bold italic 6**_.';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('This is [bold italic 5] and [bold italic 6].');
+			expect(converted).toBe('This is \\b{\\i{bold italic 5}i\\}b\\ and \\b{\\i{bold italic 6}i\\}b\\.');
 			expect(count).toBe(2);
 		});
 
-		it('should use custom wrapper config if provided', () => {
-			const input = '***bold italic*** and *italic*';
-			const config = {
-				italicOpen: '<em>',
-				italicClose: '</em>',
-				biOpen: '<strong><em>',
-				biClose: '</em></strong>'
-			};
-			const { converted, count } = convertBrackets(input, config);
-
-			expect(converted).toBe('<strong><em>bold italic</em></strong> and <em>italic</em>');
-			expect(count).toBe(2);
-		});
-
-		it('should fallback to defaults if config is partially provided', () => {
-			const input = '***bold italic*** and *italic*';
-			const config = {
-				italicOpen: '<it>',
-				// italicClose missing
-				// biOpen missing
-				biClose: '</bi>'
-			};
-			const { converted, count } = convertBrackets(input, config);
-
-			expect(converted).toBe('[bold italic</bi> and <it>italic]');
-			expect(count).toBe(2);
-		});
-
-		it('should not convert bold-only patterns (double stars/underscores without third symbol)', () => {
+		it('should convert bold-only patterns (double stars/underscores)', () => {
 			const input = 'This is **bold** and __bold__';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('This is **bold** and __bold__');
-			expect(count).toBe(0);
+			expect(converted).toBe('This is \\b{bold}b\\ and \\b{bold}b\\');
+			expect(count).toBe(2);
 		});
 
 		it('should not convert patterns that exceed MAX_SPAN (150 chars)', () => {
@@ -92,7 +64,7 @@ describe('markdown-fixer tests', () => {
 			const input = `***${longText}***`;
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe(`[${longText}]`);
+			expect(converted).toBe(`\\b{\\i{${longText}}i\\}b\\`);
 			expect(count).toBe(1);
 		});
 
@@ -108,7 +80,7 @@ describe('markdown-fixer tests', () => {
 			const input = '***line 1\nline 2***';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('[line 1\nline 2]');
+			expect(converted).toBe('\\b{\\i{line 1\nline 2}i\\}b\\');
 			expect(count).toBe(1);
 		});
 	});
@@ -142,18 +114,13 @@ describe('markdown-fixer tests', () => {
 				arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
 			};
 
-			const result = await fixMarkdownZip(fakeFile, {
-				italicOpen: '<em>',
-				italicClose: '</em>',
-				biOpen: '<strong>',
-				biClose: '</strong>'
-			});
+			const result = await fixMarkdownZip(fakeFile);
 
 			expect(fakeFile.arrayBuffer).toHaveBeenCalled();
 			expect(JSZip.loadAsync).toHaveBeenCalledWith(expect.any(ArrayBuffer));
 
 			// Verify markdown was converted and stored in outZip
-			expect(mockZipInstance.file).toHaveBeenCalledWith('readme.md', '<strong>bold italic</strong> and <em>italic</em>');
+			expect(mockZipInstance.file).toHaveBeenCalledWith('readme.md', '\\b{\\i{bold italic}i\\}b\\ and \\i{italic}i\\');
 			
 			// Verify image.png was read as blob and stored unchanged
 			expect(mockFiles['image.png'].async).toHaveBeenCalledWith('blob');

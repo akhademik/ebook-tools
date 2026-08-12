@@ -1,29 +1,10 @@
-chinh tiep, khi dong epub tu .txt hoac tu .zip, sau khi dua vao cac ky tu thi chung ta da co cac chapter/header với thẻ `<h1>` và `<h2>`, sau đó hayx thay no vi du sau khi dong epub thi nguyen ban se la
+1. hãy sửa lại markdown fixer, trong đó quét cái file .md trong file .zip để tìm các mã qui định của markdown và chuyển đổi nó thành
 
-`<h1 class="main-chap center">18 PHÚT</h1>
+nếu là đậm markdown -> \b{nội dung}b\
+nếu là nghiêng markdown -> \i{nội dung}i\
+nếu là gạch chân markdown -> \u{nội dung}u\
 
-  <p>Mỗi giây là một năm</p>`
+thay cho các logic đang dùng trước đây, đồng thời ở nội dung hướng dẫn bên dưới markdown fixer, bỏ hết các nội dung input đi, chỉ ghi lại việc chuyển đổi từ đậm -> \b{nội dung}b\ và các thẻ còn lại cho user biết.
 
-giờ hãy chỉnh cho code no chay là sẽ thành
-
-`<h1 class="main-chap center">18 PHÚT</h1>
-
-  <p><span class="dropcap">M</span>ỗi giây là một năm</p>`
-
-de toi bo dropcap cho ky tu dau tien cua the P lien sau the h1 hoac h2, dong thoi inject luon do la
-
-`h1 + p,
-h2 + p {
-text-indent: 0 !important;
-}
-
-.dropcap {
-float: left;
-font-size: 3em;
-line-height: 0.9;
-margin-right: 0.08em;
-margin-top: 0.02em;
-font-weight: bold;
-}`
-
-cai nay da duoc dua vao tron file headings.css roi
+2. ở trong mục đóng gói epub, đưa nội dung 'xem bảng quy ước' ra trước khi upload file, để user biết mà điều chỉnh file cho phù hợp trước khi đóng gói, nghĩa là chỉ cần clik vào tab "Đóng gói Epub" là bên dưới cái File Browser, sẽ đưa cái div
+   "Bảng quy ước Xem bảng quy ước" vào ngay bên dưới đó
