@@ -19,6 +19,7 @@ function convertInline(text, ignoreFormat = false) {
 	
 	const INLINE_SPAN = '[\\s\\S]{1,150}?';
 	t = t.replace(new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*\\*', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
+	t = t.replace(new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
 	t = t.replace(new RegExp('___(' + INLINE_SPAN + ')___', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
 	t = t.replace(new RegExp('\\*\\*_(' + INLINE_SPAN + ')_\\*\\*', 'g'), (m, s) => '<b><i>' + s + '</i></b>');
 	t = t.replace(new RegExp('__\\*(' + INLINE_SPAN + ')\\*__', 'g'), (m, s) => '<b><i>' + s + '</i></b>');

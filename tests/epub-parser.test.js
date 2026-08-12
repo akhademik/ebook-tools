@@ -145,6 +145,16 @@ describe('epub-parser tests', () => {
 
 			expect(result.html).toBe('<p>Paragraph with **bold** and *italic* and _underscore_ and &lt;u&gt;underline&lt;/u&gt; and `code` and [link](url)</p>\n');
 		});
+
+		it('should support ***bold italic** (three stars opening, two stars closing) format', () => {
+			const blocks = [
+				{ type: 'p', text: 'Paragraph with ***bold italic** format' }
+			];
+
+			const result = renderMarkdownBlocks(blocks);
+
+			expect(result.html).toBe('<p>Paragraph with <b><i>bold italic</i></b> format</p>\n');
+		});
 	});
 
 	describe('getCleanedLinesReport', () => {
