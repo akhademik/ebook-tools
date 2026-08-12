@@ -1,16 +1,21 @@
-/* 
-h1,h2 {
-  font-weight: normal;
-  page-break-after: avoid;
-  margin: 0;
-  padding: 0;
-} 
-*/
-
 h1,
 h2 {
   font-size: 1.5rem;
   margin: 1.5rem 0 3rem 0;
+}
+
+h1 + p,
+h2 + p {
+  text-indent: 0 !important;
+}
+
+.dropcap {
+  float: left;
+  font-size: 3em;
+  line-height: 0.9;
+  margin-right: 0.08em;
+  margin-top: 0.02em;
+  font-weight: bold;
 }
 
 .break-main-chap {

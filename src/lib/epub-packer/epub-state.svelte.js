@@ -390,10 +390,16 @@ export class EpubState {
 				translator: this.translator.trim() // Pass translator to jacket
 			};
 			let fontBlobs = {};
-			const neededFonts = new Set();
-			if (this.jacketFont !== 'default') neededFonts.add(this.jacketFont);
-			if (this.h1Font !== 'default') neededFonts.add(this.h1Font);
-			if (this.h2Font !== 'default') neededFonts.add(this.h2Font);
+			const neededFonts = [];
+			if (this.jacketFont !== 'default' && !neededFonts.includes(this.jacketFont)) {
+				neededFonts.push(this.jacketFont);
+			}
+			if (this.h1Font !== 'default' && !neededFonts.includes(this.h1Font)) {
+				neededFonts.push(this.h1Font);
+			}
+			if (this.h2Font !== 'default' && !neededFonts.includes(this.h2Font)) {
+				neededFonts.push(this.h2Font);
+			}
 
 			for (const fontName of neededFonts) {
 				let url = null;

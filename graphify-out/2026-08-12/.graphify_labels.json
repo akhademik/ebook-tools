@@ -1,7 +1,7 @@
 {
   "0": "devDependencies",
   "1": "compilerOptions",
-  "2": "helpers.js",
+  "2": "markdown-fixer-state.svelte.js",
   "3": "epub-parser.js",
   "4": "scripts",
   "5": "Ebook Forge",
@@ -18,7 +18,7 @@
   "16": "Social Icon",
   "17": "svelte",
   "18": "vite.config.js",
-  "19": "EpubState",
+  "19": "helpers.js",
   "20": "Q: dua vao report cua graphify, xem thu project co van de gi ko, co gi can phai sua chua dieu chinh khong",
   "21": "app.html",
   "22": "eslint.config.js",
@@ -26,5 +26,5 @@
   "24": "logger.js",
   "25": "update.md",
   "26": "epub-markdown-utils.js",
-  "27": "epub-ocr-utils.js"
+  "27": "epub/+page.svelte"
 }

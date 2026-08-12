@@ -64,6 +64,7 @@
 
 <svelte:head>
   <title>Đóng gói EPUB — Ebook Forge</title>
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html `
   <style>
     @font-face {
@@ -934,6 +935,7 @@
 
         <div class="preview-wrap">
           {#if epubState.jacketFont !== "default"}
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2 { font-family: "${epubState.jacketFont}" !important; }</style>`}
           {/if}
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->

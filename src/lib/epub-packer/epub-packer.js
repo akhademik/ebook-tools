@@ -286,6 +286,14 @@ export function buildChapterXhtml(
     '<p class="scene-break-small" role="separator">*</p>',
   );
 
+  const isSpecialPage = chapter.fileName === "jacket" || chapter.fileName === "cover";
+  if (!isSpecialPage) {
+    content = content.replace(
+      /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
+      (match, p1, p2, p3) => p1 + p2 + '<span class="dropcap">' + p3 + '</span>',
+    );
+  }
+
   const styleBlock = customCss ? `  <style>\n${customCss}\n  </style>\n` : "";
   const linkStyle =
     chapter.fileName === "jacket" || chapter.fileName === "cover"

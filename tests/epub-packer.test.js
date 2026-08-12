@@ -49,6 +49,62 @@ describe('epub-packer tests', () => {
 			);
 			expect(html).toContain('<p>Đây là dòng dở</p>\n<p>tiếp tục dòng này.</p>');
 		});
+
+		it('should add dropcap to the first paragraph immediately following h1 or h2', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>Mỗi giây là một năm</p>'
+				}
+			);
+			expect(html).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p><span class="dropcap">M</span>ỗi giây là một năm</p>');
+		});
+
+		it('should include starting quotes/entities/inline tags correctly in the dropcap', () => {
+			const htmlQuotes = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>“Mỗi giây là một năm”</p>'
+				}
+			);
+			expect(htmlQuotes).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p><span class="dropcap">“M</span>ỗi giây là một năm”</p>');
+
+			const htmlItalic = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1>18 PHÚT</h1>\n<p><i>M</i>ỗi giây là một năm</p>'
+				}
+			);
+			expect(htmlItalic).toContain('<h1>18 PHÚT</h1>\n<p><i><span class="dropcap">M</span></i>ỗi giây là một năm</p>');
+
+			const htmlEntity = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h2>18 PHÚT</h2>\n<p>&ldquo;Mỗi giây là một năm&rdquo;</p>'
+				}
+			);
+			expect(htmlEntity).toContain('<h2>18 PHÚT</h2>\n<p><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>');
+		});
+
+		it('should not add dropcap to special pages like jacket or cover', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Giới thiệu',
+					fileName: 'jacket',
+					html: '<h1>18 PHÚT</h1>\n<p>Mỗi giây là một năm</p>'
+				}
+			);
+			expect(html).not.toContain('class="dropcap"');
+		});
 	});
 
 	describe('buildContainerXml', () => {
@@ -89,8 +145,8 @@ describe('epub-packer tests', () => {
 				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
 			];
 			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' }, chapters, false, ['Akashi', 'Polliwog']);
-			expect(xml).toContain('<item id="font-akashi" href="fonts/UTM_Akashi.ttf" media-type="font/ttf"/>');
-			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog-Regular.otf" media-type="font/otf"/>');
+			expect(xml).toContain('<item id="font-akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>');
+			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog-Regular.otf" media-type="application/vnd.ms-opentype"/>');
 		});
 	});
 
