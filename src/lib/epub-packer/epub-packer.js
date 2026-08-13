@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import { escapeXml } from "$lib/helpers/helpers.js";
 import * as logger from "$lib/helpers/logger.js";
 import { JACKET_TEMPLATES } from "./jacket-templates.js";
+import { findFont, getFontFileName, getFontCSSDeclaration } from "./fonts.js";
 
 import baseCss from "./css-template/base.css?raw";
 import headingsCss from "./css-template/headings.css?raw";
@@ -103,17 +104,11 @@ export function buildContentOpf(
     );
   }
   for (const fontName of activeFonts) {
-    if (fontName === "Akashi") {
+    const font = findFont(fontName);
+    if (font) {
+      const fontId = font.name.toLowerCase().replace(/\s+/g, '-');
       manifestItems.push(
-        '<item id="font-akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>',
-      );
-    } else if (fontName === "Polliwog") {
-      manifestItems.push(
-        '<item id="font-polliwog" href="fonts/Polliwog-Regular.otf" media-type="application/vnd.ms-opentype"/>',
-      );
-    } else if (fontName === "Charlotte") {
-      manifestItems.push(
-        '<item id="font-charlotte" href="fonts/UTM_Charlotte.ttf" media-type="application/vnd.ms-opentype"/>',
+        `<item id="font-${fontId}" href="fonts/${font.fileName}" media-type="${font.mimeType}"/>`,
       );
     }
   }
@@ -316,18 +311,7 @@ export function buildChapterXhtml(
   );
 }
 
-function getFontFileName(fontName) {
-  if (fontName === "Akashi") return "UTM_Akashi.ttf";
-  if (fontName === "Polliwog") return "Polliwog-Regular.otf";
-  if (fontName === "Charlotte") return "UTM_Charlotte.ttf";
-  return "";
-}
-
-function getFontCSSDeclaration(fontName) {
-  const fileName = getFontFileName(fontName);
-  if (!fileName) return "";
-  return `@font-face {\n  font-family: "${fontName}";\n  src: url("../fonts/${fileName}");\n}\n`;
-}
+// Font helper functions are imported from fonts.js
 
 export async function buildEpubBlob(
   metadata,

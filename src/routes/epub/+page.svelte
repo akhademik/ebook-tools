@@ -6,9 +6,7 @@
   import { EpubState } from "$lib/epub-packer/epub-state.svelte.js";
   import { triggerDownload } from "$lib/helpers/helpers.js";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/jacket-templates.js";
-  import akashiUrl from "../../assets/fonts/UTM_Akashi.ttf";
-  import polliwogUrl from "../../assets/fonts/Polliwog-Regular.otf";
-  import charlotteUrl from "../../assets/fonts/UTM_Charlotte.ttf";
+  import { AVAILABLE_FONTS } from "$lib/epub-packer/fonts.js";
 
   const epubState = new EpubState();
 
@@ -67,18 +65,16 @@
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html `
   <style>
-    @font-face {
-      font-family: "Akashi";
-      src: url("${akashiUrl}");
-    }
-    @font-face {
-      font-family: "Polliwog";
-      src: url("${polliwogUrl}");
-    }
-    @font-face {
-      font-family: "Charlotte";
-      src: url("${charlotteUrl}");
-    }
+    ${AVAILABLE_FONTS.map(font => `
+      @font-face {
+        font-family: "${font.id}";
+        src: url("${font.url}");
+      }
+      @font-face {
+        font-family: "${font.name}";
+        src: url("${font.url}");
+      }
+    `).join('\n')}
   </style>
   `}
   <style>
@@ -545,9 +541,9 @@
           class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
         >
           <option value="default">Mặc định (Không dùng font)</option>
-          <option value="Akashi">Akashi</option>
-          <option value="Polliwog">Polliwog</option>
-          <option value="Charlotte">Charlotte</option>
+          {#each AVAILABLE_FONTS as font}
+            <option value={font.id}>{font.name}</option>
+          {/each}
         </select>
       </div>
     </div>
@@ -803,9 +799,9 @@
           class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
         >
           <option value="default">Mặc định (Không dùng font)</option>
-          <option value="Akashi">Akashi</option>
-          <option value="Polliwog">Polliwog</option>
-          <option value="Charlotte">Charlotte</option>
+          {#each AVAILABLE_FONTS as font}
+            <option value={font.id}>{font.name}</option>
+          {/each}
         </select>
       </div>
       <div>
@@ -820,9 +816,9 @@
           class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
         >
           <option value="default">Mặc định (Không dùng font)</option>
-          <option value="Akashi">Akashi</option>
-          <option value="Polliwog">Polliwog</option>
-          <option value="Charlotte">Charlotte</option>
+          {#each AVAILABLE_FONTS as font}
+            <option value={font.id}>{font.name}</option>
+          {/each}
         </select>
       </div>
     </div>

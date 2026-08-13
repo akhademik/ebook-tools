@@ -3,9 +3,7 @@ import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import JSZip from 'jszip';
 
-import akashiUrl from '../../assets/fonts/UTM_Akashi.ttf';
-import polliwogUrl from '../../assets/fonts/Polliwog-Regular.otf';
-import charlotteUrl from '../../assets/fonts/UTM_Charlotte.ttf';
+import { AVAILABLE_FONTS, findFont } from './fonts.js';
 
 export class EpubState {
 	epubFileSelected = $state(null);
@@ -52,9 +50,9 @@ export class EpubState {
 	distributor = $state('');
 	translator = $state(''); // Translator field
 
-	jacketFont = $state('default'); // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
-	h1Font = $state('default');     // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
-	h2Font = $state('default');     // 'default' | 'Akashi' | 'Polliwog' | 'Charlotte'
+	jacketFont = $state('default'); 
+	h1Font = $state('default');     
+	h2Font = $state('default');     
 
 	// Cover Image States
 	coverFile = $state(null);
@@ -405,16 +403,12 @@ export class EpubState {
 			}
 
 			for (const fontName of neededFonts) {
-				let url = null;
-				if (fontName === 'Akashi') url = akashiUrl;
-				else if (fontName === 'Polliwog') url = polliwogUrl;
-				else if (fontName === 'Charlotte') url = charlotteUrl;
-
-				if (url) {
-					this.status = `Đang tải phông chữ ${fontName}...`;
-					const res = await fetch(url);
+				const font = findFont(fontName);
+				if (font && font.url) {
+					this.status = `Đang tải phông chữ ${font.name}...`;
+					const res = await fetch(font.url);
 					if (!res.ok) {
-						throw new Error(`Không thể tải tệp phông chữ cho ${fontName}`);
+						throw new Error(`Không thể tải tệp phông chữ cho ${font.name}`);
 					}
 					const fontBlob = await res.blob();
 					fontBlobs[fontName] = fontBlob;
