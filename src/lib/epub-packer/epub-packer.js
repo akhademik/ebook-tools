@@ -39,7 +39,12 @@ function getDynamicCss(chapters) {
     ) {
       hasHeadings = true;
     }
-    if (html.includes("<blockquote") || html.includes("blockquote")) {
+    if (
+      html.includes("<blockquote") ||
+      html.includes("blockquote") ||
+      html.includes('class="letter"') ||
+      html.includes('class="poem"')
+    ) {
       hasQuotes = true;
     }
     if (
@@ -367,12 +372,11 @@ export async function buildEpubBlob(
     if (!fonts.blobs["Bookerly"]) {
       try {
         const isBrowser = typeof window !== "undefined";
-        const isHttp =
+        const isAbsolute =
           bookerlyFont.url &&
           (bookerlyFont.url.startsWith("http://") ||
-            bookerlyFont.url.startsWith("https://") ||
-            bookerlyFont.url.startsWith("/"));
-        if (isBrowser || isHttp) {
+            bookerlyFont.url.startsWith("https://"));
+        if (isBrowser || isAbsolute) {
           logger.log(
             "epub-packer",
             "Fetching Bookerly font dynamically inside buildEpubBlob...",
@@ -416,27 +420,31 @@ export async function buildEpubBlob(
   let finalCss = css && css !== EPUB_CSS ? css : getDynamicCss(chaptersToPack);
 
   // Sinh @font-face và font-family CHUẨN XÁC theo cssFamily
-  let fontDeclarations = "";
+  let fontFaces = "";
+  let fontSelectors = "";
   if (fonts) {
     if (fonts.h1Font && fonts.h1Font !== "default") {
       const f1 = findFont(fonts.h1Font);
       if (f1) {
-        fontDeclarations += getFontCSSDeclaration(fonts.h1Font);
-        fontDeclarations += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }\n`;
+        fontFaces += getFontCSSDeclaration(fonts.h1Font);
+        fontSelectors += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }\n`;
       }
     }
     if (fonts.h2Font && fonts.h2Font !== "default") {
       const f2 = findFont(fonts.h2Font);
       if (f2) {
         if (fonts.h2Font !== fonts.h1Font) {
-          fontDeclarations += getFontCSSDeclaration(fonts.h2Font);
+          fontFaces += getFontCSSDeclaration(fonts.h2Font);
         }
-        fontDeclarations += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }\n`;
+        fontSelectors += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }\n`;
       }
     }
   }
-  if (fontDeclarations) {
-    finalCss = fontDeclarations + "\n" + finalCss;
+  if (fontFaces) {
+    finalCss = fontFaces + "\n" + finalCss;
+  }
+  if (fontSelectors) {
+    finalCss = finalCss + "\n" + fontSelectors;
   }
 
   if (jacket && jacket.enabled) {

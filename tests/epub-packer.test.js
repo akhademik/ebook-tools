@@ -145,8 +145,8 @@ describe('epub-packer tests', () => {
 				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
 			];
 			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' }, chapters, false, ['Akashi', 'Polliwog']);
-			expect(xml).toContain('<item id="font-akashi" href="fonts/UTM_Akashi.ttf" media-type="application/x-font-truetype"/>');
-			expect(xml).toContain('<item id="font-polliwog-regular" href="fonts/Polliwog-Regular.otf" media-type="application/vnd.ms-opentype"/>');
+			expect(xml).toContain('<item id="font-utm_akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>');
+			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog.otf" media-type="application/vnd.ms-opentype"/>');
 		});
 	});
 

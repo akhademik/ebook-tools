@@ -7,5 +7,6 @@
     "tests/**/*.test.js",
     "src/lib/epub-packer/epub-parser.js"
   ],
-  "ignore": ["src/lib/index.js"]
+  "ignore": ["src/lib/index.js"],
+  "ignoreDependencies": ["tailwindcss"]
 }

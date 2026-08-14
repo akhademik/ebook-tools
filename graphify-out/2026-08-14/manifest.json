@@ -5,7 +5,7 @@
     "semantic_hash": "e1fd19ed322fd178e15a306e0db24ce7"
   },
   "package.json": {
-    "mtime": 1786700263.4997218,
+    "mtime": 1786703543.7808585,
     "ast_hash": "680008481493396ec6e4a0146c398256",
     "semantic_hash": "680008481493396ec6e4a0146c398256"
   },
@@ -45,9 +45,9 @@
     "semantic_hash": "b63f393b90ac36f104e6210d56afb467"
   },
   "src/routes/epub/+page.svelte": {
-    "mtime": 1786700742.5886223,
-    "ast_hash": "5adcd117b42ff1da19fa111dca7436bc",
-    "semantic_hash": "5adcd117b42ff1da19fa111dca7436bc"
+    "mtime": 1786705386.6257513,
+    "ast_hash": "e429091af1475dddd9d71cc20ae322e9",
+    "semantic_hash": ""
   },
   "src/routes/md/+page.svelte": {
     "mtime": 1786533101.476796,
@@ -120,9 +120,9 @@
     "semantic_hash": "e7986fcce636872f9b0afa63d9095259"
   },
   "src/lib/epub-packer/epub-packer.js": {
-    "mtime": 1786700513.5914125,
-    "ast_hash": "0d82bf385463c24d2e1ecffbee01827f",
-    "semantic_hash": "0d82bf385463c24d2e1ecffbee01827f"
+    "mtime": 1786707427.7753978,
+    "ast_hash": "5fa9c9f9d9b1b722604ca7fdf98af7ec",
+    "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-parser.js": {
     "mtime": 1786533101.474428,
@@ -130,9 +130,9 @@
     "semantic_hash": "ab5b2bb9a027ec003d5c89200a8fa478"
   },
   "src/lib/epub-packer/epub-state.svelte.js": {
-    "mtime": 1786690226.1566308,
-    "ast_hash": "82316c9497cb3a8701e2c10cdde1e08f",
-    "semantic_hash": "82316c9497cb3a8701e2c10cdde1e08f"
+    "mtime": 1786705006.2790146,
+    "ast_hash": "993c09a03f922b930205ab1ec8a94770",
+    "semantic_hash": ""
   },
   "src/lib/markdown-fixer/markdown-fixer-state.svelte.js": {
     "mtime": 1786533101.4753823,
@@ -155,14 +155,14 @@
     "semantic_hash": "64eb032aece5560d2a725fffc50b30be"
   },
   "tests/epub-packer.test.js": {
-    "mtime": 1786690233.5435107,
-    "ast_hash": "fc6b93c1bf690d81f2eefb672d955ced",
-    "semantic_hash": "fc6b93c1bf690d81f2eefb672d955ced"
+    "mtime": 1786705053.664241,
+    "ast_hash": "d707361f119e818f44163e09acf92216",
+    "semantic_hash": ""
   },
   "tests/epub-parser.test.js": {
-    "mtime": 1786533101.4775054,
-    "ast_hash": "0f9f34ffb96470d89112ba2cb98b26c5",
-    "semantic_hash": "0f9f34ffb96470d89112ba2cb98b26c5"
+    "mtime": 1786705356.483053,
+    "ast_hash": "85fe924990563f198cda11bc788afd5e",
+    "semantic_hash": ""
   },
   "tests/helpers.test.js": {
     "mtime": 1786359953.0700336,
@@ -190,9 +190,9 @@
     "semantic_hash": "0aab72e1accb0f84e3c95faa40ff4cbc"
   },
   "src/lib/epub-packer/epub-single-grouper.js": {
-    "mtime": 1786533101.4745097,
-    "ast_hash": "58965d8a1d6547aa9e66de73f3aa20b1",
-    "semantic_hash": "58965d8a1d6547aa9e66de73f3aa20b1"
+    "mtime": 1786705365.8962786,
+    "ast_hash": "88bbe09cc547a7252da7794e6ab9e4a2",
+    "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-zip-grouper.js": {
     "mtime": 1786533101.4750485,
@@ -220,28 +220,38 @@
     "semantic_hash": "dc36766a32aa7786028a4d72e0a18be1"
   },
   "knip.json": {
-    "mtime": 1786502569.3536246,
-    "ast_hash": "c43183610c651cccd1cb105ac99f556b",
-    "semantic_hash": "c43183610c651cccd1cb105ac99f556b"
+    "mtime": 1786705070.4433677,
+    "ast_hash": "4aa6c5235e828d9ba126fcea5c0dae1d",
+    "semantic_hash": ""
   },
   "_task/update.md": {
-    "mtime": 1786533101.4704568,
-    "ast_hash": "674eab80c7aecb94b4bd4574bc965524",
-    "semantic_hash": "674eab80c7aecb94b4bd4574bc965524"
+    "mtime": 1786704760.750645,
+    "ast_hash": "8a970c56879a47703649b1042bd517a6",
+    "semantic_hash": ""
   },
   "src/lib/epub-packer/fonts.js": {
-    "mtime": 1786700782.9484491,
-    "ast_hash": "40ab5b5d3b68d5d9f009069bfe0a83f6",
-    "semantic_hash": "40ab5b5d3b68d5d9f009069bfe0a83f6"
+    "mtime": 1786705042.3530557,
+    "ast_hash": "f2555a9c40bfa1e994d99df5cb9b07af",
+    "semantic_hash": ""
   },
   "src/assets/fonts-metadata.json": {
-    "mtime": 1786700091.0418472,
+    "mtime": 1786705502.7550328,
     "ast_hash": "d17fd5ec40339f5a5a775283e07a78a9",
     "semantic_hash": "d17fd5ec40339f5a5a775283e07a78a9"
   },
   "src/lib/epub-packer/generate-fonts-meta.js": {
-    "mtime": 1786700089.4416625,
+    "mtime": 1786703543.7978878,
     "ast_hash": "a925a34c09720cc58ee678a5398541ea",
     "semantic_hash": "a925a34c09720cc58ee678a5398541ea"
+  },
+  "_task/instruct.md": {
+    "mtime": 1786704767.3696582,
+    "ast_hash": "99b804b552c5be43a8c98f4878ae9764",
+    "semantic_hash": ""
+  },
+  "_task/test.txt": {
+    "mtime": 1786704790.7715287,
+    "ast_hash": "cfe0005fdc089f35c17194f44e56e0db",
+    "semantic_hash": ""
   }
 }

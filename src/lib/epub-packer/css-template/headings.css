@@ -6,15 +6,9 @@ h2 + p {
 h1.main-chap + h1.main-chap {
   margin-top: 0.3em !important;
 }
-h1.main-chap + p {
-  margin-top: 1.5em !important;
-}
 
 h2.side-chap + h2.side-chap {
   margin-top: -0.6em !important;
-}
-h2.side-chap + p {
-  margin-top: 1.5em;
 }
 
 h1.main-chap + h2.side-chap {

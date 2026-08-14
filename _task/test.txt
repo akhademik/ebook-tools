@@ -1,0 +1,92 @@
+@@@ TIỂU THUYẾT MẪU
+
+@@@t PHẦN MỘT: KHỞI ĐẦU
+
+@@ Chương 1: Cơn Mưa Đầu Mùa
+
+Hà Nội vào những ngày cuối thu, trời đổ mưa liên tục ba ngày liền. *Lan* đứng bên cửa sổ, nhìn từng giọt nước rơi xuống mái tôn nhà hàng xóm, lòng /nặng trĩu/ một nỗi buồn không tên.
+
+~p Đời là bể khổ, nhưng ta vẫn phải bơi.
+> Khuyết danh
+
+Cô nhớ lại lời mẹ dặn trước lúc lên đường: "Con phải _cẩn thận_ với người lạ, đừng tin ai quá sớm."
+
+@ Buổi sáng hôm ấy
+
+Chuông đồng hồ báo thức reo lúc 5*3 = 15 phút sau 5 giờ sáng — đúng 5 giờ 15. Lan giật mình tỉnh dậy, kiểm tra điện thoại thấy 3 tin nhắn mới, trong đó có một email từ admin@congty.com nhắc việc nộp báo cáo.
+
+###
+
+Buổi chiều, cơn mưa vẫn chưa dứt. Lan mở cuốn sổ tay, viết vài dòng nhật ký ngắn.
+
+~ Không ai đánh thuế ước mơ, nhưng đời sẽ đánh thuế những kẻ mơ mà không làm.
+
+Đoạn văn tiếp theo không có dòng tác giả phía sau, nên quote trên phải tự đóng đúng cách.
+
+@@ Chương 2: Ngã Rẽ
+
+Ngày 10/08/2026, Lan quyết định rời khỏi thành phố. Cô tính nhẩm: quãng đường 120/4 = 30 km mỗi ngày, đi trong 4 ngày là vừa đủ.
+
+~t Ta không sợ con đường dài, ta chỉ sợ mình dừng lại giữa chừng.
+> Trích lời một người bạn
+
+@t Ghi chú của biên tập viên
+
+Đây là dòng chương nhỏ căn trái, nằm ngay trong Chương 2, không tách file riêng.
+
+Một câu có *nhiều* từ *in đậm* liên tiếp và cả /nghiêng/ xen kẽ, thử xem regex có bắt đúng từng cặp không: *đậm 1* bình thường /nghiêng 1/ bình thường *đậm 2*.
+
+\@ Dòng này bắt đầu bằng @ nhưng đã được escape, không được coi là lệnh chương.
+
+\~ Dòng này cũng escape dấu ngã, không tạo blockquote.
+
+> Dòng này bắt đầu bằng dấu > nhưng KHÔNG đứng ngay sau dòng ~, nên phải được giữ nguyên là văn bản thường, không tạo thẻ footer.
+
+###
+
+Câu hỏi vu vơ: "Ê, *đi đâu đó*?" Lan hỏi lại: "Đi /đâu/ cũng được, miễn là đi."
+
+@@@p PHẦN HAI: KẾT THÚC
+
+@@p Chương 3: Trở Về
+
+Ba năm sau, Lan quay lại con phố cũ. Căn nhà số 12A/3 vẫn còn đó, chỉ khác là bảng hiệu đã đổi màu.
+
+~p Quê hương là chùm khế ngọt, cho con trèo hái mỗi ngày.
+> Đỗ Trung Quân
+
+Dòng cuối cùng của chương, không có mã đặc biệt gì, chỉ là một đoạn văn thường để kết truyện. _Hết._
+
+@@ Chương 4: Bức Thư Cuối
+
+Lan cầm trên tay lá thư đã ố vàng vì thời gian, mở ra đọc lại từng dòng chữ quen thuộc.
+
+[letter]
+Hà Nội, ngày 12 tháng 8 năm 2026
+
+Con gái yêu của mẹ,
+
+Mẹ biết con sẽ đọc được lá thư này khi mẹ không còn ở bên con nữa. Đừng *buồn*, vì mẹ đã sống một cuộc đời trọn vẹn.
+
+Hãy nhớ lấy lời mẹ dặn: /sống tử tế/, yêu thương mọi người, và đừng bao giờ đánh mất chính mình.
+
+Yêu con nhiều,
+Mẹ
+[/letter]
+
+Đọc xong, nước mắt Lan rơi lã chã. Cô gấp lá thư lại, cất vào ngăn kéo bàn học như một kỷ vật (xem thêm chú thích [1] ở cuối chương).
+
+@ Bài thơ mẹ hay ngâm
+
+Trước khi khép lại chương này, Lan còn nhớ bài thơ mẹ vẫn hay ngâm nga mỗi tối.
+
+[poem]
+Quê hương là chùm khế ngọt
+Cho con trèo hái mỗi ngày
+*Quê hương* là đường đi học
+Con về /rợp bướm/ vàng bay
+[/poem]
+
+###
+
+Ghi chú: [1] đây là một dòng có ngoặc vuông nhưng KHÔNG phải mã block (không đúng từ khóa letter/poem và không đứng riêng 1 dòng), phải được giữ nguyên là văn bản thường.

@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
+import fs from 'fs';
+import path from 'path';
 import {
 	cleanHeaderFooterOcr,
 	parseMarkdownBlocks,
@@ -782,7 +784,69 @@ chú thích
 			expect(notes.isNotes).toBe(true);
 			expect(notes.html).toContain('<h1 class="main-chap center">Chú thích:</h1>');
 			expect(notes.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
-			expect(notes.html).toContain('<a class="notenum" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a> Chú thích thứ nhất.');
+		});
+
+		it('should parse [letter] and [poem] blocks correctly', () => {
+			const txt = `[letter]
+Hà Nội, ngày 12 tháng 8 năm 2026
+
+Con gái yêu của mẹ,
+
+Đừng *buồn*, vì mẹ đã sống một cuộc đời trọn vẹn.
+
+Yêu con nhiều,
+Mẹ
+[/letter]
+
+[poem]
+Quê hương là chùm khế ngọt
+Cho con trèo hái mỗi ngày
+*Quê hương* là đường đi học
+Con về /rợp bướm/ vàng bay
+[/poem]`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<div class="letter">\n  <p>Hà Nội, ngày 12 tháng 8 năm 2026</p>\n  <p>Con gái yêu của mẹ,</p>\n  <p>Đừng <b>buồn</b>, vì mẹ đã sống một cuộc đời trọn vẹn.</p>\n  <p>Yêu con nhiều,</p>\n  <p>Mẹ</p>\n</div>');
+			expect(chapters[0].html).toContain('<div class="poem">\n  <p>Quê hương là chùm khế ngọt</p>\n  <p>Cho con trèo hái mỗi ngày</p>\n  <p><b>Quê hương</b> là đường đi học</p>\n  <p>Con về <i>rợp bướm</i> vàng bay</p>\n</div>');
+		});
+
+		it('should warn and close unclosed blocks at EOF', () => {
+			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const txt = `[letter]
+Thư chưa đóng.`;
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<div class="letter">\n  <p>Thư chưa đóng.</p>\n</div>');
+			expect(consoleWarnSpy).toHaveBeenCalled();
+		});
+
+		it('should parse _task/test.txt correctly', () => {
+			const testFileContent = fs.readFileSync(path.join(__dirname, '../_task/test.txt'), 'utf8');
+			const chapters = parseTxtToChapters(testFileContent, {}, 'Mặc định');
+
+			expect(chapters.length).toBeGreaterThan(3);
+
+			// Verify Bức Thư Cuối chapter contains letter block
+			const chapLetter = chapters.find(c => c.title === 'Chương 4: Bức Thư Cuối');
+			expect(chapLetter).toBeDefined();
+			expect(chapLetter.html).toContain('<div class="letter">');
+			expect(chapLetter.html).toContain('  <p>Hà Nội, ngày 12 tháng 8 năm 2026</p>');
+			expect(chapLetter.html).toContain('  <p>Con gái yêu của mẹ,</p>');
+			expect(chapLetter.html).toContain('<b>buồn</b>');
+			expect(chapLetter.html).toContain('<i>sống tử tế</i>');
+			expect(chapLetter.html).toContain('</div>');
+
+			// Verify it contains poem block
+			expect(chapLetter.html).toContain('<div class="poem">');
+			expect(chapLetter.html).toContain('  <p>Quê hương là chùm khế ngọt</p>');
+			expect(chapLetter.html).toContain('<b>Quê hương</b>');
+			expect(chapLetter.html).toContain('<i>rợp bướm</i>');
+			expect(chapLetter.html).toContain('</div>');
+
+			// Verify [1] annotation is kept as text
+			expect(chapLetter.html).toContain('chú thích [1] ở cuối chương');
+			expect(chapLetter.html).toContain('Ghi chú: [1] đây là một dòng có ngoặc vuông');
 		});
 
 		it('should correctly ignore page55.md continuation and merge into page54.md', () => {

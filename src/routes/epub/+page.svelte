@@ -1251,6 +1251,34 @@
                   chính xác.
                 </td>
               </tr>
+              <tr>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+                    >[letter]...[/letter]</code
+                  >
+                </td>
+                <td class="py-3 px-3">
+                  <code>&lt;div class="letter"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;</code><br />
+                  <span class="text-[11px] text-text-mute"
+                    >Khối thư, mỗi dòng bên trong là 1 đoạn, có thụt lề riêng theo CSS.</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+                    >[poem]...[/poem]</code
+                  >
+                </td>
+                <td class="py-3 px-3">
+                  <code>&lt;div class="poem"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;</code><br />
+                  <span class="text-[11px] text-text-mute"
+                    >Khối thơ, mỗi dòng bên trong là 1 đoạn, luôn canh giữa.</span
+                  >
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

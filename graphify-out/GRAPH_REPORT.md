@@ -1,15 +1,16 @@
-# Graph Report - .  (2026-08-14)
+# Graph Report - ebook-tools  (2026-08-14)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 46 files · ~30,817 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 260 nodes · 462 edges · 29 communities (22 shown, 7 thin omitted)
+- 262 nodes · 461 edges · 30 communities (23 shown, 7 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dd8d5f03`
+- Built from commit: `e359f220`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -43,12 +44,12 @@
 2. `EpubState` - 13 edges
 3. `escapeXml()` - 13 edges
 4. `scripts` - 10 edges
-5. `findFont()` - 10 edges
-6. `renderMarkdownBlocks()` - 9 edges
-7. `groupChaptersSingle()` - 9 edges
-8. `groupChaptersZip()` - 9 edges
+5. `renderMarkdownBlocks()` - 9 edges
+6. `groupChaptersSingle()` - 9 edges
+7. `groupChaptersZip()` - 9 edges
+8. `findFont()` - 9 edges
 9. `PdfSplitterState` - 9 edges
-10. `Ebook Forge` - 8 edges
+10. `makeChapterMatcher()` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Robots.txt Policy` --conceptually_related_to--> `Ebook Forge`  [INFERRED]
@@ -70,7 +71,7 @@
 - **Ebook Forge Web Features** — readme_pdf_processor, readme_markdown_fixer, readme_epub_packer [EXTRACTED 1.00]
 - **Icons SVG Sprite Sheet Collection** — static_icons_bluesky_icon, static_icons_discord_icon, static_icons_documentation_icon, static_icons_github_icon, static_icons_social_icon, static_icons_x_icon [EXTRACTED 1.00]
 
-## Communities (29 total, 7 thin omitted)
+## Communities (30 total, 7 thin omitted)
 
 ### Community 0 - "epub-parser.js"
 Cohesion: 0.18
@@ -81,28 +82,28 @@ Cohesion: 0.07
 Nodes (29): eslint, @eslint/js, eslint-plugin-svelte, globals, devDependencies, eslint, @eslint/js, eslint-plugin-svelte (+21 more)
 
 ### Community 2 - "epub-packer.js"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (19): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, getDynamicCss() (+11 more)
 
 ### Community 3 - "pdf-splitter.js"
-Cohesion: 0.12
-Nodes (10): applyGrayscale(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), PdfSplitterState, createdCanvases, mockDoc (+2 more)
+Cohesion: 0.20
+Nodes (9): applyGrayscale(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), createdCanvases, mockDoc, mockPage (+1 more)
 
 ### Community 4 - "scripts"
 Cohesion: 0.10
 Nodes (19): fontkit, jszip, dependencies, fontkit, jszip, name, private, scripts (+11 more)
 
 ### Community 5 - "helpers.js"
-Cohesion: 0.20
-Nodes (5): ensureEpubExt(), ensureZipExt(), slugify(), triggerDownload(), MarkdownFixerState
+Cohesion: 0.14
+Nodes (5): ensureZipExt(), slugify(), triggerDownload(), MarkdownFixerState, PdfSplitterState
 
 ### Community 6 - "logger.js"
 Cohesion: 0.21
 Nodes (11): error(), isDebug(), log(), setDebug(), warn(), BOLD_ITALIC_PATTERNS, BOLD_PATTERNS, convertBrackets() (+3 more)
 
 ### Community 8 - "entry"
-Cohesion: 0.17
-Nodes (11): entry, ignore, project, $schema, src/**/*.{js,svelte}, src/lib/epub-packer/epub-parser.js, src/lib/index.js, src/routes/**/+layout.{svelte,js,ts} (+3 more)
+Cohesion: 0.14
+Nodes (13): entry, ignore, ignoreDependencies, project, $schema, src/**/*.{js,svelte}, src/lib/epub-packer/epub-parser.js, src/lib/index.js (+5 more)
 
 ### Community 9 - "Ebook Forge"
 Cohesion: 0.18
@@ -137,7 +138,7 @@ Cohesion: 0.50
 Nodes (3): mockAnchor, mockDocument, mockPdfjsLib
 
 ## Knowledge Gaps
-- **84 isolated node(s):** `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json`, `allowJs`, `checkJs` (+79 more)
+- **85 isolated node(s):** `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json`, `allowJs`, `checkJs` (+80 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -145,14 +146,16 @@ Nodes (3): mockAnchor, mockDocument, mockPdfjsLib
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `jszip` connect `scripts` to `epub-packer.js`, `pdf-splitter.js`, `logger.js`, `EpubState`?**
-  _High betweenness centrality (0.212) - this node is a cross-community bridge._
+  _High betweenness centrality (0.207) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `scripts`?**
-  _High betweenness centrality (0.143) - this node is a cross-community bridge._
+  _High betweenness centrality (0.140) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json` to the rest of the system?**
-  _84 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _85 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.06896551724137931 - nodes in this community are weakly interconnected._
-- **Should `pdf-splitter.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.12380952380952381 - nodes in this community are weakly interconnected._
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+- **Should `helpers.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.14 - nodes in this community are weakly interconnected._
+- **Should `entry` be split into smaller, more focused modules?**
+  _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._

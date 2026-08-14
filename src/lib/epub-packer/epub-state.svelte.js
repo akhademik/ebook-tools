@@ -3,7 +3,7 @@ import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import JSZip from 'jszip';
 
-import { AVAILABLE_FONTS, findFont } from './fonts.js';
+import { findFont } from './fonts.js';
 
 export class EpubState {
 	epubFileSelected = $state(null);

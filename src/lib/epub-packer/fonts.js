@@ -26,14 +26,7 @@ export const AVAILABLE_FONTS = Object.entries(fontFiles).map(([path, url]) => {
   cleanName = cleanName.replace(/[_-]/g, " ").trim();
 
   // 3. Chuẩn hóa media-type (MIME) cho EPUB 3 / EPUB 2
-  let mimeType = "font/ttf";
-  if (fileName.endsWith(".otf")) {
-    mimeType = "font/otf";
-  } else if (fileName.endsWith(".woff")) {
-    mimeType = "font/woff";
-  } else if (fileName.endsWith(".woff2")) {
-    mimeType = "font/woff2";
-  }
+  let mimeType = "application/vnd.ms-opentype";
 
   return {
     id: baseName, // e.g. "Absolute-VH"
@@ -96,16 +89,4 @@ export function getFontCSSDeclaration(fontName) {
   const font = findFont(fontName);
   if (!font) return "";
   return `@font-face {\n  font-family: "${font.cssFamily}";\n  font-weight: normal;\n  font-style: normal;\n  src: url("../fonts/${font.fileName}");\n}\n`;
-}
-
-/**
- * Helper sinh selector CSS áp dụng font chuẩn (h1, h2, body...)
- * @param {string} selector e.g. "h1, h2" hoặc "body"
- * @param {string} fontName e.g. "Absolute-VH"
- * @returns {string}
- */
-export function getFontApplyCSS(selector, fontName) {
-  const font = findFont(fontName);
-  if (!font) return "";
-  return `${selector} {\n  font-family: "${font.cssFamily}", serif !important;\n}\n`;
 }

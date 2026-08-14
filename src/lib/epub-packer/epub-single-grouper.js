@@ -286,12 +286,45 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		}
 	};
 
+	let currentBlock = null;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {
 		const origLine = preprocessedLines[lineIdx];
 		const stripped = origLine.trim();
 
+		if (currentBlock) {
+			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/);
+			if (closeBlockMatch && closeBlockMatch[1] === currentBlock) {
+				if (currentChapter) {
+					currentChapter.html += `</div>\n`;
+				}
+				currentBlock = null;
+				lineIdx++;
+				continue;
+			}
+
+			if (stripped === '') {
+				lineIdx++;
+				continue;
+			}
+
+			ensureChapterOpen();
+			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+			currentChapter.html += `  <p>${formatted}</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
 		if (stripped === '') {
+			lineIdx++;
+			continue;
+		}
+
+		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/);
+		if (openBlockMatch) {
+			currentBlock = openBlockMatch[1];
+			ensureChapterOpen();
+			currentChapter.html += `<div class="${currentBlock}">\n`;
 			lineIdx++;
 			continue;
 		}
@@ -398,6 +431,13 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
 		currentChapter.html += `<p>${formatted}</p>\n`;
 		lineIdx++;
+	}
+
+	if (currentBlock) {
+		logger.warn('epub-parser', 'thiếu mã đóng block');
+		if (currentChapter) {
+			currentChapter.html += `</div>\n`;
+		}
 	}
 
 	if (chapters.length === 0) {
