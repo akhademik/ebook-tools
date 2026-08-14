@@ -1,16 +1,16 @@
-# Graph Report - ebook-tools  (2026-08-14)
+# Graph Report - ebook-tools  (2026-08-13)
 
 ## Corpus Check
-- 43 files · ~28,943 words
+- 43 files · ~28,750 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 244 nodes · 447 edges · 26 communities (20 shown, 6 thin omitted)
+- 244 nodes · 446 edges · 26 communities (20 shown, 6 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `12022928`
+- Built from commit: `3b040e8a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -37,16 +37,16 @@
 - helpers.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `buildEpubBlob()` - 15 edges
+1. `buildEpubBlob()` - 14 edges
 2. `EpubState` - 13 edges
 3. `escapeXml()` - 13 edges
 4. `scripts` - 9 edges
 5. `renderMarkdownBlocks()` - 9 edges
 6. `groupChaptersSingle()` - 9 edges
 7. `groupChaptersZip()` - 9 edges
-8. `findFont()` - 9 edges
-9. `PdfSplitterState` - 9 edges
-10. `makeChapterMatcher()` - 8 edges
+8. `PdfSplitterState` - 9 edges
+9. `makeChapterMatcher()` - 8 edges
+10. `cleanHeaderFooterOcr()` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Robots.txt Policy` --conceptually_related_to--> `Ebook Forge`  [INFERRED]
@@ -94,7 +94,7 @@ Cohesion: 0.18
 Nodes (11): Cloudflare Pages Deployment, Ebook Forge, EPUB Packer, jszip, Markdown Fixer, PDF Processor, pdf.js, SvelteKit (+3 more)
 
 ### Community 6 - "epub-packer.js"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (19): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, getDynamicCss() (+11 more)
 
 ### Community 7 - "entry"
@@ -134,7 +134,7 @@ Nodes (10): ensureZipExt(), slugify(), triggerDownload(), BOLD_ITALIC_PATTERNS, 
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `jszip` connect `scripts` to `helpers.js`, `pdf-splitter.js`, `EpubState`, `epub-packer.js`?**
-  _High betweenness centrality (0.225) - this node is a cross-community bridge._
+  _High betweenness centrality (0.224) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `scripts`?**
   _High betweenness centrality (0.159) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json` to the rest of the system?**

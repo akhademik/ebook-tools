@@ -322,5 +322,19 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('fonts');
 			consoleLogSpy.mockRestore();
 		});
+
+		it('should always embed Bookerly font in the EPUB even if not specified in fonts configuration', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+
+			const blob = await buildEpubBlob({ title: 'Book Title' }, chapters, 'body {}', false, null, null, null);
+			expect(blob).toBeDefined();
+
+			// Verify Bookerly is declared in the content.opf manifest
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="fonts/Bookerly.ttf"'));
+			consoleLogSpy.mockRestore();
+		});
 	});
 });

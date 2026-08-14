@@ -1,5 +1,9 @@
+// src/lib/epub-packer/fonts.js
 // Discover all fonts in src/assets/fonts directory dynamically
 // Using Vite's import.meta.glob.
+
+import fontMetaMap from "../../assets/fonts-metadata.json";
+
 const fontFiles = import.meta.glob(
   "../../assets/fonts/*.{ttf,otf,woff,woff2}",
   {
@@ -12,58 +16,69 @@ export const AVAILABLE_FONTS = Object.entries(fontFiles).map(([path, url]) => {
   const fileName = path.split("/").pop();
   const baseName = fileName.replace(/\.[^/.]+$/, "");
 
-  // Create clean name for display
+  // 1. Lấy tên thật từ metadata JSON (ví dụ: "KKTTAbsolute", "1314 Zahra")
+  // Nếu không tìm thấy mới dùng fallback
+  const cssFamily =
+    fontMetaMap[fileName] || baseName.replace(/[_-]/g, " ").trim();
+
+  // 2. Tạo tên hiển thị gọn gàng cho giao diện (UI)
   let cleanName = baseName.replace(/^(UTM_|SVN-|LNTH-|DFVN-|TP-)/i, "");
   cleanName = cleanName.replace(/[_-]/g, " ").trim();
 
-  let mimeType = "application/vnd.ms-opentype";
-  if (fileName.endsWith(".woff")) {
+  // 3. Chuẩn hóa media-type (MIME) cho EPUB 3 / EPUB 2
+  let mimeType = "font/ttf";
+  if (fileName.endsWith(".otf")) {
+    mimeType = "font/otf";
+  } else if (fileName.endsWith(".woff")) {
     mimeType = "font/woff";
   } else if (fileName.endsWith(".woff2")) {
     mimeType = "font/woff2";
-  } else if (fileName.endsWith(".ttf")) {
-    mimeType = "application/x-font-truetype";
   }
 
   return {
-    id: baseName, // Unique identifier, e.g. "UTM_Akashi"
-    name: cleanName, // Display name, e.g. "Akashi"
-    fileName, // e.g. "UTM_Akashi.ttf"
+    id: baseName, // e.g. "Absolute-VH"
+    name: cleanName, // Display name, e.g. "Absolute VH"
+    cssFamily, // Tên định danh Font thật: e.g. "KKTTAbsolute"
+    fileName, // e.g. "Absolute-VH.ttf"
     url, // Resolved asset URL
     mimeType,
   };
 });
 
 /**
- * Find a font by id, clean name, or substring
+ * Tìm font theo id, cssFamily, tên cleanName hoặc tên file
  * @param {string} fontName
  * @returns {object|null}
  */
 export function findFont(fontName) {
   if (!fontName || fontName === "default") return null;
 
-  // 1. Exact match by id (e.g. 'UTM_Akashi')
-  let found = AVAILABLE_FONTS.find((f) => f.id === fontName);
+  const search = fontName.toLowerCase().trim();
+
+  // 1. Khớp chính xác ID (e.g. 'Absolute-VH')
+  let found = AVAILABLE_FONTS.find((f) => f.id.toLowerCase() === search);
   if (found) return found;
 
-  // 2. Case-insensitive clean name match (e.g. 'akashi')
-  found = AVAILABLE_FONTS.find(
-    (f) => f.name.toLowerCase() === fontName.toLowerCase(),
-  );
+  // 2. Khớp cssFamily (e.g. 'kkttabsolute')
+  found = AVAILABLE_FONTS.find((f) => f.cssFamily.toLowerCase() === search);
   if (found) return found;
 
-  // 3. Case-insensitive substring match on id or filename (e.g. 'charlotte' matches 'UTM_Charlotte')
+  // 3. Khớp tên clean name (e.g. 'absolute vh')
+  found = AVAILABLE_FONTS.find((f) => f.name.toLowerCase() === search);
+  if (found) return found;
+
+  // 4. Khớp tên file hoặc chứa chuỗi con
   found = AVAILABLE_FONTS.find(
     (f) =>
-      f.id.toLowerCase().includes(fontName.toLowerCase()) ||
-      f.fileName.toLowerCase().includes(fontName.toLowerCase()),
+      f.id.toLowerCase().includes(search) ||
+      f.fileName.toLowerCase().includes(search),
   );
 
   return found || null;
 }
 
 /**
- * Get the file name for a given font name
+ * Lấy tên file của font
  * @param {string} fontName
  * @returns {string}
  */
@@ -73,12 +88,24 @@ export function getFontFileName(fontName) {
 }
 
 /**
- * Generate CSS @font-face declaration for a given font
+ * Sinh khối @font-face CSS chuẩn
  * @param {string} fontName
  * @returns {string}
  */
 export function getFontCSSDeclaration(fontName) {
   const font = findFont(fontName);
   if (!font) return "";
-  return `@font-face {\n  font-family: "${fontName}";\n  src: url("../fonts/${font.fileName}");\n}\n`;
+  return `@font-face {\n  font-family: "${font.cssFamily}";\n  font-weight: normal;\n  font-style: normal;\n  src: url("../fonts/${font.fileName}");\n}\n`;
+}
+
+/**
+ * Helper sinh selector CSS áp dụng font chuẩn (h1, h2, body...)
+ * @param {string} selector e.g. "h1, h2" hoặc "body"
+ * @param {string} fontName e.g. "Absolute-VH"
+ * @returns {string}
+ */
+export function getFontApplyCSS(selector, fontName) {
+  const font = findFont(fontName);
+  if (!font) return "";
+  return `${selector} {\n  font-family: "${font.cssFamily}", serif !important;\n}\n`;
 }

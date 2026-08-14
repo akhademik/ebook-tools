@@ -401,6 +401,10 @@ export class EpubState {
 			if (this.h2Font !== 'default' && !neededFonts.includes(this.h2Font)) {
 				neededFonts.push(this.h2Font);
 			}
+			// Always embed Bookerly font if available
+			if (findFont('Bookerly') && !neededFonts.includes('Bookerly')) {
+				neededFonts.push('Bookerly');
+			}
 
 			for (const fontName of neededFonts) {
 				const font = findFont(fontName);

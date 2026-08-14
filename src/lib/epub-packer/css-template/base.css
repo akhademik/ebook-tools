@@ -1,6 +1,12 @@
 @page {
   margin-top: 0;
 }
+
+@font-face {
+  font-family: "Bookerly";
+  src: url(../fonts/Bookerly.ttf);
+}
+
 body {
   font-family: "Bookerly", serif;
   margin-top: 0 !important;

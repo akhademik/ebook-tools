@@ -106,7 +106,7 @@ export function buildContentOpf(
   for (const fontName of activeFonts) {
     const font = findFont(fontName);
     if (font) {
-      const fontId = font.name.toLowerCase().replace(/\s+/g, '-');
+      const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, "-");
       manifestItems.push(
         `<item id="font-${fontId}" href="fonts/${font.fileName}" media-type="${font.mimeType}"/>`,
       );
@@ -281,11 +281,13 @@ export function buildChapterXhtml(
     '<p class="scene-break-small" role="separator">*</p>',
   );
 
-  const isSpecialPage = chapter.fileName === "jacket" || chapter.fileName === "cover";
+  const isSpecialPage =
+    chapter.fileName === "jacket" || chapter.fileName === "cover";
   if (!isSpecialPage) {
     content = content.replace(
       /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
-      (match, p1, p2, p3) => p1 + p2 + '<span class="dropcap">' + p3 + '</span>',
+      (match, p1, p2, p3) =>
+        p1 + p2 + '<span class="dropcap">' + p3 + "</span>",
     );
   }
 
@@ -310,8 +312,6 @@ export function buildChapterXhtml(
     "\n</body>\n</html>"
   );
 }
-
-// Font helper functions are imported from fonts.js
 
 export async function buildEpubBlob(
   metadata,
@@ -355,6 +355,49 @@ export async function buildEpubBlob(
     throw new Error("Không có chương nào để đóng gói.");
   }
 
+  // Bookerly dynamic fetch
+  const bookerlyFont = findFont("Bookerly");
+  if (bookerlyFont && bookerlyFont.url && typeof fetch !== "undefined") {
+    if (!fonts) {
+      fonts = { blobs: {} };
+    } else if (!fonts.blobs) {
+      fonts.blobs = {};
+    }
+
+    if (!fonts.blobs["Bookerly"]) {
+      try {
+        const isBrowser = typeof window !== "undefined";
+        const isHttp =
+          bookerlyFont.url &&
+          (bookerlyFont.url.startsWith("http://") ||
+            bookerlyFont.url.startsWith("https://") ||
+            bookerlyFont.url.startsWith("/"));
+        if (isBrowser || isHttp) {
+          logger.log(
+            "epub-packer",
+            "Fetching Bookerly font dynamically inside buildEpubBlob...",
+          );
+          const res = await fetch(bookerlyFont.url);
+          if (res.ok) {
+            fonts.blobs["Bookerly"] = await res.blob();
+          } else {
+            logger.error(
+              "epub-packer",
+              "Failed to fetch Bookerly font inside buildEpubBlob:",
+              res.statusText,
+            );
+          }
+        }
+      } catch (err) {
+        logger.error(
+          "epub-packer",
+          "Error fetching Bookerly font inside buildEpubBlob:",
+          err,
+        );
+      }
+    }
+  }
+
   let activeFonts = [];
   if (fonts) {
     if (fonts.jacketFont && fonts.jacketFont !== "default")
@@ -363,23 +406,33 @@ export async function buildEpubBlob(
       activeFonts.push(fonts.h1Font);
     if (fonts.h2Font && fonts.h2Font !== "default")
       activeFonts.push(fonts.h2Font);
-    activeFonts = [...new Set(activeFonts)];
   }
+  if (findFont("Bookerly")) {
+    activeFonts.push("Bookerly");
+  }
+  activeFonts = [...new Set(activeFonts)];
 
   let chaptersToPack = [...chapters];
   let finalCss = css && css !== EPUB_CSS ? css : getDynamicCss(chaptersToPack);
 
+  // Sinh @font-face và font-family CHUẨN XÁC theo cssFamily
   let fontDeclarations = "";
   if (fonts) {
     if (fonts.h1Font && fonts.h1Font !== "default") {
-      fontDeclarations += getFontCSSDeclaration(fonts.h1Font);
-      fontDeclarations += `\nh1 { font-family: "${fonts.h1Font}", serif !important; }\n`;
+      const f1 = findFont(fonts.h1Font);
+      if (f1) {
+        fontDeclarations += getFontCSSDeclaration(fonts.h1Font);
+        fontDeclarations += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }\n`;
+      }
     }
     if (fonts.h2Font && fonts.h2Font !== "default") {
-      if (fonts.h2Font !== fonts.h1Font) {
-        fontDeclarations += getFontCSSDeclaration(fonts.h2Font);
+      const f2 = findFont(fonts.h2Font);
+      if (f2) {
+        if (fonts.h2Font !== fonts.h1Font) {
+          fontDeclarations += getFontCSSDeclaration(fonts.h2Font);
+        }
+        fontDeclarations += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }\n`;
       }
-      fontDeclarations += `\nh2 { font-family: "${fonts.h2Font}", serif !important; }\n`;
     }
   }
   if (fontDeclarations) {
@@ -420,6 +473,7 @@ export async function buildEpubBlob(
   }
 
   const zip = new JSZip();
+  // File mimetype bắt buộc không nén (compression: STORE)
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
 
   const metaInf = zip.folder("META-INF");
@@ -460,9 +514,12 @@ export async function buildEpubBlob(
         localCss = template.css;
       }
       if (fonts && fonts.jacketFont && fonts.jacketFont !== "default") {
-        const fontName = fonts.jacketFont;
-        const declaration = getFontCSSDeclaration(fontName);
-        localCss = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${fontName}", serif !important; }\n${localCss}`;
+        const jFont = findFont(fonts.jacketFont);
+        if (jFont) {
+          const declaration = getFontCSSDeclaration(fonts.jacketFont);
+          // Sử dụng chính xác jFont.cssFamily ("KKTTAbsolute", "1314 Zahra"...)
+          localCss = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }\n${localCss}`;
+        }
       }
     } else if (isCover) {
       localCss =
