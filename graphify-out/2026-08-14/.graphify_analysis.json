@@ -1,0 +1,494 @@
+{
+  "communities": {
+    "0": [
+      "src_lib_epub_packer_epub_chapter_utils",
+      "src_lib_epub_packer_epub_chapter_utils_analyzechaptercandidates",
+      "src_lib_epub_packer_epub_chapter_utils_extractchunkblocks",
+      "src_lib_epub_packer_epub_chapter_utils_extractmarkertitle",
+      "src_lib_epub_packer_epub_chapter_utils_isdecorationonly",
+      "src_lib_epub_packer_epub_chapter_utils_makechaptermatcher",
+      "src_lib_epub_packer_epub_chapter_utils_pushiflinestart",
+      "src_lib_epub_packer_epub_chapter_utils_scoreheadingcandidate",
+      "src_lib_epub_packer_epub_chapter_utils_stripdecoration",
+      "src_lib_epub_packer_epub_markdown_utils",
+      "src_lib_epub_packer_epub_markdown_utils_convertinline",
+      "src_lib_epub_packer_epub_markdown_utils_converttxtinline",
+      "src_lib_epub_packer_epub_markdown_utils_endswithsentencepunctuation",
+      "src_lib_epub_packer_epub_markdown_utils_escaperegexp",
+      "src_lib_epub_packer_epub_markdown_utils_getclosingtag",
+      "src_lib_epub_packer_epub_markdown_utils_normalizemultilinechaptertags",
+      "src_lib_epub_packer_epub_markdown_utils_parsemarkdownblocks",
+      "src_lib_epub_packer_epub_markdown_utils_rendermarkdownblocks",
+      "src_lib_epub_packer_epub_markdown_utils_startswithlowercaseletter",
+      "src_lib_epub_packer_epub_ocr_utils_isrealparagraph",
+      "src_lib_epub_packer_epub_parser",
+      "src_lib_epub_packer_epub_parser_findallmarkerpositionscombined",
+      "src_lib_epub_packer_epub_parser_groupchapters",
+      "src_lib_epub_packer_epub_single_grouper",
+      "src_lib_epub_packer_epub_single_grouper_applyinlineformatting",
+      "src_lib_epub_packer_epub_single_grouper_escaperegexp",
+      "src_lib_epub_packer_epub_single_grouper_findmarkersforsingle",
+      "src_lib_epub_packer_epub_single_grouper_getclosingtag",
+      "src_lib_epub_packer_epub_single_grouper_groupchapterssingle",
+      "src_lib_epub_packer_epub_single_grouper_parsetxttochapters",
+      "src_lib_epub_packer_epub_single_grouper_striphtmltags",
+      "src_lib_epub_packer_epub_zip_grouper",
+      "src_lib_epub_packer_epub_zip_grouper_findmarkersforzip",
+      "src_lib_epub_packer_epub_zip_grouper_groupchapterszip",
+      "tests_epub_parser_test"
+    ],
+    "1": [
+      "eslint",
+      "eslint_js",
+      "eslint_plugin_svelte",
+      "globals",
+      "package_devdependencies",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_js",
+      "package_devdependencies_eslint_plugin_svelte",
+      "package_devdependencies_globals",
+      "package_devdependencies_knip",
+      "package_devdependencies_svelte",
+      "package_devdependencies_sveltejs_adapter_cloudflare",
+      "package_devdependencies_sveltejs_kit",
+      "package_devdependencies_sveltejs_vite_plugin_svelte",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_vite",
+      "package_devdependencies_types_node",
+      "package_devdependencies_vite",
+      "package_devdependencies_vitest",
+      "package_json_knip",
+      "package_json_svelte",
+      "sveltejs_adapter_cloudflare",
+      "sveltejs_kit",
+      "sveltejs_vite_plugin_svelte",
+      "tailwindcss",
+      "tailwindcss_vite",
+      "types_node",
+      "vite",
+      "vitest"
+    ],
+    "2": [
+      "src_lib_epub_packer_epub_packer",
+      "src_lib_epub_packer_epub_packer_buildchapterxhtml",
+      "src_lib_epub_packer_epub_packer_buildcontainerxml",
+      "src_lib_epub_packer_epub_packer_buildcontentopf",
+      "src_lib_epub_packer_epub_packer_buildepubblob",
+      "src_lib_epub_packer_epub_packer_buildnavxhtml",
+      "src_lib_epub_packer_epub_packer_buildtocncx",
+      "src_lib_epub_packer_epub_packer_epub_css",
+      "src_lib_epub_packer_epub_packer_getdynamiccss",
+      "src_lib_epub_packer_epub_packer_mergebrokenparagraphs",
+      "src_lib_epub_packer_epub_state_svelte",
+      "src_lib_epub_packer_fonts",
+      "src_lib_epub_packer_fonts_available_fonts",
+      "src_lib_epub_packer_fonts_findfont",
+      "src_lib_epub_packer_fonts_fontfiles",
+      "src_lib_epub_packer_fonts_getfontapplycss",
+      "src_lib_epub_packer_fonts_getfontcssdeclaration",
+      "src_lib_epub_packer_fonts_getfontfilename",
+      "src_lib_epub_packer_jacket_templates",
+      "src_lib_epub_packer_jacket_templates_formattranslator",
+      "src_lib_epub_packer_jacket_templates_getjacketcss",
+      "src_lib_epub_packer_jacket_templates_jacket_templates",
+      "src_lib_helpers_helpers_escapexml",
+      "tests_epub_packer_test",
+      "tests_epub_packer_test_mockjszip",
+      "tests_epub_packer_test_mockjszip_constructor",
+      "tests_epub_packer_test_mockzipinstance"
+    ],
+    "3": [
+      "src_lib_pdf_splitter_pdf_splitter",
+      "src_lib_pdf_splitter_pdf_splitter_applygrayscale",
+      "src_lib_pdf_splitter_pdf_splitter_cropcanvas",
+      "src_lib_pdf_splitter_pdf_splitter_formateta",
+      "src_lib_pdf_splitter_pdf_splitter_loadpdfpreview",
+      "src_lib_pdf_splitter_pdf_splitter_pickconcurrency",
+      "src_lib_pdf_splitter_pdf_splitter_processpdftojpg",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_adjustcrop",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_downloadzip",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_handlefile",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_loadpreview",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_nextpreviewpage",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_prevpreviewpage",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_processpdf",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_resetcrop",
+      "tests_pdf_splitter_test",
+      "tests_pdf_splitter_test_createdcanvases",
+      "tests_pdf_splitter_test_mockdoc",
+      "tests_pdf_splitter_test_mockpage",
+      "tests_pdf_splitter_test_mockpdfjslib"
+    ],
+    "4": [
+      "fontkit",
+      "jszip",
+      "package",
+      "package_dependencies",
+      "package_dependencies_fontkit",
+      "package_dependencies_jszip",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_cover",
+      "package_scripts_dev",
+      "package_scripts_knip",
+      "package_scripts_lint",
+      "package_scripts_prebuild",
+      "package_scripts_prepare",
+      "package_scripts_preview",
+      "package_scripts_test",
+      "package_type",
+      "package_version"
+    ],
+    "5": [
+      "src_lib_components_button",
+      "src_lib_components_dropzone",
+      "src_lib_components_input",
+      "src_lib_components_pageheader",
+      "src_lib_helpers_helpers",
+      "src_lib_helpers_helpers_ensureepubext",
+      "src_lib_helpers_helpers_ensurezipext",
+      "src_lib_helpers_helpers_slugify",
+      "src_lib_helpers_helpers_triggerdownload",
+      "src_lib_markdown_fixer_markdown_fixer_state_svelte",
+      "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate",
+      "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_downloadzip",
+      "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_handlefile",
+      "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_processmarkdownzip",
+      "src_lib_pdf_splitter_pdf_splitter_state_svelte",
+      "src_routes_epub_page",
+      "src_routes_md_page",
+      "src_routes_pdf_page",
+      "src_routes_txt_to_pdf_page"
+    ],
+    "6": [
+      "src_lib_helpers_logger",
+      "src_lib_helpers_logger_error",
+      "src_lib_helpers_logger_isdebug",
+      "src_lib_helpers_logger_log",
+      "src_lib_helpers_logger_setdebug",
+      "src_lib_helpers_logger_warn",
+      "src_lib_markdown_fixer_markdown_fixer",
+      "src_lib_markdown_fixer_markdown_fixer_bold_italic_patterns",
+      "src_lib_markdown_fixer_markdown_fixer_bold_patterns",
+      "src_lib_markdown_fixer_markdown_fixer_convertbrackets",
+      "src_lib_markdown_fixer_markdown_fixer_fixmarkdownzip",
+      "src_lib_markdown_fixer_markdown_fixer_italic_patterns",
+      "src_lib_markdown_fixer_markdown_fixer_underline_patterns",
+      "tests_logger_test",
+      "tests_markdown_fixer_test"
+    ],
+    "7": [
+      "src_lib_epub_packer_epub_chapter_utils_assignsequentialchapterids",
+      "src_lib_epub_packer_epub_state_svelte_epubstate",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_addcustomdefinition",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_adjustcovercrop",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_applygrouping",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_applytxtgrouping",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_getoptimizedcoverblob",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_handlecoverfile",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_handlefile",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_loadzipcontent",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_processepub",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_removecoverfile",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_removecustomdefinition",
+      "src_lib_epub_packer_epub_state_svelte_epubstate_resetcovercrop"
+    ],
+    "8": [
+      "knip_entry",
+      "knip_ignore",
+      "knip_json_knip",
+      "knip_project",
+      "knip_schema",
+      "ref_src_js_svelte",
+      "ref_src_lib_epub_packer_epub_parser_js",
+      "ref_src_lib_index_js",
+      "ref_src_routes_layout_svelte_js_ts",
+      "ref_src_routes_page_svelte_js_ts",
+      "ref_tests_js",
+      "ref_tests_test_js"
+    ],
+    "9": [
+      "readme_cloudflare_pages",
+      "readme_ebook_forge",
+      "readme_epub_packer",
+      "readme_jszip",
+      "readme_markdown_fixer",
+      "readme_pdf_processor",
+      "readme_pdfjs",
+      "readme_sveltekit",
+      "readme_tailwindcss",
+      "readme_txt_to_pdf_cjk",
+      "static_robots_policy"
+    ],
+    "10": [
+      "jsconfig",
+      "jsconfig_compileroptions",
+      "jsconfig_compileroptions_allowjs",
+      "jsconfig_compileroptions_checkjs",
+      "jsconfig_compileroptions_moduleresolution",
+      "jsconfig_extends",
+      "ref_svelte_kit_tsconfig_json"
+    ],
+    "11": [
+      "src_lib_epub_packer_epub_ocr_utils",
+      "src_lib_epub_packer_epub_ocr_utils_cleanheaderfooterocr",
+      "src_lib_epub_packer_epub_ocr_utils_compilecleankeywords",
+      "src_lib_epub_packer_epub_ocr_utils_getcleanedlinesreport",
+      "src_lib_epub_packer_epub_ocr_utils_islineheaderfooter",
+      "src_lib_epub_packer_epub_ocr_utils_shouldskipheaderfooter",
+      "src_lib_helpers_helpers_normalizecharpreservelength"
+    ],
+    "12": [
+      "src_lib_epub_packer_generate_fonts_meta",
+      "src_lib_epub_packer_generate_fonts_meta_files",
+      "src_lib_epub_packer_generate_fonts_meta_fontkit",
+      "src_lib_epub_packer_generate_fonts_meta_fonts_dir",
+      "src_lib_epub_packer_generate_fonts_meta_metadata",
+      "src_lib_epub_packer_generate_fonts_meta_output_file",
+      "src_lib_epub_packer_generate_fonts_meta_require"
+    ],
+    "13": [
+      "_task_update_epub_logic",
+      "_task_update_markdown_bold",
+      "_task_update_markdown_italic",
+      "_task_update_raw_format_toggle",
+      "_task_update_zip_heuristic"
+    ],
+    "14": [
+      "graphify_out_memory_query_20260808_104941_dua_vao_report_cua_graphify_xem_thu_project_co_va",
+      "graphify_out_memory_query_20260808_104941_dua_vao_report_cua_graphify_xem_thu_project_co_va_answer",
+      "graphify_out_memory_query_20260808_104941_dua_vao_report_cua_graphify_xem_thu_project_co_va_outcome",
+      "graphify_out_memory_query_20260808_104941_dua_vao_report_cua_graphify_xem_thu_project_co_va_q_dua_vao_report_cua_graphify_xem_thu_project_co_van_de_gi_ko_co_gi_can_phai_sua_chua_dieu_chinh_khong",
+      "graphify_out_memory_query_20260808_104941_dua_vao_report_cua_graphify_xem_thu_project_co_va_source_nodes"
+    ],
+    "15": [
+      "static_icons_bluesky_icon",
+      "static_icons_discord_icon",
+      "static_icons_github_icon",
+      "static_icons_x_icon"
+    ],
+    "16": [
+      "tests_helpers_test",
+      "tests_helpers_test_mockanchor",
+      "tests_helpers_test_mockdocument",
+      "tests_helpers_test_mockpdfjslib"
+    ],
+    "17": [
+      "src_app_google_fonts",
+      "src_app_html",
+      "src_app_pdf_js_cdn"
+    ],
+    "18": [
+      "_agents_rules_graphify_rule_config",
+      "_agents_workflows_graphify_workflow_config"
+    ],
+    "19": [
+      "eslint_config",
+      "eslint_config_gitignorepath"
+    ],
+    "20": [
+      "src_routes_layout",
+      "stores"
+    ],
+    "21": [
+      "static_favicon_branding",
+      "static_favicon_logo"
+    ],
+    "22": [
+      "src_lib_index"
+    ],
+    "23": [
+      "src_routes_page"
+    ],
+    "24": [
+      "static_icons_documentation_icon"
+    ],
+    "25": [
+      "static_icons_social_icon"
+    ],
+    "26": [
+      "svelte_svelte"
+    ],
+    "27": [
+      "task_update"
+    ],
+    "28": [
+      "vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.18319327731092436,
+    "1": 0.06896551724137931,
+    "2": 0.1794871794871795,
+    "3": 0.12380952380952381,
+    "4": 0.1,
+    "5": 0.19883040935672514,
+    "6": 0.20952380952380953,
+    "7": 0.24175824175824176,
+    "8": 0.16666666666666666,
+    "9": 0.18181818181818182,
+    "10": 0.2857142857142857,
+    "11": 0.6666666666666666,
+    "12": 0.2857142857142857,
+    "13": 0.4,
+    "14": 0.4,
+    "15": 0.6666666666666666,
+    "16": 0.5,
+    "17": 0.6666666666666666,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0
+  },
+  "gods": [
+    {
+      "id": "src_lib_epub_packer_epub_packer_buildepubblob",
+      "label": "buildEpubBlob()",
+      "degree": 15
+    },
+    {
+      "id": "src_lib_epub_packer_epub_state_svelte_epubstate",
+      "label": "EpubState",
+      "degree": 13
+    },
+    {
+      "id": "src_lib_helpers_helpers_escapexml",
+      "label": "escapeXml()",
+      "degree": 13
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 10
+    },
+    {
+      "id": "src_lib_epub_packer_fonts_findfont",
+      "label": "findFont()",
+      "degree": 10
+    },
+    {
+      "id": "src_lib_epub_packer_epub_markdown_utils_rendermarkdownblocks",
+      "label": "renderMarkdownBlocks()",
+      "degree": 9
+    },
+    {
+      "id": "src_lib_epub_packer_epub_single_grouper_groupchapterssingle",
+      "label": "groupChaptersSingle()",
+      "degree": 9
+    },
+    {
+      "id": "src_lib_epub_packer_epub_zip_grouper_groupchapterszip",
+      "label": "groupChaptersZip()",
+      "degree": 9
+    },
+    {
+      "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate",
+      "label": "PdfSplitterState",
+      "degree": 9
+    },
+    {
+      "id": "readme_ebook_forge",
+      "label": "Ebook Forge",
+      "degree": 8
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Robots.txt Policy",
+      "target": "Ebook Forge",
+      "source_files": [
+        "static/robots.txt",
+        "README.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; peripheral node `Robots.txt Policy` unexpectedly reaches hub `Ebook Forge`"
+    },
+    {
+      "source": "buildEpubBlob()",
+      "target": "jszip",
+      "source_files": [
+        "src/lib/epub-packer/epub-packer.js",
+        "package.json"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "fixMarkdownZip()",
+      "target": "jszip",
+      "source_files": [
+        "src/lib/markdown-fixer/markdown-fixer.js",
+        "package.json"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "processPdfToJpg()",
+      "target": "jszip",
+      "source_files": [
+        "src/lib/pdf-splitter/pdf-splitter.js",
+        "package.json"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "makeChapterMatcher()",
+      "target": "normalizeCharPreserveLength()",
+      "source_files": [
+        "src/lib/epub-packer/epub-chapter-utils.js",
+        "src/lib/helpers/helpers.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `jszip` connect `scripts` to `epub-packer.js`, `pdf-splitter.js`, `logger.js`, `EpubState`?",
+      "why": "High betweenness centrality (0.212) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `devDependencies` to `scripts`?",
+      "why": "High betweenness centrality (0.143) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `gitignorePath`, `extends`, `./.svelte-kit/tsconfig.json` to the rest of the system?",
+      "why": "84 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `devDependencies` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06896551724137931 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `pdf-splitter.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12380952380952381 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `scripts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
