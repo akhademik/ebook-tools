@@ -59,7 +59,7 @@ describe('epub-packer tests', () => {
 					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>Mỗi giây là một năm</p>'
 				}
 			);
-			expect(html).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p><span class="dropcap">M</span>ỗi giây là một năm</p>');
+			expect(html).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">M</span>ỗi giây là một năm</p>');
 		});
 
 		it('should include starting quotes/entities/inline tags correctly in the dropcap', () => {
@@ -71,7 +71,7 @@ describe('epub-packer tests', () => {
 					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>“Mỗi giây là một năm”</p>'
 				}
 			);
-			expect(htmlQuotes).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p><span class="dropcap">“M</span>ỗi giây là một năm”</p>');
+			expect(htmlQuotes).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">“M</span>ỗi giây là một năm”</p>');
 
 			const htmlItalic = buildChapterXhtml(
 				{ language: 'vi' },
@@ -81,7 +81,7 @@ describe('epub-packer tests', () => {
 					html: '<h1>18 PHÚT</h1>\n<p><i>M</i>ỗi giây là một năm</p>'
 				}
 			);
-			expect(htmlItalic).toContain('<h1>18 PHÚT</h1>\n<p><i><span class="dropcap">M</span></i>ỗi giây là một năm</p>');
+			expect(htmlItalic).toContain('<h1>18 PHÚT</h1>\n<p class="has-dropcap"><i><span class="dropcap">M</span></i>ỗi giây là một năm</p>');
 
 			const htmlEntity = buildChapterXhtml(
 				{ language: 'vi' },
@@ -91,7 +91,7 @@ describe('epub-packer tests', () => {
 					html: '<h2>18 PHÚT</h2>\n<p>&ldquo;Mỗi giây là một năm&rdquo;</p>'
 				}
 			);
-			expect(htmlEntity).toContain('<h2>18 PHÚT</h2>\n<p><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>');
+			expect(htmlEntity).toContain('<h2>18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>');
 		});
 
 		it('should not add dropcap to special pages like jacket or cover', () => {

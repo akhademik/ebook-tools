@@ -1,8 +1,3 @@
-h1 + p,
-h2 + p {
-  text-indent: 0 !important;
-}
-
 h1.main-chap + h1.main-chap {
   margin-top: 0.3em !important;
 }

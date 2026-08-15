@@ -1,81 +1,10 @@
-hãy update thêm logic để thêm qui chuẩn
+xu ly loi nay cho toi, cai the nao ma co drop cap thi p truoc do se duoc dung <p class="has-dropcap"><span class="dropcap">N</span>oi dung </p>
 
-Mã gõ Ý nghĩa Thẻ HTML sinh ra
-[letter] ... [/letter] Khối thư, mỗi dòng bên trong là 1 đoạn, có thụt lề riêng theo CSS <div class="letter"><p>...</p>...</div>
-[poem] ... [/poem] Khối thơ, mỗi dòng bên trong là 1 đoạn, luôn canh giữa (cố định, không có biến thể) <div class="poem"><p>...</p>...</div>
+va đồng thời bỏ luôn
 
-ví dụ
-
-[letter]
-Hà Nội, ngày 12 tháng 8 năm 2026
-
-Con gái yêu của mẹ,
-
-Mẹ biết con sẽ đọc được lá thư này khi mẹ không còn ở bên con nữa. Đừng _buồn_, vì mẹ đã sống một cuộc đời trọn vẹn.
-
-Yêu con nhiều,
-Mẹ
-[/letter]
-
-kết quả sẽ là
-
-<div class="letter">
-  <p>Hà Nội, ngày 12 tháng 8 năm 2026</p>
-  <p>Con gái yêu của mẹ,</p>
-  <p>Mẹ biết con sẽ đọc được lá thư này khi mẹ không còn ở bên con nữa. Đừng <b>buồn</b>, vì mẹ đã sống một cuộc đời trọn vẹn.</p>
-  <p>Yêu con nhiều,</p>
-  <p>Mẹ</p>
-</div>
-
-và
-
-[poem]
-Quê hương là chùm khế ngọt
-Cho con trèo hái mỗi ngày
-_Quê hương_ là đường đi học
-Con về /rợp bướm/ vàng bay
-[/poem]
-
-sẽ là
-
-<div class="poem">
-  <p>Quê hương là chùm khế ngọt</p>
-  <p>Cho con trèo hái mỗi ngày</p>
-  <p><b>Quê hương</b> là đường đi học</p>
-  <p>Con về <i>rợp bướm</i> vàng bay</p>
-</div>
-
-va day là css di kem voi 2 dinh nghia moi
-/_ ===== KHỐI THƯ (LETTER) ===== _/
-.letter {
-margin: 1.5em 1em;
-padding: 1em 1.2em;
-font-style: italic;
-border-left: 2px solid #999;
+h1 + p,
+h2 + p {
+text-indent: 0 !important;
 }
 
-.letter p {
-margin: 0 0 0.8em 0;
-text-indent: 0; /_ thư thường không thụt đầu dòng như văn xuôi thường _/
-}
-
-.letter p:last-child {
-margin-bottom: 0;
-}
-
-/_ ===== KHỐI THƠ (POEM) ===== _/
-.poem {
-margin: 1.5em auto;
-text-align: center;
-font-style: italic;
-}
-
-.poem p {
-margin: 0 0 0.3em 0;
-text-indent: 0; /_ không thụt đầu dòng _/
-line-height: 1.5;
-}
-
-.poem p:last-child {
-margin-bottom: 0;
-}
+vì cái đó do logic là sẽ tạo dropcap tự động khi nó nằm dưới thẻ h1, h2, nhưng bây giờ cứ khi nào add dropcap thì thẻ p trước đó đều dược thêm class has-dropcap rồi

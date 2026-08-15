@@ -53,6 +53,7 @@ export class EpubState {
 	jacketFont = $state('default'); 
 	h1Font = $state('default');     
 	h2Font = $state('default');     
+	dropcapFont = $state('default');
 
 	// Cover Image States
 	coverFile = $state(null);
@@ -401,6 +402,9 @@ export class EpubState {
 			if (this.h2Font !== 'default' && !neededFonts.includes(this.h2Font)) {
 				neededFonts.push(this.h2Font);
 			}
+			if (this.dropcapFont !== 'default' && !neededFonts.includes(this.dropcapFont)) {
+				neededFonts.push(this.dropcapFont);
+			}
 			// Always embed Bookerly font if available
 			if (findFont('Bookerly') && !neededFonts.includes('Bookerly')) {
 				neededFonts.push('Bookerly');
@@ -423,6 +427,7 @@ export class EpubState {
 				jacketFont: this.jacketFont,
 				h1Font: this.h1Font,
 				h2Font: this.h2Font,
+				dropcapFont: this.dropcapFont,
 				blobs: fontBlobs
 			};
 

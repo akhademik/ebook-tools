@@ -32,3 +32,6 @@ u {
 a {
   text-decoration: none;
 }
+p.has-dropcap {
+  text-indent: 0 !important;
+}

@@ -157,6 +157,20 @@ describe('epub-parser tests', () => {
 
 			expect(result.html).toBe('<p>Paragraph with <b><i>bold italic</i></b> format</p>\n');
 		});
+
+		it('should render markdown dropcaps correctly', () => {
+			const blocks = [
+				{ type: 'p', text: '[T] ôi có một giấc mơ.' },
+				{ type: 'p', text: '[Cụm từ] này là dropcap cụm từ.' },
+				{ type: 'p', text: '[chữ]' }
+			];
+
+			const result = renderMarkdownBlocks(blocks);
+
+			expect(result.html).toContain('<p class="has-dropcap"><span class="dropcap">T</span>ôi có một giấc mơ.</p>');
+			expect(result.html).toContain('<p>[Cụm từ] này là dropcap cụm từ.</p>');
+			expect(result.html).toContain('<p>[chữ]</p>');
+		});
 	});
 
 	describe('getCleanedLinesReport', () => {
@@ -847,6 +861,20 @@ Thư chưa đóng.`;
 			// Verify [1] annotation is kept as text
 			expect(chapLetter.html).toContain('chú thích [1] ở cuối chương');
 			expect(chapLetter.html).toContain('Ghi chú: [1] đây là một dòng có ngoặc vuông');
+		});
+
+		it('should parse [chữ] dropcaps correctly', () => {
+			const txt = `[T] ôi có một giấc mơ.
+[Cụm từ] này là dropcap cụm từ.
+[chữ]
+Dòng trên chỉ có [chữ] đơn độc nên không phải dropcap.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<p class="has-dropcap"><span class="dropcap">T</span>ôi có một giấc mơ.</p>');
+			expect(chapters[0].html).toContain('<p>[Cụm từ] này là dropcap cụm từ.</p>');
+			expect(chapters[0].html).toContain('<p>[chữ]</p>');
+			expect(chapters[0].html).toContain('<p>Dòng trên chỉ có [chữ] đơn độc nên không phải dropcap.</p>');
 		});
 
 		it('should correctly ignore page55.md continuation and merge into page54.md', () => {

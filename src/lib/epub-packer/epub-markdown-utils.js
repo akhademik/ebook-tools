@@ -139,7 +139,17 @@ export function renderMarkdownBlocks(blocks, options = {}) {
 			} else if (b.text.trim() === '##') {
 				html += '<p class="scene-break-small" role="separator">*</p>\n';
 			} else {
-				html += '<p>' + convertInline(b.text.replace(/\n+/g, ' '), ignoreFormat) + '</p>\n';
+				const cleanText = b.text.replace(/\n+/g, ' ').trim();
+				const dropcapMatch = cleanText.match(/^\[([^\]\n])\]\s+(.+)$/);
+				if (dropcapMatch) {
+					const group1 = dropcapMatch[1];
+					const group2 = dropcapMatch[2];
+					const formattedGroup1 = escapeXml(group1);
+					const formattedGroup2 = convertInline(group2, ignoreFormat);
+					html += '<p class="has-dropcap"><span class="dropcap">' + formattedGroup1 + '</span>' + formattedGroup2 + '</p>\n';
+				} else {
+					html += '<p>' + convertInline(cleanText, ignoreFormat) + '</p>\n';
+				}
 			}
 		} else if (b.type === 'blockquote') {
 			html += '<blockquote><p>' + convertInline(b.text, ignoreFormat) + '</p></blockquote>\n';

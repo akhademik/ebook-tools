@@ -35,7 +35,8 @@ function getDynamicCss(chapters) {
       html.includes("main-chap") ||
       html.includes("side-chap") ||
       html.includes("chno") ||
-      html.includes("chapter")
+      html.includes("chapter") ||
+      html.includes("dropcap")
     ) {
       hasHeadings = true;
     }
@@ -290,9 +291,18 @@ export function buildChapterXhtml(
     chapter.fileName === "jacket" || chapter.fileName === "cover";
   if (!isSpecialPage) {
     content = content.replace(
-      /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
-      (match, p1, p2, p3) =>
-        p1 + p2 + '<span class="dropcap">' + p3 + "</span>",
+      /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
+      (match, p1, p2, p3, p4) => {
+        let updatedP2 = p2;
+        if (p2.includes('class=')) {
+          updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
+            return `class="${classNames} has-dropcap"`;
+          });
+        } else {
+          updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
+        }
+        return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + "</span>";
+      },
     );
   }
 
@@ -410,6 +420,8 @@ export async function buildEpubBlob(
       activeFonts.push(fonts.h1Font);
     if (fonts.h2Font && fonts.h2Font !== "default")
       activeFonts.push(fonts.h2Font);
+    if (fonts.dropcapFont && fonts.dropcapFont !== "default")
+      activeFonts.push(fonts.dropcapFont);
   }
   if (findFont("Bookerly")) {
     activeFonts.push("Bookerly");
@@ -437,6 +449,15 @@ export async function buildEpubBlob(
           fontFaces += getFontCSSDeclaration(fonts.h2Font);
         }
         fontSelectors += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }\n`;
+      }
+    }
+    if (fonts.dropcapFont && fonts.dropcapFont !== "default") {
+      const fd = findFont(fonts.dropcapFont);
+      if (fd) {
+        if (fonts.dropcapFont !== fonts.h1Font && fonts.dropcapFont !== fonts.h2Font) {
+          fontFaces += getFontCSSDeclaration(fonts.dropcapFont);
+        }
+        fontSelectors += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }\n`;
       }
     }
   }

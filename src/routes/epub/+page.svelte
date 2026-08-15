@@ -786,12 +786,12 @@
       >Cấu hình phông chữ nội dung & Xem trước chương</span
     >
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
       <div>
         <label
           for="h1-font-select"
           class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
-          >Phông chữ cho tiêu đề lớn (H1)</label
+          >Font tiêu đề lớn (H1)</label
         >
         <select
           id="h1-font-select"
@@ -808,11 +808,28 @@
         <label
           for="h2-font-select"
           class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
-          >Phông chữ cho tiêu đề nhỏ (H2)</label
+          >Font tiêu đề nhỏ (H2)</label
         >
         <select
           id="h2-font-select"
           bind:value={epubState.h2Font}
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+        >
+          <option value="default">Mặc định (Không dùng font)</option>
+          {#each AVAILABLE_FONTS as font (font.id)}
+            <option value={font.id}>{font.name}</option>
+          {/each}
+        </select>
+      </div>
+      <div>
+        <label
+          for="dropcap-font-select"
+          class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold"
+          >Font cho Dropcap</label
+        >
+        <select
+          id="dropcap-font-select"
+          bind:value={epubState.dropcapFont}
           class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
         >
           <option value="default">Mặc định (Không dùng font)</option>
@@ -848,11 +865,7 @@
         Đây là chapter nhỏ
       </h2>
       <p class="text-sm leading-relaxed text-gray-700 font-sans">
-        Đây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị
-        trong cuốn sách của bạn sau khi xuất bản. Tiêu đề lớn (h1) và tiêu đề
-        nhỏ (h2) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p)
-        vẫn sử dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc
-        sách.
+        <span class="dropcap" style="font-family: {epubState.dropcapFont === 'default' ? 'inherit' : epubState.dropcapFont};">Đ</span>ây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị trong cuốn sách của bạn sau khi xuất bản. Tiêu đề lớn (h1) và tiêu đề nhỏ (h2) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc sách.
       </p>
     </div>
   </div>
@@ -1279,6 +1292,20 @@
                   >
                 </td>
               </tr>
+              <tr>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+                    >[c] nội dung...</code
+                  >
+                </td>
+                <td class="py-3 px-3">
+                  <code>&lt;p&gt;&lt;span class="dropcap"&gt;c&lt;/span&gt;nội dung...&lt;/p&gt;</code><br />
+                  <span class="text-[11px] text-text-mute"
+                    >Dropcap (chữ phóng to đầu đoạn). Chỉ nhận diện khi đứng đầu dòng, bên trong [ ] là đúng 1 ký tự và có ít nhất 1 khoảng trắng theo sau dấu ]. Khoảng trắng này sẽ tự động được loại bỏ khi xuất bản.</span
+                  >
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -1299,6 +1326,14 @@
 {/if}
 
 <style>
+  .dropcap {
+    float: left;
+    font-size: 3em;
+    line-height: 0.9;
+    margin-right: 0.08em;
+    margin-top: 0.02em;
+    font-weight: bold;
+  }
   .animate-fade-in {
     animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
