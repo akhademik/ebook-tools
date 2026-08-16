@@ -1,9 +1,9 @@
-import { cleanHeaderFooterOcr, parseMarkdownBlocks, groupChapters, getCleanedLinesReport, assignSequentialChapterIds, parseTxtToChapters } from './epub-parser.js';
+import { cleanHeaderFooterOcr, parseMarkdownBlocks, groupChapters, getCleanedLinesReport, assignSequentialChapterIds, parseTxtToChapters } from './parser/epub-parser.js';
 import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import JSZip from 'jszip';
 
-import { findFont } from './fonts.js';
+import { findFont } from './templates/fonts.js';
 
 export class EpubState {
 	epubFileSelected = $state(null);

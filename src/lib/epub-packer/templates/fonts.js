@@ -2,10 +2,10 @@
 // Discover all fonts in src/assets/fonts directory dynamically
 // Using Vite's import.meta.glob.
 
-import fontMetaMap from "../../assets/fonts-metadata.json";
+import fontMetaMap from "../../../assets/fonts-metadata.json";
 
 const fontFiles = import.meta.glob(
-  "../../assets/fonts/*.{ttf,otf,woff,woff2}",
+  "../../../assets/fonts/*.{ttf,otf,woff,woff2}",
   {
     eager: true,
     import: "default",

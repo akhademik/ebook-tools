@@ -1,16 +1,16 @@
-# Graph Report - ebook-tools  (2026-08-15)
+# Graph Report - ebook-tools  (2026-08-16)
 
 ## Corpus Check
-- 45 files · ~30,814 words
+- 45 files · ~30,980 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 261 nodes · 462 edges · 28 communities (21 shown, 7 thin omitted)
+- 261 nodes · 462 edges · 29 communities (22 shown, 7 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ea7132b0`
+- Built from commit: `fbc5241b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -60,7 +60,7 @@
 - `processPdfToJpg()` --references--> `jszip`  [EXTRACTED]
   src/lib/pdf-splitter/pdf-splitter.js → package.json
 - `makeChapterMatcher()` --calls--> `normalizeCharPreserveLength()`  [EXTRACTED]
-  src/lib/epub-packer/epub-chapter-utils.js → src/lib/helpers/helpers.js
+  src/lib/epub-packer/parser/epub-chapter-utils.js → src/lib/helpers/helpers.js
 
 ## Import Cycles
 - None detected.
@@ -70,7 +70,7 @@
 - **Ebook Forge Web Features** — readme_pdf_processor, readme_markdown_fixer, readme_epub_packer [EXTRACTED 1.00]
 - **Icons SVG Sprite Sheet Collection** — static_icons_bluesky_icon, static_icons_discord_icon, static_icons_documentation_icon, static_icons_github_icon, static_icons_social_icon, static_icons_x_icon [EXTRACTED 1.00]
 
-## Communities (28 total, 7 thin omitted)
+## Communities (29 total, 7 thin omitted)
 
 ### Community 0 - "epub-parser.js"
 Cohesion: 0.18
@@ -89,7 +89,7 @@ Cohesion: 0.10
 Nodes (19): fontkit, jszip, dependencies, fontkit, jszip, name, private, scripts (+11 more)
 
 ### Community 5 - "helpers.js"
-Cohesion: 0.09
+Cohesion: 0.11
 Nodes (14): ensureZipExt(), slugify(), triggerDownload(), MarkdownFixerState, applyGrayscale(), formatEta(), loadPdfPreview(), pickConcurrency() (+6 more)
 
 ### Community 6 - "logger.js"
@@ -151,6 +151,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `helpers.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.08771929824561403 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1053763440860215 - nodes in this community are weakly interconnected._
 - **Should `entry` be split into smaller, more focused modules?**
   _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._

@@ -1,4 +1,4 @@
-import * as logger from '../helpers/logger.js';
+import * as logger from '$lib/helpers/logger.js';
 import {
 	makeChapterMatcher,
 	pushIfLineStart,

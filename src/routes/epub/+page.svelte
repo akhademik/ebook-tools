@@ -5,8 +5,8 @@
   import Button from "$lib/components/Button.svelte";
   import { EpubState } from "$lib/epub-packer/epub-state.svelte.js";
   import { triggerDownload } from "$lib/helpers/helpers.js";
-  import { JACKET_TEMPLATES } from "$lib/epub-packer/jacket-templates.js";
-  import { AVAILABLE_FONTS } from "$lib/epub-packer/fonts.js";
+  import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
+  import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
 
   const epubState = new EpubState();
 

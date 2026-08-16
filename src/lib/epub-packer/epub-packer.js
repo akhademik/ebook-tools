@@ -1,14 +1,14 @@
 import JSZip from "jszip";
 import { escapeXml } from "$lib/helpers/helpers.js";
 import * as logger from "$lib/helpers/logger.js";
-import { JACKET_TEMPLATES } from "./jacket-templates.js";
-import { findFont, getFontFileName, getFontCSSDeclaration } from "./fonts.js";
+import { JACKET_TEMPLATES } from "./templates/jacket-templates.js";
+import { findFont, getFontFileName, getFontCSSDeclaration } from "./templates/fonts.js";
 
-import baseCss from "./css-template/base.css?raw";
-import headingsCss from "./css-template/headings.css?raw";
-import quotesCss from "./css-template/quotes.css?raw";
-import breaksCss from "./css-template/breaks.css?raw";
-import notesCss from "./css-template/notes.css?raw";
+import baseCss from "./templates/css-template/base.css?raw";
+import headingsCss from "./templates/css-template/headings.css?raw";
+import quotesCss from "./templates/css-template/quotes.css?raw";
+import breaksCss from "./templates/css-template/breaks.css?raw";
+import notesCss from "./templates/css-template/notes.css?raw";
 
 export const EPUB_CSS =
   baseCss +
@@ -293,7 +293,7 @@ export function buildChapterXhtml(
     content = content.replace(
       /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
       (match, p1, p2, p3, p4) => {
-        let updatedP2 = p2;
+        let updatedP2;
         if (p2.includes('class=')) {
           updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
             return `class="${classNames} has-dropcap"`;

@@ -1,4 +1,4 @@
-import { escapeXml } from '../helpers/helpers.js';
+import { escapeXml } from '$lib/helpers/helpers.js';
 import introCss from './css-template/intro-css.css?raw';
 
 function getJacketCss(templateId) {
