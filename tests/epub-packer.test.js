@@ -300,6 +300,40 @@ describe('epub-packer tests', () => {
 			consoleLogSpy.mockRestore();
 		});
 
+		it('should package cover image and generate SVG cover XHTML when coverBlob is provided', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const coverBlob = new Blob(['mock-cover-binary']);
+			coverBlob.width = 1000;
+			coverBlob.height = 1400;
+
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title', author: 'Author Name' },
+				chapters,
+				'body {}',
+				false,
+				null,
+				coverBlob
+			);
+			expect(blob).toBeDefined();
+
+			// Check that cover is added to manifest in content.opf
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="cover-image"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('properties="cover-image"'));
+			
+			// Check that cover image itself is written to zip
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', coverBlob);
+			
+			// Check that cover.xhtml contains the SVG wrapper and dimensions
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('<svg'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('viewBox="0 0 1000 1400"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('xlink:href="../images/cover.jpg"'));
+			
+			consoleLogSpy.mockRestore();
+		});
+
 		it('should package fonts inside ZIP and declare them in content.opf and styles', async () => {
 			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 			const chapters = [

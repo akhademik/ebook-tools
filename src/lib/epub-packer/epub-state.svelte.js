@@ -346,6 +346,10 @@ export class EpubState {
 					0, 0, canvas.width, canvas.height
 				);
 				canvas.toBlob((blob) => {
+					if (blob) {
+						blob.width = canvas.width;
+						blob.height = canvas.height;
+					}
 					resolve(blob);
 				}, 'image/jpeg', 0.82); // Good compression quality
 			};

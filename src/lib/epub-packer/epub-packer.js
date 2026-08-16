@@ -491,12 +491,14 @@ export async function buildEpubBlob(
   }
 
   if (coverBlob) {
+    const width = coverBlob.width || 1200;
+    const height = coverBlob.height || 1600;
     const coverChapter = {
       title: "Trang bìa",
       fileName: "cover",
       xmlId: "cover",
       isChapter: false,
-      html: '<div class="cover-wrapper">\n  <img class="cover-img" src="../images/cover.jpg" alt="Bìa sách" />\n</div>',
+      html: `<div class="cover-wrapper">\n  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">\n    <image width="${width}" height="${height}" xlink:href="../images/cover.jpg" href="../images/cover.jpg"/>\n  </svg>\n</div>`,
     };
     chaptersToPack.unshift(coverChapter);
   }
@@ -552,7 +554,7 @@ export async function buildEpubBlob(
       }
     } else if (isCover) {
       localCss =
-        "body { margin: 0; padding: 0; text-align: center; background-color: #ffffff; }\n.cover-wrapper { text-align: center; padding: 0; margin: 0; }\n.cover-img { max-width: 100%; height: auto; }";
+        "@page { margin: 0; padding: 0; }\nhtml, body { margin: 0; padding: 0; width: 100%; height: 100%; }\nbody { background-color: #ffffff; }\n.cover-wrapper { margin: 0; padding: 0; width: 100%; height: 100%; }\nsvg { display: block; width: 100%; height: 100%; }";
     }
     const xhtmlContent = buildChapterXhtml(
       meta,
