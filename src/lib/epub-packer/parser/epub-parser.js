@@ -1,5 +1,6 @@
 import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper.js';
-import { findMarkersForSingle, groupChaptersSingle, parseTxtToChapters } from './epub-single-grouper.js';
+import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper.js';
+import { parseTxtToChapters } from './txt-parser.js';
 
 export {
 	parseMarkdownBlocks,

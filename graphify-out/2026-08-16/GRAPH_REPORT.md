@@ -1,7 +1,7 @@
 # Graph Report - ebook-tools  (2026-08-16)
 
 ## Corpus Check
-- 45 files · ~30,980 words
+- 45 files · ~30,978 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -98,7 +98,7 @@ Nodes (11): error(), isDebug(), log(), setDebug(), warn(), BOLD_ITALIC_PATTERNS,
 
 ### Community 8 - "entry"
 Cohesion: 0.14
-Nodes (13): entry, ignore, ignoreDependencies, project, $schema, src/**/*.{js,svelte}, src/lib/epub-packer/epub-parser.js, src/lib/index.js (+5 more)
+Nodes (13): entry, ignore, ignoreDependencies, project, $schema, src/**/*.{js,svelte}, src/lib/epub-packer/parser/epub-parser.js, src/lib/index.js (+5 more)
 
 ### Community 9 - "Ebook Forge"
 Cohesion: 0.18

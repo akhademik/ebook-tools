@@ -246,15 +246,15 @@
       "norm_label": "tests/**/*.test.js"
     },
     {
-      "label": "src/lib/epub-packer/epub-parser.js",
+      "label": "src/lib/epub-packer/parser/epub-parser.js",
       "file_type": "concept",
       "source_file": "knip.json",
       "source_location": "L4",
       "_origin": "ast",
-      "id": "ref_src_lib_epub_packer_epub_parser_js",
+      "id": "ref_src_lib_epub_packer_parser_epub_parser_js",
       "community": 8,
       "community_name": "entry",
-      "norm_label": "src/lib/epub-packer/epub-parser.js"
+      "norm_label": "src/lib/epub-packer/parser/epub-parser.js"
     },
     {
       "label": "ignore",
@@ -3306,7 +3306,7 @@
       "context": "import",
       "_origin": "ast",
       "source": "knip_entry",
-      "target": "ref_src_lib_epub_packer_epub_parser_js",
+      "target": "ref_src_lib_epub_packer_parser_epub_parser_js",
       "confidence_score": 1.0
     },
     {

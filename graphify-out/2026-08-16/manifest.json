@@ -120,8 +120,8 @@
     "semantic_hash": "e7986fcce636872f9b0afa63d9095259"
   },
   "src/lib/epub-packer/epub-packer.js": {
-    "mtime": 1786841535.8750303,
-    "ast_hash": "b2fa681e8fe3c57a7c078bd02f5ad3ca",
+    "mtime": 1786841629.6171637,
+    "ast_hash": "f2f5fcb9a0dd9eae85afe915ff94facb",
     "semantic_hash": ""
   },
   "src/lib/epub-packer/epub-state.svelte.js": {
@@ -185,8 +185,8 @@
     "semantic_hash": "0aab72e1accb0f84e3c95faa40ff4cbc"
   },
   "knip.json": {
-    "mtime": 1786716025.0089583,
-    "ast_hash": "4aa6c5235e828d9ba126fcea5c0dae1d",
+    "mtime": 1786841644.3867214,
+    "ast_hash": "469ef4d7ffc958d6229a554909f30a5c",
     "semantic_hash": ""
   },
   "_task/update.md": {

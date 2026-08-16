@@ -846,8 +846,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_components_button",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "button.svelte"
     },
     {
@@ -857,8 +857,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_components_dropzone",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "dropzone.svelte"
     },
     {
@@ -868,8 +868,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_components_input",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "input.svelte"
     },
     {
@@ -879,8 +879,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_components_pageheader",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "pageheader.svelte"
     },
     {
@@ -1582,7 +1582,7 @@
       "label": "findAllMarkerPositionsCombined()",
       "file_type": "code",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L28",
+      "source_location": "L29",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_epub_packer_parser_epub_parser_findallmarkerpositionscombined",
@@ -1594,7 +1594,7 @@
       "label": "groupChapters()",
       "file_type": "code",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L36",
+      "source_location": "L37",
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_epub_packer_parser_epub_parser_groupchapters",
@@ -1638,66 +1638,6 @@
       "norm_label": "groupchapterssingle()"
     },
     {
-      "label": "escapeRegExp()",
-      "file_type": "code",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L148",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_epub_packer_parser_epub_single_grouper_escaperegexp",
-      "community": 0,
-      "community_name": "epub-parser.js",
-      "norm_label": "escaperegexp()"
-    },
-    {
-      "label": "getClosingTag()",
-      "file_type": "code",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L152",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_epub_packer_parser_epub_single_grouper_getclosingtag",
-      "community": 0,
-      "community_name": "epub-parser.js",
-      "norm_label": "getclosingtag()"
-    },
-    {
-      "label": "stripHtmlTags()",
-      "file_type": "code",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L157",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_epub_packer_parser_epub_single_grouper_striphtmltags",
-      "community": 0,
-      "community_name": "epub-parser.js",
-      "norm_label": "striphtmltags()"
-    },
-    {
-      "label": "applyInlineFormatting()",
-      "file_type": "code",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L161",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "community": 0,
-      "community_name": "epub-parser.js",
-      "norm_label": "applyinlineformatting()"
-    },
-    {
-      "label": "parseTxtToChapters()",
-      "file_type": "code",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L220",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
-      "community": 0,
-      "community_name": "epub-parser.js",
-      "norm_label": "parsetxttochapters()"
-    },
-    {
       "label": "epub-zip-grouper.js",
       "file_type": "code",
       "source_file": "src/lib/epub-packer/parser/epub-zip-grouper.js",
@@ -1731,6 +1671,77 @@
       "community": 0,
       "community_name": "epub-parser.js",
       "norm_label": "groupchapterszip()"
+    },
+    {
+      "label": "txt-parser.js",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "txt-parser.js"
+    },
+    {
+      "label": "escapeRegExp()",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L4",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser_escaperegexp",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "escaperegexp()"
+    },
+    {
+      "label": "getClosingTag()",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L8",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser_getclosingtag",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "getclosingtag()"
+    },
+    {
+      "label": "stripHtmlTags()",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L13",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser_striphtmltags",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "striphtmltags()"
+    },
+    {
+      "label": "applyInlineFormatting()",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L17",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "applyinlineformatting()"
+    },
+    {
+      "label": "parseTxtToChapters()",
+      "file_type": "code",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L76",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "community": 29,
+      "community_name": "txt-parser.js",
+      "norm_label": "parsetxttochapters()"
     },
     {
       "label": "fonts.js",
@@ -1890,8 +1901,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_helpers_helpers_ensureepubext",
-      "community": 2,
-      "community_name": "epub-packer.js",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "ensureepubext()"
     },
     {
@@ -2195,8 +2206,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_loadpreview",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": ".loadpreview()"
     },
     {
@@ -2255,8 +2266,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_processpdf",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": ".processpdf()"
     },
     {
@@ -2278,8 +2289,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "pdf-splitter.js"
     },
     {
@@ -2290,8 +2301,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_applygrayscale",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "applygrayscale()"
     },
     {
@@ -2302,8 +2313,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_cropcanvas",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "cropcanvas()"
     },
     {
@@ -2314,8 +2325,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_formateta",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "formateta()"
     },
     {
@@ -2326,8 +2337,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_pickconcurrency",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "pickconcurrency()"
     },
     {
@@ -2338,8 +2349,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_loadpdfpreview",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "loadpdfpreview()"
     },
     {
@@ -2350,8 +2361,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdf_splitter_pdf_splitter_processpdftojpg",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "processpdftojpg()"
     },
     {
@@ -2405,8 +2416,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_routes_epub_page",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "epub/+page.svelte"
     },
     {
@@ -2416,8 +2427,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_routes_md_page",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "md/+page.svelte"
     },
     {
@@ -2427,8 +2438,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_routes_pdf_page",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "pdf/+page.svelte"
     },
     {
@@ -2438,8 +2449,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_routes_txt_to_pdf_page",
-      "community": 3,
-      "community_name": "epub/+page.svelte",
+      "community": 5,
+      "community_name": "helpers.js",
       "norm_label": "txt-to-pdf/+page.svelte"
     },
     {
@@ -2573,8 +2584,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_pdf_splitter_test",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "pdf-splitter.test.js"
     },
     {
@@ -2584,8 +2595,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tests_pdf_splitter_test_mockpage",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "mockpage"
     },
     {
@@ -2595,8 +2606,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_pdf_splitter_test_mockdoc",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "mockdoc"
     },
     {
@@ -2606,8 +2617,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_pdf_splitter_test_mockpdfjslib",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "mockpdfjslib"
     },
     {
@@ -2617,8 +2628,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "tests_pdf_splitter_test_createdcanvases",
-      "community": 5,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "pdf-splitter.js",
       "norm_label": "createdcanvases"
     },
     {
@@ -4713,7 +4724,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_epub_state_svelte",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
       "confidence_score": 1.0
     },
     {
@@ -5035,7 +5046,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_epub_state_svelte_epubstate_applytxtgrouping",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters"
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters"
     },
     {
       "relation": "calls",
@@ -5327,7 +5338,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5387,7 +5398,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5471,7 +5482,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5531,7 +5542,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5591,7 +5602,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5663,7 +5674,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5723,7 +5734,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5783,7 +5794,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5807,7 +5818,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -5966,7 +5977,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6050,7 +6061,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6086,7 +6097,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6194,7 +6205,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6218,7 +6229,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6332,7 +6343,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6368,7 +6379,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6500,7 +6511,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6524,7 +6535,7 @@
       "context": "re-export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6547,7 +6558,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6558,7 +6569,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L36",
+      "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6566,11 +6577,11 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "re_exports",
-      "context": "export",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L44",
+      "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
@@ -6599,18 +6610,6 @@
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser",
       "target": "src_lib_epub_packer_parser_epub_single_grouper_groupchapterssingle",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_parser",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
       "confidence_score": 1.0
     },
     {
@@ -6650,6 +6649,30 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/epub-parser.js",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_epub_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/epub-parser.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_epub_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -6667,7 +6690,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser_findallmarkerpositionscombined",
@@ -6679,7 +6702,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser_findallmarkerpositionscombined",
@@ -6691,7 +6714,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser_groupchapters",
@@ -6703,7 +6726,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_parser_groupchapters",
@@ -6725,28 +6748,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L161",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L148",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_escaperegexp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
       "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
@@ -6758,68 +6759,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L152",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_getclosingtag",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
       "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_single_grouper",
       "target": "src_lib_epub_packer_parser_epub_single_grouper_groupchapterssingle",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L220",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L157",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_striphtmltags",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_helpers_helpers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper",
-      "target": "src_lib_helpers_helpers_escapexml",
       "confidence_score": 1.0
     },
     {
@@ -6844,90 +6788,6 @@
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_single_grouper_groupchapterssingle",
       "target": "src_lib_epub_packer_parser_epub_single_grouper_findmarkersforsingle",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L169",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_escaperegexp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L172",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_getclosingtag",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L356",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_striphtmltags",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L162",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L245",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_applyinlineformatting",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/parser/epub-single-grouper.js",
-      "source_location": "L435",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
-      "target": "src_lib_helpers_helpers_escapexml"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/epub-parser.test.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "tests_epub_parser_test",
-      "target": "src_lib_epub_packer_parser_epub_single_grouper_parsetxttochapters",
       "confidence_score": 1.0
     },
     {
@@ -6974,6 +6834,181 @@
       "_origin": "ast",
       "source": "src_lib_epub_packer_parser_epub_zip_grouper_groupchapterszip",
       "target": "src_lib_epub_packer_parser_epub_zip_grouper_findmarkersforzip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_escaperegexp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_getclosingtag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L76",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_epub_packer_parser_txt_parser_striphtmltags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_helpers_helpers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_helpers_helpers_escapexml",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser",
+      "target": "src_lib_helpers_logger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "target": "src_lib_epub_packer_parser_txt_parser_escaperegexp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "target": "src_lib_epub_packer_parser_txt_parser_getclosingtag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L212",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "target": "src_lib_epub_packer_parser_txt_parser_striphtmltags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "target": "src_lib_helpers_helpers_escapexml",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L101",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "target": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/parser/txt-parser.js",
+      "source_location": "L291",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "target": "src_lib_helpers_helpers_escapexml"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/epub-parser.test.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "tests_epub_parser_test",
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
       "confidence_score": 1.0
     },
     {
@@ -8482,5 +8517,5 @@
       "source_file": "static/icons.svg"
     }
   ],
-  "built_at_commit": "fbc5241b79c83fa057b6e984211e7b6dbbb52a1b"
+  "built_at_commit": "1197f3f2b3a806e47fd509e5551d987afb3c2f3d"
 }

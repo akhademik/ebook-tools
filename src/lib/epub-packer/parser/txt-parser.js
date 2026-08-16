@@ -1,0 +1,334 @@
+import * as logger from '$lib/helpers/logger.js';
+import { escapeXml } from '$lib/helpers/helpers.js';
+
+function escapeRegExp(str) {
+	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getClosingTag(openTag) {
+	const match = openTag.match(/<([a-zA-Z0-9]+)/);
+	return match ? `</${match[1]}>` : '';
+}
+
+function stripHtmlTags(html) {
+	return html.replace(/<[^>]+>/g, '').trim();
+}
+
+function applyInlineFormatting(text, customDefinitions = []) {
+	let t = escapeXml(String(text || ''));
+
+	const customTags = [];
+
+	if (Array.isArray(customDefinitions)) {
+		for (const def of customDefinitions) {
+			if (def.pattern && def.tag) {
+				const escapedP = escapeRegExp(def.pattern);
+				const reCustom = new RegExp(escapedP + '(.+?)' + escapedP, 'g');
+				t = t.replace(reCustom, (m, content) => {
+					const closingTag = getClosingTag(def.tag);
+					const openIdx = customTags.length;
+					customTags.push(def.tag);
+					const closeIdx = customTags.length;
+					customTags.push(closingTag);
+					return `XCUSTOMXTAGX${openIdx}X${content}XCUSTOMXTAGX${closeIdx}X`;
+				});
+			}
+		}
+	}
+
+	const boldRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
+	t = t.replace(boldRegex, 'XBOLDXOPENX$1XBOLDXCLOSEX');
+
+	const italicRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
+	t = t.replace(italicRegex, (match, content) => {
+		const trimmed = content.trim();
+		if (/^\d+$/.test(trimmed)) {
+			return match;
+		}
+		if (trimmed.length <= 2 && /^\d+$/.test(trimmed.replace(/[^0-9]/g, ''))) {
+			return match;
+		}
+		return `XITALICXOPENX${content}XITALICXCLOSEX`;
+	});
+
+	const underlineRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
+	t = t.replace(underlineRegex, 'XUNDERLINEXOPENX$1XUNDERLINEXCLOSEX');
+
+	// Restore all placeholders
+	t = t.replace(/XBOLDXOPENX/g, '<b>')
+	     .replace(/XBOLDXCLOSEX/g, '</b>')
+	     .replace(/XITALICXOPENX/g, '<i>')
+	     .replace(/XITALICXCLOSEX/g, '</i>')
+	     .replace(/XUNDERLINEXOPENX/g, '<u>')
+	     .replace(/XUNDERLINEXCLOSEX/g, '</u>');
+
+	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (m, idx) => {
+		return customTags[Number(idx)];
+	});
+
+	t = t.replace(/\{(\d+)\}/g, (m, n) => {
+		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
+	});
+
+	return t;
+}
+
+export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
+	const customDefinitions = options.customDefinitions || [];
+	logger.log('epub-parser', 'parseTxtToChapters starting parse with new conventions.');
+
+	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
+	const footnoteIdx = lines.findIndex(l => /^\s*chú thích:?\s*$/i.test(l));
+
+	let mainLines = lines;
+	let hasFootnotes = false;
+	let notesHtml = '';
+
+	if (footnoteIdx !== -1) {
+		mainLines = lines.slice(0, footnoteIdx);
+		hasFootnotes = true;
+
+		notesHtml += `<h1 class="main-chap center">Chú thích:</h1>\n`;
+		const footnoteContentLines = lines.slice(footnoteIdx + 1);
+		for (const line of footnoteContentLines) {
+			const trimmed = line.trim();
+			if (!trimmed) continue;
+			
+			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
+			if (fnMatch) {
+				const n = fnMatch[1];
+				const content = fnMatch[2].trim();
+				const convertedContent = applyInlineFormatting(content, customDefinitions);
+				notesHtml += `<aside epub:type="footnote" id="fn${n}" class="note">\n` +
+					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
+					`</aside>\n`;
+			} else {
+				const converted = applyInlineFormatting(trimmed, customDefinitions);
+				notesHtml += `<p>${converted}</p>\n`;
+			}
+		}
+	}
+
+	const rawLines = mainLines;
+	const preprocessedLines = [];
+	let lastWasEmpty = false;
+	for (let i = 0; i < rawLines.length; i++) {
+		const line = rawLines[i];
+		const isEmpty = line.trim() === '';
+		if (isEmpty) {
+			if (!lastWasEmpty) {
+				preprocessedLines.push('');
+				lastWasEmpty = true;
+			}
+		} else {
+			preprocessedLines.push(line);
+			lastWasEmpty = false;
+		}
+	}
+
+	const chapters = [];
+	let currentChapter = null;
+
+	const ensureChapterOpen = () => {
+		if (!currentChapter) {
+			currentChapter = {
+				title: `${fallbackTitle}`,
+				html: '',
+				sources: ['Tệp TXT'],
+				isChapter: true,
+				firstSourcePageNum: chapters.length + 1
+			};
+			chapters.push(currentChapter);
+		}
+	};
+
+	let currentBlock = null;
+	let lineIdx = 0;
+	while (lineIdx < preprocessedLines.length) {
+		const origLine = preprocessedLines[lineIdx];
+		const stripped = origLine.trim();
+
+		if (currentBlock) {
+			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/);
+			if (closeBlockMatch && closeBlockMatch[1] === currentBlock) {
+				if (currentChapter) {
+					currentChapter.html += `</div>\n`;
+				}
+				currentBlock = null;
+				lineIdx++;
+				continue;
+			}
+
+			if (stripped === '') {
+				lineIdx++;
+				continue;
+			}
+
+			ensureChapterOpen();
+			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+			currentChapter.html += `  <p>${formatted}</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		if (stripped === '') {
+			lineIdx++;
+			continue;
+		}
+
+		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/);
+		if (openBlockMatch) {
+			currentBlock = openBlockMatch[1];
+			ensureChapterOpen();
+			currentChapter.html += `<div class="${currentBlock}">\n`;
+			lineIdx++;
+			continue;
+		}
+
+		let isEscaped = false;
+		let lineToProcess = origLine;
+		if (stripped.startsWith('\\') && stripped.length > 1 && ['@', '~', '>', '#', '*', '/', '_'].includes(stripped.charAt(1))) {
+			isEscaped = true;
+			const backslashIdx = origLine.indexOf('\\');
+			lineToProcess = origLine.slice(0, backslashIdx) + origLine.slice(backslashIdx + 1);
+		}
+
+		if (isEscaped) {
+			ensureChapterOpen();
+			const formatted = applyInlineFormatting(lineToProcess.trim(), customDefinitions);
+			currentChapter.html += `<p>${formatted}</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		const headingMatch = stripped.match(/^(@{1,3})(t|p)?\s+(.+)$/);
+		if (headingMatch) {
+			const atCount = headingMatch[1].length;
+			const alignChar = headingMatch[2];
+			const titleRaw = headingMatch[3].trim();
+			
+			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
+			const titlePlain = stripHtmlTags(titleFormatted);
+
+			if (atCount === 3) {
+				currentChapter = {
+					title: titlePlain || `Phần ${chapters.length + 1}`,
+					html: `<h1 class="break-main-chap ${align}">${titleFormatted}</h1>\n`,
+					sources: ['Tệp TXT'],
+					isChapter: true,
+					firstSourcePageNum: chapters.length + 1
+				};
+				chapters.push(currentChapter);
+				currentChapter = null;
+			} else if (atCount === 2) {
+				currentChapter = {
+					title: titlePlain || `Chương ${chapters.length + 1}`,
+					html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
+					sources: ['Tệp TXT'],
+					isChapter: true,
+					firstSourcePageNum: chapters.length + 1
+				};
+				chapters.push(currentChapter);
+			} else {
+				ensureChapterOpen();
+				currentChapter.html += `<h2 class="side-chap ${align}">${titleFormatted}</h2>\n`;
+			}
+			lineIdx++;
+			continue;
+		}
+
+		const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
+		if (quoteMatch) {
+			ensureChapterOpen();
+			const alignChar = quoteMatch[1];
+			const quoteRaw = quoteMatch[2].trim();
+			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
+
+			let nextLineIdx = lineIdx + 1;
+			let nextStripped = '';
+			while (nextLineIdx < preprocessedLines.length) {
+				if (preprocessedLines[nextLineIdx].trim() !== '') {
+					nextStripped = preprocessedLines[nextLineIdx].trim();
+					break;
+				}
+				nextLineIdx++;
+			}
+
+			const authorMatch = nextStripped.match(/^>\s*(.+)$/);
+			if (authorMatch) {
+				const authorRaw = authorMatch[1].trim();
+				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
+				lineIdx = nextLineIdx + 1;
+			} else {
+				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
+				lineIdx++;
+			}
+			continue;
+		}
+
+		if (stripped === '###') {
+			ensureChapterOpen();
+			currentChapter.html += `<p class="scene-break-big" role="separator">• • •</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		if (stripped === '##') {
+			ensureChapterOpen();
+			currentChapter.html += `<p class="scene-break-small" role="separator">*</p>\n`;
+			lineIdx++;
+			continue;
+		}
+
+		ensureChapterOpen();
+		const dropcapMatch = stripped.match(/^\[([^\]\n])\]\s+(.+)$/);
+		if (dropcapMatch) {
+			const group1 = dropcapMatch[1];
+			const group2 = dropcapMatch[2];
+			const formattedGroup1 = escapeXml(group1);
+			const formattedGroup2 = applyInlineFormatting(group2, customDefinitions);
+			currentChapter.html += `<p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
+		} else {
+			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+			currentChapter.html += `<p>${formatted}</p>\n`;
+		}
+		lineIdx++;
+	}
+
+	if (currentBlock) {
+		logger.warn('epub-parser', 'thiếu mã đóng block');
+		if (currentChapter) {
+			currentChapter.html += `</div>\n`;
+		}
+	}
+
+	if (chapters.length === 0) {
+		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
+		chapters.push({
+			title: fallbackTitle,
+			html: '',
+			sources: ['Tệp TXT'],
+			isChapter: true,
+			firstSourcePageNum: 1
+		});
+	}
+
+	if (hasFootnotes) {
+		const notesChapter = {
+			title: 'Chú thích',
+			html: notesHtml,
+			sources: ['Tệp TXT'],
+			isChapter: true,
+			fileName: 'notes',
+			isNotes: true,
+			firstSourcePageNum: chapters.length + 1
+		};
+		chapters.push(notesChapter);
+	}
+
+	logger.log('epub-parser', 'parseTxtToChapters completed, total chapters:', chapters.length);
+	return chapters;
+}
