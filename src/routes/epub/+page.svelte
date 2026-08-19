@@ -504,7 +504,7 @@
       <div>
         <Input
           bind:value={epubState.originalTitle}
-          label="Tựa gốc (Nguyên tác)"
+          label="Tựa gốc / Tựa nhỏ"
           placeholder="The Da Vinci Code"
         />
       </div>

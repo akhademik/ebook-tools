@@ -1,16 +1,16 @@
-# Graph Report - ebook-tools  (2026-08-19)
+# Graph Report - ebook-tools  (2026-08-16)
 
 ## Corpus Check
-- 46 files · ~31,495 words
+- 46 files · ~30,989 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 264 nodes · 473 edges · 30 communities (23 shown, 7 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.83)
+- 262 nodes · 464 edges · 30 communities (23 shown, 7 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `add47b60`
+- Built from commit: `1197f3f2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,6 +18,7 @@
 - epub-parser.js
 - devDependencies
 - epub-packer.js
+- pdf-splitter.js
 - scripts
 - helpers.js
 - logger.js
@@ -40,7 +41,7 @@
 - txt-parser.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `buildEpubBlob()` - 16 edges
+1. `buildEpubBlob()` - 15 edges
 2. `escapeXml()` - 14 edges
 3. `EpubState` - 13 edges
 4. `scripts` - 10 edges
@@ -83,15 +84,19 @@ Nodes (29): eslint, @eslint/js, eslint-plugin-svelte, globals, devDependencies, 
 
 ### Community 2 - "epub-packer.js"
 Cohesion: 0.18
-Nodes (20): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, getDynamicCss() (+12 more)
+Nodes (18): buildChapterXhtml(), buildContainerXml(), buildContentOpf(), buildEpubBlob(), buildNavXhtml(), buildTocNcx(), EPUB_CSS, getDynamicCss() (+10 more)
+
+### Community 3 - "pdf-splitter.js"
+Cohesion: 0.20
+Nodes (9): applyGrayscale(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), createdCanvases, mockDoc, mockPage (+1 more)
 
 ### Community 4 - "scripts"
 Cohesion: 0.10
 Nodes (19): fontkit, jszip, dependencies, fontkit, jszip, name, private, scripts (+11 more)
 
 ### Community 5 - "helpers.js"
-Cohesion: 0.10
-Nodes (15): ensureEpubExt(), ensureZipExt(), slugify(), triggerDownload(), MarkdownFixerState, applyGrayscale(), formatEta(), loadPdfPreview() (+7 more)
+Cohesion: 0.13
+Nodes (6): ensureEpubExt(), ensureZipExt(), slugify(), triggerDownload(), MarkdownFixerState, PdfSplitterState
 
 ### Community 6 - "logger.js"
 Cohesion: 0.21
@@ -145,7 +150,7 @@ Nodes (5): applyInlineFormatting(), escapeRegExp(), getClosingTag(), parseTxtToC
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `jszip` connect `scripts` to `epub-packer.js`, `helpers.js`, `logger.js`, `EpubState`?**
+- **Why does `jszip` connect `scripts` to `epub-packer.js`, `pdf-splitter.js`, `logger.js`, `EpubState`?**
   _High betweenness centrality (0.208) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `scripts`?**
   _High betweenness centrality (0.141) - this node is a cross-community bridge._
@@ -156,6 +161,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `scripts` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `helpers.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.10080645161290322 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13230769230769232 - nodes in this community are weakly interconnected._
 - **Should `entry` be split into smaller, more focused modules?**
   _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._

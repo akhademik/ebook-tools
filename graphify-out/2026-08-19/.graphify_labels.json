@@ -2,7 +2,7 @@
   "0": "epub-parser.js",
   "1": "devDependencies",
   "2": "epub-packer.js",
-  "3": "epub/+page.svelte",
+  "3": "pdf-splitter.js",
   "4": "scripts",
   "5": "helpers.js",
   "6": "logger.js",

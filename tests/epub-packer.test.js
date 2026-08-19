@@ -25,7 +25,9 @@ import {
 	buildContentOpf,
 	buildNavXhtml,
 	mergeBrokenParagraphs,
-	buildEpubBlob
+	buildEpubBlob,
+	injectHeadingIds,
+	getTocEntries
 } from '../src/lib/epub-packer/epub-packer.js';
 
 describe('epub-packer tests', () => {
@@ -369,6 +371,62 @@ describe('epub-packer tests', () => {
 			// Verify Bookerly is declared in the content.opf manifest
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="fonts/Bookerly.ttf"'));
 			consoleLogSpy.mockRestore();
+		});
+	});
+
+	describe('injectHeadingIds and getTocEntries', () => {
+		it('should inject unique IDs for h1 and h2 elements without existing IDs', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					html: '<h1>Tiêu đề 1</h1>\n<h2 class="sub">Tiêu đề 2</h2>\n<h1 id="existing">Existing 1</h1>'
+				}
+			];
+			const processed = injectHeadingIds(chapters);
+			expect(processed[0].html).toContain('id="heading-1-1"');
+			expect(processed[0].html).toContain('id="heading-2-2"');
+			expect(processed[0].html).toContain('id="existing"');
+			expect(processed[0].html).not.toContain('id="heading-1-3"');
+		});
+
+		it('should return a flat list of TOC entries for all h1 and h2 headings', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'Chương 1',
+					html: '<h1 id="h1-1">Tiêu đề H1</h1>\n<p>Nội dung</p>\n<h2 id="h2-1">Mục H2.1</h2>\n<h2 id="h2-2">Mục H2.2</h2>'
+				},
+				{
+					fileName: 'chap_02',
+					title: 'Chương 2',
+					html: '<h2 id="h2-3">Mục H2.3</h2>'
+				}
+			];
+			const entries = getTocEntries(chapters);
+			expect(entries).toEqual([
+				{ title: 'Tiêu đề H1', url: 'text/chap_01.xhtml' },
+				{ title: 'Mục H2.1', url: 'text/chap_01.xhtml#h2-1' },
+				{ title: 'Mục H2.2', url: 'text/chap_01.xhtml#h2-2' },
+				{ title: 'Chương 2', url: 'text/chap_02.xhtml' },
+				{ title: 'Mục H2.3', url: 'text/chap_02.xhtml#h2-3' }
+			]);
+		});
+
+		it('should flatly display h1 and h2 headings in buildNavXhtml and buildTocNcx', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'Chương 1',
+					html: '<h1>Tiêu đề H1</h1>\n<h2>Mục H2.1</h2>'
+				}
+			];
+			const nav = buildNavXhtml({ language: 'vi' }, chapters);
+			expect(nav).toContain('<a href="text/chap_01.xhtml">Tiêu đề H1</a>');
+			expect(nav).toContain('<a href="text/chap_01.xhtml#heading-2-2">Mục H2.1</a>');
+
+			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
+			expect(ncx).toContain('<content src="text/chap_01.xhtml"/>');
+			expect(ncx).toContain('<content src="text/chap_01.xhtml#heading-2-2"/>');
 		});
 	});
 });
