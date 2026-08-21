@@ -71,7 +71,7 @@
 					<button class="bg-panel-2 text-text-color border border-border-color hover:border-amber-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer" onclick={() => state.nextPreviewPage()} type="button">Sau ›</button>
 				</div>
 
-				<div class="relative max-w-[340px] mx-auto bg-panel-2 border border-border-color rounded-xl overflow-hidden">
+				<div class="relative max-w-85 mx-auto bg-panel-2 border border-border-color rounded-xl overflow-hidden">
 					{#if state.previewPages[state.currentPreviewIndex]}
 						<img src={state.previewPages[state.currentPreviewIndex].dataUrl} class="w-full block" alt="Xem trước trang" />
 						<div 
@@ -117,7 +117,7 @@
 		</div>
 
 		<div class="flex items-center gap-4 mt-6 flex-wrap md:flex-nowrap">
-			<div class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0">
+			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button 
 					onclick={() => state.processPdf()} 
 					disabled={state.processing}
@@ -126,7 +126,7 @@
 					{state.processing ? 'Đang xử lý...' : 'Bắt đầu tách trang'}
 				</Button>
 			</div>
-			<div class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0">
+			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button 
 					onclick={() => state.downloadZip()} 
 					disabled={!state.pdfZipBlob}

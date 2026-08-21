@@ -1105,23 +1105,6 @@
                 <td class="py-3 px-3 whitespace-nowrap"
                   ><code
                     class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
-                    >@@@ Tiêu đề</code
-                  ></td
-                >
-                <td class="py-3 px-3">
-                  <code
-                    >&lt;h1 class="break-main-chap center"&gt;Tiêu đề&lt;/h1&gt;</code
-                  ><br />
-                  <span class="text-[11px] text-text-mute"
-                    >Tách file "solo" — file mới chỉ chứa tiêu đề này, không kéo
-                    theo nội dung phía sau.</span
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td class="py-3 px-3 whitespace-nowrap"
-                  ><code
-                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
                     >@@ Tiêu đề</code
                   ></td
                 >
@@ -1131,7 +1114,7 @@
                   ><br />
                   <span class="text-[11px] text-text-mute"
                     >Tách file gom nội dung — gom toàn bộ nội dung phía sau cho
-                    đến tiêu đề tiếp theo.</span
+                    đến tiêu đề tiếp theo (có trong Mục lục / TOC).</span
                   >
                 </td>
               </tr>
@@ -1147,7 +1130,7 @@
                     >&lt;h2 class="side-chap center"&gt;Tiêu đề&lt;/h2&gt;</code
                   ><br />
                   <span class="text-[11px] text-text-mute"
-                    >Tiêu đề phụ / Chương nhỏ — không tách file.</span
+                    >Tiêu đề phụ / Chương nhỏ — không tách file, có hiển thị trong Mục lục (TOC).</span
                   >
                 </td>
               </tr>
@@ -1155,7 +1138,23 @@
                 <td class="py-3 px-3 whitespace-nowrap"
                   ><code
                     class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
-                    >@@t / @t</code
+                    >@! Tiêu đề</code
+                  ></td
+                >
+                <td class="py-3 px-3">
+                  <code
+                    >&lt;h2 class="side-chap center no-toc"&gt;Tiêu đề&lt;/h2&gt;</code
+                  ><br />
+                  <span class="text-[11px] text-text-mute"
+                    >Tiêu đề phụ / Chương nhỏ — không tách file, <strong>KHÔNG</strong> đưa vào Mục lục (TOC).</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 whitespace-nowrap"
+                  ><code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+                    >@@t / @t / @!t</code
                   ></td
                 >
                 <td class="py-3 px-3">
@@ -1169,7 +1168,7 @@
                 <td class="py-3 px-3 whitespace-nowrap"
                   ><code
                     class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
-                    >@@p / @p</code
+                    >@@p / @p / @!p</code
                   ></td
                 >
                 <td class="py-3 px-3">
@@ -1312,6 +1311,20 @@
                   <code>Chú thích</code>
                   để tự động tạo liên kết và thẻ <code>&lt;aside&gt;</code> qua lại
                   chính xác.
+                </td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 whitespace-nowrap">
+                  <code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+                    >[new]...[/new]</code
+                  >
+                </td>
+                <td class="py-3 px-3">
+                  <span class="text-text-mute">Gom thành 1 file XHTML:</span><br />
+                  <span class="text-[11px] text-text-mute"
+                    >Mọi nội dung nằm bên trong cặp thẻ này (kể cả chứa nhiều thẻ <code>@@</code> hoặc tiêu đề tách trang) đều sẽ được gom chung vào 1 file XHTML duy nhất, không bị tách thành nhiều file riêng.</span
+                  >
                 </td>
               </tr>
               <tr>

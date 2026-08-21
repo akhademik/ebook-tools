@@ -1,0 +1,87 @@
+@@ TIỂU THUYẾT THỬ NGHIỆM: VÒNG XOÁY KHÔNG GIAN
+
+Trong một buổi chiều hoàng hôn rực rỡ bên dòng sông cổ kính, giáo sư Hùng bắt đầu ghi lại những biến cố kỳ lạ nhất trong lịch sử khoa học {1}.
+
+@ Khởi nguồn những bí ẩn
+Ngày 15/09/2026, nhóm nghiên cứu nhận được tín hiệu lạ từ tọa độ 120/4 = 30 độ vĩ bắc. Tỷ lệ bức xạ đo được là 5*3 = 15 đơn vị, gửi về từ hòm thư support@cosmos-lab.org mà không rõ người gửi.
+
+@! Ghi chú mật của thanh tra (Không vào TOC)
+Đoạn này kiểm tra tiêu đề phụ @! không xuất hiện trong mục lục TOC.
+Một câu văn phức tạp có *nhiều cụm in đậm* liên tiếp nhau, kết hợp /chữ nghiêng xen kẽ/, cả _gạch chân trang trọng_, và lồng ghép như *_đậm gạch_* hoặc /*nghiêng đậm*/ để kiểm tra bộ parser.
+
+~t Đôi khi bí mật vĩ đại nhất lại ẩn mình trong những điều bình dị nhất.
+> Giáo sư Hùng - Trích "Nhật ký không gian"
+
+###
+
+[new]
+@@ PHẦN ĐẶC BIỆT: HỒI KÝ VÀ TƯ LIỆU GOM CHUNG
+Mọi thứ trong khối [new] này sẽ được đóng gói gom chung vào 1 file XHTML duy nhất dù có nhiều thẻ @@ bên dưới.
+
+@@ Hồ Sơ Nhân Vật A: Thư Tín Cổ
+Đoạn mở đầu hồ sơ nhân vật A có kèm chú thích {2}.
+
+[letter]
+Hà Nội, ngày 20 tháng 10 năm 2026
+
+Gửi người bạn phương xa,
+
+Tôi viết lá thư này khi cơn bão số 9 đang đổ bộ. Mong bạn luôn *vững vàng* trước mọi /sóng gió/ của cuộc đời.
+Nhớ lời dặn dò: _Đừng bao giờ từ bỏ hi vọng!_
+
+Thân ái,
+Người giữ lửa
+[/letter]
+
+@!t Nhật ký nội bộ ngày mưa (Căn trái, không vào TOC)
+Đây là dòng nhật ký mật kiểm tra @!t căn trái không vào TOC.
+
+##
+
+@@p Hồ Sơ Nhân Vật B: Thi Ca Đương Đại (Căn phải)
+Phần này kiểm tra thẻ @@p căn phải nằm trong khối [new].
+
+[poem]
+Mây bay về cuối chân trời
+Gió mang thương nhớ gửi người phương xa
+*Trăng nghiêng* bóng đổ hiên nhà
+Lòng nghe /ấm lại/ tình ta thuở nào
+[/poem]
+
+@p Điểm xuyết vần thơ (Căn phải, có trong TOC)
+Đoạn văn cuối cùng của khối gom chung, trước khi đóng thẻ new.
+[/new]
+
+@@t CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)
+
+Cuộc hành trình tiếp tục khi bình minh ló dạng trên đỉnh núi mù sương {3}.
+
+~p Kẻ chiến thắng không phải là người không bao giờ thất bại, mà là người không bao giờ bỏ cuộc.
+> Danh ngôn phương Đông
+
+~ Lời độc thoại căn giữa không có tác giả đi kèm, quote phải tự đóng lại đúng cách.
+
+Đoạn văn thường đứng chen giữa để ngắt kết nối với trích dẫn bên trên.
+
+> Dòng này bắt đầu bằng dấu > đứng độc lập sau đoạn văn thường, nên không được coi là tác giả footer mà phải là văn bản thường.
+
+###
+
+@!p Các điều khoản pháp lý (Căn phải, không vào TOC)
+Dưới đây là một số trường hợp escape ký tự đặc biệt ở đầu dòng để kiểm tra:
+\@ Dòng này bắt đầu bằng @ nhưng đã escape nên hiển thị chữ @ thường.
+\~ Dòng này bắt đầu bằng ~ nhưng đã escape nên không thành trích dẫn.
+\> Dòng này bắt đầu bằng > nhưng đã escape nên không thành footer.
+\# Dòng này bắt đầu bằng # nhưng đã escape.
+\[new] Thẻ new đã escape nên không tạo block.
+\[letter] Thẻ letter đã escape.
+\[poem] Thẻ poem đã escape.
+
+[chữ] Dòng này có ngoặc vuông nhưng nhiều hơn 1 ký tự nên không phải là dropcap.
+
+##
+
+Chú thích:
+{1} Công trình nghiên cứu trọng điểm được tài trợ bởi Viện Hàn Lâm Khoa Học Quốc Tế.
+{2} Tài liệu mật được giải mã từ bản thảo lưu trữ tại kho lưu trữ quốc gia số 3.
+{3} Chú thích với định dạng *chữ in đậm*, /chữ in nghiêng/ và _gạch chân_ bên trong nội dung footnote.

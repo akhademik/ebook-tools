@@ -219,6 +219,10 @@ export function getTocEntries(chapters) {
       const attrs = match[2];
       const innerContent = match[3];
       
+      if (/\bno-toc\b/i.test(attrs)) {
+        continue;
+      }
+
       const idMatch = attrs.match(/id=["']([^"']*)["']/i);
       const id = idMatch ? idMatch[1] : "";
       const plainText = innerContent.replace(/<[^>]+>/g, "").trim();
@@ -455,6 +459,14 @@ export function buildChapterXhtml(
       }
     );
   }
+
+  // Clean up internal marker classes (e.g. no-toc) from heading tags in final XHTML
+  content = content.replace(/(<h[12]\b[^>]*>)/gi, (match) => {
+    return match.replace(/class=["']([^"']*)["']/gi, (cMatch, classNames) => {
+      const cleaned = classNames.replace(/\bno-toc\b/g, '').trim().replace(/\s+/g, ' ');
+      return cleaned ? `class="${cleaned}"` : '';
+    }).replace(/\s{2,}/g, ' ').replace(/\s+>/g, '>');
+  });
 
   const styleBlock = customCss ? `  <style>\n${customCss}\n  </style>\n` : "";
   const linkStyle =

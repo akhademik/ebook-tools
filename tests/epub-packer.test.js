@@ -43,6 +43,19 @@ describe('epub-packer tests', () => {
 			expect(html).toContain('http://www.w3.org/1999/xhtml');
 		});
 
+		it('should clean up internal marker classes like no-toc from headings in final XHTML', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h2 class="side-chap center no-toc">Mục không TOC</h2>\n<p>Nội dung</p>'
+				}
+			);
+			expect(html).toContain('<h2 class="side-chap center">Mục không TOC</h2>');
+			expect(html).not.toContain('no-toc');
+		});
+
 		it('should bypass paragraph merging if skipParagraphMerge is true', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },
@@ -463,6 +476,21 @@ describe('epub-packer tests', () => {
 			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
 			expect(ncx).toContain('<content src="text/chap_01.xhtml"/>');
 			expect(ncx).toContain('<content src="text/chap_01.xhtml#heading-2-2"/>');
+		});
+
+		it('should exclude headings with no-toc class from TOC entries', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'Chương 1',
+					html: '<h1 id="h1-1">Tiêu đề H1</h1>\n<h2 id="h2-1" class="side-chap center">Mục H2.1 Có TOC</h2>\n<h2 id="h2-2" class="side-chap center no-toc">Mục H2.2 Không TOC</h2>'
+				}
+			];
+			const entries = getTocEntries(chapters);
+			expect(entries).toEqual([
+				{ title: 'Tiêu đề H1', url: 'text/chap_01.xhtml' },
+				{ title: 'Mục H2.1 Có TOC', url: 'text/chap_01.xhtml#h2-1' }
+			]);
 		});
 	});
 });

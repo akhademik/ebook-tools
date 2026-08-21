@@ -22,8 +22,16 @@
 * Thay thế bằng cặp định dạng ngoặc vuông tùy biến mà vẫn bảo vệ các footnote (`*`) và ký tự toán học.
 
 ### 3. 📦 Đóng gói EPUB (EPUB Packer)
-* Tự động đóng gói thư mục tệp Markdown thành định dạng sách điện tử `.epub` tiêu chuẩn.
-* Nhận diện chương bằng từ khóa hoặc thuật toán **Heuristic thông minh** (dựa trên tiêu đề in hoa, độ dài, dấu câu).
+* Tự động đóng gói tệp văn bản thô `.txt` hoặc thư mục tệp Markdown `.zip` thành định dạng sách điện tử `.epub` tiêu chuẩn.
+* Hỗ trợ chuẩn quy ước định dạng file `.txt` nhanh:
+  * `@@ Tiêu đề` (`@@t`, `@@p`): Tiêu đề chính / tách chương thành file XHTML riêng, tự động tạo mục lục (TOC).
+  * `@ Tiêu đề` (`@t`, `@p`): Tiêu đề phụ / chương nhỏ trong file, có hiển thị trong Mục lục (TOC).
+  * `@! Tiêu đề` (`@!t`, `@!p`): Tiêu đề phụ / chương nhỏ, **KHÔNG** đưa vào Mục lục (TOC).
+  * `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 file XHTML duy nhất (bỏ qua tách file từ các thẻ `@@` bên trong).
+  * `[letter] ... [/letter]`, `[poem] ... [/poem]`: Khối thư tín, bài thơ căn lề riêng biệt.
+  * `~ Lời thoại` / `> Tác giả`: Trích dẫn blockquote và tác giả.
+  * Dropcap `[c]`, ngắt cảnh `###` / `##`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_` và chú thích `{n}` / `Chú thích:`.
+* Nhận diện chương trong file Markdown bằng từ khóa hoặc thuật toán **Heuristic thông minh** (dựa trên tiêu đề in hoa, độ dài, dấu câu).
 * Tự động tạo mục lục (TOC), nhận diện vĩ thanh, lọc header/footer thừa và đóng gói XHTML chuẩn.
 
 ### 4. 💻 Desktop App: TXT → PDF CJK

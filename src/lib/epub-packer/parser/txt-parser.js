@@ -143,6 +143,7 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 	};
 
 	let currentBlock = null;
+	let isInsideNewBlock = false;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {
 		const origLine = preprocessedLines[lineIdx];
@@ -176,6 +177,28 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 			continue;
 		}
 
+		if (stripped === '[new]') {
+			isInsideNewBlock = true;
+			currentChapter = {
+				title: `${fallbackTitle}`,
+				html: '',
+				sources: ['Tệp TXT'],
+				isChapter: true,
+				firstSourcePageNum: chapters.length + 1,
+				hasCustomTitle: false
+			};
+			chapters.push(currentChapter);
+			lineIdx++;
+			continue;
+		}
+
+		if (stripped === '[/new]') {
+			isInsideNewBlock = false;
+			currentChapter = null;
+			lineIdx++;
+			continue;
+		}
+
 		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/);
 		if (openBlockMatch) {
 			currentBlock = openBlockMatch[1];
@@ -187,7 +210,7 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 
 		let isEscaped = false;
 		let lineToProcess = origLine;
-		if (stripped.startsWith('\\') && stripped.length > 1 && ['@', '~', '>', '#', '*', '/', '_'].includes(stripped.charAt(1))) {
+		if (stripped.startsWith('\\') && stripped.length > 1 && ['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))) {
 			isEscaped = true;
 			const backslashIdx = origLine.indexOf('\\');
 			lineToProcess = origLine.slice(0, backslashIdx) + origLine.slice(backslashIdx + 1);
@@ -201,38 +224,44 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 			continue;
 		}
 
-		const headingMatch = stripped.match(/^(@{1,3})(t|p)?\s+(.+)$/);
+		const headingMatch = stripped.match(/^(@{1,2})(!)?(t|p)?\s+(.+)$/);
 		if (headingMatch) {
 			const atCount = headingMatch[1].length;
-			const alignChar = headingMatch[2];
-			const titleRaw = headingMatch[3].trim();
+			const isNoToc = headingMatch[2] === '!';
+			const alignChar = headingMatch[3];
+			const titleRaw = headingMatch[4].trim();
 			
 			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
 			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
 			const titlePlain = stripHtmlTags(titleFormatted);
 
-			if (atCount === 3) {
-				currentChapter = {
-					title: titlePlain || `Phần ${chapters.length + 1}`,
-					html: `<h1 class="break-main-chap ${align}">${titleFormatted}</h1>\n`,
-					sources: ['Tệp TXT'],
-					isChapter: true,
-					firstSourcePageNum: chapters.length + 1
-				};
-				chapters.push(currentChapter);
-				currentChapter = null;
-			} else if (atCount === 2) {
-				currentChapter = {
-					title: titlePlain || `Chương ${chapters.length + 1}`,
-					html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
-					sources: ['Tệp TXT'],
-					isChapter: true,
-					firstSourcePageNum: chapters.length + 1
-				};
-				chapters.push(currentChapter);
+			if (atCount === 2) {
+				if (isInsideNewBlock) {
+					ensureChapterOpen();
+					currentChapter.html += `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`;
+					if (!currentChapter.hasCustomTitle) {
+						currentChapter.title = titlePlain || `Chương ${chapters.length}`;
+						currentChapter.hasCustomTitle = true;
+					}
+				} else {
+					currentChapter = {
+						title: titlePlain || `Chương ${chapters.length + 1}`,
+						html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
+						sources: ['Tệp TXT'],
+						isChapter: true,
+						firstSourcePageNum: chapters.length + 1,
+						hasCustomTitle: true
+					};
+					chapters.push(currentChapter);
+				}
 			} else {
 				ensureChapterOpen();
-				currentChapter.html += `<h2 class="side-chap ${align}">${titleFormatted}</h2>\n`;
+				const tocClass = isNoToc ? ' no-toc' : '';
+				currentChapter.html += `<h2 class="side-chap ${align}${tocClass}">${titleFormatted}</h2>\n`;
+				if (!currentChapter.hasCustomTitle && isInsideNewBlock) {
+					currentChapter.title = titlePlain || `Chương ${chapters.length}`;
+					currentChapter.hasCustomTitle = true;
+				}
 			}
 			lineIdx++;
 			continue;
@@ -303,6 +332,10 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		if (currentChapter) {
 			currentChapter.html += `</div>\n`;
 		}
+	}
+
+	if (isInsideNewBlock) {
+		logger.warn('epub-parser', 'thiếu mã đóng thẻ [new]');
 	}
 
 	if (chapters.length === 0) {

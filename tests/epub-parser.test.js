@@ -617,30 +617,53 @@ describe('epub-parser tests', () => {
 			expect(html).toBe('Nội dung với <i>nghiêng</i>, <b>đậm</b> và <span class="xya">định nghĩa</span>');
 		});
 
-		it('should parse single .txt file into chapters based on new @@ and @@@ delimiters', () => {
-			const txt = `@@@ Giới thiệu
+		it('should parse single .txt file into chapters based on @@ delimiters and ignore splitting inside [new]', () => {
+			const txt = `@@ Giới thiệu
 Lời mở đầu bài viết.
 
+[new]
 @@ Chương 1: Bắt đầu
 @ 1.1 Khởi động
+@! Ghi chú bí mật
 Đoạn văn chương 1.
-Có từ *quan trọng*.`;
+Có từ *quan trọng*.
+@@ Chương 1.2: Tiếp diễn
+[/new]
+
+@@ Chương 2: Kết thúc
+Đoạn kết.`;
 
 			const chapters = parseTxtToChapters(txt, {}, 'Default Title');
 
 			expect(chapters).toHaveLength(3);
 
 			expect(chapters[0].title).toBe('Giới thiệu');
-			expect(chapters[0].html).toContain('<h1 class="break-main-chap center">Giới thiệu</h1>');
-			expect(chapters[0].html).not.toContain('<p>Lời mở đầu bài viết.</p>');
+			expect(chapters[0].html).toContain('<h1 class="main-chap center">Giới thiệu</h1>');
+			expect(chapters[0].html).toContain('<p>Lời mở đầu bài viết.</p>');
 
-			expect(chapters[1].title).toBe('Default Title');
-			expect(chapters[1].html).toContain('<p>Lời mở đầu bài viết.</p>');
+			expect(chapters[1].title).toBe('Chương 1: Bắt đầu');
+			expect(chapters[1].html).toContain('<h1 class="main-chap center">Chương 1: Bắt đầu</h1>');
+			expect(chapters[1].html).toContain('<h2 class="side-chap center">1.1 Khởi động</h2>');
+			expect(chapters[1].html).toContain('<h2 class="side-chap center no-toc">Ghi chú bí mật</h2>');
+			expect(chapters[1].html).toContain('<b>quan trọng</b>');
+			expect(chapters[1].html).toContain('<h1 class="main-chap center">Chương 1.2: Tiếp diễn</h1>');
 
-			expect(chapters[2].title).toBe('Chương 1: Bắt đầu');
-			expect(chapters[2].html).toContain('<h1 class="main-chap center">Chương 1: Bắt đầu</h1>');
-			expect(chapters[2].html).toContain('<h2 class="side-chap center">1.1 Khởi động</h2>');
-			expect(chapters[2].html).toContain('<b>quan trọng</b>');
+			expect(chapters[2].title).toBe('Chương 2: Kết thúc');
+			expect(chapters[2].html).toContain('<h1 class="main-chap center">Chương 2: Kết thúc</h1>');
+			expect(chapters[2].html).toContain('<p>Đoạn kết.</p>');
+		});
+
+		it('should support @!, @!t, and @!p tags for h2 with no-toc', () => {
+			const txt = `@@ Chương 1
+@! Mục giữa không TOC
+@!t Mục trái không TOC
+@!p Mục phải không TOC`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<h2 class="side-chap center no-toc">Mục giữa không TOC</h2>');
+			expect(chapters[0].html).toContain('<h2 class="side-chap left no-toc">Mục trái không TOC</h2>');
+			expect(chapters[0].html).toContain('<h2 class="side-chap right no-toc">Mục phải không TOC</h2>');
 		});
 
 		it('should handle alignments for headings and blockquotes correctly', () => {
@@ -834,10 +857,10 @@ Thư chưa đóng.`;
 			expect(consoleWarnSpy).toHaveBeenCalled();
 		});
 
-		it('should parse _task/test.txt correctly', () => {
-			const testFileContent = `@@@ TIỂU THUYẾT MẪU
+		it('should parse sample novel text correctly', () => {
+			const testFileContent = `@@ TIỂU THUYẾT MẪU
 
-@@@t PHẦN MỘT: KHỞI ĐẦU
+@@t PHẦN MỘT: KHỞI ĐẦU
 
 @@ Chương 1: Cơn Mưa Đầu Mùa
 
@@ -873,9 +896,9 @@ Ngày 10/08/2026, Lan quyết định rời khỏi thành phố. Cô tính nhẩ
 
 Một câu có *nhiều* từ *in đậm* liên tiếp và cả /nghiêng/ xen kẽ, thử xem regex có bắt đúng từng cặp không: *đậm 1* bình thường /nghiêng 1/ bình thường *đậm 2*.
 
-\\\\@ Dòng này bắt đầu bằng @ nhưng đã được escape, không được coi là lệnh chương.
+\\@ Dòng này bắt đầu bằng @ nhưng đã được escape, không được coi là lệnh chương.
 
-\\\\~ Dòng này cũng escape dấu ngã, không tạo blockquote.
+\\~ Dòng này cũng escape dấu ngã, không tạo blockquote.
 
 > Dòng này bắt đầu bằng dấu > nhưng KHÔNG đứng ngay sau dòng ~, nên phải được giữ nguyên là văn bản thường, không tạo thẻ footer.
 
@@ -883,7 +906,7 @@ Một câu có *nhiều* từ *in đậm* liên tiếp và cả /nghiêng/ xen k
 
 Câu hỏi vu vơ: "Ê, *đi đâu đó*?" Lan hỏi lại: "Đi /đâu/ cũng được, miễn là đi."
 
-@@@p PHẦN HAI: KẾT THÚC
+@@p PHẦN HAI: KẾT THÚC
 
 @@p Chương 3: Trở Về
 
@@ -1027,6 +1050,52 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			for (const g of grouped) {
 				console.log("GROUP TITLE:", g.title, "isChapter:", g.isChapter, "sources:", g.sources);
 			}
+		});
+
+		it('should correctly parse the comprehensive test.txt file', async () => {
+			const fs = await import('fs');
+			const content = fs.readFileSync('test.txt', 'utf8');
+			const chapters = parseTxtToChapters(content, {}, 'Mặc định');
+
+			// 3 main chapters + 1 notes chapter = 4 chapters
+			expect(chapters).toHaveLength(4);
+
+			// Chapter 1: TIỂU THUYẾT THỬ NGHIỆM: VÒNG XOÁY KHÔNG GIAN
+			expect(chapters[0].html).toContain('<p>Trong một buổi chiều');
+			expect(chapters[0].html).toContain('<h2 class="side-chap center">Khởi nguồn những bí ẩn</h2>');
+			expect(chapters[0].html).toContain('<h2 class="side-chap center no-toc">Ghi chú mật của thanh tra (Không vào TOC)</h2>');
+			expect(chapters[0].html).toContain('<blockquote class="left"><p>Đôi khi bí mật vĩ đại nhất lại ẩn mình trong những điều bình dị nhất.</p><footer>Giáo sư Hùng - Trích &quot;Nhật ký không gian&quot;</footer></blockquote>');
+			expect(chapters[0].html).toContain('<p class="scene-break-big" role="separator">• • •</p>');
+
+			// Chapter 2: [new] block containing multiple @@ headings merged into single chapter
+			expect(chapters[1].title).toBe('PHẦN ĐẶC BIỆT: HỒI KÝ VÀ TƯ LIỆU GOM CHUNG');
+			expect(chapters[1].html).toContain('<h1 class="main-chap center">PHẦN ĐẶC BIỆT: HỒI KÝ VÀ TƯ LIỆU GOM CHUNG</h1>');
+			expect(chapters[1].html).toContain('<h1 class="main-chap center">Hồ Sơ Nhân Vật A: Thư Tín Cổ</h1>');
+			expect(chapters[1].html).toContain('<div class="letter">');
+			expect(chapters[1].html).toContain('<h2 class="side-chap left no-toc">Nhật ký nội bộ ngày mưa (Căn trái, không vào TOC)</h2>');
+			expect(chapters[1].html).toContain('<p class="scene-break-small" role="separator">*</p>');
+			expect(chapters[1].html).toContain('<h1 class="main-chap right">Hồ Sơ Nhân Vật B: Thi Ca Đương Đại (Căn phải)</h1>');
+			expect(chapters[1].html).toContain('<div class="poem">');
+			expect(chapters[1].html).toContain('<h2 class="side-chap right">Điểm xuyết vần thơ (Căn phải, có trong TOC)</h2>');
+
+			// Chapter 3: CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI
+			expect(chapters[2].title).toBe('CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)');
+			expect(chapters[2].html).toContain('<h1 class="main-chap left">CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)</h1>');
+			expect(chapters[2].html).toContain('<p class="has-dropcap"><span class="dropcap">C</span>uộc hành trình tiếp tục');
+			expect(chapters[2].html).toContain('<blockquote class="right"><p>Kẻ chiến thắng');
+			expect(chapters[2].html).toContain('<blockquote class="center"><p>Lời độc thoại căn giữa');
+			expect(chapters[2].html).toContain('<p>&gt; Dòng này bắt đầu bằng dấu &gt; đứng độc lập');
+			expect(chapters[2].html).toContain('<h2 class="side-chap right no-toc">Các điều khoản pháp lý (Căn phải, không vào TOC)</h2>');
+			expect(chapters[2].html).toContain('<p>@ Dòng này bắt đầu bằng @');
+			expect(chapters[2].html).toContain('<p>[new] Thẻ new đã escape');
+
+			// Chapter 4: Footnotes
+			expect(chapters[3].title).toBe('Chú thích');
+			expect(chapters[3].fileName).toBe('notes');
+			expect(chapters[3].isNotes).toBe(true);
+			expect(chapters[3].html).toContain('<b>chữ in đậm</b>');
+			expect(chapters[3].html).toContain('<i>chữ in nghiêng</i>');
+			expect(chapters[3].html).toContain('<u>gạch chân</u>');
 		});
 	});
 });
