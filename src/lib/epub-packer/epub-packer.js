@@ -88,6 +88,7 @@ export function buildContentOpf(
   chapters,
   hasCover = false,
   activeFonts = [],
+  ornaments = null,
 ) {
   logger.log(
     "epub-packer",
@@ -107,6 +108,16 @@ export function buildContentOpf(
   if (hasCover) {
     manifestItems.push(
       '<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>',
+    );
+  }
+  if (ornaments?.chapterOrnament) {
+    manifestItems.push(
+      `<item id="pre-chap" href="images/${ornaments.chapterOrnament.fileName}" media-type="${ornaments.chapterOrnament.mimeType}"/>`,
+    );
+  }
+  if (ornaments?.subchapterOrnament) {
+    manifestItems.push(
+      `<item id="pre-small-chap" href="images/${ornaments.subchapterOrnament.fileName}" media-type="${ornaments.subchapterOrnament.mimeType}"/>`,
     );
   }
   for (const fontName of activeFonts) {
@@ -366,6 +377,7 @@ export function buildChapterXhtml(
   chapter,
   skipParagraphMerge = false,
   customCss = "",
+  ornaments = null,
 ) {
   logger.log(
     "epub-packer",
@@ -389,6 +401,26 @@ export function buildChapterXhtml(
   const isSpecialPage =
     chapter.fileName === "jacket" || chapter.fileName === "cover";
   if (!isSpecialPage) {
+    if (ornaments?.chapterOrnament?.fileName) {
+      const imgPath = `../images/${ornaments.chapterOrnament.fileName}`;
+      content = content.replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/gi, (match) => {
+        const classMatch = match.match(/class=["']([^"']*)["']/i);
+        const classes = classMatch ? classMatch[1].split(/\s+/) : [];
+        if (classes.includes("break-main-chap")) {
+          return match;
+        }
+        return `<div class="chapter-ornament">\n    <img src="${imgPath}" alt=""/>\n  </div>\n  ` + match;
+      });
+    }
+
+    if (ornaments?.subchapterOrnament?.fileName) {
+      const imgPath = `../images/${ornaments.subchapterOrnament.fileName}`;
+      content = content.replace(/(<h2\b[^>]*>[\s\S]*?<\/h2>)/gi, (match) => {
+        return `<div class="subchapter-ornament">\n    <img src="${imgPath}" alt=""/>\n  </div>\n  ` + match;
+      });
+    }
+
+    // Automatically add dropcap to the first paragraph immediately following h1 or h2
     content = content.replace(
       /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
       (match, p1, p2, p3, p4) => {
@@ -402,6 +434,25 @@ export function buildChapterXhtml(
         }
         return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + "</span>";
       },
+    );
+
+    // Ensure that any paragraph containing a dropcap has the "has-dropcap" class
+    content = content.replace(
+      /<p([^>]*)>([^<]*(?:<(?!p\b)[^>]*>)*?<span\s+class=["']dropcap["'])/gi,
+      (match, pAttrs, contentBeforeDropcap) => {
+        if (pAttrs.includes('has-dropcap')) {
+          return match;
+        }
+        let updatedPAttrs;
+        if (pAttrs.includes('class=')) {
+          updatedPAttrs = pAttrs.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
+            return `class="${classNames} has-dropcap"`;
+          });
+        } else {
+          updatedPAttrs = pAttrs + ' class="has-dropcap"';
+        }
+        return `<p${updatedPAttrs}>${contentBeforeDropcap}`;
+      }
     );
   }
 
@@ -435,6 +486,7 @@ export async function buildEpubBlob(
   jacket = null,
   coverBlob = null,
   fonts = null,
+  ornaments = null,
 ) {
   logger.log(
     "epub-packer",
@@ -448,6 +500,8 @@ export async function buildEpubBlob(
     !!coverBlob,
     "fontsConfig:",
     fonts,
+    "ornamentsConfig:",
+    ornaments,
   );
   const meta = {
     title: metadata.title || "Không tên",
@@ -529,6 +583,41 @@ export async function buildEpubBlob(
 
   let chaptersToPack = [...chapters];
   let finalCss = css && css !== EPUB_CSS ? css : getDynamicCss(chaptersToPack);
+
+  if (ornaments?.chapterOrnament) {
+    finalCss += `
+.chapter-ornament {
+  text-align: center;
+  margin-top: 1.5em;
+  margin-bottom: -1.5em;
+  padding: 0;
+}
+.chapter-ornament img {
+  display: inline-block;
+  max-width: 25%;
+  max-height: 60px;
+  height: auto;
+  width: auto;
+}
+`;
+  }
+
+  if (ornaments?.subchapterOrnament) {
+    finalCss += `
+.subchapter-ornament {
+  text-align: center;
+  margin-top: 1.5em;
+  margin-bottom: 0.3em;
+  padding: 0;
+}
+.subchapter-ornament img {
+  display: inline-block;
+  width: 5em;
+  max-width: 80px;
+  height: auto;
+}
+`;
+  }
 
   // Sinh @font-face và font-family CHUẨN XÁC theo cssFamily
   let fontFaces = "";
@@ -614,7 +703,7 @@ export async function buildEpubBlob(
   const oebps = zip.folder("OEBPS");
   oebps.file(
     "content.opf",
-    buildContentOpf(meta, chaptersToPack, !!coverBlob, activeFonts),
+    buildContentOpf(meta, chaptersToPack, !!coverBlob, activeFonts, ornaments),
   );
   oebps.file("nav.xhtml", buildNavXhtml(meta, chaptersToPack));
   oebps.file("toc.ncx", buildTocNcx(meta, chaptersToPack));
@@ -623,6 +712,13 @@ export async function buildEpubBlob(
 
   if (coverBlob) {
     oebps.folder("images").file("cover.jpg", coverBlob);
+  }
+
+  if (ornaments?.chapterOrnament?.blob) {
+    oebps.folder("images").file(ornaments.chapterOrnament.fileName, ornaments.chapterOrnament.blob);
+  }
+  if (ornaments?.subchapterOrnament?.blob) {
+    oebps.folder("images").file(ornaments.subchapterOrnament.fileName, ornaments.subchapterOrnament.blob);
   }
 
   if (fonts && fonts.blobs) {
@@ -662,6 +758,7 @@ export async function buildEpubBlob(
       chapter,
       isJacket || isCover || skipParagraphMerge,
       localCss,
+      ornaments,
     );
     textFolder.file(chapter.fileName + ".xhtml", xhtmlContent);
   }

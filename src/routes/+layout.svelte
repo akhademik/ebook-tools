@@ -83,7 +83,7 @@
         <h2
           class="font-mono text-lg font-bold m-0 text-text-color tracking-tight"
         >
-          Ebook Forge
+          Ebook Maker
         </h2>
         <span class="text-xs font-mono text-text-mute tracking-wide"
           >Processing Desk</span
@@ -191,7 +191,7 @@
           ⚒
         </div>
         <h2 class="font-mono text-base font-bold text-text-color">
-          Ebook Forge
+          Ebook Maker
         </h2>
       </div>
       <button

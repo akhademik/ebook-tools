@@ -61,7 +61,7 @@
 </script>
 
 <svelte:head>
-  <title>Đóng gói EPUB — Ebook Forge</title>
+  <title>Đóng gói EPUB</title>
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html `
   <style>
@@ -193,7 +193,7 @@
               <div>
                 <button
                   type="button"
-                  class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-[42px] flex items-center justify-center font-mono"
+                  class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-10.5 flex items-center justify-center"
                   onclick={() => epubState.removeCustomDefinition(idx)}
                 >
                   Xóa
@@ -382,7 +382,7 @@
     <!-- Tab Contents -->
     {#if epubState.activeTab === "toc"}
       <div
-        class="mt-5 border border-border-color rounded-xl max-h-[300px] overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in"
+        class="mt-5 border border-border-color rounded-xl max-h-75 overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in"
       >
         {#each epubState.epubChapters as chap (chap.fileName)}
           <div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
@@ -411,7 +411,7 @@
       </div>
     {:else if epubState.activeTab === "diff" && epubState.fileType === "zip"}
       <div
-        class="mt-5 flex flex-col gap-4 animate-fade-in max-h-[400px] overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color"
+        class="mt-5 flex flex-col gap-4 animate-fade-in max-h-100 overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color"
       >
         {#if epubState.cleanedLinesReport.length === 0}
           <p class="text-sm text-text-mute font-mono text-center py-6">
@@ -538,7 +538,7 @@
         <select
           id="jacket-font-select"
           bind:value={epubState.jacketFont}
-          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
         >
           <option value="default">Mặc định (Không dùng font)</option>
           {#each AVAILABLE_FONTS as font (font.id)}
@@ -568,7 +568,7 @@
       <div>
         <button
           type="button"
-          class="w-full sm:w-auto bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-[42px] flex items-center justify-center gap-2"
+          class="w-full sm:w-auto bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-10.5 flex items-center justify-center gap-2"
           onclick={() => openJacketPreviewModal()}
         >
           <svg
@@ -614,7 +614,7 @@
     {#if epubState.coverOriginalUrl}
       <div class="mt-5 pt-5 border-t border-border-color animate-fade-in">
         <div
-          class="relative max-w-[280px] mx-auto bg-panel-2 border border-border-color rounded-xl overflow-hidden shadow-md"
+          class="relative max-w-70 mx-auto bg-panel-2 border border-border-color rounded-xl overflow-hidden shadow-md"
         >
           <img
             src={epubState.coverOriginalUrl}
@@ -779,6 +779,56 @@
     {/if}
   </div>
 
+  <!-- Ornaments Section -->
+  <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+    <span
+      class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block font-semibold"
+      >Ảnh trang trí (Ornaments)</span
+    >
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div class="flex flex-col gap-2">
+        <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương lớn</span>
+        <DropZone
+          accept=".png,.jpg,.jpeg,.webp"
+          onSelect={(f) => epubState.handleChapterOrnamentFile(f)}
+          title="Chọn ảnh trang trí chương"
+          subtitle="Chèn trước thẻ H1"
+          selectedFile={epubState.chapterOrnamentFile}
+        />
+        {#if epubState.chapterOrnamentFile}
+          <div class="flex justify-end">
+            <button
+              class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+              onclick={() => epubState.removeChapterOrnamentFile()}
+              type="button">Xóa ảnh</button
+            >
+          </div>
+        {/if}
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương phụ</span>
+        <DropZone
+          accept=".png,.jpg,.jpeg,.webp"
+          onSelect={(f) => epubState.handleSubchapterOrnamentFile(f)}
+          title="Chọn ảnh trang trí chương"
+          subtitle="Chèn trước thẻ H2"
+          selectedFile={epubState.subchapterOrnamentFile}
+        />
+        {#if epubState.subchapterOrnamentFile}
+          <div class="flex justify-end">
+            <button
+              class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+              onclick={() => epubState.removeSubchapterOrnamentFile()}
+              type="button">Xóa ảnh</button
+            >
+          </div>
+        {/if}
+      </div>
+    </div>
+  </div>
+
   <!-- Font Settings & Chapter Preview Section -->
   <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
     <span
@@ -796,7 +846,7 @@
         <select
           id="h1-font-select"
           bind:value={epubState.h1Font}
-          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
         >
           <option value="default">Mặc định (Không dùng font)</option>
           {#each AVAILABLE_FONTS as font (font.id)}
@@ -813,7 +863,7 @@
         <select
           id="h2-font-select"
           bind:value={epubState.h2Font}
-          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
         >
           <option value="default">Mặc định (Không dùng font)</option>
           {#each AVAILABLE_FONTS as font (font.id)}
@@ -830,7 +880,7 @@
         <select
           id="dropcap-font-select"
           bind:value={epubState.dropcapFont}
-          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-[46px]"
+          class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
         >
           <option value="default">Mặc định (Không dùng font)</option>
           {#each AVAILABLE_FONTS as font (font.id)}
@@ -884,9 +934,9 @@
       </p>
     </div>
 
-    <div class="flex items-center gap-4 mt-6 flex-wrap md:flex-nowrap">
+    <div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
       <div
-        class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0"
+        class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0"
       >
         <Button
           onclick={() => epubState.processEpub()}
@@ -897,7 +947,7 @@
         </Button>
       </div>
       <div
-        class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0"
+        class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0"
       >
         <Button
           onclick={downloadEpub}

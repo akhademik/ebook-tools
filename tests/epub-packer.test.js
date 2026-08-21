@@ -96,6 +96,18 @@ describe('epub-packer tests', () => {
 			expect(htmlEntity).toContain('<h2>18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>');
 		});
 
+		it('should add has-dropcap class to paragraphs containing a dropcap span', () => {
+			const htmlExplicit = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<p><span class="dropcap">N</span>ội dung</p>'
+				}
+			);
+			expect(htmlExplicit).toContain('<p class="has-dropcap"><span class="dropcap">N</span>ội dung</p>');
+		});
+
 		it('should not add dropcap to special pages like jacket or cover', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },
@@ -106,6 +118,30 @@ describe('epub-packer tests', () => {
 				}
 			);
 			expect(html).not.toContain('class="dropcap"');
+		});
+
+		it('should inject chapter and subchapter ornaments and ignore break-main-chap', () => {
+			const ornaments = {
+				chapterOrnament: { fileName: 'pre-chap.png', mimeType: 'image/png' },
+				subchapterOrnament: { fileName: 'pre-small-chap.png', mimeType: 'image/png' }
+			};
+
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap center">CUỐN I</h1>\n<h2 class="side-chap center">1</h2>\n<h1 class="break-main-chap">PHẦN I</h1>'
+				},
+				false,
+				'',
+				ornaments
+			);
+
+			expect(html).toContain('<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="main-chap center">CUỐN I</h1>');
+			expect(html).toContain('<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">1</h2>');
+			expect(html).toContain('<h1 class="break-main-chap">PHẦN I</h1>');
+			expect(html).not.toContain('<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="break-main-chap">PHẦN I</h1>');
 		});
 	});
 

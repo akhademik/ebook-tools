@@ -65,6 +65,28 @@ export class EpubState {
 	coverCropLeft = $state(0);
 	coverCropRight = $state(0);
 
+	// Ornament States
+	chapterOrnamentFile = $state(null);
+	subchapterOrnamentFile = $state(null);
+
+	handleChapterOrnamentFile(file) {
+		if (!file) return;
+		this.chapterOrnamentFile = file;
+	}
+
+	removeChapterOrnamentFile() {
+		this.chapterOrnamentFile = null;
+	}
+
+	handleSubchapterOrnamentFile(file) {
+		if (!file) return;
+		this.subchapterOrnamentFile = file;
+	}
+
+	removeSubchapterOrnamentFile() {
+		this.subchapterOrnamentFile = null;
+	}
+
 	epubOutNamePreview = $derived(ensureEpubExt(this.epubOutName.trim() || 'ten-sach'));
 
 	addCustomDefinition() {
@@ -435,9 +457,27 @@ export class EpubState {
 				blobs: fontBlobs
 			};
 
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig);
+			const ornamentsConfig = {};
+			if (this.chapterOrnamentFile) {
+				const ext = this.chapterOrnamentFile.name.split('.').pop().toLowerCase();
+				ornamentsConfig.chapterOrnament = {
+					blob: this.chapterOrnamentFile,
+					fileName: `pre-chap.${ext}`,
+					mimeType: this.chapterOrnamentFile.type || 'image/png'
+				};
+			}
+			if (this.subchapterOrnamentFile) {
+				const ext = this.subchapterOrnamentFile.name.split('.').pop().toLowerCase();
+				ornamentsConfig.subchapterOrnament = {
+					blob: this.subchapterOrnamentFile,
+					fileName: `pre-small-chap.${ext}`,
+					mimeType: this.subchapterOrnamentFile.type || 'image/png'
+				};
+			}
+
+			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig, 'ornamentsConfig:', ornamentsConfig);
 			this.status = 'Đang đóng gói cấu trúc EPUB...';
-			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig);
+			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig, ornamentsConfig);
 			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;

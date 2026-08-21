@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>Markdown Fixer — Ebook Forge</title>
+	<title>Markdown Fixer</title>
 </svelte:head>
 
 <PageHeader title="Markdown Fixer" description="Chuẩn hóa định dạng chữ nghiêng/đậm nghiêng/gạch chân trong tệp Markdown thô." />

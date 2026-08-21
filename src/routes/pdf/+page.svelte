@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-	<title>Tách trang PDF → JPG — Ebook Forge</title>
+	<title>Tách trang PDF → JPG</title>
 </svelte:head>
 
 <PageHeader title="Tách trang PDF → JPG" description="Tách ảnh xám tối ưu cho OCR và cắt lề header/footer hàng loạt." />
