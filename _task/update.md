@@ -1,20 +1,28 @@
-1 - tôi muốn thêm cái này:
+toi muon them 1 logic do la trong file txt khi user add vao trong noi dung file txt la [hinh-1], [hinh-2] thi code se chen
 
-@@ nội dung A
+<figure class="illust-box">
+  <img class="illust-img" src="../[hinh-1].[ext]" alt="hinh-1" />
+</figure>
 
-[new]
-@@ nội dung B
-@@ cái khác
-[/new]
+voi css tuong ung inject vao la
 
-@@ nội dung C
+/_ Khung chứa ảnh: Căn giữa, ngắt dòng và chống dính lề _/
+figure.illust-box {
+margin: 1.5em auto;
+padding: 0;
+text-align: center;
+page-break-inside: avoid;
+break-inside: avoid;
+}
 
-những gì nằm bên trong cặp thẻ này thi khi dong epub gom thành 1 file, dù trong đó có dùng @@ @@ hoặc bao nhiu thẻ heading tách trang gì đi nữa thì đều ignore, như ở trên nó sẽ tạo thành 3 file file1.xhtml, file2.xhtml, file3.xhtml
+img.illust-img {
+display: block;
+max-width: 100%;  
+ max-height: 90vh;  
+ height: auto;  
+ width: auto;  
+ margin: 0 auto;  
+ border: 0;
+}
 
-2 - thêm nữa tôi muốn thẻ @! , @!t, @!p cho h2, giữa, trái, phải, nhưng thẻ được khai báo này sẽ ko có trong TOC như thẻ @ thông thường
-
-3 - bỏ chức năng thẻ @@@ đi cho tôi, tôi ko dùng nữa
-
-4 - hãy cập nhật lại file readme, nội dung hướng dẫn ỏ mục đóng gói epub cho tôi các nội dung mới thêm.
-
-Các nội dung khác ko đề cập thì giữ nguyên
+yeu cau o trang dong goi epub,lam em 1 input cho phep user phai add hinh, 1 tam hinh, hoac la 1 file zip chua nhiu tam hinh, va cac tam hinh do can phai duoc luu ten trung voi ten duoc add trong text txt vi du trong txt add la [hinh-1] thi file hinh tuong ung phai la "hinh-1", he thong se tu quet duoi file va inject vao code cho dung, vi du file la jpg thi add .jpg, cac hinh do se duoc giai nen va embeded vao file epub luon khi dong goi.

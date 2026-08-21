@@ -9,6 +9,8 @@ Ngày 15/09/2026, nhóm nghiên cứu nhận được tín hiệu lạ từ tọ
 Đoạn này kiểm tra tiêu đề phụ @! không xuất hiện trong mục lục TOC.
 Một câu văn phức tạp có *nhiều cụm in đậm* liên tiếp nhau, kết hợp /chữ nghiêng xen kẽ/, cả _gạch chân trang trọng_, và lồng ghép như *_đậm gạch_* hoặc /*nghiêng đậm*/ để kiểm tra bộ parser.
 
+[hinh-1]
+
 ~t Đôi khi bí mật vĩ đại nhất lại ẩn mình trong những điều bình dị nhất.
 > Giáo sư Hùng - Trích "Nhật ký không gian"
 
@@ -32,6 +34,8 @@ Nhớ lời dặn dò: _Đừng bao giờ từ bỏ hi vọng!_
 Thân ái,
 Người giữ lửa
 [/letter]
+
+[hinh-2]
 
 @!t Nhật ký nội bộ ngày mưa (Căn trái, không vào TOC)
 Đây là dòng nhật ký mật kiểm tra @!t căn trái không vào TOC.

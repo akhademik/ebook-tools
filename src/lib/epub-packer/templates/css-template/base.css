@@ -35,3 +35,22 @@ a {
 p.has-dropcap {
   text-indent: 0 !important;
 }
+
+/* Khung chứa ảnh: Căn giữa, ngắt dòng và chống dính lề */
+figure.illust-box {
+  margin: 1.5em auto;
+  padding: 0;
+  text-align: center;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+img.illust-img {
+  display: block;
+  max-width: 100%;
+  max-height: 90vh;
+  height: auto;
+  width: auto;
+  margin: 0 auto;
+  border: 0;
+}

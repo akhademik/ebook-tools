@@ -89,6 +89,7 @@ export function buildContentOpf(
   hasCover = false,
   activeFonts = [],
   ornaments = null,
+  images = [],
 ) {
   logger.log(
     "epub-packer",
@@ -98,6 +99,8 @@ export function buildContentOpf(
     hasCover,
     "activeFonts:",
     activeFonts,
+    "imagesCount:",
+    images?.length || 0,
   );
   const modified = new Date().toISOString().replace(/\.\d+Z$/, "Z");
   const manifestItems = [
@@ -119,6 +122,17 @@ export function buildContentOpf(
     manifestItems.push(
       `<item id="pre-small-chap" href="images/${ornaments.subchapterOrnament.fileName}" media-type="${ornaments.subchapterOrnament.mimeType}"/>`,
     );
+  }
+  if (images && Array.isArray(images)) {
+    for (const img of images) {
+      if (img && img.fileName) {
+        const imgId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        const mime = img.mimeType || 'image/jpeg';
+        manifestItems.push(
+          `<item id="${imgId}" href="images/${img.fileName}" media-type="${mime}"/>`,
+        );
+      }
+    }
   }
   for (const fontName of activeFonts) {
     const font = findFont(fontName);
@@ -499,6 +513,7 @@ export async function buildEpubBlob(
   coverBlob = null,
   fonts = null,
   ornaments = null,
+  images = [],
 ) {
   logger.log(
     "epub-packer",
@@ -514,6 +529,8 @@ export async function buildEpubBlob(
     fonts,
     "ornamentsConfig:",
     ornaments,
+    "imagesCount:",
+    images?.length || 0,
   );
   const meta = {
     title: metadata.title || "Không tên",
@@ -715,7 +732,7 @@ export async function buildEpubBlob(
   const oebps = zip.folder("OEBPS");
   oebps.file(
     "content.opf",
-    buildContentOpf(meta, chaptersToPack, !!coverBlob, activeFonts, ornaments),
+    buildContentOpf(meta, chaptersToPack, !!coverBlob, activeFonts, ornaments, images),
   );
   oebps.file("nav.xhtml", buildNavXhtml(meta, chaptersToPack));
   oebps.file("toc.ncx", buildTocNcx(meta, chaptersToPack));
@@ -731,6 +748,15 @@ export async function buildEpubBlob(
   }
   if (ornaments?.subchapterOrnament?.blob) {
     oebps.folder("images").file(ornaments.subchapterOrnament.fileName, ornaments.subchapterOrnament.blob);
+  }
+
+  if (images && Array.isArray(images) && images.length > 0) {
+    const imagesFolder = oebps.folder("images");
+    for (const img of images) {
+      if (img && img.fileName && img.blob) {
+        imagesFolder.file(img.fileName, img.blob);
+      }
+    }
   }
 
   if (fonts && fonts.blobs) {

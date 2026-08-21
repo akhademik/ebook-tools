@@ -492,5 +492,38 @@ describe('epub-packer tests', () => {
 				{ title: 'Mục H2.1 Có TOC', url: 'text/chap_01.xhtml#h2-1' }
 			]);
 		});
+
+		it('should add illustrations to manifest in content.opf and package images to zip', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const mockBlob = new Blob(['mock-image-data']);
+			const illustrations = [
+				{ id: 'img-hinh-1', name: 'hinh-1', fileName: 'hinh-1.jpg', mimeType: 'image/jpeg', blob: mockBlob },
+				{ id: 'img-hinh-2', name: 'hinh-2', fileName: 'hinh-2.png', mimeType: 'image/png', blob: mockBlob }
+			];
+
+			const blob = await buildEpubBlob(
+				{ title: 'Book' },
+				chapters,
+				'body {}',
+				false,
+				null,
+				null,
+				null,
+				null,
+				illustrations
+			);
+
+			expect(blob).toBeDefined();
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-1"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-1.jpg"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-2"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-2.png"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', mockBlob);
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', mockBlob);
+			consoleLogSpy.mockRestore();
+		});
 	});
 });

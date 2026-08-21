@@ -30,7 +30,8 @@
   * `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 file XHTML duy nhất (bỏ qua tách file từ các thẻ `@@` bên trong).
   * `[letter] ... [/letter]`, `[poem] ... [/poem]`: Khối thư tín, bài thơ căn lề riêng biệt.
   * `~ Lời thoại` / `> Tác giả`: Trích dẫn blockquote và tác giả.
-  * Dropcap `[c]`, ngắt cảnh `###` / `##`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_` và chú thích `{n}` / `Chú thích:`.
+  * Dropcap `[c]`, ảnh minh họa `[hinh-1]`, ngắt cảnh `###` / `##`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_` và chú thích `{n}` / `Chú thích:`.
+  * Hỗ trợ tải lên ảnh đơn lẻ hoặc file `.zip` chứa ảnh, tự động nhận diện định dạng (`.jpg, .png, .webp...`) và nhúng trực tiếp vào EPUB.
 * Nhận diện chương trong file Markdown bằng từ khóa hoặc thuật toán **Heuristic thông minh** (dựa trên tiêu đề in hoa, độ dài, dấu câu).
 * Tự động tạo mục lục (TOC), nhận diện vĩ thanh, lọc header/footer thừa và đóng gói XHTML chuẩn.
 

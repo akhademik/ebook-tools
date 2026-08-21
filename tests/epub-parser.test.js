@@ -1064,6 +1064,7 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			expect(chapters[0].html).toContain('<p>Trong một buổi chiều');
 			expect(chapters[0].html).toContain('<h2 class="side-chap center">Khởi nguồn những bí ẩn</h2>');
 			expect(chapters[0].html).toContain('<h2 class="side-chap center no-toc">Ghi chú mật của thanh tra (Không vào TOC)</h2>');
+			expect(chapters[0].html).toContain('<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.jpg" alt="hinh-1" />\n</figure>');
 			expect(chapters[0].html).toContain('<blockquote class="left"><p>Đôi khi bí mật vĩ đại nhất lại ẩn mình trong những điều bình dị nhất.</p><footer>Giáo sư Hùng - Trích &quot;Nhật ký không gian&quot;</footer></blockquote>');
 			expect(chapters[0].html).toContain('<p class="scene-break-big" role="separator">• • •</p>');
 
@@ -1072,6 +1073,7 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			expect(chapters[1].html).toContain('<h1 class="main-chap center">PHẦN ĐẶC BIỆT: HỒI KÝ VÀ TƯ LIỆU GOM CHUNG</h1>');
 			expect(chapters[1].html).toContain('<h1 class="main-chap center">Hồ Sơ Nhân Vật A: Thư Tín Cổ</h1>');
 			expect(chapters[1].html).toContain('<div class="letter">');
+			expect(chapters[1].html).toContain('<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-2.jpg" alt="hinh-2" />\n</figure>');
 			expect(chapters[1].html).toContain('<h2 class="side-chap left no-toc">Nhật ký nội bộ ngày mưa (Căn trái, không vào TOC)</h2>');
 			expect(chapters[1].html).toContain('<p class="scene-break-small" role="separator">*</p>');
 			expect(chapters[1].html).toContain('<h1 class="main-chap right">Hồ Sơ Nhân Vật B: Thi Ca Đương Đại (Căn phải)</h1>');
@@ -1081,7 +1083,7 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			// Chapter 3: CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI
 			expect(chapters[2].title).toBe('CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)');
 			expect(chapters[2].html).toContain('<h1 class="main-chap left">CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)</h1>');
-			expect(chapters[2].html).toContain('<p class="has-dropcap"><span class="dropcap">C</span>uộc hành trình tiếp tục');
+			expect(chapters[2].html).toContain('<p>Cuộc hành trình tiếp tục');
 			expect(chapters[2].html).toContain('<blockquote class="right"><p>Kẻ chiến thắng');
 			expect(chapters[2].html).toContain('<blockquote class="center"><p>Lời độc thoại căn giữa');
 			expect(chapters[2].html).toContain('<p>&gt; Dòng này bắt đầu bằng dấu &gt; đứng độc lập');
@@ -1096,6 +1098,24 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			expect(chapters[3].html).toContain('<b>chữ in đậm</b>');
 			expect(chapters[3].html).toContain('<i>chữ in nghiêng</i>');
 			expect(chapters[3].html).toContain('<u>gạch chân</u>');
+		});
+
+		it('should match illustrations with custom extension from images map', () => {
+			const txt = `@@ Chương 1
+[hinh-1]
+Đoạn văn tiếp theo.
+[minh-hoa-2.png]`;
+
+			const options = {
+				images: {
+					'hinh-1': { fileName: 'hinh-1.webp' },
+					'minh-hoa-2.png': { fileName: 'minh-hoa-2.png' }
+				}
+			};
+
+			const chapters = parseTxtToChapters(txt, options, 'Chương 1');
+			expect(chapters[0].html).toContain('<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.webp" alt="hinh-1" />\n</figure>');
+			expect(chapters[0].html).toContain('<figure class="illust-box">\n  <img class="illust-img" src="../images/minh-hoa-2.png" alt="minh-hoa-2.png" />\n</figure>');
 		});
 	});
 });

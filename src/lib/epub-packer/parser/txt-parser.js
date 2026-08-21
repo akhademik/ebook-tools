@@ -73,8 +73,30 @@ function applyInlineFormatting(text, customDefinitions = []) {
 	return t;
 }
 
+function isIllustrationTag(tagKey, imagesMap = {}) {
+	const lowerKey = (tagKey || '').toLowerCase();
+	if (['letter', '/letter', 'poem', '/poem', 'new', '/new'].includes(lowerKey)) {
+		return null;
+	}
+	if (imagesMap[lowerKey]) {
+		return imagesMap[lowerKey].fileName || tagKey;
+	}
+	const baseKey = lowerKey.replace(/\.[^.]+$/, '');
+	if (imagesMap[baseKey]) {
+		return imagesMap[baseKey].fileName || tagKey;
+	}
+	const hasImgExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(lowerKey);
+	const isIllustPrefix = /^(hinh|hình|img|image|anh|ảnh|pic|illust|illustration)[_\-\d]/i.test(lowerKey);
+	if (hasImgExt || isIllustPrefix) {
+		if (hasImgExt) return tagKey;
+		return `${tagKey}.jpg`;
+	}
+	return null;
+}
+
 export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
 	const customDefinitions = options.customDefinitions || [];
+	const imagesMap = options.images || {};
 	logger.log('epub-parser', 'parseTxtToChapters starting parse with new conventions.');
 
 	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
@@ -136,7 +158,8 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 				html: '',
 				sources: ['Tệp TXT'],
 				isChapter: true,
-				firstSourcePageNum: chapters.length + 1
+				firstSourcePageNum: chapters.length + 1,
+				hasCustomTitle: false
 			};
 			chapters.push(currentChapter);
 		}
@@ -163,6 +186,17 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 			if (stripped === '') {
 				lineIdx++;
 				continue;
+			}
+
+			const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
+			if (illustMatch) {
+				const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
+				if (finalFileName) {
+					ensureChapterOpen();
+					currentChapter.html += `  <figure class="illust-box">\n    <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n  </figure>\n`;
+					lineIdx++;
+					continue;
+				}
 			}
 
 			ensureChapterOpen();
@@ -310,6 +344,17 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 			currentChapter.html += `<p class="scene-break-small" role="separator">*</p>\n`;
 			lineIdx++;
 			continue;
+		}
+
+		const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
+		if (illustMatch) {
+			const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
+			if (finalFileName) {
+				ensureChapterOpen();
+				currentChapter.html += `<figure class="illust-box">\n  <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n</figure>\n`;
+				lineIdx++;
+				continue;
+			}
 		}
 
 		ensureChapterOpen();

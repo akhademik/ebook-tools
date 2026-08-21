@@ -1,10 +1,13 @@
 <script>
 	let {
 		accept = '',
+		multiple = false,
 		onSelect,
+		onSelectMultiple,
 		title = 'Kéo thả hoặc click để chọn tệp',
 		subtitle = '',
-		selectedFile = null
+		selectedFile = null,
+		selectedCount = 0
 	} = $props();
 
 	let isDragOver = $state(false);
@@ -21,13 +24,21 @@
 	function handleDrop(e) {
 		e.preventDefault();
 		isDragOver = false;
-		const file = e.dataTransfer?.files[0];
-		if (file && onSelect) onSelect(file);
+		if (multiple && onSelectMultiple && e.dataTransfer?.files?.length) {
+			onSelectMultiple(e.dataTransfer.files);
+		} else {
+			const file = e.dataTransfer?.files[0];
+			if (file && onSelect) onSelect(file);
+		}
 	}
 
 	function handleFileChange(e) {
-		const file = e.target.files?.[0];
-		if (file && onSelect) onSelect(file);
+		if (multiple && onSelectMultiple && e.target.files?.length) {
+			onSelectMultiple(e.target.files);
+		} else {
+			const file = e.target.files?.[0];
+			if (file && onSelect) onSelect(file);
+		}
 	}
 </script>
 
@@ -38,12 +49,14 @@
 	ondragleave={handleDragLeave}
 	ondrop={handleDrop}
 >
-	<input type="file" {accept} class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange={handleFileChange} />
+	<input type="file" {accept} {multiple} class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange={handleFileChange} />
 	<p class="text-base font-semibold mb-1">{title}</p>
 	{#if subtitle}
 		<p class="text-sm text-text-mute">{subtitle}</p>
 	{/if}
 	{#if selectedFile}
 		<p class="font-mono text-sm text-amber-color mt-3 break-all">{selectedFile.name}</p>
+	{:else if selectedCount > 0}
+		<p class="font-mono text-sm text-amber-color mt-3">Đã chọn {selectedCount} tệp ảnh</p>
 	{/if}
 </div>

@@ -69,6 +69,86 @@ export class EpubState {
 	chapterOrnamentFile = $state(null);
 	subchapterOrnamentFile = $state(null);
 
+	// Illustration Images States
+	illustrationFiles = $state([]);
+
+	getImageMimeType(fileName) {
+		const ext = (fileName || '').split('.').pop().toLowerCase();
+		switch (ext) {
+			case 'png': return 'image/png';
+			case 'webp': return 'image/webp';
+			case 'gif': return 'image/gif';
+			case 'svg': return 'image/svg+xml';
+			case 'jpg':
+			case 'jpeg':
+			default:
+				return 'image/jpeg';
+		}
+	}
+
+	async handleIllustrationFiles(filesInput) {
+		if (!filesInput) return;
+		const filesList = filesInput instanceof FileList || Array.isArray(filesInput) 
+			? Array.from(filesInput) 
+			: [filesInput];
+
+		for (const file of filesList) {
+			if (/\.zip$/i.test(file.name)) {
+				try {
+					const zip = await JSZip.loadAsync(file);
+					for (const name of Object.keys(zip.files)) {
+						if (!zip.files[name].dir && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
+							const blob = await zip.files[name].async('blob');
+							const fileName = name.split('/').pop();
+							const baseName = fileName.replace(/\.[^.]+$/, '');
+							const mimeType = this.getImageMimeType(fileName);
+							
+							const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || f.name.toLowerCase() === baseName.toLowerCase());
+							const item = { name: baseName, fileName, mimeType, blob, size: blob.size };
+							if (existingIdx !== -1) {
+								this.illustrationFiles[existingIdx] = item;
+							} else {
+								this.illustrationFiles.push(item);
+							}
+						}
+					}
+				} catch (err) {
+					console.error('[EpubState] Error extracting images zip:', err);
+				}
+			} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
+				const fileName = file.name;
+				const baseName = fileName.replace(/\.[^.]+$/, '');
+				const mimeType = file.type || this.getImageMimeType(fileName);
+
+				const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || f.name.toLowerCase() === baseName.toLowerCase());
+				const item = { name: baseName, fileName, mimeType, blob: file, size: file.size };
+				if (existingIdx !== -1) {
+					this.illustrationFiles[existingIdx] = item;
+				} else {
+					this.illustrationFiles.push(item);
+				}
+			}
+		}
+
+		if (this.fileType === 'txt' && this.rawTxtText) {
+			this.applyTxtGrouping();
+		}
+	}
+
+	removeIllustrationFile(idx) {
+		this.illustrationFiles.splice(idx, 1);
+		if (this.fileType === 'txt' && this.rawTxtText) {
+			this.applyTxtGrouping();
+		}
+	}
+
+	clearIllustrationFiles() {
+		this.illustrationFiles = [];
+		if (this.fileType === 'txt' && this.rawTxtText) {
+			this.applyTxtGrouping();
+		}
+	}
+
 	handleChapterOrnamentFile(file) {
 		if (!file) return;
 		this.chapterOrnamentFile = file;
@@ -147,7 +227,16 @@ export class EpubState {
 		if (!this.rawTxtText) return;
 		
 		const fallbackTitle = this.title.trim() || 'Chương 1';
-		const chapters = parseTxtToChapters(this.rawTxtText, { customDefinitions: this.customDefinitions }, fallbackTitle);
+		const imagesMap = {};
+		for (const img of this.illustrationFiles) {
+			if (img.name) imagesMap[img.name.toLowerCase()] = img;
+			if (img.fileName) imagesMap[img.fileName.toLowerCase()] = img;
+		}
+
+		const chapters = parseTxtToChapters(this.rawTxtText, {
+			customDefinitions: this.customDefinitions,
+			images: imagesMap
+		}, fallbackTitle);
 		this.epubChapters = assignSequentialChapterIds(chapters);
 
 		// Resolve footnote backlinks
@@ -475,9 +564,9 @@ export class EpubState {
 				};
 			}
 
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig, 'ornamentsConfig:', ornamentsConfig);
+			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig, 'ornamentsConfig:', ornamentsConfig, 'illustrationsCount:', this.illustrationFiles.length);
 			this.status = 'Đang đóng gói cấu trúc EPUB...';
-			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig, ornamentsConfig);
+			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig, ornamentsConfig, this.illustrationFiles);
 			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;
