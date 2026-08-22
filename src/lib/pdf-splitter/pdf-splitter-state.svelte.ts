@@ -1,6 +1,5 @@
 // src/lib/pdf-splitter/pdf-splitter-state.svelte.ts
-import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers';
-import { Logger } from '$lib/helpers/logger';
+import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
 import { loadPdfPreview, processPdfToJpg } from './pdf-splitter';
 import type { PdfPreviewPage } from '$lib/types';
 

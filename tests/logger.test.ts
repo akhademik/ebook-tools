@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
-import { Logger, setDebug, isDebug } from '../src/lib/helpers/logger';
+import { Logger, setDebug, isDebug } from '../src/lib/utils/logger';
 
 describe('logger tests', () => {
   let consoleLogSpy: MockInstance;
@@ -88,14 +88,14 @@ describe('logger tests', () => {
 
   it('should initialize to true if process.env.DEBUG is set', async () => {
     vi.stubEnv('DEBUG', 'true');
-    const tempLogger = await import(`../src/lib/helpers/logger.js?test=1`);
+    const tempLogger = await import(`../src/lib/utils/logger.js?test=1`);
     expect(tempLogger.Logger.isDebug()).toBe(true);
     vi.unstubAllEnvs();
   });
 
   it('should initialize to true if window.DEBUG_LOG is set', async () => {
     (globalThis as any).window = { DEBUG_LOG: true };
-    const tempLogger = await import(`../src/lib/helpers/logger.js?test=2`);
+    const tempLogger = await import(`../src/lib/utils/logger.js?test=2`);
     expect(tempLogger.Logger.isDebug()).toBe(true);
     delete (globalThis as any).window;
   });

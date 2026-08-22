@@ -6,7 +6,7 @@
     "src/routes/**/+layout.{svelte,js,ts}",
     "tests/**/*.test.ts",
     "src/lib/epub-packer/parser/epub-parser.ts",
-    "src/lib/helpers/helpers.ts",
+    "src/lib/utils/index.ts",
     "src/lib/types/index.ts"
   ],
   "ignoreDependencies": ["tailwindcss"]

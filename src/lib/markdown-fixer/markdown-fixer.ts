@@ -1,6 +1,6 @@
 // src/lib/markdown-fixer/markdown-fixer.ts
 import JSZip from 'jszip';
-import { Logger } from '../helpers/logger';
+import { Logger } from '$lib/utils/logger';
 import type {
 	ConvertedBracketsResult,
 	ProcessedMarkdownFileRow,

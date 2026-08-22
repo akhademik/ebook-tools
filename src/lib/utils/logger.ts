@@ -1,4 +1,4 @@
-// src/lib/helpers/logger.ts
+// src/lib/utils/logger.ts
 
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
 

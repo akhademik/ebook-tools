@@ -1,5 +1,4 @@
-// src/lib/utils/download.ts
-import { Logger } from '$lib/helpers/logger';
+import { Logger } from './logger';
 
 /**
  * Triggers a browser file download using a Blob object.

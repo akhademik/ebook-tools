@@ -1,7 +1,7 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
   import Input from "$lib/components/Input.svelte";
-  import type { EpubSectionBaseProps } from "$lib/types";
+  import type { EpubSectionBaseProps } from "./epub-components.type";
 
   let { epubState }: EpubSectionBaseProps = $props();
 </script>

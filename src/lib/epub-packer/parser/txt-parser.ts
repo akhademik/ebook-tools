@@ -1,6 +1,5 @@
 // src/lib/epub-packer/parser/txt-parser.ts
-import { Logger } from '$lib/helpers/logger';
-import { escapeXml } from '$lib/helpers/helpers';
+import { Logger, escapeXml } from '$lib/utils';
 import type { CustomDefinition, ParseTxtOptions } from '$lib/types';
 
 export type { ParseTxtOptions };

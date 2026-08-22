@@ -1,6 +1,6 @@
 <script lang="ts">
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates";
-  import type { EpubJacketModalProps } from "$lib/types";
+  import type { EpubJacketModalProps } from "./epub-components.type";
 
   let { show = $bindable(false), epubState }: EpubJacketModalProps = $props();
 

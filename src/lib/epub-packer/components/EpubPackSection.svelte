@@ -1,7 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Button from "$lib/components/Button.svelte";
-  import type { EpubPackSectionProps } from "$lib/types";
+  import type { EpubPackSectionProps } from "./epub-components.type";
 
   let { epubState, onDownload }: EpubPackSectionProps = $props();
 </script>

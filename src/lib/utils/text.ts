@@ -1,5 +1,4 @@
-// src/lib/utils/text.ts
-import { Logger } from '$lib/helpers/logger';
+import { Logger } from './logger';
 
 /**
  * Converts a string into a clean, URL-safe slug filename.

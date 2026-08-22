@@ -1,6 +1,5 @@
 // src/lib/epub-packer/parser/epub-chapter-utils.ts
-import { Logger } from '$lib/helpers/logger';
-import { normalizeCharPreserveLength } from '$lib/helpers/helpers';
+import { Logger, normalizeCharPreserveLength } from '$lib/utils';
 import type {
 	MarkdownBlock,
 	RawFileItem,

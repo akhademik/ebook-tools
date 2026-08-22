@@ -1,29 +1,48 @@
-Good, no XSS red flags there. Let's look at the core logic modules.This is a fairly large project. Let me get a proportional sense of it and dig into the core parsing/packing logic, since that's most likely where bugs live.All 123 tests pass. Let's check lint and knip (unused code detector) since these can surface real improvement opportunities quickly.I pulled the repo and ran it (tests + lint) rather than just reading the README — here's what I found.
+Good instinct to double check — I looked at the actual file tree and import graph (not just skimmed), and there are two real structural issues, plus the shape overall is actually fine. Here's the honest breakdown:
 
-**Good shape overall:** 123 tests pass, `eslint` is clean, no `innerHTML`/`eval` red flags, and the architecture (routes ↔ `lib` feature folders, typed models) is sensible for a SvelteKit app.
-
-Things worth improving:
-
-**1. A real bug in `normalizeCharPreserveLength` (src/lib/utils/text.ts)**
-It does `ch.normalize('NFD')[0]` per character to strip diacritics. For any character outside the Basic Multilingual Plane (rare Hán/Nôm characters, many CJK Extension B+ codepoints — exactly what your TXT→PDF CJK tool targets) this grabs only the first UTF-16 surrogate half, producing an invalid lone surrogate. I confirmed it:
+**The layout itself is a reasonable pattern:**
 
 ```
-input: 𠀀 (U+20000)
-normalizeCharPreserveLength output: contains an unpaired surrogate, corrupted
+src/
+├── routes/            → pages only (each route stays 50-220 lines, logic doesn't leak into it — good)
+├── lib/
+│   ├── <feature>/      → epub-packer, markdown-fixer, pdf-splitter (self-contained)
+│   ├── components/     → shared UI (Button, Input, DropZone...)
+│   ├── types/          → one .type.ts per feature
+│   ├── helpers/  ⚠️
+│   └── utils/    ⚠️
 ```
 
-Right now it's _masked_ because both call sites (`epub-chapter-utils.ts`, `epub-ocr-utils.ts`) immediately strip everything except `a-z0-9`, so the corruption gets discarded either way. But it's a landmine: reuse this "preserve length" helper anywhere for actual display text and rare characters will silently break. Fix: use `Array.from(ch.normalize('NFD'))[0]` (or just don't index into a possibly-surrogate-pair string).
+Splitting by feature (`epub-packer/`, `markdown-fixer/`, `pdf-splitter/`) and giving the big one internal sub-folders (`parser/`, `xml-builders/`, `templates/`, `components/`) while keeping the small ones flat is the right call — that's not what's making it feel messy.
 
-**2. Two parallel logging systems**
-`logger.log/warn/error` (used in most `lib` files) and a separate `Logger.info/warn/error/debug/perf` object (used only in the three `*-state.svelte.ts` files and `epub/+page.svelte`) coexist in `helpers/logger.ts`. Same purpose, different API, different emoji-prefixed formatting. Worth consolidating to one.
+**What's actually causing the "complex/not nice" feeling:**
 
-**3. `escapeXml` doesn't strip XML-illegal control characters**
-It escapes `& < > " '` but C0 control characters (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F) are illegal in XML 1.0 and will produce a corrupt/invalid EPUB if they sneak in from OCR'd or messy TXT input. Cheap fix: add `.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')` before returning.
+**1. `helpers/` and `utils/` are the same thing, twice.**
+`lib/helpers/helpers.ts` is literally nothing but re-exports of `lib/utils/*` (its own comment says "for backwards compatibility" — leftover from an old refactor). Result: the exact same function (`escapeXml`, `slugify`, etc.) gets imported two different ways depending on the file:
 
-**4. Chapter-scoring heuristic is all magic numbers**
-`scoreHeadingCandidate` in `epub-chapter-utils.ts` has thresholds like `len <= 40`, `wordCount <= 6`, `score += 3` scattered inline with no named constants. It works, but tuning it later means hunting through the function. Pulling these into a `const SCORING = {...}` object would make it much easier to adjust without guessing side effects.
+- `epub-ocr-utils.ts`, `txt-parser.ts`, `epub-chapter-utils.ts`, `epub-state.svelte.ts` → import from `$lib/helpers/helpers.js`
+- `jacket-templates.ts`, `chapter-builder.ts`, `nav-builder.ts`, `opf-builder.ts` → import the same functions from `$lib/utils/*.js` directly
 
-**5. Minor: `getDynamicCss` substring checks are quite loose**
-`html.includes('note')` or `.includes('chapter')` will match on unrelated substrings inside longer words/attributes, potentially pulling in CSS you didn't need. Not a correctness bug (just some CSS bloat), but a `class="..."` regex would be more precise than raw `.includes`.
+Anyone reading the code has to remember which door leads to the same room. **Fix:** delete `helpers/helpers.ts`, move `logger.ts` into `utils/` (or keep `helpers/` for just the logger and drop `utils/` duplication), and point every import straight at `utils/text.ts` / `utils/xml.ts` / `utils/download.ts`. One place, one import path.
 
-If you want, I can send a small patch for #1 and #3 (the two that could actually cause corrupted output) — those are the ones I'd prioritize.
+**2. `epub-state.svelte.ts` is a 613-line god-file.**
+Everything else in this project is nicely split (the epub components alone are broken into 8 focused files: cover, fonts, jacket, metadata, ornaments, source, pack, syntax). But all of that UI is driven by one giant state file holding metadata + chapters + jacket + fonts + ornaments + images + cover state together. That mismatch — fine-grained components, monolithic state — is probably the main thing that reads as "complex."
+
+**Fix:** split it to mirror the components you already have, e.g.:
+
+```
+epub-packer/
+└── state/
+    ├── epub-metadata-state.svelte.ts
+    ├── epub-source-state.svelte.ts     (chapters, TOC, files)
+    ├── epub-jacket-state.svelte.ts
+    ├── epub-fonts-state.svelte.ts
+    └── epub-images-state.svelte.ts     (cover + ornaments + illustrations)
+```
+
+each exporting a small store, composed together in one `epub-state.svelte.ts` barrel if you still want a single import surface for the route.
+
+**3. Scale mismatch is inherent, not a bug.**
+`epub-packer/` is ~276K vs 12–16K for the other two — that's just because EPUB packing is genuinely 5-10x more work than the other tools, not a structure problem. I wouldn't try to "balance" it artificially.
+
+If you want, I can actually make the two fixes above (collapse `helpers/`→`utils/`, split `epub-state.svelte.ts`) and show you the diff — that's the highest-leverage cleanup for how it feels to navigate, with low risk since tests/lint are already green as a safety net.

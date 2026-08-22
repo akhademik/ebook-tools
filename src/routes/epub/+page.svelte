@@ -1,8 +1,7 @@
 <script lang="ts">
   import PageHeader from "$lib/components/PageHeader.svelte";
   import { EpubState } from "$lib/epub-packer/epub-state.svelte";
-  import { triggerDownload } from "$lib/helpers/helpers";
-  import { Logger } from "$lib/helpers/logger";
+  import { triggerDownload, Logger } from "$lib/utils";
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts";
 
   import EpubSourceSection from "$lib/epub-packer/components/EpubSourceSection.svelte";

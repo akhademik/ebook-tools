@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { Logger } from '$lib/helpers/logger';
+import { Logger } from '$lib/utils/logger';
 import { JACKET_TEMPLATES } from './templates/jacket-templates';
 import { findFont, getFontFileName, getFontCSSDeclaration } from './templates/fonts';
 

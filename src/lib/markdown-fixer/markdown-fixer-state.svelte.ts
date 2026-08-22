@@ -1,6 +1,5 @@
 // src/lib/markdown-fixer/markdown-fixer-state.svelte.ts
-import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers';
-import { Logger } from '$lib/helpers/logger';
+import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
 import { fixMarkdownZip } from './markdown-fixer';
 import type { ProcessedMarkdownFileRow } from '$lib/types';
 

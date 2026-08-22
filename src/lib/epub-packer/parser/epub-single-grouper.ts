@@ -1,5 +1,5 @@
 // src/lib/epub-packer/parser/epub-single-grouper.ts
-import { Logger } from '$lib/helpers/logger';
+import { Logger } from '$lib/utils/logger';
 import {
 	makeChapterMatcher,
 	pushIfLineStart,

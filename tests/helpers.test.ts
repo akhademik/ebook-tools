@@ -42,10 +42,11 @@ Object.defineProperty(globalThis, 'document', {
 });
 
 // Dynamic import to capture the top-level window.pdfjsLib check
-const helpersModule = await import('../src/lib/helpers/helpers');
-const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml, normalizeCharPreserveLength } = helpersModule;
+await import('../src/lib/utils/pdf');
+const utilsModule = await import('../src/lib/utils');
+const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml, normalizeCharPreserveLength } = utilsModule;
 
-describe('helpers tests', () => {
+describe('utils tests', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.useFakeTimers();

@@ -1,6 +1,5 @@
 // src/lib/epub-packer/parser/epub-markdown-utils.ts
-import { escapeXml } from '$lib/helpers/helpers';
-import { Logger } from '$lib/helpers/logger';
+import { escapeXml, Logger } from '$lib/utils';
 import type {
 	MarkdownBlock,
 	CustomDefinition,
