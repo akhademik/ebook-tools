@@ -1,4 +1,5 @@
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger.js';
 import { loadPdfPreview, processPdfToJpg } from './pdf-splitter.js';
 
 export class PdfSplitterState {
@@ -58,7 +59,7 @@ export class PdfSplitterState {
 			this.previewPages = await loadPdfPreview(this.pdfSelectedFile, this.selectedPreviewCount, this.keepColor);
 			this.currentPreviewIndex = 0;
 		} catch (err) {
-			console.error(err);
+			Logger.error('[PdfSplitterState]', 'Failed to load preview', err);
 			this.status = 'Không tải được xem trước: ' + err.message;
 			this.isError = true;
 		} finally {
@@ -111,7 +112,7 @@ export class PdfSplitterState {
 			this.pdfZipBlob = res.zipBlob;
 			this.status = `Hoàn tất — ${res.numPages} trang đã sẵn sàng.`;
 		} catch (err) {
-			console.error(err);
+			Logger.error('[PdfSplitterState]', 'Failed to process PDF', err);
 			this.status = 'Có lỗi khi xử lý: ' + err.message;
 			this.isError = true;
 		} finally {

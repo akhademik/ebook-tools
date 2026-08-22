@@ -5,6 +5,7 @@
   import Button from "$lib/components/Button.svelte";
   import { EpubState } from "$lib/epub-packer/epub-state.svelte.js";
   import { triggerDownload } from "$lib/helpers/helpers.js";
+  import { Logger } from "$lib/helpers/logger.js";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
 
@@ -15,17 +16,17 @@
   let currentPreviewTemplateIdx = $state(0);
 
   function downloadEpub() {
-    console.log(
-      "[+page.svelte] downloadEpub button clicked. epubBlob:",
-      epubState.epubBlob,
-      "name:",
+    Logger.debug(
+      "[EpubPage]",
+      "downloadEpub button clicked",
       epubState.epubOutNamePreview,
     );
     if (epubState.epubBlob) {
       triggerDownload(epubState.epubBlob, epubState.epubOutNamePreview);
     } else {
-      console.warn(
-        "[+page.svelte] epubState.epubBlob is empty, cannot download.",
+      Logger.warn(
+        "[EpubPage]",
+        "epubState.epubBlob is empty, cannot download",
       );
     }
   }

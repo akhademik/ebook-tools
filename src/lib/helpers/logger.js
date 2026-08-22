@@ -53,3 +53,23 @@ export function warn(module, ...args) {
 export function error(module, ...args) {
   console.error(`[ERROR][${module}]`, ...args);
 }
+
+/**
+ * Centralized Logger per clean-code.md guidelines.
+ */
+export const Logger = {
+  info: (ctx, msg, details) => formatAndLog('INFO', '✅', ctx, msg, details, console.log, true),
+  warn: (ctx, msg, details) => formatAndLog('WARN', '⚠️', ctx, msg, details, console.warn, false),
+  error: (ctx, msg, details) => formatAndLog('ERROR', '❌', ctx, msg, details, console.error, false),
+  debug: (ctx, msg, details) => formatAndLog('DEBUG', '🔍', ctx, msg, details, console.log, true),
+  perf: (ctx, msg, ms) => formatAndLog('DEBUG', '⏱️', ctx, `${msg} (${ms}ms)`, undefined, console.log, true)
+};
+
+function formatAndLog(level, emoji, context, message, details, logFn = console.log, debugOnly = false) {
+  if (debugOnly && !isDebugEnabled) return;
+  const ctxStr = context.startsWith('[') && context.endsWith(']') ? context : `[${context}]`;
+  const extra = details !== undefined
+    ? (typeof details === 'object' && details !== null ? `\n${JSON.stringify(details, null, 2)}` : ` ${details}`)
+    : '';
+  logFn(`${emoji} [${level}] ${ctxStr} ${message}${extra}`);
+}

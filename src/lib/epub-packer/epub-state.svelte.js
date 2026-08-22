@@ -1,6 +1,7 @@
 import { cleanHeaderFooterOcr, parseMarkdownBlocks, groupChapters, getCleanedLinesReport, assignSequentialChapterIds, parseTxtToChapters } from './parser/epub-parser.js';
 import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger.js';
 import JSZip from 'jszip';
 
 import { findFont } from './templates/fonts.js';
@@ -113,7 +114,7 @@ export class EpubState {
 						}
 					}
 				} catch (err) {
-					console.error('[EpubState] Error extracting images zip:', err);
+					Logger.error('[EpubState]', 'Error extracting images zip', err);
 				}
 			} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
 				const fileName = file.name;
@@ -223,7 +224,7 @@ export class EpubState {
 	}
 
 	applyTxtGrouping() {
-		console.log('[EpubState] applyTxtGrouping called. rawTxtText length:', this.rawTxtText?.length);
+		Logger.debug('[EpubState]', 'applyTxtGrouping called, rawTxtText length:', this.rawTxtText?.length);
 		if (!this.rawTxtText) return;
 		
 		const fallbackTitle = this.title.trim() || 'Chương 1';
@@ -261,18 +262,18 @@ export class EpubState {
 		this.cleanedLinesReport = [];
 		this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
 		this.parseIsError = false;
-		console.log('[EpubState] applyTxtGrouping completed. Chapters count:', this.epubChapters.length);
+		Logger.info('[EpubState]', 'applyTxtGrouping completed, chapters count:', this.epubChapters.length);
 	}
 
 	async handleFile(file) {
-		console.log('[EpubState] handleFile selected file:', file?.name, 'size:', file?.size, 'type:', file?.type);
+		Logger.debug('[EpubState]', 'handleFile selected file:', file?.name, 'size:', file?.size, 'type:', file?.type);
 		if (!file) return;
 		
 		const isZip = /\.zip$/i.test(file.name);
 		const isTxt = /\.txt$/i.test(file.name);
 
 		if (!isZip && !isTxt) {
-			console.warn('[EpubState] Invalid file type selected:', file.name);
+			Logger.warn('[EpubState]', 'Invalid file type selected', file.name);
 			this.parseStatus = 'Vui lòng chọn một tệp .ZIP hoặc .TXT hợp lệ.';
 			this.parseIsError = true;
 			return;
@@ -295,13 +296,13 @@ export class EpubState {
 			this.epubOutName = base;
 			this.title = base.replace(/-/g, ' ');
 			try {
-				console.log('[EpubState] Reading file.text()...');
+				Logger.debug('[EpubState]', 'Reading file.text()...');
 				const text = await file.text();
-				console.log('[EpubState] File text read successfully. Character count:', text.length);
+				Logger.debug('[EpubState]', 'File text read successfully, character count:', text.length);
 				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
 				this.applyTxtGrouping();
 			} catch (err) {
-				console.error('[EpubState] Error reading TXT file:', err);
+				Logger.error('[EpubState]', 'Error reading TXT file', err);
 				this.parseStatus = 'Lỗi khi đọc tệp .TXT: ' + err.message;
 				this.parseIsError = true;
 			}
@@ -316,7 +317,7 @@ export class EpubState {
 	}
 
 	async loadZipContent(file) {
-		console.log('[EpubState] loadZipContent starting for:', file.name);
+		Logger.debug('[EpubState]', 'loadZipContent starting for:', file.name);
 		try {
 			const zip = await JSZip.loadAsync(file);
 			const files = [];
@@ -335,7 +336,7 @@ export class EpubState {
 			}
 
 			if (files.length === 0) {
-				console.warn('[EpubState] No .md files found in zip.');
+				Logger.warn('[EpubState]', 'No .md files found in zip');
 				this.parseStatus = 'Không tìm thấy tệp .md nào trong tệp .ZIP.';
 				this.parseIsError = true;
 				return;
@@ -344,7 +345,7 @@ export class EpubState {
 			this.epubRawFiles = files;
 			this.applyGrouping();
 		} catch (err) {
-			console.error('[EpubState] Error loading ZIP:', err);
+			Logger.error('[EpubState]', 'Error loading ZIP', err);
 			this.parseStatus = 'Lỗi khi đọc tệp .ZIP: ' + err.message;
 			this.parseIsError = true;
 		}
@@ -373,7 +374,7 @@ export class EpubState {
 		const isPdf = /\.pdf$/i.test(file.name);
 		if (isPdf) {
 			if (!window.pdfjsLib) {
-				console.error('[EpubState] pdfjsLib is missing');
+				Logger.error('[EpubState]', 'pdfjsLib is missing');
 				this.status = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';
 				this.isError = true;
 				return;
@@ -398,7 +399,7 @@ export class EpubState {
 				this.status = '';
 				this.isError = false;
 			} catch (err) {
-				console.error('[EpubState] Error extracting PDF page 1:', err);
+				Logger.error('[EpubState]', 'Error extracting PDF page 1', err);
 				this.status = 'Lỗi trích xuất PDF: ' + err.message;
 				this.isError = true;
 			}
@@ -470,9 +471,9 @@ export class EpubState {
 	}
 
 	async processEpub() {
-		console.log('[EpubState] processEpub invoked. epubChapters.length:', this.epubChapters.length, 'fileType:', this.fileType);
+		Logger.debug('[EpubState]', 'processEpub invoked, chapters count:', this.epubChapters.length, 'fileType:', this.fileType);
 		if (this.epubChapters.length === 0) {
-			console.warn('[EpubState] processEpub aborted: epubChapters is empty.');
+			Logger.warn('[EpubState]', 'processEpub aborted: epubChapters is empty');
 			this.status = 'Không có chương nào để đóng gói. Vui lòng chọn tệp hợp lệ.';
 			this.isError = true;
 			return;
@@ -564,19 +565,19 @@ export class EpubState {
 				};
 			}
 
-			console.log('[EpubState] Calling buildEpubBlob with metadata:', metadata, 'isTxtMode:', isTxtMode, 'jacket:', jacket, 'hasCover:', !!coverBlob, 'fontsConfig:', fontsConfig, 'ornamentsConfig:', ornamentsConfig, 'illustrationsCount:', this.illustrationFiles.length);
+			Logger.debug('[EpubState]', 'Calling buildEpubBlob');
 			this.status = 'Đang đóng gói cấu trúc EPUB...';
 			const blob = await buildEpubBlob(metadata, this.epubChapters, EPUB_CSS, isTxtMode, jacket, coverBlob, fontsConfig, ornamentsConfig, this.illustrationFiles);
-			console.log('[EpubState] buildEpubBlob returned blob successfully:', blob);
+			Logger.info('[EpubState]', 'buildEpubBlob returned blob successfully');
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;
 		} catch (err) {
-			console.error('[EpubState] ERROR in processEpub:', err);
+			Logger.error('[EpubState]', 'ERROR in processEpub', err);
 			this.status = 'Có lỗi khi đóng gói: ' + err.message;
 			this.isError = true;
 		} finally {
 			this.processing = false;
-			console.log('[EpubState] processEpub finished. Status:', this.status, 'processing:', this.processing);
+			Logger.debug('[EpubState]', 'processEpub finished, status:', this.status);
 		}
 	}
 }

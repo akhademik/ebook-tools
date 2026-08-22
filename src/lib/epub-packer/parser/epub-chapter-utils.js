@@ -69,7 +69,7 @@ export function scoreHeadingCandidate(rawText, blockType = 'p', isFirstBlock = f
 	// Reject if the first letter character in the block is lowercase (Unicode property escape)
 	const firstLetterMatch = plain.match(/\p{L}/u);
 	if (firstLetterMatch && /^\p{Ll}/u.test(firstLetterMatch[0])) {
-		console.log(`[scoreHeadingCandidate] REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
+		logger.log('epub-chapter-utils', `scoreHeadingCandidate REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
 		return -99;
 	}
 

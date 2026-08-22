@@ -1,4 +1,5 @@
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger.js';
 import { fixMarkdownZip } from './markdown-fixer.js';
 
 export class MarkdownFixerState {
@@ -48,7 +49,7 @@ export class MarkdownFixerState {
 				? 'Hoàn tất — sẵn sàng tải về.'
 				: 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
 		} catch (err) {
-			console.error(err);
+			Logger.error('[MarkdownFixerState]', 'Error processing markdown zip', err);
 			this.status = 'Có lỗi khi xử lý tệp: ' + err.message;
 			this.isError = true;
 		} finally {

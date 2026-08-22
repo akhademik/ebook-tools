@@ -27,7 +27,7 @@ export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristi
 			const score = scoreHeadingCandidate(firstTextBlock.text, firstTextBlock.type, true);
 			const hasNL = firstTextBlock.text.includes('\n');
 			const isFirstBlockChapter = !hasNL && score >= heuristicThreshold;
-			console.log(`[findMarkersForZip] firstTextBlock: "${firstTextBlock.text.slice(0, 60)}...", score: ${score}, hasNL: ${hasNL}, isFirstBlockChapter: ${isFirstBlockChapter}`);
+			logger.log('epub-zip-grouper', `firstTextBlock: "${firstTextBlock.text.slice(0, 60)}...", score: ${score}, hasNL: ${hasNL}, isFirstBlockChapter: ${isFirstBlockChapter}`);
 			if (!isFirstBlockChapter) {
 				return [];
 			}
@@ -41,9 +41,9 @@ export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristi
 			if (!b.text || !b.text.trim()) continue;
 
 			const score = scoreHeadingCandidate(b.text, b.type, idx === firstTextBlockIdx);
-			console.log(`[findMarkersForZip] block ${idx}: "${b.text.slice(0, 60)}...", score: ${score}, threshold: ${heuristicThreshold}`);
+			logger.log('epub-zip-grouper', `block ${idx}: "${b.text.slice(0, 60)}...", score: ${score}, threshold: ${heuristicThreshold}`);
 			if (!b.text.includes('\n') && score >= heuristicThreshold) {
-				console.log(`[findMarkersForZip] MATCHED block ${idx} as chapter!`);
+				logger.log('epub-zip-grouper', `MATCHED block ${idx} as chapter!`);
 				return [{ blockIndex: idx, offset: 0, type: 'chapter' }];
 			}
 		}

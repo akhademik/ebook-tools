@@ -22,12 +22,12 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
       "file_type": "code",
       "norm_label": "markdownfixerstate",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L4"
+      "source_location": "L5"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate",
@@ -36,11 +36,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "pdfsplitterstate",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L4"
+      "source_location": "L5"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate",
@@ -53,7 +53,7 @@
       "file_type": "code",
       "norm_label": "epubstate",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L8"
+      "source_location": "L9"
     },
     {
       "id": "src_lib_epub_packer_parser_epub_chapter_utils_analyzechaptercandidates",
@@ -596,6 +596,18 @@
       "source_location": "L4"
     },
     {
+      "id": "src_lib_helpers_helpers_ensureepubext",
+      "label": "ensureEpubExt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "ensureepubext()",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L44"
+    },
+    {
       "id": "src_lib_helpers_helpers_escapexml",
       "label": "escapeXml()",
       "_callable": true,
@@ -606,6 +618,18 @@
       "norm_label": "escapexml()",
       "source_file": "src/lib/helpers/helpers.js",
       "source_location": "L83"
+    },
+    {
+      "id": "src_lib_helpers_helpers_slugify",
+      "label": "slugify()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "slugify()",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L16"
     },
     {
       "id": "tests_epub_packer_test_mockjszip_constructor",
@@ -620,6 +644,18 @@
       "source_location": "L12"
     },
     {
+      "id": "src_lib_helpers_helpers_ensurezipext",
+      "label": "ensureZipExt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "ensurezipext()",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L29"
+    },
+    {
       "id": "src_lib_helpers_logger_error",
       "label": "error()",
       "_callable": true,
@@ -630,6 +666,18 @@
       "norm_label": "error()",
       "source_file": "src/lib/helpers/logger.js",
       "source_location": "L53"
+    },
+    {
+      "id": "src_lib_helpers_logger_formatandlog",
+      "label": "formatAndLog()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "formatandlog()",
+      "source_file": "src/lib/helpers/logger.js",
+      "source_location": "L68"
     },
     {
       "id": "src_lib_helpers_logger_isdebug",
@@ -704,40 +752,28 @@
       "source_location": "L72"
     },
     {
-      "id": "src_lib_helpers_helpers_ensureepubext",
-      "label": "ensureEpubExt()",
+      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_handlefile",
+      "label": ".handleFile()",
       "_callable": true,
       "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
       "file_type": "code",
-      "norm_label": "ensureepubext()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L44"
+      "norm_label": ".handlefile()",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L20"
     },
     {
-      "id": "src_lib_helpers_helpers_ensurezipext",
-      "label": "ensureZipExt()",
+      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_processmarkdownzip",
+      "label": ".processMarkdownZip()",
       "_callable": true,
       "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
       "file_type": "code",
-      "norm_label": "ensurezipext()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L29"
-    },
-    {
-      "id": "src_lib_helpers_helpers_slugify",
-      "label": "slugify()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "slugify()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L16"
+      "norm_label": ".processmarkdownzip()",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L35"
     },
     {
       "id": "src_lib_helpers_helpers_triggerdownload",
@@ -745,7 +781,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "triggerdownload()",
       "source_file": "src/lib/helpers/helpers.js",
@@ -757,35 +793,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".downloadzip()",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L59"
-    },
-    {
-      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_handlefile",
-      "label": ".handleFile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": ".handlefile()",
-      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L19"
-    },
-    {
-      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_processmarkdownzip",
-      "label": ".processMarkdownZip()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": ".processmarkdownzip()",
-      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L34"
+      "source_location": "L60"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_applygrayscale",
@@ -793,7 +805,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "applygrayscale()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -805,7 +817,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "cropcanvas()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -817,7 +829,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "formateta()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -829,7 +841,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "loadpdfpreview()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -841,7 +853,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "pickconcurrency()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -853,7 +865,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "processpdftojpg()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -865,7 +877,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "runworker()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -877,7 +889,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "updateprogress()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -889,11 +901,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".adjustcrop()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L79"
+      "source_location": "L80"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_downloadzip",
@@ -901,11 +913,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".downloadzip()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L122"
+      "source_location": "L123"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_handlefile",
@@ -913,11 +925,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".handlefile()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L32"
+      "source_location": "L33"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_loadpreview",
@@ -925,11 +937,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".loadpreview()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L51"
+      "source_location": "L52"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_nextpreviewpage",
@@ -937,11 +949,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".nextpreviewpage()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L74"
+      "source_location": "L75"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_prevpreviewpage",
@@ -949,11 +961,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".prevpreviewpage()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L69"
+      "source_location": "L70"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_processpdf",
@@ -961,11 +973,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".processpdf()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L92"
+      "source_location": "L93"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_resetcrop",
@@ -973,11 +985,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": ".resetcrop()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L87"
+      "source_location": "L88"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_addcustomdefinition",
@@ -989,7 +1001,7 @@
       "file_type": "code",
       "norm_label": ".addcustomdefinition()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L172"
+      "source_location": "L173"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_adjustcovercrop",
@@ -1001,7 +1013,7 @@
       "file_type": "code",
       "norm_label": ".adjustcovercrop()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L354"
+      "source_location": "L355"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_applygrouping",
@@ -1013,7 +1025,7 @@
       "file_type": "code",
       "norm_label": ".applygrouping()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L181"
+      "source_location": "L182"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_applytxtgrouping",
@@ -1025,7 +1037,7 @@
       "file_type": "code",
       "norm_label": ".applytxtgrouping()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L225"
+      "source_location": "L226"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_clearillustrationfiles",
@@ -1037,7 +1049,7 @@
       "file_type": "code",
       "norm_label": ".clearillustrationfiles()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L145"
+      "source_location": "L146"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_getimagemimetype",
@@ -1049,7 +1061,7 @@
       "file_type": "code",
       "norm_label": ".getimagemimetype()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L75"
+      "source_location": "L76"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_getoptimizedcoverblob",
@@ -1061,7 +1073,7 @@
       "file_type": "code",
       "norm_label": ".getoptimizedcoverblob()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L429"
+      "source_location": "L430"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_handlechapterornamentfile",
@@ -1073,7 +1085,7 @@
       "file_type": "code",
       "norm_label": ".handlechapterornamentfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L152"
+      "source_location": "L153"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_handlecoverfile",
@@ -1085,7 +1097,7 @@
       "file_type": "code",
       "norm_label": ".handlecoverfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L368"
+      "source_location": "L369"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_handlefile",
@@ -1097,7 +1109,7 @@
       "file_type": "code",
       "norm_label": ".handlefile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L267"
+      "source_location": "L268"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_handleillustrationfiles",
@@ -1109,7 +1121,7 @@
       "file_type": "code",
       "norm_label": ".handleillustrationfiles()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L89"
+      "source_location": "L90"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_handlesubchapterornamentfile",
@@ -1121,7 +1133,7 @@
       "file_type": "code",
       "norm_label": ".handlesubchapterornamentfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L161"
+      "source_location": "L162"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_loadzipcontent",
@@ -1133,7 +1145,7 @@
       "file_type": "code",
       "norm_label": ".loadzipcontent()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L318"
+      "source_location": "L319"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_processepub",
@@ -1145,7 +1157,7 @@
       "file_type": "code",
       "norm_label": ".processepub()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L472"
+      "source_location": "L473"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_removechapterornamentfile",
@@ -1157,7 +1169,7 @@
       "file_type": "code",
       "norm_label": ".removechapterornamentfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L157"
+      "source_location": "L158"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_removecoverfile",
@@ -1169,7 +1181,7 @@
       "file_type": "code",
       "norm_label": ".removecoverfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L421"
+      "source_location": "L422"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_removecustomdefinition",
@@ -1181,7 +1193,7 @@
       "file_type": "code",
       "norm_label": ".removecustomdefinition()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L176"
+      "source_location": "L177"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_removeillustrationfile",
@@ -1193,7 +1205,7 @@
       "file_type": "code",
       "norm_label": ".removeillustrationfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L138"
+      "source_location": "L139"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_removesubchapterornamentfile",
@@ -1205,7 +1217,7 @@
       "file_type": "code",
       "norm_label": ".removesubchapterornamentfile()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L166"
+      "source_location": "L167"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_resetcovercrop",
@@ -1217,7 +1229,7 @@
       "file_type": "code",
       "norm_label": ".resetcovercrop()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L361"
+      "source_location": "L362"
     },
     {
       "id": "src_lib_epub_packer_parser_epub_chapter_utils_assignsequentialchapterids",
@@ -1309,7 +1321,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "onselectmultiple()",
       "source_file": "src/lib/components/DropZone.svelte",
@@ -1921,6 +1933,50 @@
       "source_location": "L1"
     },
     {
+      "id": "tests_helpers_test",
+      "label": "helpers.test.js",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "helpers.test.js",
+      "file_type": "code",
+      "norm_label": "helpers.test.js",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_helpers_test_mockanchor",
+      "label": "mockAnchor",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "helpers.test.js",
+      "file_type": "code",
+      "norm_label": "mockanchor",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L18"
+    },
+    {
+      "id": "tests_helpers_test_mockdocument",
+      "label": "mockDocument",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "helpers.test.js",
+      "file_type": "code",
+      "norm_label": "mockdocument",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L25"
+    },
+    {
+      "id": "tests_helpers_test_mockpdfjslib",
+      "label": "mockPdfjsLib",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "helpers.test.js",
+      "file_type": "code",
+      "norm_label": "mockpdfjslib",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L4"
+    },
+    {
       "id": "src_lib_epub_packer_epub_packer",
       "label": "epub-packer.js",
       "_origin": "ast",
@@ -2009,6 +2065,28 @@
       "source_location": "L19"
     },
     {
+      "id": "src_lib_helpers_helpers",
+      "label": "helpers.js",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "helpers.js",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_routes_epub_page",
+      "label": "epub/+page.svelte",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "epub/+page.svelte",
+      "source_file": "src/routes/epub/+page.svelte",
+      "source_location": "L1"
+    },
+    {
       "id": "tests_epub_packer_test",
       "label": "epub-packer.test.js",
       "_origin": "ast",
@@ -2075,6 +2153,18 @@
       "source_location": "L1"
     },
     {
+      "id": "task_clean_code",
+      "label": "clean-code.md",
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "clean-code.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "clean-code.md",
+      "source_file": "_task/clean-code.md",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_helpers_logger",
       "label": "../src/lib/helpers/logger.js?test=2",
       "_origin": "ast",
@@ -2085,6 +2175,17 @@
       "norm_label": "../src/lib/helpers/logger.js?test=2",
       "source_file": "src/lib/helpers/logger.js?test=2",
       "source_location": "L1"
+    },
+    {
+      "id": "src_lib_helpers_logger_logger",
+      "label": "Logger",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "logger",
+      "source_file": "src/lib/helpers/logger.js",
+      "source_location": "L60"
     },
     {
       "id": "src_lib_markdown_fixer_markdown_fixer",
@@ -2131,6 +2232,17 @@
       "source_location": "L19"
     },
     {
+      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
+      "label": "markdown-fixer-state.svelte.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "markdown-fixer-state.svelte.js",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_markdown_fixer_markdown_fixer_underline_patterns",
       "label": "UNDERLINE_PATTERNS",
       "_origin": "ast",
@@ -2164,33 +2276,11 @@
       "source_location": "L1"
     },
     {
-      "id": "src_lib_helpers_helpers",
-      "label": "helpers.js",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "helpers.js",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "label": "markdown-fixer-state.svelte.js",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "markdown-fixer-state.svelte.js",
-      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L1"
-    },
-    {
       "id": "src_lib_pdf_splitter_pdf_splitter",
       "label": "pdf-splitter.js",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "pdf-splitter.js",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -2201,62 +2291,18 @@
       "label": "pdf-splitter-state.svelte.js",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "pdf-splitter-state.svelte.js",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
       "source_location": "L1"
     },
     {
-      "id": "tests_helpers_test",
-      "label": "helpers.test.js",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "helpers.test.js",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_helpers_test_mockanchor",
-      "label": "mockAnchor",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "mockanchor",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L18"
-    },
-    {
-      "id": "tests_helpers_test_mockdocument",
-      "label": "mockDocument",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "mockdocument",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L25"
-    },
-    {
-      "id": "tests_helpers_test_mockpdfjslib",
-      "label": "mockPdfjsLib",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "helpers.js",
-      "file_type": "code",
-      "norm_label": "mockpdfjslib",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L4"
-    },
-    {
       "id": "tests_pdf_splitter_test",
       "label": "pdf-splitter.test.js",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "pdf-splitter.test.js",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2267,7 +2313,7 @@
       "label": "createdCanvases",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "createdcanvases",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2278,7 +2324,7 @@
       "label": "mockDoc",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "mockdoc",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2289,7 +2335,7 @@
       "label": "mockPage",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "mockpage",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2300,7 +2346,7 @@
       "label": "mockPdfjsLib",
       "_origin": "ast",
       "community": 4,
-      "community_name": "helpers.js",
+      "community_name": "pdf-splitter-state.svelte.js",
       "file_type": "code",
       "norm_label": "mockpdfjslib",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2696,7 +2742,7 @@
       "label": "Button.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "button.svelte",
       "source_file": "src/lib/components/Button.svelte",
@@ -2707,7 +2753,7 @@
       "label": "DropZone.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "dropzone.svelte",
       "source_file": "src/lib/components/DropZone.svelte",
@@ -2718,7 +2764,7 @@
       "label": "Input.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "input.svelte",
       "source_file": "src/lib/components/Input.svelte",
@@ -2729,21 +2775,10 @@
       "label": "PageHeader.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "pageheader.svelte",
       "source_file": "src/lib/components/PageHeader.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_routes_epub_page",
-      "label": "epub/+page.svelte",
-      "_origin": "ast",
-      "community": 9,
-      "community_name": "epub/+page.svelte",
-      "file_type": "code",
-      "norm_label": "epub/+page.svelte",
-      "source_file": "src/routes/epub/+page.svelte",
       "source_location": "L1"
     },
     {
@@ -2751,7 +2786,7 @@
       "label": "md/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "md/+page.svelte",
       "source_file": "src/routes/md/+page.svelte",
@@ -2762,7 +2797,7 @@
       "label": "pdf/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "pdf/+page.svelte",
       "source_file": "src/routes/pdf/+page.svelte",
@@ -2773,7 +2808,7 @@
       "label": "txt-to-pdf/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "epub/+page.svelte",
+      "community_name": "md/+page.svelte",
       "file_type": "code",
       "norm_label": "txt-to-pdf/+page.svelte",
       "source_file": "src/routes/txt-to-pdf/+page.svelte",
@@ -3330,7 +3365,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L183",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -3342,7 +3377,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L195",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -3354,7 +3389,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L199",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -3366,7 +3401,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L206",
+      "source_location": "L207",
       "weight": 1.0
     },
     {
@@ -3378,7 +3413,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L215",
+      "source_location": "L216",
       "weight": 1.0
     },
     {
@@ -3390,7 +3425,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L216",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -3402,7 +3437,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L236",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -3414,7 +3449,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L240",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
@@ -3426,7 +3461,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L148",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -3438,7 +3473,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L371",
+      "source_location": "L372",
       "weight": 1.0
     },
     {
@@ -3450,7 +3485,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L294",
+      "source_location": "L295",
       "weight": 1.0
     },
     {
@@ -3462,7 +3497,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L302",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -3474,7 +3509,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L314",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -3486,7 +3521,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L104",
+      "source_location": "L105",
       "weight": 1.0
     },
     {
@@ -3498,7 +3533,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L134",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -3510,7 +3545,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L345",
+      "source_location": "L346",
       "weight": 1.0
     },
     {
@@ -3522,7 +3557,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L489",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -3534,7 +3569,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L524",
+      "source_location": "L525",
       "weight": 1.0
     },
     {
@@ -3546,7 +3581,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L569",
+      "source_location": "L570",
       "weight": 1.0
     },
     {
@@ -3558,7 +3593,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L426",
+      "source_location": "L427",
       "weight": 1.0
     },
     {
@@ -3570,7 +3605,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L178",
+      "source_location": "L179",
       "weight": 1.0
     },
     {
@@ -3582,7 +3617,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L141",
+      "source_location": "L142",
       "weight": 1.0
     },
     {
@@ -4230,7 +4265,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L61",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -4242,7 +4277,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -4254,7 +4289,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L41",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -4338,7 +4373,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L124",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -4350,7 +4385,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L42",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -4362,7 +4397,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -4374,7 +4409,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L101",
+      "source_location": "L102",
       "weight": 1.0
     },
     {
@@ -4931,6 +4966,18 @@
     },
     {
       "source": "src_lib_epub_packer_epub_state_svelte",
+      "target": "src_lib_helpers_logger_logger",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_state_svelte",
       "target": "src_lib_epub_packer_templates_fonts_findfont",
       "relation": "imports",
       "_origin": "ast",
@@ -4938,7 +4985,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -5279,7 +5326,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "target": "src_lib_markdown_fixer_markdown_fixer_fixmarkdownzip",
+      "target": "src_lib_helpers_logger_logger",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5287,6 +5334,18 @@
       "context": "import",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
+      "target": "src_lib_markdown_fixer_markdown_fixer_fixmarkdownzip",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -5327,7 +5386,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "target": "src_lib_pdf_splitter_pdf_splitter_loadpdfpreview",
+      "target": "src_lib_helpers_logger_logger",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5339,6 +5398,18 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
+      "target": "src_lib_pdf_splitter_pdf_splitter_loadpdfpreview",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
       "target": "src_lib_pdf_splitter_pdf_splitter_processpdftojpg",
       "relation": "imports",
       "_origin": "ast",
@@ -5346,7 +5417,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -5771,6 +5842,18 @@
     },
     {
       "source": "src_lib_epub_packer_epub_state_svelte",
+      "target": "src_lib_helpers_logger",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_state_svelte",
       "target": "src_lib_epub_packer_templates_fonts",
       "relation": "imports_from",
       "_origin": "ast",
@@ -5778,7 +5861,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0
     },
     {
@@ -6035,7 +6118,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "target": "src_lib_markdown_fixer_markdown_fixer",
+      "target": "src_lib_helpers_logger",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -6043,6 +6126,18 @@
       "context": "import",
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
+      "target": "src_lib_markdown_fixer_markdown_fixer",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -6071,7 +6166,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "target": "src_lib_pdf_splitter_pdf_splitter",
+      "target": "src_lib_helpers_logger",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -6079,6 +6174,18 @@
       "context": "import",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
+      "target": "src_lib_pdf_splitter_pdf_splitter",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -6934,7 +7041,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -7609,6 +7716,28 @@
       "weight": 1.0
     },
     {
+      "source": "src_lib_helpers_logger",
+      "target": "src_lib_helpers_logger_logger",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/helpers/logger.js",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_logger",
+      "target": "src_lib_helpers_logger_formatandlog",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/helpers/logger.js",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_markdown_fixer_markdown_fixer",
       "target": "src_lib_markdown_fixer_markdown_fixer_bold_patterns",
       "relation": "contains",
@@ -7682,7 +7811,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -7759,7 +7888,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -7952,6 +8081,15 @@
       "source_file": "src/routes/epub/+page.svelte"
     },
     {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_helpers_logger",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
       "source": "src_routes_layout",
       "target": "stores",
       "relation": "imports_from",
@@ -8067,7 +8205,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L138",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -8078,7 +8216,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L145",
+      "source_location": "L146",
       "weight": 1.0
     },
     {
@@ -8089,7 +8227,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L152",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -8100,7 +8238,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L157",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -8111,7 +8249,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L161",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -8122,7 +8260,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L166",
+      "source_location": "L167",
       "weight": 1.0
     },
     {
@@ -8133,7 +8271,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L172",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -8144,7 +8282,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L176",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -8155,7 +8293,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L181",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -8166,7 +8304,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L225",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -8177,7 +8315,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L267",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -8188,7 +8326,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L318",
+      "source_location": "L319",
       "weight": 1.0
     },
     {
@@ -8199,7 +8337,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L354",
+      "source_location": "L355",
       "weight": 1.0
     },
     {
@@ -8210,7 +8348,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L361",
+      "source_location": "L362",
       "weight": 1.0
     },
     {
@@ -8221,7 +8359,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L368",
+      "source_location": "L369",
       "weight": 1.0
     },
     {
@@ -8232,7 +8370,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L421",
+      "source_location": "L422",
       "weight": 1.0
     },
     {
@@ -8243,7 +8381,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L429",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -8254,7 +8392,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L472",
+      "source_location": "L473",
       "weight": 1.0
     },
     {
@@ -8265,7 +8403,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L75",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -8276,7 +8414,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L89",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -8287,7 +8425,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -8298,7 +8436,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -8309,7 +8447,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -8320,7 +8458,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -8331,7 +8469,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -8342,7 +8480,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -8353,7 +8491,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L69",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -8364,7 +8502,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L74",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -8375,7 +8513,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L79",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -8386,7 +8524,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L87",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -8397,7 +8535,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
-      "source_location": "L92",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -8522,5 +8660,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5104e5a42d5c5ae5d99c273f1e5496fd0365d37d"
+  "built_at_commit": "3a38a15a7860f07b0fbf6a7cbad91b6d4353e9a7"
 }
