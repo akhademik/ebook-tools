@@ -1,5 +1,5 @@
 // src/lib/epub-packer/xml-builders/nav-builder.ts
-import { escapeXml } from '$lib/utils/xml.js';
+import { escapeXml } from '$lib/utils/xml';
 import type { EpubMetadata, EpubChapterItem, TocEntry } from '$lib/types';
 
 export type { TocEntry };

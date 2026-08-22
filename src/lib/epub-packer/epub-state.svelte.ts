@@ -6,8 +6,8 @@ import {
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
 	parseTxtToChapters
-} from './parser/epub-parser.js';
-import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
+} from './parser/epub-parser';
+import { buildEpubBlob, EPUB_CSS } from './epub-packer';
 import type {
 	EpubFontsConfig,
 	EpubJacketConfig,
@@ -18,11 +18,11 @@ import type {
 	CleanedLinesReportItem,
 	CustomDefinition
 } from '$lib/types';
-import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
-import { Logger } from '$lib/helpers/logger.js';
+import { slugify, ensureEpubExt } from '$lib/helpers/helpers';
+import { Logger } from '$lib/helpers/logger';
 import JSZip from 'jszip';
 
-import { findFont } from './templates/fonts.js';
+import { findFont } from './templates/fonts';
 
 export class EpubState {
 	epubFileSelected = $state<File | null>(null);

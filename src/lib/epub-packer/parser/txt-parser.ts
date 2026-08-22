@@ -1,24 +1,24 @@
 // src/lib/epub-packer/parser/txt-parser.ts
-import * as logger from '$lib/helpers/logger.js';
-import { escapeXml } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger';
+import { escapeXml } from '$lib/helpers/helpers';
 import type { CustomDefinition, ParseTxtOptions } from '$lib/types';
 
 export type { ParseTxtOptions };
 
-export function escapeRegExp(str: string): string {
+function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function getClosingTag(openTag: string): string {
+function getClosingTag(openTag: string): string {
 	const match = openTag.match(/<([a-zA-Z0-9]+)/);
 	return match ? `</${match[1]}>` : '';
 }
 
-export function stripHtmlTags(html: string): string {
+function stripHtmlTags(html: string): string {
 	return html.replace(/<[^>]+>/g, '').trim();
 }
 
-export function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
+function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
 	let t = escapeXml(String(text || ''));
 
 	const customTags: string[] = [];
@@ -77,7 +77,7 @@ export function applyInlineFormatting(text: string, customDefinitions: CustomDef
 	return t;
 }
 
-export function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?: string }> = {}): string | null {
+function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?: string }> = {}): string | null {
 	const lowerKey = (tagKey || '').toLowerCase();
 	if (['letter', '/letter', 'poem', '/poem', 'new', '/new'].includes(lowerKey)) {
 		return null;
@@ -105,7 +105,7 @@ export function parseTxtToChapters(
 ): any[] {
 	const customDefinitions = options.customDefinitions || [];
 	const imagesMap = options.images || {};
-	logger.log('epub-parser', 'parseTxtToChapters starting parse with new conventions.');
+	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
 
 	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
 	const footnoteIdx = lines.findIndex(l => /^\s*chú thích:?\s*$/i.test(l));
@@ -381,18 +381,18 @@ export function parseTxtToChapters(
 	}
 
 	if (currentBlock) {
-		logger.warn('epub-parser', 'thiếu mã đóng block');
+		Logger.warn('[epub-parser]', 'thiếu mã đóng block');
 		if (currentChapter) {
 			currentChapter.html += `</div>\n`;
 		}
 	}
 
 	if (isInsideNewBlock) {
-		logger.warn('epub-parser', 'thiếu mã đóng thẻ [new]');
+		Logger.warn('[epub-parser]', 'thiếu mã đóng thẻ [new]');
 	}
 
 	if (chapters.length === 0) {
-		logger.warn('epub-parser', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
+		Logger.warn('[epub-parser]', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
 		chapters.push({
 			title: fallbackTitle,
 			html: '',
@@ -415,6 +415,6 @@ export function parseTxtToChapters(
 		chapters.push(notesChapter);
 	}
 
-	logger.log('epub-parser', 'parseTxtToChapters completed, total chapters:', chapters.length);
+	Logger.debug('[epub-parser]', `parseTxtToChapters completed, total chapters: ${chapters.length}`);
 	return chapters;
 }

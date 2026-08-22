@@ -106,7 +106,7 @@ vi.mock('jszip', () => {
 });
 
 // Import modules AFTER setting up globals
-import { formatEta, loadPdfPreview, processPdfToJpg } from '../src/lib/pdf-splitter/pdf-splitter.js';
+import { formatEta, loadPdfPreview, processPdfToJpg } from '../src/lib/pdf-splitter/pdf-splitter';
 
 describe('pdf-splitter tests', () => {
 	beforeEach(() => {

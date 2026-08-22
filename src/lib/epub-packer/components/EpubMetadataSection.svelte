@@ -1,7 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
-  import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
-  import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
+  import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts";
+  import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates";
   import type { EpubMetadataSectionProps } from "$lib/types";
 
   let { epubState, onOpenJacketModal }: EpubMetadataSectionProps = $props();

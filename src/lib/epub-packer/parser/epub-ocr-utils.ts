@@ -1,9 +1,9 @@
 // src/lib/epub-packer/parser/epub-ocr-utils.ts
-import * as logger from '$lib/helpers/logger.js';
-import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger';
+import { normalizeCharPreserveLength } from '$lib/helpers/helpers';
 import type { ScannedReportItem, CleanedLinesReportItem } from '$lib/types';
 
-export type { ScannedReportItem, CleanedLinesReportItem };
+export type { CleanedLinesReportItem };
 
 export function isRealParagraph(line: string): boolean {
 	const trim = line.trim();
@@ -96,11 +96,11 @@ export function cleanHeaderFooterOcr(
 	keywords: string[] | string | undefined,
 	lineLimit = 2
 ): string {
-	logger.log('epub-parser', 'cleanHeaderFooterOcr called, lines:', String(text || '').split('\n').length, 'keywords:', keywords);
+	Logger.debug('[epub-parser]', `cleanHeaderFooterOcr called, lines: ${String(text || '').split('\n').length}, keywords: ${keywords}`);
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
 	if (shouldSkipHeaderFooter(lines, normKeywords)) {
-		logger.log('epub-parser', 'cleanHeaderFooterOcr: skipped cleaning (real paragraphs at boundary)');
+		Logger.debug('[epub-parser]', 'cleanHeaderFooterOcr: skipped cleaning (real paragraphs at boundary)');
 		return text;
 	}
 
@@ -113,7 +113,7 @@ export function cleanHeaderFooterOcr(
 	}
 
 	const resultLines = lines.filter((_, idx) => !linesToRemove.includes(idx));
-	logger.log('epub-parser', `cleanHeaderFooterOcr: removed ${linesToRemove.length} header/footer lines`);
+	Logger.debug('[epub-parser]', `cleanHeaderFooterOcr: removed ${linesToRemove.length} header/footer lines`);
 	return resultLines.join('\n');
 }
 

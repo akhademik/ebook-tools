@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
+  import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts";
   import type { EpubSectionBaseProps } from "$lib/types";
 
   let { epubState }: EpubSectionBaseProps = $props();

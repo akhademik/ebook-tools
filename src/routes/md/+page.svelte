@@ -3,7 +3,7 @@
 	import DropZone from '$lib/components/DropZone.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import Button from '$lib/components/Button.svelte';
-	import { MarkdownFixerState } from '$lib/markdown-fixer/markdown-fixer-state.svelte.js';
+	import { MarkdownFixerState } from '$lib/markdown-fixer/markdown-fixer-state.svelte';
 
 	const state = new MarkdownFixerState();
 

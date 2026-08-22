@@ -1,6 +1,6 @@
 // src/lib/epub-packer/parser/epub-chapter-utils.ts
-import * as logger from '$lib/helpers/logger.js';
-import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
+import { Logger } from '$lib/helpers/logger';
+import { normalizeCharPreserveLength } from '$lib/helpers/helpers';
 import type {
 	MarkdownBlock,
 	RawFileItem,
@@ -91,7 +91,7 @@ export function scoreHeadingCandidate(rawText: string, blockType = 'p', isFirstB
 	// Reject if the first letter character in the block is lowercase (Unicode property escape)
 	const firstLetterMatch = plain.match(/\p{L}/u);
 	if (firstLetterMatch && /^\p{Ll}/u.test(firstLetterMatch[0])) {
-		logger.log('epub-chapter-utils', `scoreHeadingCandidate REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
+		Logger.debug('[epub-chapter-utils]', `scoreHeadingCandidate REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
 		return -99;
 	}
 
@@ -152,7 +152,7 @@ export function extractChunkBlocks(
 }
 
 export function assignSequentialChapterIds(chapters: any[]): any[] {
-	logger.log('epub-parser', 'assignSequentialChapterIds called for chapters count:', chapters.length);
+	Logger.debug('[epub-parser]', `assignSequentialChapterIds called for chapters count: ${chapters.length}`);
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
@@ -170,7 +170,7 @@ export function assignSequentialChapterIds(chapters: any[]): any[] {
 			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
 		return { ...c, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null };
 	});
-	logger.log('epub-parser', 'assignSequentialChapterIds finished: total chapters =', chapCount);
+	Logger.debug('[epub-parser]', `assignSequentialChapterIds finished: total chapters = ${chapCount}`);
 	return result;
 }
 
@@ -182,7 +182,7 @@ export function analyzeChapterCandidates(
 	endPage: number,
 	heuristicThreshold = 5
 ): ChapterCandidateItem[] {
-	logger.log('epub-parser', 'analyzeChapterCandidates called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic, 'threshold:', heuristicThreshold);
+	Logger.debug('[epub-parser]', `analyzeChapterCandidates called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}, threshold: ${heuristicThreshold}`);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const candidates: ChapterCandidateItem[] = [];
 
@@ -236,6 +236,6 @@ export function analyzeChapterCandidates(
 			}
 		}
 	}
-	logger.log('epub-parser', 'analyzeChapterCandidates finished, total candidates:', candidates.length);
+	Logger.debug('[epub-parser]', `analyzeChapterCandidates finished, total candidates: ${candidates.length}`);
 	return candidates;
 }

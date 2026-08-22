@@ -1,5 +1,5 @@
 // src/lib/epub-packer/parser/epub-single-grouper.ts
-import * as logger from '$lib/helpers/logger.js';
+import { Logger } from '$lib/helpers/logger';
 import {
 	makeChapterMatcher,
 	pushIfLineStart,
@@ -7,9 +7,9 @@ import {
 	stripDecoration,
 	extractMarkerTitle,
 	extractChunkBlocks
-} from './epub-chapter-utils.js';
-import { isRealParagraph } from './epub-ocr-utils.js';
-import { renderMarkdownBlocks } from './epub-markdown-utils.js';
+} from './epub-chapter-utils';
+import { isRealParagraph } from './epub-ocr-utils';
+import { renderMarkdownBlocks } from './epub-markdown-utils';
 import type {
 	MarkdownBlock,
 	ChapterCutPoint,
@@ -101,7 +101,7 @@ export function groupChaptersSingle(
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
 ): any[] {
-	logger.log('epub-parser', 'groupChaptersSingle called, pattern:', patternRaw, 'useHeuristic:', useHeuristic);
+	Logger.debug('[epub-parser]', `groupChaptersSingle called, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups: any[] = [];
 
@@ -161,6 +161,6 @@ export function groupChaptersSingle(
 			});
 		}
 	}
-	logger.log('epub-parser', 'groupChaptersSingle finished, total groups created:', groups.length);
+	Logger.debug('[epub-parser]', `groupChaptersSingle finished, total groups created: ${groups.length}`);
 	return groups;
 }

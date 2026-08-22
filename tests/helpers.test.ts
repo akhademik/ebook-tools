@@ -42,7 +42,7 @@ Object.defineProperty(globalThis, 'document', {
 });
 
 // Dynamic import to capture the top-level window.pdfjsLib check
-const helpersModule = await import('../src/lib/helpers/helpers.js');
+const helpersModule = await import('../src/lib/helpers/helpers');
 const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml, normalizeCharPreserveLength } = helpersModule;
 
 describe('helpers tests', () => {
@@ -160,6 +160,12 @@ describe('helpers tests', () => {
 			expect(escapeXml(null)).toBe('');
 			expect(escapeXml(undefined)).toBe('');
 		});
+
+		it('should strip XML 1.0 illegal C0 control characters', () => {
+			expect(escapeXml('Hello\x00\x08World\x0B\x0C!\x1F')).toBe('HelloWorld!');
+			// Preserves tab \t (0x09), newline \n (0x0A), carriage return \r (0x0D)
+			expect(escapeXml('Line 1\t\nLine 2\r')).toBe('Line 1\t\nLine 2\r');
+		});
 	});
 
 	describe('normalizeCharPreserveLength', () => {
@@ -172,6 +178,13 @@ describe('helpers tests', () => {
 			expect(normalizeCharPreserveLength(null)).toBe('');
 			expect(normalizeCharPreserveLength(undefined)).toBe('');
 			expect(normalizeCharPreserveLength('')).toBe('');
+		});
+
+		it('should safely handle non-BMP astral characters without creating lone surrogates', () => {
+			const astral = '𠀀'; // U+20000 (CJK Extension B)
+			const res = normalizeCharPreserveLength(astral);
+			expect(res).toBe('𠀀');
+			expect(res.isWellFormed()).toBe(true);
 		});
 	});
 });

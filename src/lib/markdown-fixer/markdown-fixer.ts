@@ -1,6 +1,6 @@
 // src/lib/markdown-fixer/markdown-fixer.ts
 import JSZip from 'jszip';
-import * as logger from '../helpers/logger.js';
+import { Logger } from '../helpers/logger';
 import type {
 	ConvertedBracketsResult,
 	ProcessedMarkdownFileRow,
@@ -9,7 +9,6 @@ import type {
 
 export type {
 	ConvertedBracketsResult,
-	ProcessedMarkdownFileRow,
 	FixMarkdownZipResult
 };
 
@@ -38,7 +37,7 @@ const UNDERLINE_PATTERNS = [
 ];
 
 export function convertBrackets(text: string): ConvertedBracketsResult {
-	logger.log('markdown-fixer', 'convertBrackets called, input length:', text.length);
+	Logger.debug('[markdown-fixer]', `convertBrackets called, input length: ${text.length}`);
 	let count = 0;
 	let converted = text;
 	
@@ -77,16 +76,16 @@ export function convertBrackets(text: string): ConvertedBracketsResult {
 		.replaceAll('%%U_OPEN%%', '_')
 		.replaceAll('%%U_CLOSE%%', '_');
 
-	logger.log('markdown-fixer', 'convertBrackets finished, replaced:', count, 'matches');
+	Logger.debug('[markdown-fixer]', `convertBrackets finished, replaced: ${count} matches`);
 	return { converted, count };
 }
 
 export async function fixMarkdownZip(mdSelectedFile: File | null): Promise<FixMarkdownZipResult> {
 	if (!mdSelectedFile) {
-		logger.error('markdown-fixer', 'fixMarkdownZip called without file');
+		Logger.error('[markdown-fixer]', 'fixMarkdownZip called without file');
 		throw new Error('Chưa chọn tệp .ZIP.');
 	}
-	logger.log('markdown-fixer', 'fixMarkdownZip called, size:', mdSelectedFile.size);
+	Logger.debug('[markdown-fixer]', `fixMarkdownZip called, size: ${mdSelectedFile.size}`);
 
 	const arrayBuffer = await mdSelectedFile.arrayBuffer();
 	const inZip = await JSZip.loadAsync(arrayBuffer);
@@ -106,18 +105,18 @@ export async function fixMarkdownZip(mdSelectedFile: File | null): Promise<FixMa
 			fileCount++;
 			replaceCount += count;
 			rows.push({ path: entry.name, count });
-			logger.log('markdown-fixer', 'Processed markdown file:', entry.name, 'replaced:', count);
+			Logger.debug('[markdown-fixer]', `Processed markdown file: ${entry.name}, replaced: ${count}`);
 		} else {
 			const blob = await entry.async('blob');
 			outZip.file(entry.name, blob);
-			logger.log('markdown-fixer', 'Copied non-markdown file:', entry.name);
+			Logger.debug('[markdown-fixer]', `Copied non-markdown file: ${entry.name}`);
 		}
 	}
 
 	const zipBlob = await outZip.generateAsync({ type: 'blob' });
 	rows.sort((a, b) => b.count - a.count);
 
-	logger.log('markdown-fixer', 'fixMarkdownZip finished, processed:', fileCount, 'markdown files, total replacements:', replaceCount);
+	Logger.debug('[markdown-fixer]', `fixMarkdownZip finished, processed: ${fileCount} markdown files, total replacements: ${replaceCount}`);
 	return {
 		zipBlob,
 		totalFiles: fileCount,

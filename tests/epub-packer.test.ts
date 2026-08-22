@@ -28,7 +28,7 @@ import {
 	buildEpubBlob,
 	injectHeadingIds,
 	getTocEntries
-} from '../src/lib/epub-packer/epub-packer.js';
+} from '../src/lib/epub-packer/epub-packer';
 
 describe('epub-packer tests', () => {
 	beforeEach(() => {

@@ -1,11 +1,10 @@
 // src/lib/epub-packer/xml-builders/opf-builder.ts
-import { escapeXml } from '$lib/utils/xml.js';
-import * as logger from '$lib/helpers/logger.js';
-import { findFont } from '../templates/fonts.js';
+import { escapeXml } from '$lib/utils/xml';
+import { Logger } from '$lib/helpers/logger';
+import { findFont } from '../templates/fonts';
 import type {
   EpubMetadata,
   EpubChapterItem,
-  OrnamentItem,
   OrnamentsConfig,
   IllustrationImageItem
 } from '$lib/types';
@@ -13,7 +12,6 @@ import type {
 export type {
   EpubMetadata,
   EpubChapterItem,
-  OrnamentItem,
   OrnamentsConfig,
   IllustrationImageItem
 };
@@ -29,16 +27,15 @@ export function buildContentOpf(
   ornaments: OrnamentsConfig | null = null,
   images: IllustrationImageItem[] = [],
 ): string {
-  logger.log(
-    'epub-packer',
-    'buildContentOpf called with chapters count:',
-    chapters.length,
-    'hasCover:',
-    hasCover,
-    'activeFonts:',
-    activeFonts,
-    'imagesCount:',
-    images?.length || 0,
+  Logger.debug(
+    '[EpubPacker]',
+    'buildContentOpf called',
+    {
+      chaptersCount: chapters.length,
+      hasCover,
+      activeFonts,
+      imagesCount: images?.length || 0,
+    }
   );
   const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
   const manifestItems = [

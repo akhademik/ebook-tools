@@ -1,13 +1,12 @@
 // src/lib/epub-packer/xml-builders/chapter-builder.ts
-import { escapeXml } from '$lib/utils/xml.js';
-import * as logger from '$lib/helpers/logger.js';
+import { escapeXml } from '$lib/utils/xml';
+import { Logger } from '$lib/helpers/logger';
 import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from '$lib/types';
 
 export function mergeBrokenParagraphs(html: string): string {
-  logger.log(
-    'epub-packer',
-    'mergeBrokenParagraphs called, html length:',
-    html.length,
+  Logger.debug(
+    '[EpubPacker]',
+    `mergeBrokenParagraphs called, html length: ${html.length}`
   );
   let result = html;
   let changed = true;
@@ -29,10 +28,9 @@ export function mergeBrokenParagraphs(html: string): string {
       },
     );
   }
-  logger.log(
-    'epub-packer',
-    'mergeBrokenParagraphs finished, result length:',
-    result.length,
+  Logger.debug(
+    '[EpubPacker]',
+    `mergeBrokenParagraphs finished, result length: ${result.length}`
   );
   return result;
 }
@@ -44,12 +42,9 @@ export function buildChapterXhtml(
   customCss = '',
   ornaments: OrnamentsConfig | null = null,
 ): string {
-  logger.log(
-    'epub-packer',
-    'buildChapterXhtml called for:',
-    chapter.title,
-    'skipParagraphMerge:',
-    skipParagraphMerge,
+  Logger.debug(
+    '[EpubPacker]',
+    `buildChapterXhtml called for: ${chapter.title}, skipParagraphMerge: ${skipParagraphMerge}`
   );
   let content = skipParagraphMerge
     ? (chapter.html || '')

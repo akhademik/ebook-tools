@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import JSZip from 'jszip';
-import { convertBrackets, fixMarkdownZip } from '../src/lib/markdown-fixer/markdown-fixer.js';
+import { convertBrackets, fixMarkdownZip } from '../src/lib/markdown-fixer/markdown-fixer';
 
 // Mock JSZip
 vi.mock('jszip', () => {

@@ -1,7 +1,7 @@
 // src/lib/epub-packer/parser/epub-parser.ts
-import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper.js';
-import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper.js';
-import { parseTxtToChapters } from './txt-parser.js';
+import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper';
+import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper';
+import { parseTxtToChapters } from './txt-parser';
 import type {
 	MarkdownBlock,
 	ChapterMatcher,
@@ -29,13 +29,13 @@ export {
 	renderMarkdownBlocks,
 	convertTxtInline,
 	normalizeMultiLineChapterTags
-} from './epub-markdown-utils.js';
+} from './epub-markdown-utils';
 
 export {
 	isRealParagraph,
 	cleanHeaderFooterOcr,
 	getCleanedLinesReport
-} from './epub-ocr-utils.js';
+} from './epub-ocr-utils';
 
 export {
 	stripDecoration,
@@ -46,7 +46,7 @@ export {
 	extractChunkBlocks,
 	assignSequentialChapterIds,
 	analyzeChapterCandidates
-} from './epub-chapter-utils.js';
+} from './epub-chapter-utils';
 
 export function findAllMarkerPositionsCombined(
 	blocks: MarkdownBlock[],

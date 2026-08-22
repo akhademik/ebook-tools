@@ -1,5 +1,5 @@
 // src/lib/epub-packer/templates/jacket-templates.ts
-import { escapeXml } from '$lib/utils/xml.js';
+import { escapeXml } from '$lib/utils/xml';
 import type { JacketTemplate } from '$lib/types';
 import introCss from './css-template/intro-css.css?raw';
 

@@ -2,12 +2,15 @@
 
 /**
  * Escapes XML/HTML special characters in a string for safe EPUB XHTML insertion.
+ * Strips C0 control characters that are illegal in XML 1.0 (excluding \t, \n, \r).
  * @param s - Input string or primitive.
  * @returns Escaped XML string.
  */
 export function escapeXml(s: unknown): string {
   if (s === null || s === undefined) return '';
   return String(s)
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

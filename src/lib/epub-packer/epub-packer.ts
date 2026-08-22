@@ -1,7 +1,7 @@
 import JSZip from 'jszip';
-import * as logger from '$lib/helpers/logger.js';
-import { JACKET_TEMPLATES } from './templates/jacket-templates.js';
-import { findFont, getFontFileName, getFontCSSDeclaration } from './templates/fonts.js';
+import { Logger } from '$lib/helpers/logger';
+import { JACKET_TEMPLATES } from './templates/jacket-templates';
+import { findFont, getFontFileName, getFontCSSDeclaration } from './templates/fonts';
 
 import baseCss from './templates/css-template/base.css?raw';
 import headingsCss from './templates/css-template/headings.css?raw';
@@ -9,10 +9,10 @@ import quotesCss from './templates/css-template/quotes.css?raw';
 import breaksCss from './templates/css-template/breaks.css?raw';
 import notesCss from './templates/css-template/notes.css?raw';
 
-import { buildContainerXml } from './xml-builders/container-builder.js';
-import { buildContentOpf } from './xml-builders/opf-builder.js';
-import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder.js';
-import { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder.js';
+import { buildContainerXml } from './xml-builders/container-builder';
+import { buildContentOpf } from './xml-builders/opf-builder';
+import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder';
+import { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder';
 import type {
   EpubMetadata,
   EpubChapterItem,
@@ -113,22 +113,18 @@ export async function buildEpubBlob(
   ornaments: OrnamentsConfig | null = null,
   images: IllustrationImageItem[] = [],
 ): Promise<Blob> {
-  logger.log(
-    'epub-packer',
-    'buildEpubBlob called, chapters count:',
-    chapters.length,
-    'skipParagraphMerge:',
-    skipParagraphMerge,
-    'jacket:',
-    jacket,
-    'hasCoverBlob:',
-    !!coverBlob,
-    'fontsConfig:',
-    fonts,
-    'ornamentsConfig:',
-    ornaments,
-    'imagesCount:',
-    images?.length || 0,
+  Logger.debug(
+    '[EpubPacker]',
+    'buildEpubBlob called',
+    {
+      chaptersCount: chapters.length,
+      skipParagraphMerge,
+      jacket,
+      hasCoverBlob: !!coverBlob,
+      fontsConfig: fonts,
+      ornamentsConfig: ornaments,
+      imagesCount: images?.length || 0
+    }
   );
   const meta: EpubMetadata = {
     title: metadata.title || 'Không tên',
@@ -143,9 +139,9 @@ export async function buildEpubBlob(
     publisher: metadata.publisher || '',
   };
   if (!chapters.length) {
-    logger.error(
-      'epub-packer',
-      'buildEpubBlob error: chapters array is empty!',
+    Logger.error(
+      '[EpubPacker]',
+      'buildEpubBlob error: chapters array is empty!'
     );
     throw new Error('Không có chương nào để đóng gói.');
   }
@@ -167,26 +163,26 @@ export async function buildEpubBlob(
           (bookerlyFont.url.startsWith('http://') ||
             bookerlyFont.url.startsWith('https://'));
         if (isBrowser || isAbsolute) {
-          logger.log(
-            'epub-packer',
-            'Fetching Bookerly font dynamically inside buildEpubBlob...',
+          Logger.debug(
+            '[EpubPacker]',
+            'Fetching Bookerly font dynamically inside buildEpubBlob...'
           );
           const res = await fetch(bookerlyFont.url);
           if (res.ok) {
             fonts.blobs['Bookerly'] = await res.blob();
           } else {
-            logger.error(
-              'epub-packer',
+            Logger.error(
+              '[EpubPacker]',
               'Failed to fetch Bookerly font inside buildEpubBlob:',
-              res.statusText,
+              res.statusText
             );
           }
         }
       } catch (err) {
-        logger.error(
-          'epub-packer',
+        Logger.error(
+          '[EpubPacker]',
           'Error fetching Bookerly font inside buildEpubBlob:',
-          err,
+          err
         );
       }
     }
@@ -423,9 +419,9 @@ export async function buildEpubBlob(
     }
   }
 
-  logger.log(
-    'epub-packer',
-    'All chapters added to zip, generating blob with JSZip...',
+  Logger.debug(
+    '[EpubPacker]',
+    'All chapters added to zip, generating blob with JSZip...'
   );
   const blob = await zip.generateAsync({
     type: 'blob',
@@ -433,12 +429,9 @@ export async function buildEpubBlob(
     compression: 'DEFLATE',
     compressionOptions: { level: 9 },
   });
-  logger.log(
-    'epub-packer',
-    'Blob generated successfully, size:',
-    blob.size,
-    'type:',
-    blob.type,
+  Logger.info(
+    '[EpubPacker]',
+    `Blob generated successfully, size: ${blob.size}, type: ${blob.type}`
   );
   return blob;
 }

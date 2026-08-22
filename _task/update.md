@@ -1,28 +1,29 @@
-toi muon them 1 logic do la trong file txt khi user add vao trong noi dung file txt la [hinh-1], [hinh-2] thi code se chen
+Good, no XSS red flags there. Let's look at the core logic modules.This is a fairly large project. Let me get a proportional sense of it and dig into the core parsing/packing logic, since that's most likely where bugs live.All 123 tests pass. Let's check lint and knip (unused code detector) since these can surface real improvement opportunities quickly.I pulled the repo and ran it (tests + lint) rather than just reading the README — here's what I found.
 
-<figure class="illust-box">
-  <img class="illust-img" src="../[hinh-1].[ext]" alt="hinh-1" />
-</figure>
+**Good shape overall:** 123 tests pass, `eslint` is clean, no `innerHTML`/`eval` red flags, and the architecture (routes ↔ `lib` feature folders, typed models) is sensible for a SvelteKit app.
 
-voi css tuong ung inject vao la
+Things worth improving:
 
-/_ Khung chứa ảnh: Căn giữa, ngắt dòng và chống dính lề _/
-figure.illust-box {
-margin: 1.5em auto;
-padding: 0;
-text-align: center;
-page-break-inside: avoid;
-break-inside: avoid;
-}
+**1. A real bug in `normalizeCharPreserveLength` (src/lib/utils/text.ts)**
+It does `ch.normalize('NFD')[0]` per character to strip diacritics. For any character outside the Basic Multilingual Plane (rare Hán/Nôm characters, many CJK Extension B+ codepoints — exactly what your TXT→PDF CJK tool targets) this grabs only the first UTF-16 surrogate half, producing an invalid lone surrogate. I confirmed it:
 
-img.illust-img {
-display: block;
-max-width: 100%;  
- max-height: 90vh;  
- height: auto;  
- width: auto;  
- margin: 0 auto;  
- border: 0;
-}
+```
+input: 𠀀 (U+20000)
+normalizeCharPreserveLength output: contains an unpaired surrogate, corrupted
+```
 
-yeu cau o trang dong goi epub,lam em 1 input cho phep user phai add hinh, 1 tam hinh, hoac la 1 file zip chua nhiu tam hinh, va cac tam hinh do can phai duoc luu ten trung voi ten duoc add trong text txt vi du trong txt add la [hinh-1] thi file hinh tuong ung phai la "hinh-1", he thong se tu quet duoi file va inject vao code cho dung, vi du file la jpg thi add .jpg, cac hinh do se duoc giai nen va embeded vao file epub luon khi dong goi.
+Right now it's _masked_ because both call sites (`epub-chapter-utils.ts`, `epub-ocr-utils.ts`) immediately strip everything except `a-z0-9`, so the corruption gets discarded either way. But it's a landmine: reuse this "preserve length" helper anywhere for actual display text and rare characters will silently break. Fix: use `Array.from(ch.normalize('NFD'))[0]` (or just don't index into a possibly-surrogate-pair string).
+
+**2. Two parallel logging systems**
+`logger.log/warn/error` (used in most `lib` files) and a separate `Logger.info/warn/error/debug/perf` object (used only in the three `*-state.svelte.ts` files and `epub/+page.svelte`) coexist in `helpers/logger.ts`. Same purpose, different API, different emoji-prefixed formatting. Worth consolidating to one.
+
+**3. `escapeXml` doesn't strip XML-illegal control characters**
+It escapes `& < > " '` but C0 control characters (0x00–0x08, 0x0B, 0x0C, 0x0E–0x1F) are illegal in XML 1.0 and will produce a corrupt/invalid EPUB if they sneak in from OCR'd or messy TXT input. Cheap fix: add `.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')` before returning.
+
+**4. Chapter-scoring heuristic is all magic numbers**
+`scoreHeadingCandidate` in `epub-chapter-utils.ts` has thresholds like `len <= 40`, `wordCount <= 6`, `score += 3` scattered inline with no named constants. It works, but tuning it later means hunting through the function. Pulling these into a `const SCORING = {...}` object would make it much easier to adjust without guessing side effects.
+
+**5. Minor: `getDynamicCss` substring checks are quite loose**
+`html.includes('note')` or `.includes('chapter')` will match on unrelated substrings inside longer words/attributes, potentially pulling in CSS you didn't need. Not a correctness bug (just some CSS bloat), but a `class="..."` regex would be more precise than raw `.includes`.
+
+If you want, I can send a small patch for #1 and #3 (the two that could actually cause corrupted output) — those are the ones I'd prioritize.

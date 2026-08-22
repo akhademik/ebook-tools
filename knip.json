@@ -1,12 +1,13 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "project": ["src/**/*.{js,svelte}", "tests/**/*.js"],
+  "project": ["src/**/*.{js,ts,svelte}", "tests/**/*.{js,ts}"],
   "entry": [
     "src/routes/**/+page.{svelte,js,ts}",
     "src/routes/**/+layout.{svelte,js,ts}",
-    "tests/**/*.test.js",
-    "src/lib/epub-packer/parser/epub-parser.js"
+    "tests/**/*.test.ts",
+    "src/lib/epub-packer/parser/epub-parser.ts",
+    "src/lib/helpers/helpers.ts",
+    "src/lib/types/index.ts"
   ],
-  "ignore": ["src/lib/index.js"],
   "ignoreDependencies": ["tailwindcss"]
 }

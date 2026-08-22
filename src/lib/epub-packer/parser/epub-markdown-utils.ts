@@ -1,6 +1,6 @@
 // src/lib/epub-packer/parser/epub-markdown-utils.ts
-import { escapeXml } from '$lib/helpers/helpers.js';
-import * as logger from '$lib/helpers/logger.js';
+import { escapeXml } from '$lib/helpers/helpers';
+import { Logger } from '$lib/helpers/logger';
 import type {
 	MarkdownBlock,
 	CustomDefinition,
@@ -58,7 +58,7 @@ function startsWithLowercaseLetter(str: unknown): boolean {
 }
 
 export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
-	logger.log('epub-parser', 'parseMarkdownBlocks called, input length:', (String(md || '')).length);
+	Logger.debug('[epub-parser]', `parseMarkdownBlocks called, input length: ${(String(md || '')).length}`);
 	const lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
 	const blocks: any[] = [];
 	let i = 0;
@@ -130,7 +130,7 @@ export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
 		}
 		blocks.push({ type: 'p', text: paraLines.join('\n').trim() });
 	}
-	logger.log('epub-parser', 'parseMarkdownBlocks finished, total blocks:', blocks.length);
+	Logger.debug('[epub-parser]', `parseMarkdownBlocks finished, total blocks: ${blocks.length}`);
 	return blocks;
 }
 

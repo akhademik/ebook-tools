@@ -3,7 +3,7 @@
 	import DropZone from '$lib/components/DropZone.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import Button from '$lib/components/Button.svelte';
-	import { PdfSplitterState } from '$lib/pdf-splitter/pdf-splitter-state.svelte.js';
+	import { PdfSplitterState } from '$lib/pdf-splitter/pdf-splitter-state.svelte';
 
 	const state = new PdfSplitterState();
 </script>

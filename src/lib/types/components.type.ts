@@ -1,6 +1,6 @@
 // src/lib/types/components.type.ts
 import type { Snippet } from 'svelte';
-import type { EpubState } from '$lib/epub-packer/epub-state.svelte.js';
+import type { EpubState } from '$lib/epub-packer/epub-state.svelte';
 
 export interface ButtonProps {
 	onclick?: (event: MouseEvent) => void;

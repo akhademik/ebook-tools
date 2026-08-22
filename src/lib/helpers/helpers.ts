@@ -19,6 +19,6 @@ if (typeof window !== 'undefined' && window.pdfjsLib) {
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-export { triggerDownload } from '$lib/utils/download.js';
-export { slugify, ensureZipExt, ensureEpubExt, normalizeCharPreserveLength } from '$lib/utils/text.js';
-export { escapeXml } from '$lib/utils/xml.js';
+export { triggerDownload } from '$lib/utils/download';
+export { slugify, ensureZipExt, ensureEpubExt, normalizeCharPreserveLength } from '$lib/utils/text';
+export { escapeXml } from '$lib/utils/xml';
