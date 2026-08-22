@@ -1,0 +1,114 @@
+// src/lib/epub-packer/xml-builders/opf-builder.js
+import { escapeXml } from '$lib/utils/xml.js';
+import * as logger from '$lib/helpers/logger.js';
+import { findFont } from '../templates/fonts.js';
+
+/**
+ * Builds OEBPS/content.opf package file
+ */
+export function buildContentOpf(
+  meta,
+  chapters,
+  hasCover = false,
+  activeFonts = [],
+  ornaments = null,
+  images = [],
+) {
+  logger.log(
+    'epub-packer',
+    'buildContentOpf called with chapters count:',
+    chapters.length,
+    'hasCover:',
+    hasCover,
+    'activeFonts:',
+    activeFonts,
+    'imagesCount:',
+    images?.length || 0,
+  );
+  const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const manifestItems = [
+    '<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
+    '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
+    '<item id="css" href="styles/style.css" media-type="text/css"/>',
+  ];
+  if (hasCover) {
+    manifestItems.push(
+      '<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>',
+    );
+  }
+  if (ornaments?.chapterOrnament) {
+    manifestItems.push(
+      `<item id="pre-chap" href="images/${ornaments.chapterOrnament.fileName}" media-type="${ornaments.chapterOrnament.mimeType}"/>`,
+    );
+  }
+  if (ornaments?.subchapterOrnament) {
+    manifestItems.push(
+      `<item id="pre-small-chap" href="images/${ornaments.subchapterOrnament.fileName}" media-type="${ornaments.subchapterOrnament.mimeType}"/>`,
+    );
+  }
+  if (images && Array.isArray(images)) {
+    for (const img of images) {
+      if (img && img.fileName) {
+        const imgId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        const mime = img.mimeType || 'image/jpeg';
+        manifestItems.push(
+          `<item id="${imgId}" href="images/${img.fileName}" media-type="${mime}"/>`,
+        );
+      }
+    }
+  }
+  for (const fontName of activeFonts) {
+    const font = findFont(fontName);
+    if (font) {
+      const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, '-');
+      manifestItems.push(
+        `<item id="font-${fontId}" href="fonts/${font.fileName}" media-type="${font.mimeType}"/>`,
+      );
+    }
+  }
+  for (const c of chapters) {
+    manifestItems.push(
+      '<item id="' +
+        c.xmlId +
+        '" href="text/' +
+        c.fileName +
+        '.xhtml" media-type="application/xhtml+xml"/>',
+    );
+  }
+  const spineItems = chapters.map((c) => '<itemref idref="' + c.xmlId + '"/>');
+
+  return (
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId" xml:lang="' +
+    meta.language +
+    '">\n' +
+    '  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n' +
+    '    <dc:identifier id="BookId">' +
+    escapeXml(meta.identifier) +
+    '</dc:identifier>\n' +
+    '    <dc:title>' +
+    escapeXml(meta.title) +
+    '</dc:title>\n' +
+    '    <dc:language>' +
+    meta.language +
+    '</dc:language>\n' +
+    '    <dc:creator id="creator">' +
+    escapeXml(meta.author) +
+    '</dc:creator>\n' +
+    (meta.publisher
+      ? '    <dc:publisher>' + escapeXml(meta.publisher) + '</dc:publisher>\n'
+      : '') +
+    (hasCover ? '    <meta name="cover" content="cover-image"/>\n' : '') +
+    '    <meta property="dcterms:modified">' +
+    modified +
+    '</meta>\n' +
+    '  </metadata>\n' +
+    '  <manifest>\n    ' +
+    manifestItems.join('\n    ') +
+    '\n  </manifest>\n' +
+    '  <spine toc="ncx">\n    ' +
+    spineItems.join('\n    ') +
+    '\n  </spine>\n' +
+    '</package>'
+  );
+}

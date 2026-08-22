@@ -36,7 +36,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "pdfsplitterstate",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -56,6 +56,18 @@
       "source_location": "L9"
     },
     {
+      "id": "src_lib_epub_packer_epub_state_svelte_epubstate_applygrouping",
+      "label": ".applyGrouping()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": ".applygrouping()",
+      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
+      "source_location": "L182"
+    },
+    {
       "id": "src_lib_epub_packer_parser_epub_chapter_utils_analyzechaptercandidates",
       "label": "analyzeChapterCandidates()",
       "_callable": true,
@@ -66,6 +78,18 @@
       "norm_label": "analyzechaptercandidates()",
       "source_file": "src/lib/epub-packer/parser/epub-chapter-utils.js",
       "source_location": "L151"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_chapter_utils_assignsequentialchapterids",
+      "label": "assignSequentialChapterIds()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "assignsequentialchapterids()",
+      "source_file": "src/lib/epub-packer/parser/epub-chapter-utils.js",
+      "source_location": "L128"
     },
     {
       "id": "src_lib_epub_packer_parser_epub_chapter_utils_extractchunkblocks",
@@ -260,6 +284,54 @@
       "source_location": "L40"
     },
     {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils_cleanheaderfooterocr",
+      "label": "cleanHeaderFooterOcr()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "cleanheaderfooterocr()",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
+      "source_location": "L81"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils_compilecleankeywords",
+      "label": "compileCleanKeywords()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "compilecleankeywords()",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
+      "source_location": "L26"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils_getcleanedlinesreport",
+      "label": "getCleanedLinesReport()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "getcleanedlinesreport()",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
+      "source_location": "L103"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils_islineheaderfooter",
+      "label": "isLineHeaderFooter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "islineheaderfooter()",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
+      "source_location": "L50"
+    },
+    {
       "id": "src_lib_epub_packer_parser_epub_ocr_utils_isrealparagraph",
       "label": "isRealParagraph()",
       "_callable": true,
@@ -270,6 +342,18 @@
       "norm_label": "isrealparagraph()",
       "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
       "source_location": "L4"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils_shouldskipheaderfooter",
+      "label": "shouldSkipHeaderFooter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "shouldskipheaderfooter()",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
+      "source_location": "L12"
     },
     {
       "id": "src_lib_epub_packer_parser_epub_parser_findallmarkerpositionscombined",
@@ -344,112 +428,16 @@
       "source_location": "L80"
     },
     {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils_cleanheaderfooterocr",
-      "label": "cleanHeaderFooterOcr()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "cleanheaderfooterocr()",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L81"
-    },
-    {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils_compilecleankeywords",
-      "label": "compileCleanKeywords()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "compilecleankeywords()",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L26"
-    },
-    {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils_getcleanedlinesreport",
-      "label": "getCleanedLinesReport()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "getcleanedlinesreport()",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L103"
-    },
-    {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils_islineheaderfooter",
-      "label": "isLineHeaderFooter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "islineheaderfooter()",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L50"
-    },
-    {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils_shouldskipheaderfooter",
-      "label": "shouldSkipHeaderFooter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "shouldskipheaderfooter()",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L12"
-    },
-    {
-      "id": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "id": "src_lib_utils_text_normalizecharpreservelength",
       "label": "normalizeCharPreserveLength()",
       "_callable": true,
       "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
+      "community": 0,
+      "community_name": "epub-parser.js",
       "file_type": "code",
       "norm_label": "normalizecharpreservelength()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L98"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
-      "label": "buildChapterXhtml()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "buildchapterxhtml()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L393"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_buildcontainerxml",
-      "label": "buildContainerXml()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "buildcontainerxml()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L75"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_buildcontentopf",
-      "label": "buildContentOpf()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "buildcontentopf()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L86"
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L52"
     },
     {
       "id": "src_lib_epub_packer_epub_packer_buildepubblob",
@@ -461,31 +449,7 @@
       "file_type": "code",
       "norm_label": "buildepubblob()",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L507"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_buildnavxhtml",
-      "label": "buildNavXhtml()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "buildnavxhtml()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L293"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_buildtocncx",
-      "label": "buildTocNcx()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "buildtocncx()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L319"
+      "source_location": "L90"
     },
     {
       "id": "src_lib_epub_packer_epub_packer_getdynamiccss",
@@ -497,43 +461,7 @@
       "file_type": "code",
       "norm_label": "getdynamiccss()",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L24"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_gettocentries",
-      "label": "getTocEntries()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "gettocentries()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L218"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_injectheadingids",
-      "label": "injectHeadingIds()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "injectheadingids()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L193"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_mergebrokenparagraphs",
-      "label": "mergeBrokenParagraphs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "mergebrokenparagraphs()",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L359"
+      "source_location": "L39"
     },
     {
       "id": "src_lib_epub_packer_templates_fonts_findfont",
@@ -572,43 +500,103 @@
       "source_location": "L78"
     },
     {
-      "id": "src_lib_epub_packer_templates_jacket_templates_formattranslator",
-      "label": "formatTranslator()",
+      "id": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
+      "label": "buildChapterXhtml()",
       "_callable": true,
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "formattranslator()",
-      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
-      "source_location": "L12"
+      "norm_label": "buildchapterxhtml()",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L39"
     },
     {
-      "id": "src_lib_epub_packer_templates_jacket_templates_getjacketcss",
-      "label": "getJacketCss()",
+      "id": "src_lib_epub_packer_xml_builders_chapter_builder_mergebrokenparagraphs",
+      "label": "mergeBrokenParagraphs()",
       "_callable": true,
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "getjacketcss()",
-      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "norm_label": "mergebrokenparagraphs()",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_container_builder_buildcontainerxml",
+      "label": "buildContainerXml()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "buildcontainerxml()",
+      "source_file": "src/lib/epub-packer/xml-builders/container-builder.js",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "label": "buildNavXhtml()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "buildnavxhtml()",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L104"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "label": "buildTocNcx()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "buildtocncx()",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L130"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "label": "getTocEntries()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "gettocentries()",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L29"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
+      "label": "injectHeadingIds()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "injectheadingids()",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
       "source_location": "L4"
     },
     {
-      "id": "src_lib_helpers_helpers_ensureepubext",
-      "label": "ensureEpubExt()",
+      "id": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
+      "label": "buildContentOpf()",
       "_callable": true,
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "ensureepubext()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L44"
+      "norm_label": "buildcontentopf()",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L9"
     },
     {
-      "id": "src_lib_helpers_helpers_escapexml",
+      "id": "src_lib_utils_xml_escapexml",
       "label": "escapeXml()",
       "_callable": true,
       "_origin": "ast",
@@ -616,20 +604,8 @@
       "community_name": "epub-packer.js",
       "file_type": "code",
       "norm_label": "escapexml()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L83"
-    },
-    {
-      "id": "src_lib_helpers_helpers_slugify",
-      "label": "slugify()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "slugify()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L16"
+      "source_file": "src/lib/utils/xml.js",
+      "source_location": "L8"
     },
     {
       "id": "tests_epub_packer_test_mockjszip_constructor",
@@ -642,18 +618,6 @@
       "norm_label": ".constructor()",
       "source_file": "tests/epub-packer.test.js",
       "source_location": "L12"
-    },
-    {
-      "id": "src_lib_helpers_helpers_ensurezipext",
-      "label": "ensureZipExt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "../src/lib/helpers/logger.js?test=2",
-      "file_type": "code",
-      "norm_label": "ensurezipext()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L29"
     },
     {
       "id": "src_lib_helpers_logger_error",
@@ -752,6 +716,18 @@
       "source_location": "L72"
     },
     {
+      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_downloadzip",
+      "label": ".downloadZip()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": ".downloadzip()",
+      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
+      "source_location": "L60"
+    },
+    {
       "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_handlefile",
       "label": ".handleFile()",
       "_callable": true,
@@ -776,28 +752,52 @@
       "source_location": "L35"
     },
     {
-      "id": "src_lib_helpers_helpers_triggerdownload",
+      "id": "src_lib_utils_download_triggerdownload",
       "label": "triggerDownload()",
       "_callable": true,
       "_origin": "ast",
-      "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
       "file_type": "code",
       "norm_label": "triggerdownload()",
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L59"
+      "source_file": "src/lib/utils/download.js",
+      "source_location": "L9"
     },
     {
-      "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_downloadzip",
-      "label": ".downloadZip()",
+      "id": "src_lib_utils_text_ensureepubext",
+      "label": "ensureEpubExt()",
       "_callable": true,
       "_origin": "ast",
-      "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
       "file_type": "code",
-      "norm_label": ".downloadzip()",
-      "source_file": "src/lib/markdown-fixer/markdown-fixer-state.svelte.js",
-      "source_location": "L60"
+      "norm_label": "ensureepubext()",
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L37"
+    },
+    {
+      "id": "src_lib_utils_text_ensurezipext",
+      "label": "ensureZipExt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "ensurezipext()",
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_lib_utils_text_slugify",
+      "label": "slugify()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "slugify()",
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L9"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_applygrayscale",
@@ -805,7 +805,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "applygrayscale()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -817,7 +817,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "cropcanvas()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -829,7 +829,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "formateta()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -841,7 +841,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "loadpdfpreview()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -853,7 +853,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "pickconcurrency()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -865,7 +865,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "processpdftojpg()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -877,7 +877,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "runworker()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -889,7 +889,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "updateprogress()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
@@ -901,7 +901,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".adjustcrop()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -913,7 +913,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".downloadzip()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -925,7 +925,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".handlefile()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -937,7 +937,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".loadpreview()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -949,7 +949,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".nextpreviewpage()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -961,7 +961,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".prevpreviewpage()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -973,7 +973,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".processpdf()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -985,7 +985,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": ".resetcrop()",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
@@ -1014,18 +1014,6 @@
       "norm_label": ".adjustcovercrop()",
       "source_file": "src/lib/epub-packer/epub-state.svelte.js",
       "source_location": "L355"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_state_svelte_epubstate_applygrouping",
-      "label": ".applyGrouping()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "EpubState",
-      "file_type": "code",
-      "norm_label": ".applygrouping()",
-      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
-      "source_location": "L182"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_applytxtgrouping",
@@ -1232,18 +1220,6 @@
       "source_location": "L362"
     },
     {
-      "id": "src_lib_epub_packer_parser_epub_chapter_utils_assignsequentialchapterids",
-      "label": "assignSequentialChapterIds()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "EpubState",
-      "file_type": "code",
-      "norm_label": "assignsequentialchapterids()",
-      "source_file": "src/lib/epub-packer/parser/epub-chapter-utils.js",
-      "source_location": "L128"
-    },
-    {
       "id": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
       "label": "applyInlineFormatting()",
       "_callable": true,
@@ -1321,11 +1297,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "onselectmultiple()",
       "source_file": "src/lib/components/DropZone.svelte",
       "source_location": "L28"
+    },
+    {
+      "id": "src_lib_epub_packer_templates_jacket_templates_formattranslator",
+      "label": "formatTranslator()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "formattranslator()",
+      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "source_location": "L12"
+    },
+    {
+      "id": "src_lib_epub_packer_templates_jacket_templates_getjacketcss",
+      "label": "getJacketCss()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "getjacketcss()",
+      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "source_location": "L4"
     },
     {
       "id": "fs",
@@ -1358,6 +1358,17 @@
       "file_type": "code",
       "norm_label": "epub-markdown-utils.js",
       "source_file": "src/lib/epub-packer/parser/epub-markdown-utils.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_parser_epub_ocr_utils",
+      "label": "epub-ocr-utils.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-parser.js",
+      "file_type": "code",
+      "norm_label": "epub-ocr-utils.js",
+      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
       "source_location": "L1"
     },
     {
@@ -1878,17 +1889,6 @@
       "source_location": "L7"
     },
     {
-      "id": "src_lib_epub_packer_parser_epub_ocr_utils",
-      "label": "epub-ocr-utils.js",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "epub-ocr-utils.js",
-      "file_type": "code",
-      "norm_label": "epub-ocr-utils.js",
-      "source_file": "src/lib/epub-packer/parser/epub-ocr-utils.js",
-      "source_location": "L1"
-    },
-    {
       "id": "eslint_config",
       "label": "eslint.config.js",
       "_origin": "ast",
@@ -1933,50 +1933,6 @@
       "source_location": "L1"
     },
     {
-      "id": "tests_helpers_test",
-      "label": "helpers.test.js",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "helpers.test.js",
-      "file_type": "code",
-      "norm_label": "helpers.test.js",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_helpers_test_mockanchor",
-      "label": "mockAnchor",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "helpers.test.js",
-      "file_type": "code",
-      "norm_label": "mockanchor",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L18"
-    },
-    {
-      "id": "tests_helpers_test_mockdocument",
-      "label": "mockDocument",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "helpers.test.js",
-      "file_type": "code",
-      "norm_label": "mockdocument",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L25"
-    },
-    {
-      "id": "tests_helpers_test_mockpdfjslib",
-      "label": "mockPdfjsLib",
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "helpers.test.js",
-      "file_type": "code",
-      "norm_label": "mockpdfjslib",
-      "source_file": "tests/helpers.test.js",
-      "source_location": "L4"
-    },
-    {
       "id": "src_lib_epub_packer_epub_packer",
       "label": "epub-packer.js",
       "_origin": "ast",
@@ -1985,28 +1941,6 @@
       "file_type": "code",
       "norm_label": "epub-packer.js",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_packer_epub_css",
-      "label": "EPUB_CSS",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "epub_css",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L13"
-    },
-    {
-      "id": "src_lib_epub_packer_epub_state_svelte",
-      "label": "epub-state.svelte.js",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "epub-state.svelte.js",
-      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
       "source_location": "L1"
     },
     {
@@ -2043,47 +1977,58 @@
       "source_location": "L7"
     },
     {
-      "id": "src_lib_epub_packer_templates_jacket_templates",
-      "label": "jacket-templates.js",
+      "id": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "label": "chapter-builder.js",
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "jacket-templates.js",
-      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "norm_label": "chapter-builder.js",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
       "source_location": "L1"
     },
     {
-      "id": "src_lib_epub_packer_templates_jacket_templates_jacket_templates",
-      "label": "JACKET_TEMPLATES",
+      "id": "src_lib_epub_packer_xml_builders_container_builder",
+      "label": "container-builder.js",
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "jacket_templates",
-      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
-      "source_location": "L19"
-    },
-    {
-      "id": "src_lib_helpers_helpers",
-      "label": "helpers.js",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "epub-packer.js",
-      "file_type": "code",
-      "norm_label": "helpers.js",
-      "source_file": "src/lib/helpers/helpers.js",
+      "norm_label": "container-builder.js",
+      "source_file": "src/lib/epub-packer/xml-builders/container-builder.js",
       "source_location": "L1"
     },
     {
-      "id": "src_routes_epub_page",
-      "label": "epub/+page.svelte",
+      "id": "src_lib_epub_packer_xml_builders_nav_builder",
+      "label": "nav-builder.js",
       "_origin": "ast",
       "community": 2,
       "community_name": "epub-packer.js",
       "file_type": "code",
-      "norm_label": "epub/+page.svelte",
-      "source_file": "src/routes/epub/+page.svelte",
+      "norm_label": "nav-builder.js",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_xml_builders_opf_builder",
+      "label": "opf-builder.js",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "opf-builder.js",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_utils_xml",
+      "label": "xml.js",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "epub-packer.js",
+      "file_type": "code",
+      "norm_label": "xml.js",
+      "source_file": "src/lib/utils/xml.js",
       "source_location": "L1"
     },
     {
@@ -2177,6 +2122,39 @@
       "source_location": "L1"
     },
     {
+      "id": "src_lib_epub_packer_epub_packer_epub_css",
+      "label": "EPUB_CSS",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "epub_css",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L28"
+    },
+    {
+      "id": "src_lib_epub_packer_epub_state_svelte",
+      "label": "epub-state.svelte.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "epub-state.svelte.js",
+      "source_file": "src/lib/epub-packer/epub-state.svelte.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_helpers_helpers",
+      "label": "helpers.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "helpers.js",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_helpers_logger_logger",
       "label": "Logger",
       "_origin": "ast",
@@ -2254,6 +2232,83 @@
       "source_location": "L23"
     },
     {
+      "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
+      "label": "pdf-splitter-state.svelte.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "pdf-splitter-state.svelte.js",
+      "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_utils_download",
+      "label": "download.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "download.js",
+      "source_file": "src/lib/utils/download.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_utils_text",
+      "label": "text.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "text.js",
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_helpers_test",
+      "label": "helpers.test.js",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "helpers.test.js",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_helpers_test_mockanchor",
+      "label": "mockAnchor",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "mockanchor",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L18"
+    },
+    {
+      "id": "tests_helpers_test_mockdocument",
+      "label": "mockDocument",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "mockdocument",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L25"
+    },
+    {
+      "id": "tests_helpers_test_mockpdfjslib",
+      "label": "mockPdfjsLib",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "../src/lib/helpers/logger.js?test=2",
+      "file_type": "code",
+      "norm_label": "mockpdfjslib",
+      "source_file": "tests/helpers.test.js",
+      "source_location": "L4"
+    },
+    {
       "id": "tests_logger_test",
       "label": "logger.test.js",
       "_origin": "ast",
@@ -2280,21 +2335,10 @@
       "label": "pdf-splitter.js",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "pdf-splitter.js",
       "source_file": "src/lib/pdf-splitter/pdf-splitter.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "label": "pdf-splitter-state.svelte.js",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
-      "file_type": "code",
-      "norm_label": "pdf-splitter-state.svelte.js",
-      "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
       "source_location": "L1"
     },
     {
@@ -2302,7 +2346,7 @@
       "label": "pdf-splitter.test.js",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "pdf-splitter.test.js",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2313,7 +2357,7 @@
       "label": "createdCanvases",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "createdcanvases",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2324,7 +2368,7 @@
       "label": "mockDoc",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "mockdoc",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2335,7 +2379,7 @@
       "label": "mockPage",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "mockpage",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2346,7 +2390,7 @@
       "label": "mockPdfjsLib",
       "_origin": "ast",
       "community": 4,
-      "community_name": "pdf-splitter-state.svelte.js",
+      "community_name": "pdf-splitter.js",
       "file_type": "code",
       "norm_label": "mockpdfjslib",
       "source_file": "tests/pdf-splitter.test.js",
@@ -2742,7 +2786,7 @@
       "label": "Button.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "button.svelte",
       "source_file": "src/lib/components/Button.svelte",
@@ -2753,7 +2797,7 @@
       "label": "DropZone.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "dropzone.svelte",
       "source_file": "src/lib/components/DropZone.svelte",
@@ -2764,7 +2808,7 @@
       "label": "Input.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "input.svelte",
       "source_file": "src/lib/components/Input.svelte",
@@ -2775,10 +2819,142 @@
       "label": "PageHeader.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "pageheader.svelte",
       "source_file": "src/lib/components/PageHeader.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubcoversection",
+      "label": "EpubCoverSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubcoversection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubCoverSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubfontsettingssection",
+      "label": "EpubFontSettingsSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubfontsettingssection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubFontSettingsSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubillustrationssection",
+      "label": "EpubIllustrationsSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubillustrationssection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubIllustrationsSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubjacketmodal",
+      "label": "EpubJacketModal.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubjacketmodal.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubJacketModal.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubmetadatasection",
+      "label": "EpubMetadataSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubmetadatasection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubMetadataSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubornamentssection",
+      "label": "EpubOrnamentsSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubornamentssection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubOrnamentsSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubpacksection",
+      "label": "EpubPackSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubpacksection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubPackSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubsourcesection",
+      "label": "EpubSourceSection.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubsourcesection.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubSourceSection.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_components_epubsyntaxmodal",
+      "label": "EpubSyntaxModal.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epubsyntaxmodal.svelte",
+      "source_file": "src/lib/epub-packer/components/EpubSyntaxModal.svelte",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_templates_jacket_templates",
+      "label": "jacket-templates.js",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "jacket-templates.js",
+      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_epub_packer_templates_jacket_templates_jacket_templates",
+      "label": "JACKET_TEMPLATES",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "jacket_templates",
+      "source_file": "src/lib/epub-packer/templates/jacket-templates.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "src_routes_epub_page",
+      "label": "epub/+page.svelte",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "epub/+page.svelte",
+      "file_type": "code",
+      "norm_label": "epub/+page.svelte",
+      "source_file": "src/routes/epub/+page.svelte",
       "source_location": "L1"
     },
     {
@@ -2786,7 +2962,7 @@
       "label": "md/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "md/+page.svelte",
       "source_file": "src/routes/md/+page.svelte",
@@ -2797,7 +2973,7 @@
       "label": "pdf/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "pdf/+page.svelte",
       "source_file": "src/routes/pdf/+page.svelte",
@@ -2808,7 +2984,7 @@
       "label": "txt-to-pdf/+page.svelte",
       "_origin": "ast",
       "community": 9,
-      "community_name": "md/+page.svelte",
+      "community_name": "epub/+page.svelte",
       "file_type": "code",
       "norm_label": "txt-to-pdf/+page.svelte",
       "source_file": "src/routes/txt-to-pdf/+page.svelte",
@@ -3117,54 +3293,6 @@
   ],
   "links": [
     {
-      "source": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
-      "target": "src_lib_epub_packer_epub_packer_mergebrokenparagraphs",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L409",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L496",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildcontentopf",
-      "target": "src_lib_epub_packer_templates_fonts_findfont",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L138",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildcontentopf",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L164",
-      "weight": 1.0
-    },
-    {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
       "target": "src_lib_epub_packer_templates_fonts_findfont",
       "relation": "calls",
@@ -3173,7 +3301,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L556",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -3185,7 +3313,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L614",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -3197,67 +3325,67 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L658",
+      "source_location": "L241",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_injectheadingids",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L723",
+      "source_location": "L306",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_buildcontainerxml",
+      "target": "src_lib_epub_packer_xml_builders_container_builder_buildcontainerxml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L730",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_buildcontentopf",
+      "target": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L735",
+      "source_location": "L318",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_buildnavxhtml",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L737",
+      "source_location": "L320",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_buildtocncx",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L738",
+      "source_location": "L321",
       "weight": 1.0
     },
     {
@@ -3269,91 +3397,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L764",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
       "source": "src_lib_epub_packer_epub_packer_buildepubblob",
-      "target": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L794",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildnavxhtml",
-      "target": "src_lib_epub_packer_epub_packer_injectheadingids",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L294",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildnavxhtml",
-      "target": "src_lib_epub_packer_epub_packer_gettocentries",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L295",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildnavxhtml",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L302",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildtocncx",
-      "target": "src_lib_epub_packer_epub_packer_injectheadingids",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L320",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildtocncx",
-      "target": "src_lib_epub_packer_epub_packer_gettocentries",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L321",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer_buildtocncx",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L331",
+      "source_location": "L376",
       "weight": 1.0
     },
     {
@@ -3478,7 +3534,7 @@
     },
     {
       "source": "src_lib_epub_packer_epub_state_svelte_epubstate_handlefile",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_slugify",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3658,7 +3714,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_chapter_utils_makechaptermatcher",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3682,7 +3738,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_markdown_utils_convertinline",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3694,7 +3750,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_markdown_utils_converttxtinline",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3766,7 +3822,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_markdown_utils_rendermarkdownblocks",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3814,7 +3870,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_ocr_utils_compilecleankeywords",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -3862,7 +3918,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_ocr_utils_islineheaderfooter",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4138,7 +4194,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_txt_parser_applyinlineformatting",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4198,7 +4254,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4245,6 +4301,126 @@
       "weight": 1.0
     },
     {
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_mergebrokenparagraphs",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
+      "target": "src_lib_epub_packer_templates_fonts_findfont",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_markdown_fixer_markdown_fixer_fixmarkdownzip",
       "target": "src_lib_markdown_fixer_markdown_fixer_convertbrackets",
       "relation": "calls",
@@ -4258,7 +4434,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_downloadzip",
-      "target": "src_lib_helpers_helpers_triggerdownload",
+      "target": "src_lib_utils_download_triggerdownload",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4270,7 +4446,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate_handlefile",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_slugify",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4366,7 +4542,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_downloadzip",
-      "target": "src_lib_helpers_helpers_triggerdownload",
+      "target": "src_lib_utils_download_triggerdownload",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4378,7 +4554,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte_pdfsplitterstate_handlefile",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_slugify",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4437,6 +4613,54 @@
       "weight": 1.0
     },
     {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_container_builder",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_opf_builder",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_epub_packer_parser_epub_parser",
       "target": "src_lib_epub_packer_parser_epub_ocr_utils",
       "relation": "re_exports",
@@ -4482,6 +4706,42 @@
       "context": "export",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_download",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_text",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_xml",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -4786,14 +5046,98 @@
     },
     {
       "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_epub_packer_xml_builders_container_builder_buildcontainerxml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L2",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_epub_packer",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_mergebrokenparagraphs",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/epub-packer.js",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -4805,7 +5149,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L4",
+      "source_location": "L3",
       "weight": 1.0
     },
     {
@@ -4817,7 +5161,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -4829,7 +5173,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -4841,7 +5185,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -4942,7 +5286,7 @@
     },
     {
       "source": "src_lib_epub_packer_epub_state_svelte",
-      "target": "src_lib_helpers_helpers_ensureepubext",
+      "target": "src_lib_utils_text_ensureepubext",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4954,7 +5298,7 @@
     },
     {
       "source": "src_lib_epub_packer_epub_state_svelte",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_slugify",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -4990,7 +5334,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_chapter_utils",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5002,7 +5346,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_markdown_utils",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5014,7 +5358,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_epub_ocr_utils",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5266,7 +5610,7 @@
     },
     {
       "source": "src_lib_epub_packer_parser_txt_parser",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5278,7 +5622,7 @@
     },
     {
       "source": "src_lib_epub_packer_templates_jacket_templates",
-      "target": "src_lib_helpers_helpers_escapexml",
+      "target": "src_lib_utils_xml_escapexml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5289,8 +5633,56 @@
       "weight": 1.0
     },
     {
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_epub_packer_templates_fonts_findfont",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "target": "src_lib_helpers_helpers_ensurezipext",
+      "target": "src_lib_utils_download_triggerdownload",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5302,7 +5694,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_ensurezipext",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5314,7 +5706,7 @@
     },
     {
       "source": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
-      "target": "src_lib_helpers_helpers_triggerdownload",
+      "target": "src_lib_utils_text_slugify",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5350,7 +5742,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "target": "src_lib_helpers_helpers_ensurezipext",
+      "target": "src_lib_utils_download_triggerdownload",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5362,7 +5754,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "target": "src_lib_helpers_helpers_slugify",
+      "target": "src_lib_utils_text_ensurezipext",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5374,7 +5766,7 @@
     },
     {
       "source": "src_lib_pdf_splitter_pdf_splitter_state_svelte",
-      "target": "src_lib_helpers_helpers_triggerdownload",
+      "target": "src_lib_utils_text_slugify",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5422,42 +5814,6 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/epub-packer.test.js",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_buildcontainerxml",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/epub-packer.test.js",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_buildcontentopf",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "tests/epub-packer.test.js",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "tests_epub_packer_test",
       "target": "src_lib_epub_packer_epub_packer_buildepubblob",
       "relation": "imports",
       "_origin": "ast",
@@ -5470,7 +5826,7 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_buildnavxhtml",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5482,7 +5838,7 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_buildtocncx",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_mergebrokenparagraphs",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5494,7 +5850,7 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_gettocentries",
+      "target": "src_lib_epub_packer_xml_builders_container_builder_buildcontainerxml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5506,7 +5862,7 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_injectheadingids",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5518,7 +5874,43 @@
     },
     {
       "source": "tests_epub_packer_test",
-      "target": "src_lib_epub_packer_epub_packer_mergebrokenparagraphs",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "tests/epub-packer.test.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_epub_packer_test",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "tests/epub-packer.test.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_epub_packer_test",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "tests/epub-packer.test.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "tests_epub_packer_test",
+      "target": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5758,7 +6150,7 @@
     },
     {
       "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_helpers_helpers",
+      "target": "src_lib_helpers_logger",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5770,7 +6162,7 @@
     },
     {
       "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_helpers_logger",
+      "target": "src_lib_epub_packer_templates_jacket_templates",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -5782,18 +6174,6 @@
     },
     {
       "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_templates_jacket_templates",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L4",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
       "target": "src_lib_epub_packer_templates_fonts",
       "relation": "imports_from",
       "_origin": "ast",
@@ -5801,7 +6181,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -6081,15 +6461,75 @@
       "weight": 1.0
     },
     {
-      "source": "src_lib_helpers_helpers",
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "target": "src_lib_utils_xml",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder",
       "target": "src_lib_helpers_logger",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "context": "import",
-      "source_file": "src/lib/helpers/helpers.js",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_utils_xml",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
       "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_utils_xml",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_helpers_logger",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_epub_packer_templates_fonts",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
@@ -6186,6 +6626,30 @@
       "context": "import",
       "source_file": "src/lib/pdf-splitter/pdf-splitter-state.svelte.js",
       "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_download",
+      "target": "src_lib_helpers_logger",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/utils/download.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_text",
+      "target": "src_lib_helpers_logger",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L2",
       "weight": 1.0
     },
     {
@@ -6426,6 +6890,78 @@
       "context": "re-export",
       "source_file": "src/lib/epub-packer/parser/epub-parser.js",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_download_triggerdownload",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_text_ensureepubext",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_text_ensurezipext",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_text_slugify",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_helpers_helpers",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "re_exports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "re-export",
+      "source_file": "src/lib/helpers/helpers.js",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -6920,29 +7456,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L13",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_injectheadingids",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L193",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_gettocentries",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L218",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -6953,51 +7467,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L24",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_buildnavxhtml",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L293",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_buildtocncx",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L319",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_mergebrokenparagraphs",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L359",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_buildchapterxhtml",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L393",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -7008,29 +7478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L507",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_buildcontainerxml",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L75",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_packer_epub_packer",
-      "target": "src_lib_epub_packer_epub_packer_buildcontentopf",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-packer/epub-packer.js",
-      "source_location": "L86",
+      "source_location": "L90",
       "weight": 1.0
     },
     {
@@ -7595,69 +8043,91 @@
       "weight": 1.0
     },
     {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_slugify",
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L16",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_ensurezipext",
+      "source": "src_lib_epub_packer_xml_builders_chapter_builder",
+      "target": "src_lib_epub_packer_xml_builders_chapter_builder_mergebrokenparagraphs",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
+      "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_container_builder",
+      "target": "src_lib_epub_packer_xml_builders_container_builder_buildcontainerxml",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/xml-builders/container-builder.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildnavxhtml",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_buildtocncx",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_gettocentries",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
       "source_location": "L29",
       "weight": 1.0
     },
     {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_ensureepubext",
+      "source": "src_lib_epub_packer_xml_builders_nav_builder",
+      "target": "src_lib_epub_packer_xml_builders_nav_builder_injectheadingids",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L44",
+      "source_file": "src/lib/epub-packer/xml-builders/nav-builder.js",
+      "source_location": "L4",
       "weight": 1.0
     },
     {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_triggerdownload",
+      "source": "src_lib_epub_packer_xml_builders_opf_builder",
+      "target": "src_lib_epub_packer_xml_builders_opf_builder_buildcontentopf",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L59",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_escapexml",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L83",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_helpers_helpers",
-      "target": "src_lib_helpers_helpers_normalizecharpreservelength",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/helpers/helpers.js",
-      "source_location": "L98",
+      "source_file": "src/lib/epub-packer/xml-builders/opf-builder.js",
+      "source_location": "L9",
       "weight": 1.0
     },
     {
@@ -7892,6 +8362,72 @@
       "weight": 1.0
     },
     {
+      "source": "src_lib_utils_download",
+      "target": "src_lib_utils_download_triggerdownload",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/download.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_text",
+      "target": "src_lib_utils_text_ensurezipext",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_text",
+      "target": "src_lib_utils_text_ensureepubext",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_text",
+      "target": "src_lib_utils_text_normalizecharpreservelength",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_text",
+      "target": "src_lib_utils_text_slugify",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/text.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_utils_xml",
+      "target": "src_lib_utils_xml_escapexml",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/utils/xml.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
       "source": "tests_epub_packer_test",
       "target": "tests_epub_packer_test_mockjszip",
       "relation": "contains",
@@ -8009,26 +8545,125 @@
       "source_file": "tests/helpers.test.js"
     },
     {
-      "source": "src_routes_epub_page",
-      "target": "src_lib_components_button",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/routes/epub/+page.svelte"
-    },
-    {
-      "source": "src_routes_epub_page",
+      "source": "src_lib_epub_packer_components_epubcoversection",
       "target": "src_lib_components_dropzone",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "src/routes/epub/+page.svelte"
+      "source_file": "src/lib/epub-packer/components/EpubCoverSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubcoversection",
+      "target": "src_lib_components_input",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubCoverSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubfontsettingssection",
+      "target": "src_lib_epub_packer_templates_fonts",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubFontSettingsSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubillustrationssection",
+      "target": "src_lib_components_dropzone",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubIllustrationsSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubjacketmodal",
+      "target": "src_lib_epub_packer_templates_jacket_templates",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubJacketModal.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubmetadatasection",
+      "target": "src_lib_components_input",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubMetadataSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubmetadatasection",
+      "target": "src_lib_epub_packer_templates_fonts",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubMetadataSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubmetadatasection",
+      "target": "src_lib_epub_packer_templates_jacket_templates",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubMetadataSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubornamentssection",
+      "target": "src_lib_components_dropzone",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubOrnamentsSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubpacksection",
+      "target": "src_lib_components_button",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubPackSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubpacksection",
+      "target": "src_lib_components_input",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubPackSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubsourcesection",
+      "target": "src_lib_components_dropzone",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubSourceSection.svelte"
+    },
+    {
+      "source": "src_lib_epub_packer_components_epubsourcesection",
+      "target": "src_lib_components_input",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-packer/components/EpubSourceSection.svelte"
     },
     {
       "source": "src_routes_epub_page",
-      "target": "src_lib_components_input",
+      "target": "src_lib_components_pageheader",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8037,7 +8672,79 @@
     },
     {
       "source": "src_routes_epub_page",
-      "target": "src_lib_components_pageheader",
+      "target": "src_lib_epub_packer_components_epubcoversection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubfontsettingssection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubillustrationssection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubjacketmodal",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubmetadatasection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubornamentssection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubpacksection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubsourcesection",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/routes/epub/+page.svelte"
+    },
+    {
+      "source": "src_routes_epub_page",
+      "target": "src_lib_epub_packer_components_epubsyntaxmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8056,15 +8763,6 @@
     {
       "source": "src_routes_epub_page",
       "target": "src_lib_epub_packer_templates_fonts",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/routes/epub/+page.svelte"
-    },
-    {
-      "source": "src_routes_epub_page",
-      "target": "src_lib_epub_packer_templates_jacket_templates",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -8660,5 +9358,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3a38a15a7860f07b0fbf6a7cbad91b6d4353e9a7"
+  "built_at_commit": "ab41d31129a00ec926571072ebcc3fcd3d0bcdfc"
 }

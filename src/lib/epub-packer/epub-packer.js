@@ -1,5 +1,4 @@
 import JSZip from "jszip";
-import { escapeXml } from "$lib/helpers/helpers.js";
 import * as logger from "$lib/helpers/logger.js";
 import { JACKET_TEMPLATES } from "./templates/jacket-templates.js";
 import { findFont, getFontFileName, getFontCSSDeclaration } from "./templates/fonts.js";
@@ -9,6 +8,22 @@ import headingsCss from "./templates/css-template/headings.css?raw";
 import quotesCss from "./templates/css-template/quotes.css?raw";
 import breaksCss from "./templates/css-template/breaks.css?raw";
 import notesCss from "./templates/css-template/notes.css?raw";
+
+import { buildContainerXml } from "./xml-builders/container-builder.js";
+import { buildContentOpf } from "./xml-builders/opf-builder.js";
+import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from "./xml-builders/nav-builder.js";
+import { mergeBrokenParagraphs, buildChapterXhtml } from "./xml-builders/chapter-builder.js";
+
+export {
+  buildContainerXml,
+  buildContentOpf,
+  injectHeadingIds,
+  getTocEntries,
+  buildNavXhtml,
+  buildTocNcx,
+  mergeBrokenParagraphs,
+  buildChapterXhtml
+};
 
 export const EPUB_CSS =
   baseCss +
@@ -70,438 +85,6 @@ function getDynamicCss(chapters) {
   if (hasNotes) css += "\n" + notesCss;
 
   return css;
-}
-
-export function buildContainerXml() {
-  return (
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n' +
-    "  <rootfiles>\n" +
-    '    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>\n' +
-    "  </rootfiles>\n" +
-    "</container>"
-  );
-}
-
-export function buildContentOpf(
-  meta,
-  chapters,
-  hasCover = false,
-  activeFonts = [],
-  ornaments = null,
-  images = [],
-) {
-  logger.log(
-    "epub-packer",
-    "buildContentOpf called with chapters count:",
-    chapters.length,
-    "hasCover:",
-    hasCover,
-    "activeFonts:",
-    activeFonts,
-    "imagesCount:",
-    images?.length || 0,
-  );
-  const modified = new Date().toISOString().replace(/\.\d+Z$/, "Z");
-  const manifestItems = [
-    '<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
-    '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
-    '<item id="css" href="styles/style.css" media-type="text/css"/>',
-  ];
-  if (hasCover) {
-    manifestItems.push(
-      '<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>',
-    );
-  }
-  if (ornaments?.chapterOrnament) {
-    manifestItems.push(
-      `<item id="pre-chap" href="images/${ornaments.chapterOrnament.fileName}" media-type="${ornaments.chapterOrnament.mimeType}"/>`,
-    );
-  }
-  if (ornaments?.subchapterOrnament) {
-    manifestItems.push(
-      `<item id="pre-small-chap" href="images/${ornaments.subchapterOrnament.fileName}" media-type="${ornaments.subchapterOrnament.mimeType}"/>`,
-    );
-  }
-  if (images && Array.isArray(images)) {
-    for (const img of images) {
-      if (img && img.fileName) {
-        const imgId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-        const mime = img.mimeType || 'image/jpeg';
-        manifestItems.push(
-          `<item id="${imgId}" href="images/${img.fileName}" media-type="${mime}"/>`,
-        );
-      }
-    }
-  }
-  for (const fontName of activeFonts) {
-    const font = findFont(fontName);
-    if (font) {
-      const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, "-");
-      manifestItems.push(
-        `<item id="font-${fontId}" href="fonts/${font.fileName}" media-type="${font.mimeType}"/>`,
-      );
-    }
-  }
-  for (const c of chapters) {
-    manifestItems.push(
-      '<item id="' +
-        c.xmlId +
-        '" href="text/' +
-        c.fileName +
-        '.xhtml" media-type="application/xhtml+xml"/>',
-    );
-  }
-  const spineItems = chapters.map((c) => '<itemref idref="' + c.xmlId + '"/>');
-
-  return (
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId" xml:lang="' +
-    meta.language +
-    '">\n' +
-    '  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n' +
-    '    <dc:identifier id="BookId">' +
-    escapeXml(meta.identifier) +
-    "</dc:identifier>\n" +
-    "    <dc:title>" +
-    escapeXml(meta.title) +
-    "</dc:title>\n" +
-    "    <dc:language>" +
-    meta.language +
-    "</dc:language>\n" +
-    '    <dc:creator id="creator">' +
-    escapeXml(meta.author) +
-    "</dc:creator>\n" +
-    (meta.publisher
-      ? "    <dc:publisher>" + escapeXml(meta.publisher) + "</dc:publisher>\n"
-      : "") +
-    (hasCover ? '    <meta name="cover" content="cover-image"/>\n' : "") +
-    '    <meta property="dcterms:modified">' +
-    modified +
-    "</meta>\n" +
-    "  </metadata>\n" +
-    "  <manifest>\n    " +
-    manifestItems.join("\n    ") +
-    "\n  </manifest>\n" +
-    '  <spine toc="ncx">\n    ' +
-    spineItems.join("\n    ") +
-    "\n  </spine>\n" +
-    "</package>"
-  );
-}
-
-export function injectHeadingIds(chapters) {
-  let headingCounter = 0;
-  return chapters.map((chapter) => {
-    if (chapter.fileName === "cover" || chapter.fileName === "jacket" || !chapter.html) {
-      return chapter;
-    }
-    const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
-    const newHtml = chapter.html.replace(headingRegex, (match, levelStr, attrs, innerContent) => {
-      const level = parseInt(levelStr, 10);
-      const idMatch = attrs.match(/id=["']([^"']*)["']/i);
-      let updatedAttrs = attrs;
-      if (!idMatch) {
-        headingCounter++;
-        const id = `heading-${level}-${headingCounter}`;
-        updatedAttrs = ` id="${id}"` + attrs;
-      }
-      return `<h${level}${updatedAttrs}>${innerContent}</h${level}>`;
-    });
-    return {
-      ...chapter,
-      html: newHtml
-    };
-  });
-}
-
-export function getTocEntries(chapters) {
-  const entries = [];
-  for (const c of chapters) {
-    if (c.fileName === "cover") {
-      continue;
-    }
-    
-    const html = c.html || "";
-    const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
-    const headings = [];
-    let match;
-    
-    headingRegex.lastIndex = 0;
-    while ((match = headingRegex.exec(html)) !== null) {
-      const level = parseInt(match[1], 10);
-      const attrs = match[2];
-      const innerContent = match[3];
-      
-      if (/\bno-toc\b/i.test(attrs)) {
-        continue;
-      }
-
-      const idMatch = attrs.match(/id=["']([^"']*)["']/i);
-      const id = idMatch ? idMatch[1] : "";
-      const plainText = innerContent.replace(/<[^>]+>/g, "").trim();
-      
-      headings.push({
-        level,
-        id,
-        title: plainText || c.title
-      });
-    }
-    
-    if (headings.length === 0) {
-      entries.push({
-        title: c.title,
-        url: "text/" + c.fileName + ".xhtml"
-      });
-    } else {
-      const hasH1 = headings.some(h => h.level === 1);
-      if (hasH1) {
-        const firstH1Index = headings.findIndex(h => h.level === 1);
-        for (let i = 0; i < headings.length; i++) {
-          const h = headings[i];
-          if (i === firstH1Index) {
-            entries.push({
-              title: h.title,
-              url: "text/" + c.fileName + ".xhtml"
-            });
-          } else {
-            const anchor = h.id ? `#${h.id}` : "";
-            entries.push({
-              title: h.title,
-              url: "text/" + c.fileName + ".xhtml" + anchor
-            });
-          }
-        }
-      } else {
-        entries.push({
-          title: c.title,
-          url: "text/" + c.fileName + ".xhtml"
-        });
-        for (const h of headings) {
-          const anchor = h.id ? `#${h.id}` : "";
-          entries.push({
-            title: h.title,
-            url: "text/" + c.fileName + ".xhtml" + anchor
-          });
-        }
-      }
-    }
-  }
-  return entries;
-}
-
-export function buildNavXhtml(meta, chapters) {
-  const processedChapters = injectHeadingIds(chapters);
-  const entries = getTocEntries(processedChapters);
-  const items = entries
-    .map(
-      (entry) =>
-        '<li><a href="' +
-        entry.url +
-        '">' +
-        escapeXml(entry.title) +
-        "</a></li>",
-    )
-    .join("\n      ");
-  return (
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<!DOCTYPE html>\n' +
-    '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' +
-    meta.language +
-    '">\n' +
-    '<head>\n  <meta charset="utf-8"/>\n  <title>Mục lục</title>\n  <link rel="stylesheet" type="text/css" href="styles/style.css"/>\n</head>\n' +
-    '<body>\n  <nav epub:type="toc" id="toc">\n    <h1>Mục lục</h1>\n    <ol>\n      ' +
-    items +
-    "\n    </ol>\n  </nav>\n</body>\n</html>"
-  );
-}
-
-export function buildTocNcx(meta, chapters) {
-  const processedChapters = injectHeadingIds(chapters);
-  const entries = getTocEntries(processedChapters);
-  const navPoints = entries
-    .map(
-      (entry, i) =>
-        '<navPoint id="navPoint-' +
-        (i + 1) +
-        '" playOrder="' +
-        (i + 1) +
-        '">\n' +
-        "      <navLabel><text>" +
-        escapeXml(entry.title) +
-        "</text></navLabel>\n" +
-        '      <content src="' +
-        entry.url +
-        '"/>\n    </navPoint>',
-    )
-    .join("\n    ");
-  return (
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
-    '<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">\n' +
-    "  <head>\n" +
-    '    <meta name="dtb:uid" content="' +
-    escapeXml(meta.identifier) +
-    '"/>\n' +
-    '    <meta name="dtb:depth" content="1"/>\n' +
-    '    <meta name="dtb:totalPageCount" content="0"/>\n' +
-    '    <meta name="dtb:maxPageNumber" content="0"/>\n' +
-    "  </head>\n" +
-    "  <docTitle><text>" +
-    escapeXml(meta.title) +
-    "</text></docTitle>\n" +
-    "  <navMap>\n    " +
-    navPoints +
-    "\n  </navMap>\n" +
-    "</ncx>"
-  );
-}
-
-export function mergeBrokenParagraphs(html) {
-  logger.log(
-    "epub-packer",
-    "mergeBrokenParagraphs called, html length:",
-    html.length,
-  );
-  let result = html;
-  let changed = true;
-  while (changed) {
-    changed = false;
-    result = result.replace(
-      /<p>([\s\S]*?)<\/p>\s*\n?<p>([\s\S]*?)<\/p>/g,
-      (match, c1, c2) => {
-        const plain = c1.replace(/<[^>]+>/g, "").trim();
-        const plain2 = c2.replace(/<[^>]+>/g, "").trim();
-        if (!plain || !plain2) return match;
-        const endsSentence = /[.!?…]/.test(plain.slice(-1));
-        const startsLower = /\p{Ll}/u.test(plain2.slice(0, 1));
-        if (!endsSentence && startsLower) {
-          changed = true;
-          return "<p>" + c1.trim() + " " + c2.trim() + "</p>";
-        }
-        return match;
-      },
-    );
-  }
-  logger.log(
-    "epub-packer",
-    "mergeBrokenParagraphs finished, result length:",
-    result.length,
-  );
-  return result;
-}
-
-export function buildChapterXhtml(
-  meta,
-  chapter,
-  skipParagraphMerge = false,
-  customCss = "",
-  ornaments = null,
-) {
-  logger.log(
-    "epub-packer",
-    "buildChapterXhtml called for:",
-    chapter.title,
-    "skipParagraphMerge:",
-    skipParagraphMerge,
-  );
-  let content = skipParagraphMerge
-    ? chapter.html
-    : mergeBrokenParagraphs(chapter.html);
-  content = content.replace(
-    /<p>\s*###\s*<\/p>/g,
-    '<p class="scene-break-big" role="separator">• • •</p>',
-  );
-  content = content.replace(
-    /<p>\s*##\s*<\/p>/g,
-    '<p class="scene-break-small" role="separator">*</p>',
-  );
-
-  const isSpecialPage =
-    chapter.fileName === "jacket" || chapter.fileName === "cover";
-  if (!isSpecialPage) {
-    if (ornaments?.chapterOrnament?.fileName) {
-      const imgPath = `../images/${ornaments.chapterOrnament.fileName}`;
-      content = content.replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/gi, (match) => {
-        const classMatch = match.match(/class=["']([^"']*)["']/i);
-        const classes = classMatch ? classMatch[1].split(/\s+/) : [];
-        if (classes.includes("break-main-chap")) {
-          return match;
-        }
-        return `<div class="chapter-ornament">\n    <img src="${imgPath}" alt=""/>\n  </div>\n  ` + match;
-      });
-    }
-
-    if (ornaments?.subchapterOrnament?.fileName) {
-      const imgPath = `../images/${ornaments.subchapterOrnament.fileName}`;
-      content = content.replace(/(<h2\b[^>]*>[\s\S]*?<\/h2>)/gi, (match) => {
-        return `<div class="subchapter-ornament">\n    <img src="${imgPath}" alt=""/>\n  </div>\n  ` + match;
-      });
-    }
-
-    // Automatically add dropcap to the first paragraph immediately following h1 or h2
-    content = content.replace(
-      /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
-      (match, p1, p2, p3, p4) => {
-        let updatedP2;
-        if (p2.includes('class=')) {
-          updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
-            return `class="${classNames} has-dropcap"`;
-          });
-        } else {
-          updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
-        }
-        return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + "</span>";
-      },
-    );
-
-    // Ensure that any paragraph containing a dropcap has the "has-dropcap" class
-    content = content.replace(
-      /<p([^>]*)>([^<]*(?:<(?!p\b)[^>]*>)*?<span\s+class=["']dropcap["'])/gi,
-      (match, pAttrs, contentBeforeDropcap) => {
-        if (pAttrs.includes('has-dropcap')) {
-          return match;
-        }
-        let updatedPAttrs;
-        if (pAttrs.includes('class=')) {
-          updatedPAttrs = pAttrs.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
-            return `class="${classNames} has-dropcap"`;
-          });
-        } else {
-          updatedPAttrs = pAttrs + ' class="has-dropcap"';
-        }
-        return `<p${updatedPAttrs}>${contentBeforeDropcap}`;
-      }
-    );
-  }
-
-  // Clean up internal marker classes (e.g. no-toc) from heading tags in final XHTML
-  content = content.replace(/(<h[12]\b[^>]*>)/gi, (match) => {
-    return match.replace(/class=["']([^"']*)["']/gi, (cMatch, classNames) => {
-      const cleaned = classNames.replace(/\bno-toc\b/g, '').trim().replace(/\s+/g, ' ');
-      return cleaned ? `class="${cleaned}"` : '';
-    }).replace(/\s{2,}/g, ' ').replace(/\s+>/g, '>');
-  });
-
-  const styleBlock = customCss ? `  <style>\n${customCss}\n  </style>\n` : "";
-  const linkStyle =
-    chapter.fileName === "jacket" || chapter.fileName === "cover"
-      ? ""
-      : '  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n';
-  return (
-    '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
-    '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' +
-    meta.language +
-    '">\n' +
-    '<head>\n  <meta charset="utf-8"/>\n  <title>' +
-    escapeXml(chapter.title) +
-    "</title>\n" +
-    linkStyle +
-    styleBlock +
-    "</head>\n" +
-    "<body>\n" +
-    content +
-    "\n</body>\n</html>"
-  );
 }
 
 export async function buildEpubBlob(
@@ -648,7 +231,7 @@ export async function buildEpubBlob(
 `;
   }
 
-  // Sinh @font-face và font-family CHUẨN XÁC theo cssFamily
+  // Sinh @font-face và font-family theo cssFamily
   let fontFaces = "";
   let fontSelectors = "";
   if (fonts) {
@@ -783,7 +366,6 @@ export async function buildEpubBlob(
         const jFont = findFont(fonts.jacketFont);
         if (jFont) {
           const declaration = getFontCSSDeclaration(fonts.jacketFont);
-          // Sử dụng chính xác jFont.cssFamily ("KKTTAbsolute", "1314 Zahra"...)
           localCss = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }\n${localCss}`;
         }
       }
