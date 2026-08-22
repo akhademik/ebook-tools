@@ -34,9 +34,19 @@
 		<div class="text-center font-mono text-sm tracking-wide py-3 px-5 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover active:scale-[0.98]">Mở công cụ</div>
 	</a>
 
-	<a href="/txt-to-pdf" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
+	<a href="/epub-editor" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
 		<div class="flex items-center justify-between mb-5">
 			<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">04</span>
+			<div class="text-2xl">✏️</div>
+		</div>
+		<h3 class="text-lg font-semibold mb-2.5 text-text-color">EPUB Editor</h3>
+		<p class="text-text-mute text-sm leading-relaxed mb-6 flex-1">Mở tệp EPUB bất kỳ để xem và tinh chỉnh trực tiếp mã HTML/CSS với Live Preview.</p>
+		<div class="text-center font-mono text-sm tracking-wide py-3 px-5 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover active:scale-[0.98]">Mở công cụ</div>
+	</a>
+
+	<a href="/txt-to-pdf" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
+		<div class="flex items-center justify-between mb-5">
+			<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">05</span>
 			<div class="text-2xl">💻</div>
 		</div>
 		<h3 class="text-lg font-semibold mb-2.5 text-text-color">TXT → PDF CJK</h3>

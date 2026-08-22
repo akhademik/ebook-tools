@@ -144,6 +144,17 @@
         <span class="text-base font-medium">Đóng gói EPUB</span>
       </a>
       <a
+        href="/epub-editor"
+        onclick={closeMenu}
+        class="tab-btn py-3 px-4 rounded-xl flex items-center gap-3 text-left transition-all duration-150 w-full border {$page
+          .url.pathname === '/epub-editor'
+          ? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
+          : 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
+      >
+        <span class="text-lg">✏️</span>
+        <span class="text-base font-medium">EPUB Editor</span>
+      </a>
+      <a
         href="/txt-to-pdf"
         onclick={closeMenu}
         class="tab-btn py-3 px-4 rounded-xl flex items-center gap-3 text-left transition-all duration-150 w-full border {$page

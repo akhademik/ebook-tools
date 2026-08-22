@@ -1,0 +1,98 @@
+<!-- src/routes/epub-editor/+page.svelte -->
+<script lang="ts">
+  import PageHeader from "$lib/components/PageHeader.svelte";
+  import DropZone from "$lib/components/DropZone.svelte";
+  import Button from "$lib/components/Button.svelte";
+  import { EpubEditorState } from "$lib/epub-editor/epub-editor-state.svelte";
+  import EpubEditorModal from "$lib/epub-editor/components/EpubEditorModal.svelte";
+
+  const editorState = new EpubEditorState();
+
+  let selectedFile = $state<File | null>(null);
+
+  async function handleFileSelected(file: File) {
+    selectedFile = file;
+    await editorState.loadEpubFile(file);
+  }
+</script>
+
+<svelte:head>
+  <title>EPUB Editor</title>
+</svelte:head>
+
+<PageHeader
+  title="EPUB Editor"
+  description="Xem và tinh chỉnh trực tiếp HTML / CSS bên trong tệp EPUB bất kỳ với Live Preview."
+/>
+
+<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+  <span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">
+    Tệp sách điện tử (.epub)
+  </span>
+
+  <DropZone
+    accept=".epub,application/epub+zip"
+    onSelect={handleFileSelected}
+    title="Kéo thả hoặc click để chọn tệp .EPUB"
+    subtitle="Hỗ trợ mọi file EPUB hợp lệ để xem và sửa HTML/CSS"
+    {selectedFile}
+  />
+
+  {#if editorState.statusMessage}
+    <div
+      class="font-mono text-sm mt-4 {editorState.isError
+        ? 'text-red-500'
+        : 'text-text-mute'}"
+    >
+      {editorState.statusMessage}
+    </div>
+  {/if}
+
+  {#if editorState.files.length > 0}
+    <div class="mt-6 pt-5 border-t border-border-color flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h4 class="font-mono text-sm font-bold text-text-color">
+          {editorState.fileName}
+        </h4>
+        <p class="text-xs text-text-mute font-mono mt-1">
+          Tổng cộng: {editorState.files.length} tệp (
+          {editorState.files.filter((f) => f.category === "page").length} trang,
+          {editorState.files.filter((f) => f.category === "style").length} CSS,
+          {editorState.files.filter((f) => f.category === "image").length} ảnh
+          )
+        </p>
+      </div>
+
+      <div class="w-full sm:w-auto sm:min-w-48">
+        <Button
+          onclick={() => (editorState.isModalOpen = true)}
+          variant="primary"
+        >
+          ✏️ Mở trình chỉnh sửa
+        </Button>
+      </div>
+    </div>
+  {/if}
+</div>
+
+<!-- Modal Fullscreen Editor -->
+<EpubEditorModal
+  bind:show={editorState.isModalOpen}
+  {editorState}
+/>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
