@@ -1,6 +1,6 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
-  import type { EpubSectionBaseProps } from "./epub-components.type";
+  import type { EpubSectionBaseProps } from "$lib/types";
 
   let { epubState }: EpubSectionBaseProps = $props();
 </script>
@@ -11,13 +11,13 @@
       class="font-mono text-xs tracking-wider text-text-mute uppercase font-semibold"
       >Ảnh minh họa nội dung (Illustrations)</span
     >
-    {#if epubState.illustrationFiles.length > 0}
+    {#if epubState.images.illustrationFiles.length > 0}
       <button
         type="button"
         class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs cursor-pointer"
-        onclick={() => epubState.clearIllustrationFiles()}
+        onclick={() => epubState.images.clearIllustrationFiles()}
       >
-        Xóa tất cả ({epubState.illustrationFiles.length})
+        Xóa tất cả ({epubState.images.illustrationFiles.length})
       </button>
     {/if}
   </div>
@@ -29,23 +29,23 @@
   <DropZone
     accept=".png,.jpg,.jpeg,.webp,.gif,.svg,.zip"
     multiple={true}
-    onSelectMultiple={(files) => epubState.handleIllustrationFiles(files)}
-    onSelect={(file) => epubState.handleIllustrationFiles(file)}
+    onSelectMultiple={(files) => epubState.images.handleIllustrationFiles(files)}
+    onSelect={(file) => epubState.images.handleIllustrationFiles(file)}
     title="Chọn ảnh minh họa hoặc file ZIP ảnh"
     subtitle="Kéo thả nhiều ảnh hoặc tệp .zip tại đây"
-    selectedCount={epubState.illustrationFiles.length}
+    selectedCount={epubState.images.illustrationFiles.length}
   />
 
-  {#if epubState.illustrationFiles.length > 0}
+  {#if epubState.images.illustrationFiles.length > 0}
     <div class="mt-4 flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-brand-bg rounded-xl border border-border-color">
-      {#each epubState.illustrationFiles as img, idx (img.fileName + idx)}
+      {#each epubState.images.illustrationFiles as img, idx (img.fileName + idx)}
         <div class="flex items-center gap-2 bg-panel-2 border border-border-color px-2.5 py-1.5 rounded-lg text-xs font-mono">
           <span class="text-accent-color font-semibold">[{img.name}]</span>
           <span class="text-text-mute text-[11px]">({img.fileName})</span>
           <button
             type="button"
             class="text-red-400 hover:text-red-600 ml-1 cursor-pointer font-bold"
-            onclick={() => epubState.removeIllustrationFile(idx)}
+            onclick={() => epubState.images.removeIllustrationFile(idx)}
             title="Xóa ảnh này"
           >
             ×

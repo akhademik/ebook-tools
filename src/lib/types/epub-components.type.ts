@@ -1,5 +1,5 @@
-// src/lib/epub-packer/components/epub-components.type.ts
-import type { EpubState } from '../epub-state.svelte';
+// src/lib/types/epub-components.type.ts
+import type { EpubState } from '$lib/epub-packer/epub-state.svelte';
 
 export interface EpubSectionBaseProps {
 	epubState: EpubState;

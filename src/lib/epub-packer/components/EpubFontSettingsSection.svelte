@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts";
-  import type { EpubSectionBaseProps } from "./epub-components.type";
+  import type { EpubSectionBaseProps } from "$lib/types";
 
   let { epubState }: EpubSectionBaseProps = $props();
 </script>
@@ -20,7 +20,7 @@
       >
       <select
         id="h1-font-select"
-        bind:value={epubState.h1Font}
+        bind:value={epubState.fonts.h1Font}
         class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
       >
         <option value="default">Mặc định (Không dùng font)</option>
@@ -37,7 +37,7 @@
       >
       <select
         id="h2-font-select"
-        bind:value={epubState.h2Font}
+        bind:value={epubState.fonts.h2Font}
         class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
       >
         <option value="default">Mặc định (Không dùng font)</option>
@@ -54,7 +54,7 @@
       >
       <select
         id="dropcap-font-select"
-        bind:value={epubState.dropcapFont}
+        bind:value={epubState.fonts.dropcapFont}
         class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
       >
         <option value="default">Mặc định (Không dùng font)</option>
@@ -75,22 +75,22 @@
   >
     <h1
       class="text-2xl font-bold mb-2 text-center"
-      style="font-family: {epubState.h1Font === 'default'
+      style="font-family: {epubState.fonts.h1Font === 'default'
         ? 'inherit'
-        : epubState.h1Font};"
+        : epubState.fonts.h1Font};"
     >
       Đây là chapter lớn
     </h1>
     <h2
       class="text-lg font-semibold mb-4 text-center"
-      style="font-family: {epubState.h2Font === 'default'
+      style="font-family: {epubState.fonts.h2Font === 'default'
         ? 'inherit'
-        : epubState.h2Font}; color: #333333;"
+        : epubState.fonts.h2Font}; color: #333333;"
     >
       Đây là chapter nhỏ
     </h2>
     <p class="text-sm leading-relaxed text-gray-700 font-sans">
-      <span class="dropcap" style="font-family: {epubState.dropcapFont === 'default' ? 'inherit' : epubState.dropcapFont};">Đ</span>ây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị trong cuốn sách của bạn sau khi xuất bản. Tiêu đề lớn (h1) và tiêu đề nhỏ (h2) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc sách.
+      <span class="dropcap" style="font-family: {epubState.fonts.dropcapFont === 'default' ? 'inherit' : epubState.fonts.dropcapFont};">Đ</span>ây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị trong cuốn sách của bạn sau khi xuất bản. Tiêu đề lớn (h1) và tiêu đề nhỏ (h2) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc sách.
     </p>
   </div>
 </div>

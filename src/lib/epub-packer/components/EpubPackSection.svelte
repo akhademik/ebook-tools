@@ -1,7 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Button from "$lib/components/Button.svelte";
-  import type { EpubPackSectionProps } from "./epub-components.type";
+  import type { EpubPackSectionProps } from "$lib/types";
 
   let { epubState, onDownload }: EpubPackSectionProps = $props();
 </script>
@@ -9,13 +9,13 @@
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
   <div class="mb-5">
     <Input
-      bind:value={epubState.epubOutName}
+      bind:value={epubState.metadata.epubOutName}
       label="Tên file EPUB"
       placeholder="ten-sach"
     />
     <p class="text-sm text-text-mute mt-2">
       File tải về: <span class="text-text-color font-mono"
-        >{epubState.epubOutNamePreview}</span
+        >{epubState.metadata.epubOutNamePreview}</span
       >
     </p>
   </div>
@@ -26,7 +26,7 @@
     >
       <Button
         onclick={() => epubState.processEpub()}
-        disabled={epubState.epubChapters.length === 0 || epubState.processing}
+        disabled={epubState.source.epubChapters.length === 0 || epubState.processing}
         variant="primary"
       >
         {epubState.processing ? "Đang đóng gói..." : "Đóng gói file EPUB"}

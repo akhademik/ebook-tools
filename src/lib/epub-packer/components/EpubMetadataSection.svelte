@@ -2,12 +2,12 @@
   import Input from "$lib/components/Input.svelte";
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates";
-  import type { EpubMetadataSectionProps } from "./epub-components.type";
+  import type { EpubMetadataSectionProps } from "$lib/types";
 
   let { epubState, onOpenJacketModal }: EpubMetadataSectionProps = $props();
 
   const selectedTemplateName = $derived(
-    JACKET_TEMPLATES.find((t) => t.id === epubState.jacketTemplateId)?.name || "",
+    JACKET_TEMPLATES.find((t) => t.id === epubState.jacket.jacketTemplateId)?.name || "",
   );
 </script>
 
@@ -19,42 +19,42 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
     <div>
       <Input
-        bind:value={epubState.title}
+        bind:value={epubState.metadata.title}
         label="Tác phẩm"
         placeholder="Mật Mã Da Vinci"
       />
     </div>
     <div>
       <Input
-        bind:value={epubState.author}
+        bind:value={epubState.metadata.author}
         label="Tác giả"
         placeholder="Dan Brown"
       />
     </div>
     <div>
       <Input
-        bind:value={epubState.originalTitle}
+        bind:value={epubState.jacket.originalTitle}
         label="Tựa gốc / Tựa nhỏ"
         placeholder="The Da Vinci Code"
       />
     </div>
     <div>
       <Input
-        bind:value={epubState.translator}
+        bind:value={epubState.jacket.translator}
         label="Dịch giả"
         placeholder="Đỗ Thu Hà"
       />
     </div>
     <div>
       <Input
-        bind:value={epubState.publisher}
+        bind:value={epubState.metadata.publisher}
         label="Nhà phát hành"
         placeholder="1980 Books"
       />
     </div>
     <div>
       <Input
-        bind:value={epubState.distributor}
+        bind:value={epubState.jacket.distributor}
         label="Nhà xuất bản"
         placeholder="NXB Văn hóa Thông tin"
       />
@@ -67,7 +67,7 @@
       >
       <select
         id="jacket-font-select"
-        bind:value={epubState.jacketFont}
+        bind:value={epubState.fonts.jacketFont}
         class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
       >
         <option value="default">Mặc định (Không dùng font)</option>

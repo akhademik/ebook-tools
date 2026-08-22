@@ -1,6 +1,6 @@
 <script lang="ts">
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates";
-  import type { EpubJacketModalProps } from "./epub-components.type";
+  import type { EpubJacketModalProps } from "$lib/types";
 
   let { show = $bindable(false), epubState }: EpubJacketModalProps = $props();
 
@@ -9,7 +9,7 @@
   $effect(() => {
     if (show) {
       const idx = JACKET_TEMPLATES.findIndex(
-        (t) => t.id === epubState.jacketTemplateId,
+        (t) => t.id === epubState.jacket.jacketTemplateId,
       );
       currentPreviewTemplateIdx = idx !== -1 ? idx : 0;
     }
@@ -27,7 +27,7 @@
   }
 
   function selectTemplate() {
-    epubState.jacketTemplateId = JACKET_TEMPLATES[currentPreviewTemplateIdx].id;
+    epubState.jacket.jacketTemplateId = JACKET_TEMPLATES[currentPreviewTemplateIdx].id;
     show = false;
   }
 </script>
@@ -74,18 +74,18 @@
         </span>
 
         <div class="preview-wrap">
-          {#if epubState.jacketFont !== "default"}
+          {#if epubState.fonts.jacketFont !== "default"}
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2 { font-family: "${epubState.jacketFont}" !important; }</style>`}
+            {@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2 { font-family: "${epubState.fonts.jacketFont}" !important; }</style>`}
           {/if}
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html JACKET_TEMPLATES[currentPreviewTemplateIdx].render(
-            epubState.title.trim() || "Tác phẩm mẫu",
-            epubState.originalTitle.trim(),
-            epubState.author.trim() || "Tác giả mẫu",
-            epubState.translator.trim() || "Dịch giả mẫu",
-            epubState.publisher.trim(),
-            epubState.distributor.trim(),
+            epubState.metadata.title.trim() || "Tác phẩm mẫu",
+            epubState.jacket.originalTitle.trim(),
+            epubState.metadata.author.trim() || "Tác giả mẫu",
+            epubState.jacket.translator.trim() || "Dịch giả mẫu",
+            epubState.metadata.publisher.trim(),
+            epubState.jacket.distributor.trim(),
           )}
         </div>
       </div>

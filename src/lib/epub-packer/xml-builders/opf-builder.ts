@@ -1,6 +1,5 @@
 // src/lib/epub-packer/xml-builders/opf-builder.ts
-import { escapeXml } from '$lib/utils/xml';
-import { Logger } from '$lib/utils/logger';
+import { escapeXml, Logger } from '$lib/utils';
 import { findFont } from '../templates/fonts';
 import type {
   EpubMetadata,

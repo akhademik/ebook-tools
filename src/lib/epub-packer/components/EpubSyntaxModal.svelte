@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EpubSyntaxModalProps } from "./epub-components.type";
+  import type { EpubSyntaxModalProps } from "$lib/types";
 
   let { show = $bindable(false) }: EpubSyntaxModalProps = $props();
 </script>

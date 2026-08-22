@@ -1,7 +1,7 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
   import Input from "$lib/components/Input.svelte";
-  import type { EpubSourceSectionProps } from "./epub-components.type";
+  import type { EpubSourceSectionProps } from "$lib/types";
 
   let { epubState, onOpenSyntaxModal }: EpubSourceSectionProps = $props();
 </script>
@@ -13,10 +13,10 @@
   >
   <DropZone
     accept=".zip,.txt,application/zip,text/plain"
-    onSelect={(f) => epubState.handleFile(f)}
+    onSelect={(f) => epubState.source.handleFile(f)}
     title="Kéo thả hoặc click để chọn file"
     subtitle="Chỉ hỗ trợ file .ZIP chứa các chương (.md) hoặc file .TXT"
-    selectedFile={epubState.epubFileSelected}
+    selectedFile={epubState.source.epubFileSelected}
   />
 
   <!-- Custom Syntax Config for TXT -->
@@ -36,7 +36,7 @@
     </button>
   </div>
 
-  {#if epubState.fileType === "txt" && epubState.rawTxtText}
+  {#if epubState.source.fileType === "txt" && epubState.source.rawTxtText}
     <div
       class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in"
     >
@@ -48,26 +48,26 @@
         <button
           type="button"
           class="bg-accent-color text-white font-mono text-xs font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
-          onclick={() => epubState.addCustomDefinition()}
+          onclick={() => epubState.source.addCustomDefinition()}
         >
           + Thêm quy ước
         </button>
       </div>
 
-      {#if epubState.customDefinitions.length === 0}
+      {#if epubState.source.customDefinitions.length === 0}
         <p class="text-xs text-text-mute font-mono italic">
           Chưa có quy ước riêng nào.
         </p>
       {:else}
         <div class="flex flex-col gap-3">
-          {#each epubState.customDefinitions as def, idx (idx)}
+          {#each epubState.source.customDefinitions as def, idx (idx)}
             <div
               class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end bg-brand-bg p-3.5 rounded-lg border border-border-color animate-fade-in"
             >
               <div>
                 <Input
                   bind:value={def.pattern}
-                  oninput={() => epubState.applyTxtGrouping()}
+                  oninput={() => epubState.source.applyTxtGrouping()}
                   label="Ký hiệu (Pattern)"
                   placeholder="Ví dụ: $$$"
                 />
@@ -75,7 +75,7 @@
               <div>
                 <Input
                   bind:value={def.tag}
-                  oninput={() => epubState.applyTxtGrouping()}
+                  oninput={() => epubState.source.applyTxtGrouping()}
                   label="Thẻ HTML thay thế"
                   placeholder="Ví dụ: &lt;span class=&quot;xya&quot;&gt;"
                 />
@@ -84,7 +84,7 @@
                 <button
                   type="button"
                   class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-10.5 flex items-center justify-center"
-                  onclick={() => epubState.removeCustomDefinition(idx)}
+                  onclick={() => epubState.source.removeCustomDefinition(idx)}
                 >
                   Xóa
                 </button>
@@ -94,11 +94,11 @@
         </div>
       {/if}
     </div>
-  {:else if epubState.epubRawFiles.length > 0}
+  {:else if epubState.source.epubRawFiles.length > 0}
     <div class="mt-5 animate-fade-in">
       <Input
-        bind:value={epubState.mergePattern}
-        oninput={() => epubState.applyGrouping()}
+        bind:value={epubState.source.mergePattern}
+        oninput={() => epubState.source.applyGrouping()}
         label="Từ khóa nhận diện tiêu đề chương mới"
         placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương"
       />
@@ -108,8 +108,8 @@
       <input
         type="checkbox"
         id="epub-heuristic-mode"
-        bind:checked={epubState.heuristicMode}
-        onchange={() => epubState.applyGrouping()}
+        bind:checked={epubState.source.heuristicMode}
+        onchange={() => epubState.source.applyGrouping()}
         class="w-4 h-4 accent-accent-color cursor-pointer"
       />
       <div>
@@ -128,8 +128,8 @@
       <input
         type="checkbox"
         id="epub-ignore-markdown-format"
-        bind:checked={epubState.ignoreMarkdownFormat}
-        onchange={() => epubState.applyGrouping()}
+        bind:checked={epubState.source.ignoreMarkdownFormat}
+        onchange={() => epubState.source.applyGrouping()}
         class="w-4 h-4 accent-accent-color cursor-pointer"
       />
       <div>
@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    {#if epubState.heuristicMode}
+    {#if epubState.source.heuristicMode}
       <div
         class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color"
       >
@@ -154,8 +154,8 @@
           >
           <input
             type="number"
-            bind:value={epubState.heuristicStart}
-            oninput={() => epubState.applyGrouping()}
+            bind:value={epubState.source.heuristicStart}
+            oninput={() => epubState.source.applyGrouping()}
             class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
             min="1"
             placeholder="Đầu"
@@ -163,8 +163,8 @@
           <span class="font-mono text-sm text-text-mute">đến trang</span>
           <input
             type="number"
-            bind:value={epubState.heuristicEnd}
-            oninput={() => epubState.applyGrouping()}
+            bind:value={epubState.source.heuristicEnd}
+            oninput={() => epubState.source.applyGrouping()}
             class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
             min="1"
             placeholder="Cuối"
@@ -181,13 +181,13 @@
             min="1"
             max="10"
             step="1"
-            bind:value={epubState.heuristicThreshold}
-            oninput={() => epubState.applyGrouping()}
+            bind:value={epubState.source.heuristicThreshold}
+            oninput={() => epubState.source.applyGrouping()}
             class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-40"
           />
           <span
             class="font-mono text-sm font-semibold text-accent-color w-8 text-center"
-            >{epubState.heuristicThreshold}</span
+            >{epubState.source.heuristicThreshold}</span
           >
           <p class="text-xs text-text-mute w-full mt-1.5 leading-relaxed">
             Giảm ngưỡng để bắt nhiều tiêu đề hơn (cho sách quét OCR xấu). Tăng
@@ -206,8 +206,8 @@
         >
         <input
           type="text"
-          bind:value={epubState.cleanKeywords}
-          oninput={() => epubState.applyGrouping()}
+          bind:value={epubState.source.cleanKeywords}
+          oninput={() => epubState.source.applyGrouping()}
           class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color"
           placeholder="Tên sách, Nhà xuất bản"
         />
@@ -223,13 +223,13 @@
           min="1"
           max="5"
           step="1"
-          bind:value={epubState.cleanLineLimit}
-          oninput={() => epubState.applyGrouping()}
+          bind:value={epubState.source.cleanLineLimit}
+          oninput={() => epubState.source.applyGrouping()}
           class="h-1.5 bg-brand-bg rounded-lg appearance-none cursor-pointer accent-accent-color w-32"
         />
         <span
           class="font-mono text-sm font-semibold text-accent-color w-6 text-center"
-          >{epubState.cleanLineLimit}</span
+          >{epubState.source.cleanLineLimit}</span
         >
         <p class="text-xs text-text-mute w-full leading-relaxed mt-1">
           Chỉ quét các file có từ 6 dòng trở lên. Tự động bỏ qua lọc nếu dòng
@@ -239,42 +239,42 @@
     </div>
   {/if}
 
-  {#if epubState.epubChapters.length > 0}
+  {#if epubState.source.epubChapters.length > 0}
     <!-- Tab Navigation -->
     <div class="flex border-b border-border-color mt-6 font-mono text-xs">
       <button
         type="button"
-        class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {epubState.activeTab ===
+        class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {epubState.source.activeTab ===
         'toc'
           ? 'border-accent-color text-accent-color'
           : 'border-transparent text-text-mute hover:text-text-color'}"
         onclick={() => {
-          epubState.activeTab = "toc";
-        }}>Đầu mục tìm thấy: ({epubState.epubChapters.length} chương)</button
+          epubState.source.activeTab = "toc";
+        }}>Đầu mục tìm thấy: ({epubState.source.epubChapters.length} chương)</button
       >
 
-      {#if epubState.fileType === "zip"}
+      {#if epubState.source.fileType === "zip"}
         <button
           type="button"
-          class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {epubState.activeTab ===
+          class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer relative {epubState.source.activeTab ===
           'diff'
             ? 'border-accent-color text-accent-color'
             : 'border-transparent text-text-mute hover:text-text-color'}"
           onclick={() => {
-            epubState.activeTab = "diff";
+            epubState.source.activeTab = "diff";
           }}
         >
-          Lọc Header/Footer ({epubState.cleanedLinesReport.length})
+          Lọc Header/Footer ({epubState.source.cleanedLinesReport.length})
         </button>
       {/if}
     </div>
 
     <!-- Tab Contents -->
-    {#if epubState.activeTab === "toc"}
+    {#if epubState.source.activeTab === "toc"}
       <div
         class="mt-5 border border-border-color rounded-xl max-h-75 overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in"
       >
-        {#each epubState.epubChapters as chap (chap.fileName)}
+        {#each epubState.source.epubChapters as chap (chap.fileName)}
           <div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
             <div class="flex justify-between items-start gap-4">
               <span class="font-semibold text-text-color">
@@ -299,16 +299,16 @@
           </div>
         {/each}
       </div>
-    {:else if epubState.activeTab === "diff" && epubState.fileType === "zip"}
+    {:else if epubState.source.activeTab === "diff" && epubState.source.fileType === "zip"}
       <div
         class="mt-5 flex flex-col gap-4 animate-fade-in max-h-100 overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color"
       >
-        {#if epubState.cleanedLinesReport.length === 0}
+        {#if epubState.source.cleanedLinesReport.length === 0}
           <p class="text-sm text-text-mute font-mono text-center py-6">
             Không phát hiện Header/Footer nào khớp bộ lọc.
           </p>
         {:else}
-          {#each epubState.cleanedLinesReport.slice(0, epubState.visibleCleanedCount) as reportItem (reportItem.fileName)}
+          {#each epubState.source.cleanedLinesReport.slice(0, epubState.source.visibleCleanedCount) as reportItem (reportItem.fileName)}
             <div
               class="p-4 rounded-xl bg-panel-2 border border-border-color flex flex-col gap-2 shrink-0"
             >
@@ -343,15 +343,15 @@
             </div>
           {/each}
 
-          {#if epubState.visibleCleanedCount < epubState.cleanedLinesReport.length}
+          {#if epubState.source.visibleCleanedCount < epubState.source.cleanedLinesReport.length}
             <button
               type="button"
               class="w-full py-2.5 bg-panel-2 border border-border-color rounded-xl text-xs font-semibold text-amber-color hover:border-amber-color cursor-pointer transition-colors"
               onclick={() => {
-                epubState.visibleCleanedCount += 20;
+                epubState.source.visibleCleanedCount += 20;
               }}
-              >Xem thêm ({epubState.cleanedLinesReport.length -
-                epubState.visibleCleanedCount} trang ẩn)</button
+              >Xem thêm ({epubState.source.cleanedLinesReport.length -
+                epubState.source.visibleCleanedCount} trang ẩn)</button
             >
           {/if}
         {/if}
@@ -359,13 +359,13 @@
     {/if}
   {/if}
 
-  {#if epubState.parseStatus}
+  {#if epubState.source.parseStatus}
     <div
-      class="font-mono text-sm mt-3 {epubState.parseIsError
+      class="font-mono text-sm mt-3 {epubState.source.parseIsError
         ? 'text-red-500'
         : 'text-text-mute'}"
     >
-      {epubState.parseStatus}
+      {epubState.source.parseStatus}
     </div>
   {/if}
 </div>

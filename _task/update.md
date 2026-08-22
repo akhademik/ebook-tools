@@ -1,48 +1,11 @@
-Good instinct to double check — I looked at the actual file tree and import graph (not just skimmed), and there are two real structural issues, plus the shape overall is actually fine. Here's the honest breakdown:
+Còn 2 điểm nhỏ, không gấp, có thể để sau:
 
-**The layout itself is a reasonable pattern:**
+epub-state.svelte.ts (410 dòng) vẫn còn ~200 dòng là getter/setter "delegate" thuần túy để proxy field từ các sub-state (get title() { return this.metadata.title }...). Cách này giữ API cũ cho component không phải sửa nhiều, nhưng hơi rườm — nếu sau này thêm field mới ở sub-state mà quên thêm delegate ở đây thì sẽ thiếu. Về lâu dài có thể sửa component để gọi thẳng epubState.metadata.title thay vì epubState.title, rồi bỏ hẳn lớp delegate này.
+Import Logger chưa nhất quán 100%: vài file import từ $lib/utils (barrel), vài file import thẳng $lib/utils/logger. Không sai, chỉ là chưa đồng bộ style — có thể quét sửa hết về một kiểu cho gọn.
 
-```
-src/
-├── routes/            → pages only (each route stays 50-220 lines, logic doesn't leak into it — good)
-├── lib/
-│   ├── <feature>/      → epub-packer, markdown-fixer, pdf-splitter (self-contained)
-│   ├── components/     → shared UI (Button, Input, DropZone...)
-│   ├── types/          → one .type.ts per feature
-│   ├── helpers/  ⚠️
-│   └── utils/    ⚠️
-```
+2 điểm nhỏ có thể cân nhắc, không bắt buộc:
 
-Splitting by feature (`epub-packer/`, `markdown-fixer/`, `pdf-splitter/`) and giving the big one internal sub-folders (`parser/`, `xml-builders/`, `templates/`, `components/`) while keeping the small ones flat is the right call — that's not what's making it feel messy.
-
-**What's actually causing the "complex/not nice" feeling:**
-
-**1. `helpers/` and `utils/` are the same thing, twice.**
-`lib/helpers/helpers.ts` is literally nothing but re-exports of `lib/utils/*` (its own comment says "for backwards compatibility" — leftover from an old refactor). Result: the exact same function (`escapeXml`, `slugify`, etc.) gets imported two different ways depending on the file:
-
-- `epub-ocr-utils.ts`, `txt-parser.ts`, `epub-chapter-utils.ts`, `epub-state.svelte.ts` → import from `$lib/helpers/helpers.js`
-- `jacket-templates.ts`, `chapter-builder.ts`, `nav-builder.ts`, `opf-builder.ts` → import the same functions from `$lib/utils/*.js` directly
-
-Anyone reading the code has to remember which door leads to the same room. **Fix:** delete `helpers/helpers.ts`, move `logger.ts` into `utils/` (or keep `helpers/` for just the logger and drop `utils/` duplication), and point every import straight at `utils/text.ts` / `utils/xml.ts` / `utils/download.ts`. One place, one import path.
-
-**2. `epub-state.svelte.ts` is a 613-line god-file.**
-Everything else in this project is nicely split (the epub components alone are broken into 8 focused files: cover, fonts, jacket, metadata, ornaments, source, pack, syntax). But all of that UI is driven by one giant state file holding metadata + chapters + jacket + fonts + ornaments + images + cover state together. That mismatch — fine-grained components, monolithic state — is probably the main thing that reads as "complex."
-
-**Fix:** split it to mirror the components you already have, e.g.:
-
-```
-epub-packer/
-└── state/
-    ├── epub-metadata-state.svelte.ts
-    ├── epub-source-state.svelte.ts     (chapters, TOC, files)
-    ├── epub-jacket-state.svelte.ts
-    ├── epub-fonts-state.svelte.ts
-    └── epub-images-state.svelte.ts     (cover + ornaments + illustrations)
-```
-
-each exporting a small store, composed together in one `epub-state.svelte.ts` barrel if you still want a single import surface for the route.
-
-**3. Scale mismatch is inherent, not a bug.**
-`epub-packer/` is ~276K vs 12–16K for the other two — that's just because EPUB packing is genuinely 5-10x more work than the other tools, not a structure problem. I wouldn't try to "balance" it artificially.
-
-If you want, I can actually make the two fixes above (collapse `helpers/`→`utils/`, split `epub-state.svelte.ts`) and show you the diff — that's the highest-leverage cleanup for how it feels to navigate, with low risk since tests/lint are already green as a safety net.
+epub-packer/ hơi "phẳng" ở gốc — epub-packer.ts, epub-state.svelte.ts, generate-fonts-meta.js nằm ngay ngoài cùng, trong khi các phần khác đã có subfolder riêng (parser/, state/, templates/, xml-builders/, components/). Có thể dọn thêm chút:
+generate-fonts-meta.js là script build-time (generate metadata), không phải runtime logic → nên chuyển ra scripts/ ở root project, tách khỏi src/lib.
+epub-packer.ts (orchestrator chính, ghép mọi thứ lại thành blob) để ở gốc feature là hợp lý — đó là "entry point" của feature, không cần di chuyển.
+epub-components.type.ts nằm trong components/ thay vì types/ — hơi lệch quy ước so với các feature khác (types đều gom về lib/types/). Không sai về mặt kỹ thuật (types riêng cho components thì để cạnh components cũng hợp lý), nhưng nếu muốn nhất quán 100% với cách bạn đã tổ chức types/, có thể gộp nó vào types/epub-components.type.ts luôn.

@@ -23,10 +23,10 @@
     Logger.debug(
       "[EpubPage]",
       "downloadEpub button clicked",
-      epubState.epubOutNamePreview,
+      epubState.metadata.epubOutNamePreview,
     );
     if (epubState.epubBlob) {
-      triggerDownload(epubState.epubBlob, epubState.epubOutNamePreview);
+      triggerDownload(epubState.epubBlob, epubState.metadata.epubOutNamePreview);
     } else {
       Logger.warn(
         "[EpubPage]",
@@ -66,7 +66,7 @@
   onOpenSyntaxModal={() => (showSyntaxModal = true)}
 />
 
-{#if epubState.epubChapters.length > 0}
+{#if epubState.source.epubChapters.length > 0}
   <!-- 2. Metadata & Trang giới thiệu -->
   <EpubMetadataSection
     {epubState}

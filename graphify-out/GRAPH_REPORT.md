@@ -1,16 +1,16 @@
 # Graph Report - ebook-tools  (2026-08-22)
 
 ## Corpus Check
-- 75 files · ~40,672 words
+- 75 files · ~39,522 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 432 nodes · 815 edges · 30 communities (23 shown, 7 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.92)
+- 364 nodes · 731 edges · 29 communities (24 shown, 5 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 1.0)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `136c7953`
+- Built from commit: `250117b9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,15 +18,15 @@
 - epub-parser.ts
 - devDependencies
 - epub-packer.ts
-- Logger
-- pdf-splitter.ts
+- utils/index.ts
+- generate-fonts-meta.js
 - scripts
 - entry
 - EpubState
-- txt-parser.ts
+- epub-source-state.svelte.ts
 - types/index.ts
 - compilerOptions
-- generate-fonts-meta.js
+- helpers.test.ts
 - result.type.ts
 - Icons Sprite Map
 - README.md
@@ -35,56 +35,64 @@
 - Dropcap styling logic change
 - EpubImagesState
 - Favicon Logo
-- EpubJacketState
 
 ## God Nodes (most connected - your core abstractions)
-1. `EpubState` - 82 edges
-2. `Logger` - 20 edges
-3. `EpubImagesState` - 16 edges
-4. `../src/lib/utils/logger.js?test=2` - 16 edges
-5. `escapeXml()` - 16 edges
-6. `buildEpubBlob()` - 14 edges
-7. `scripts` - 11 edges
-8. `EpubSourceState` - 10 edges
-9. `compilerOptions` - 10 edges
-10. `renderMarkdownBlocks()` - 9 edges
+1. `Logger` - 20 edges
+2. `EpubImagesState` - 16 edges
+3. `escapeXml()` - 16 edges
+4. `buildEpubBlob()` - 14 edges
+5. `EpubState` - 14 edges
+6. `scripts` - 11 edges
+7. `EpubSourceState` - 10 edges
+8. `compilerOptions` - 10 edges
+9. `renderMarkdownBlocks()` - 9 edges
+10. `groupChaptersSingle()` - 9 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `EpubSectionBaseProps` --references--> `EpubState`  [EXTRACTED]
-  src/lib/epub-packer/components/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
-- `EpubSourceSectionProps` --references--> `EpubState`  [EXTRACTED]
-  src/lib/epub-packer/components/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
-- `EpubMetadataSectionProps` --references--> `EpubState`  [EXTRACTED]
-  src/lib/epub-packer/components/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
-- `EpubPackSectionProps` --references--> `EpubState`  [EXTRACTED]
-  src/lib/epub-packer/components/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
+- `EpubState` --references--> `EpubImagesState`  [EXTRACTED]
+  src/lib/epub-packer/epub-state.svelte.ts → src/lib/epub-packer/state/epub-images-state.svelte.ts
+- `EpubState` --references--> `EpubSourceState`  [EXTRACTED]
+  src/lib/epub-packer/epub-state.svelte.ts → src/lib/epub-packer/state/epub-source-state.svelte.ts
 - `EpubJacketModalProps` --references--> `EpubState`  [EXTRACTED]
-  src/lib/epub-packer/components/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
+  src/lib/types/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
+- `EpubMetadataSectionProps` --references--> `EpubState`  [EXTRACTED]
+  src/lib/types/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
+- `EpubPackSectionProps` --references--> `EpubState`  [EXTRACTED]
+  src/lib/types/epub-components.type.ts → src/lib/epub-packer/epub-state.svelte.ts
 
 ## Import Cycles
-- None detected.
+- 3-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
+- 4-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 4-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/templates/fonts.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/templates/jacket-templates.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/templates/fonts.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/xml-builders/chapter-builder.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/xml-builders/nav-builder.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/xml-builders/opf-builder.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/state/index.ts -> src/lib/epub-packer/state/epub-source-state.svelte.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/state/index.ts -> src/lib/epub-packer/state/epub-images-state.svelte.ts -> src/lib/types/index.ts -> src/lib/types/epub-components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 
-## Communities (30 total, 7 thin omitted)
+## Communities (29 total, 5 thin omitted)
 
 ### Community 0 - "epub-parser.ts"
-Cohesion: 0.13
-Nodes (41): analyzeChapterCandidates(), assignSequentialChapterIds(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate() (+33 more)
+Cohesion: 0.23
+Nodes (26): analyzeChapterCandidates(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate(), stripDecoration() (+18 more)
 
 ### Community 1 - "devDependencies"
 Cohesion: 0.06
 Nodes (35): eslint, @eslint/js, eslint-plugin-svelte, globals, devDependencies, eslint, @eslint/js, eslint-plugin-svelte (+27 more)
 
 ### Community 2 - "epub-packer.ts"
-Cohesion: 0.14
-Nodes (27): buildEpubBlob(), EPUB_CSS, getDynamicCss(), AVAILABLE_FONTS, findFont(), fontFiles, fontMetaMap, getFontCSSDeclaration() (+19 more)
+Cohesion: 0.10
+Nodes (34): buildEpubBlob(), EPUB_CSS, getDynamicCss(), AVAILABLE_FONTS, findFont(), fontFiles, fontMetaMap, getFontCSSDeclaration() (+26 more)
 
-### Community 3 - "Logger"
-Cohesion: 0.07
-Nodes (27): EpubFontsState, EpubMetadataState, EpubSourceStateDependencies, BOLD_ITALIC_PATTERNS, BOLD_PATTERNS, convertBrackets(), fixMarkdownZip(), ITALIC_PATTERNS (+19 more)
+### Community 3 - "utils/index.ts"
+Cohesion: 0.06
+Nodes (34): BOLD_ITALIC_PATTERNS, BOLD_PATTERNS, convertBrackets(), fixMarkdownZip(), ITALIC_PATTERNS, MarkdownFixerState, UNDERLINE_PATTERNS, applyGrayscale() (+26 more)
 
-### Community 4 - "pdf-splitter.ts"
-Cohesion: 0.11
-Nodes (16): applyGrayscale(), cropCanvas(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), runWorker(), updateProgress() (+8 more)
+### Community 4 - "generate-fonts-meta.js"
+Cohesion: 0.29
+Nodes (6): files, fontkit, FONTS_DIR, metadata, OUTPUT_FILE, require
 
 ### Community 5 - "scripts"
 Cohesion: 0.10
@@ -94,21 +102,25 @@ Nodes (20): fontkit, jszip, dependencies, fontkit, jszip, name, private, scripts
 Cohesion: 0.14
 Nodes (13): entry, ignoreDependencies, project, $schema, src/**/*.{js,ts,svelte}, src/lib/epub-packer/parser/epub-parser.ts, src/lib/types/index.ts, src/lib/utils/index.ts (+5 more)
 
-### Community 8 - "txt-parser.ts"
-Cohesion: 0.18
-Nodes (9): applyInlineFormatting(), escapeRegExp(), getClosingTag(), isIllustrationTag(), parseTxtToChapters(), stripHtmlTags(), EpubSourceState, CustomDefinition (+1 more)
+### Community 7 - "EpubState"
+Cohesion: 0.17
+Nodes (11): EpubState, EpubFontsState, EpubJacketState, EpubMetadataState, EpubJacketModalProps, EpubMetadataSectionProps, EpubPackSectionProps, EpubSectionBaseProps (+3 more)
+
+### Community 8 - "epub-source-state.svelte.ts"
+Cohesion: 0.12
+Nodes (22): assignSequentialChapterIds(), endsWithSentencePunctuation(), parseMarkdownBlocks(), startsWithLowercaseLetter(), cleanHeaderFooterOcr(), compileCleanKeywords(), getCleanedLinesReport(), isLineHeaderFooter() (+14 more)
 
 ### Community 9 - "types/index.ts"
-Cohesion: 0.08
-Nodes (12): EpubJacketModalProps, EpubMetadataSectionProps, EpubPackSectionProps, EpubSectionBaseProps, EpubSourceSectionProps, EpubSyntaxModalProps, JACKET_TEMPLATES, ButtonProps (+4 more)
+Cohesion: 0.17
+Nodes (4): ButtonProps, DropZoneProps, InputProps, PageHeaderProps
 
 ### Community 10 - "compilerOptions"
 Cohesion: 0.11
 Nodes (17): src/**/*, .svelte-kit/ambient.d.ts, .svelte-kit/non-ambient.d.ts, ./.svelte-kit/tsconfig.json, .svelte-kit/types/**/$types.d.ts, compilerOptions, allowJs, checkJs (+9 more)
 
-### Community 11 - "generate-fonts-meta.js"
+### Community 11 - "helpers.test.ts"
 Cohesion: 0.29
-Nodes (6): files, fontkit, FONTS_DIR, metadata, OUTPUT_FILE, require
+Nodes (4): Window, mockAnchor, mockDocument, mockPdfjsLib
 
 ### Community 12 - "result.type.ts"
 Cohesion: 0.40
@@ -125,22 +137,22 @@ Nodes (4): EPUB Packer, Markdown Fixer, PDF Processor, TXT to PDF CJK Desktop Ap
 ## Knowledge Gaps
 - **102 isolated node(s):** `gitignorePath`, `$schema`, `src/**/*.{js,ts,svelte}`, `tests/**/*.{js,ts}`, `src/routes/**/+page.{svelte,js,ts}` (+97 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `EpubState` connect `EpubState` to `epub-parser.ts`, `epub-packer.ts`, `Logger`, `txt-parser.ts`, `types/index.ts`, `EpubImagesState`, `EpubJacketState`?**
-  _High betweenness centrality (0.201) - this node is a cross-community bridge._
-- **Why does `Logger` connect `Logger` to `epub-parser.ts`, `txt-parser.ts`, `epub-packer.ts`, `pdf-splitter.ts`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Why does `EpubImagesState` connect `EpubImagesState` to `epub-packer.ts`, `Logger`, `EpubState`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `Logger` connect `utils/index.ts` to `epub-parser.ts`, `epub-source-state.svelte.ts`, `epub-packer.ts`?**
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `EpubImagesState` connect `EpubImagesState` to `epub-packer.ts`, `utils/index.ts`, `EpubState`?**
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
+- **Why does `devDependencies` connect `devDependencies` to `scripts`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `$schema`, `src/**/*.{js,ts,svelte}` to the rest of the system?**
   _102 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `epub-parser.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.12705882352941175 - nodes in this community are weakly interconnected._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.05714285714285714 - nodes in this community are weakly interconnected._
 - **Should `epub-packer.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.14035087719298245 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10459183673469388 - nodes in this community are weakly interconnected._
+- **Should `utils/index.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.061952074810052604 - nodes in this community are weakly interconnected._

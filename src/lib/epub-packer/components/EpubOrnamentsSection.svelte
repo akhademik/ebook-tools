@@ -1,6 +1,6 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
-  import type { EpubSectionBaseProps } from "./epub-components.type";
+  import type { EpubSectionBaseProps } from "$lib/types";
 
   let { epubState }: EpubSectionBaseProps = $props();
 </script>
@@ -16,16 +16,16 @@
       <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương lớn</span>
       <DropZone
         accept=".png,.jpg,.jpeg,.webp"
-        onSelect={(f) => epubState.handleChapterOrnamentFile(f)}
+        onSelect={(f) => epubState.images.handleChapterOrnamentFile(f)}
         title="Chọn ảnh trang trí chương"
         subtitle="Chèn trước thẻ H1"
-        selectedFile={epubState.chapterOrnamentFile}
+        selectedFile={epubState.images.chapterOrnamentFile}
       />
-      {#if epubState.chapterOrnamentFile}
+      {#if epubState.images.chapterOrnamentFile}
         <div class="flex justify-end">
           <button
             class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
-            onclick={() => epubState.removeChapterOrnamentFile()}
+            onclick={() => epubState.images.removeChapterOrnamentFile()}
             type="button">Xóa ảnh</button
           >
         </div>
@@ -36,16 +36,16 @@
       <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương phụ</span>
       <DropZone
         accept=".png,.jpg,.jpeg,.webp"
-        onSelect={(f) => epubState.handleSubchapterOrnamentFile(f)}
+        onSelect={(f) => epubState.images.handleSubchapterOrnamentFile(f)}
         title="Chọn ảnh trang trí chương"
         subtitle="Chèn trước thẻ H2"
-        selectedFile={epubState.subchapterOrnamentFile}
+        selectedFile={epubState.images.subchapterOrnamentFile}
       />
-      {#if epubState.subchapterOrnamentFile}
+      {#if epubState.images.subchapterOrnamentFile}
         <div class="flex justify-end">
           <button
             class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
-            onclick={() => epubState.removeSubchapterOrnamentFile()}
+            onclick={() => epubState.images.removeSubchapterOrnamentFile()}
             type="button">Xóa ảnh</button
           >
         </div>

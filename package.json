@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "prebuild": "node src/lib/epub-packer/generate-fonts-meta.js",
+    "prebuild": "node scripts/generate-fonts-meta.js",
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",

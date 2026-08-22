@@ -1,6 +1,6 @@
 // src/lib/pdf-splitter/pdf-splitter.ts
 import JSZip from 'jszip';
-import { Logger } from '$lib/utils/logger';
+import { Logger } from '$lib/utils';
 import type {
 	PdfPreviewPage,
 	PdfProgressInfo,
