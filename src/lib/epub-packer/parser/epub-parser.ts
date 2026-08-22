@@ -2,13 +2,27 @@
 import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper.js';
 import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper.js';
 import { parseTxtToChapters } from './txt-parser.js';
-import type { MarkdownBlock, ChapterMatcher, RawFileItem, ChapterCutPoint } from './epub-chapter-utils.js';
-import type { RenderMarkdownBlocksOptions } from './epub-markdown-utils.js';
+import type {
+	MarkdownBlock,
+	ChapterMatcher,
+	RawFileItem,
+	ChapterCutPoint,
+	RenderMarkdownBlocksOptions
+} from '$lib/types';
 
-export type { CustomDefinition, RenderMarkdownBlocksOptions, RenderMarkdownBlocksResult } from './epub-markdown-utils.js';
-export type { CleanedLinesReportItem, ScannedReportItem } from './epub-ocr-utils.js';
-export type { MarkdownBlock, ChapterCutPoint, ChapterCandidateItem, ChapterMatcher, RawFileItem } from './epub-chapter-utils.js';
-export type { ParseTxtOptions } from './txt-parser.js';
+export type {
+	CustomDefinition,
+	RenderMarkdownBlocksOptions,
+	RenderMarkdownBlocksResult,
+	CleanedLinesReportItem,
+	ScannedReportItem,
+	MarkdownBlock,
+	ChapterCutPoint,
+	ChapterCandidateItem,
+	ChapterMatcher,
+	RawFileItem,
+	ParseTxtOptions
+} from '$lib/types';
 
 export {
 	parseMarkdownBlocks,

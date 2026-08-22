@@ -1,14 +1,5 @@
 <script lang="ts">
-	interface DropZoneProps {
-		accept?: string;
-		multiple?: boolean;
-		onSelect?: (file: File) => void;
-		onSelectMultiple?: (files: FileList | File[]) => void;
-		title?: string;
-		subtitle?: string;
-		selectedFile?: File | null;
-		selectedCount?: number;
-	}
+	import type { DropZoneProps } from '$lib/types';
 
 	let {
 		accept = '',

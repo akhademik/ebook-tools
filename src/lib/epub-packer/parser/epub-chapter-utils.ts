@@ -1,43 +1,21 @@
 // src/lib/epub-packer/parser/epub-chapter-utils.ts
 import * as logger from '$lib/helpers/logger.js';
 import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
+import type {
+	MarkdownBlock,
+	RawFileItem,
+	ChapterCutPoint,
+	ChapterCandidateItem,
+	ChapterMatcher
+} from '$lib/types';
 
-export interface MarkdownBlock {
-	type: 'heading' | 'p' | 'hr' | 'blockquote' | string;
-	level?: number;
-	text: string;
-	html?: string;
-}
-
-export interface RawFileItem {
-	path: string;
-	baseName: string;
-	rawText?: string;
-	blocks: MarkdownBlock[];
-}
-
-export interface ChapterCutPoint {
-	blockIndex: number;
-	offset: number;
-	type: string;
-}
-
-export interface ChapterCandidateItem {
-	pageNum: number;
-	fileName: string;
-	blockIndex: number;
-	text: string;
-	type: string;
-	score: number;
-	regexMatch: boolean;
-	heuristicMatch: boolean;
-	isMatch: boolean;
-	snippet: string;
-}
-
-export interface ChapterMatcher {
-	locate: (text: string, fromIndex?: number) => { index: number } | null;
-}
+export type {
+	MarkdownBlock,
+	RawFileItem,
+	ChapterCutPoint,
+	ChapterCandidateItem,
+	ChapterMatcher
+};
 
 function isDecorationOnly(s: string): boolean {
 	return /^[\s*_]*$/.test(s);

@@ -6,13 +6,16 @@ import {
 	scoreHeadingCandidate,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks,
-	type MarkdownBlock,
-	type ChapterCutPoint,
-	type ChapterMatcher,
-	type RawFileItem
+	extractChunkBlocks
 } from './epub-chapter-utils.js';
-import { renderMarkdownBlocks, type RenderMarkdownBlocksOptions } from './epub-markdown-utils.js';
+import { renderMarkdownBlocks } from './epub-markdown-utils.js';
+import type {
+	MarkdownBlock,
+	ChapterCutPoint,
+	ChapterMatcher,
+	RawFileItem,
+	RenderMarkdownBlocksOptions
+} from '$lib/types';
 
 // ZIP mode marker finder (at most one chapter candidate near the top of each file)
 export function findMarkersForZip(

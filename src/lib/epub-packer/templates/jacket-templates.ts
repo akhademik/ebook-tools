@@ -1,6 +1,9 @@
 // src/lib/epub-packer/templates/jacket-templates.ts
 import { escapeXml } from '$lib/utils/xml.js';
+import type { JacketTemplate } from '$lib/types';
 import introCss from './css-template/intro-css.css?raw';
+
+export type { JacketTemplate };
 
 function getJacketCss(templateId: number): string {
   const regex = new RegExp(
@@ -16,20 +19,6 @@ const formatTranslator = (t?: string): string => {
   if (/dịch$/i.test(trimmed)) return trimmed;
   return trimmed + ' dịch';
 };
-
-export interface JacketTemplate {
-  id: number;
-  name: string;
-  css: string;
-  render: (
-    title: string,
-    original: string,
-    author: string,
-    translator: string,
-    publisher: string,
-    distributor: string,
-  ) => string;
-}
 
 export const JACKET_TEMPLATES: JacketTemplate[] = [
   {

@@ -1,8 +1,5 @@
 <script lang="ts">
-	interface PageHeaderProps {
-		title?: string;
-		description?: string;
-	}
+	import type { PageHeaderProps } from '$lib/types';
 
 	let {
 		title = '',

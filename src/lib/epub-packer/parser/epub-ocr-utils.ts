@@ -1,18 +1,9 @@
 // src/lib/epub-packer/parser/epub-ocr-utils.ts
 import * as logger from '$lib/helpers/logger.js';
 import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
+import type { ScannedReportItem, CleanedLinesReportItem } from '$lib/types';
 
-export interface ScannedReportItem {
-	lineNum: number;
-	text: string;
-	location: string;
-	isRemoved: boolean;
-}
-
-export interface CleanedLinesReportItem {
-	fileName: string;
-	scanned: ScannedReportItem[];
-}
+export type { ScannedReportItem, CleanedLinesReportItem };
 
 export function isRealParagraph(line: string): boolean {
 	const trim = line.trim();

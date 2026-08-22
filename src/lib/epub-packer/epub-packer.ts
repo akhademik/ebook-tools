@@ -10,9 +10,24 @@ import breaksCss from './templates/css-template/breaks.css?raw';
 import notesCss from './templates/css-template/notes.css?raw';
 
 import { buildContainerXml } from './xml-builders/container-builder.js';
-import { buildContentOpf, type EpubMetadata, type EpubChapterItem, type OrnamentsConfig, type IllustrationImageItem } from './xml-builders/opf-builder.js';
+import { buildContentOpf } from './xml-builders/opf-builder.js';
 import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder.js';
 import { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder.js';
+import type {
+  EpubMetadata,
+  EpubChapterItem,
+  OrnamentsConfig,
+  IllustrationImageItem,
+  EpubFontsConfig,
+  EpubJacketConfig,
+  CoverBlobItem
+} from '$lib/types';
+
+export type {
+  EpubFontsConfig,
+  EpubJacketConfig,
+  CoverBlobItem
+};
 
 export {
   buildContainerXml,
@@ -35,30 +50,6 @@ export const EPUB_CSS =
   breaksCss +
   '\n' +
   notesCss;
-
-export interface EpubFontsConfig {
-  jacketFont?: string;
-  h1Font?: string;
-  h2Font?: string;
-  dropcapFont?: string;
-  blobs?: Record<string, Blob>;
-}
-
-export interface EpubJacketConfig {
-  enabled: boolean;
-  templateId: number;
-  title: string;
-  originalTitle: string;
-  author: string;
-  translator: string;
-  publisher: string;
-  distributor: string;
-}
-
-export interface CoverBlobItem extends Blob {
-  width?: number;
-  height?: number;
-}
 
 function getDynamicCss(chapters: EpubChapterItem[]): string {
   let css = baseCss;

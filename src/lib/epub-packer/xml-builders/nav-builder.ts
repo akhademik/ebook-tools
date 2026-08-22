@@ -1,11 +1,8 @@
 // src/lib/epub-packer/xml-builders/nav-builder.ts
 import { escapeXml } from '$lib/utils/xml.js';
-import type { EpubMetadata, EpubChapterItem } from './opf-builder.js';
+import type { EpubMetadata, EpubChapterItem, TocEntry } from '$lib/types';
 
-export interface TocEntry {
-  title: string;
-  url: string;
-}
+export type { TocEntry };
 
 export function injectHeadingIds(chapters: EpubChapterItem[]): EpubChapterItem[] {
   let headingCounter = 0;

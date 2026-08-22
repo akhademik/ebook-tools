@@ -2,45 +2,21 @@
 import { escapeXml } from '$lib/utils/xml.js';
 import * as logger from '$lib/helpers/logger.js';
 import { findFont } from '../templates/fonts.js';
+import type {
+  EpubMetadata,
+  EpubChapterItem,
+  OrnamentItem,
+  OrnamentsConfig,
+  IllustrationImageItem
+} from '$lib/types';
 
-export interface EpubMetadata {
-  title: string;
-  author: string;
-  language: string;
-  identifier?: string;
-  publisher?: string;
-}
-
-export interface EpubChapterItem {
-  title: string;
-  fileName: string;
-  xmlId: string;
-  html?: string;
-  isChapter?: boolean;
-  chapterIndex?: number | null;
-  firstSourcePageNum?: number;
-  sources?: string[];
-}
-
-export interface OrnamentItem {
-  blob: Blob | File;
-  fileName: string;
-  mimeType: string;
-}
-
-export interface OrnamentsConfig {
-  chapterOrnament?: OrnamentItem;
-  subchapterOrnament?: OrnamentItem;
-}
-
-export interface IllustrationImageItem {
-  id?: string;
-  name?: string;
-  fileName: string;
-  mimeType?: string;
-  blob?: Blob | File;
-  size?: number;
-}
+export type {
+  EpubMetadata,
+  EpubChapterItem,
+  OrnamentItem,
+  OrnamentsConfig,
+  IllustrationImageItem
+};
 
 /**
  * Builds OEBPS/content.opf package file

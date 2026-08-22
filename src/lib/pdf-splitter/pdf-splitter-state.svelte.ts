@@ -1,7 +1,8 @@
 // src/lib/pdf-splitter/pdf-splitter-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
-import { loadPdfPreview, processPdfToJpg, type PdfPreviewPage } from './pdf-splitter.js';
+import { loadPdfPreview, processPdfToJpg } from './pdf-splitter.js';
+import type { PdfPreviewPage } from '$lib/types';
 
 export class PdfSplitterState {
 	pdfSelectedFile = $state<File | null>(null);

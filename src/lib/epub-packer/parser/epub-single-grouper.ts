@@ -1,20 +1,22 @@
 // src/lib/epub-packer/parser/epub-single-grouper.ts
 import * as logger from '$lib/helpers/logger.js';
-
 import {
 	makeChapterMatcher,
 	pushIfLineStart,
 	scoreHeadingCandidate,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks,
-	type MarkdownBlock,
-	type ChapterCutPoint,
-	type ChapterMatcher,
-	type RawFileItem
+	extractChunkBlocks
 } from './epub-chapter-utils.js';
 import { isRealParagraph } from './epub-ocr-utils.js';
-import { renderMarkdownBlocks, type RenderMarkdownBlocksOptions } from './epub-markdown-utils.js';
+import { renderMarkdownBlocks } from './epub-markdown-utils.js';
+import type {
+	MarkdownBlock,
+	ChapterCutPoint,
+	ChapterMatcher,
+	RawFileItem,
+	RenderMarkdownBlocksOptions
+} from '$lib/types';
 
 // Single File mode marker finder
 export function findMarkersForSingle(

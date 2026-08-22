@@ -1,7 +1,8 @@
 // src/lib/markdown-fixer/markdown-fixer-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
-import { fixMarkdownZip, type ProcessedMarkdownFileRow } from './markdown-fixer.js';
+import { fixMarkdownZip } from './markdown-fixer.js';
+import type { ProcessedMarkdownFileRow } from '$lib/types';
 
 export class MarkdownFixerState {
 	mdSelectedFile = $state<File | null>(null);

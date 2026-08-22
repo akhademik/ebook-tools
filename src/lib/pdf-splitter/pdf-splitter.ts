@@ -1,29 +1,21 @@
 // src/lib/pdf-splitter/pdf-splitter.ts
 import JSZip from 'jszip';
 import * as logger from '../helpers/logger.js';
+import type {
+	PdfPreviewPage,
+	PdfProgressInfo,
+	ProcessPdfResult
+} from '$lib/types';
+
+export type {
+	PdfPreviewPage,
+	PdfProgressInfo,
+	ProcessPdfResult
+};
 
 const PDF_SCALE = 2.0;
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
-
-export interface PdfPreviewPage {
-	pageNum: number;
-	dataUrl: string;
-	width: number;
-	height: number;
-}
-
-export interface PdfProgressInfo {
-	progressPercent: number;
-	progressLabel: string;
-	completed: number;
-	numPages: number;
-}
-
-export interface ProcessPdfResult {
-	zipBlob: Blob;
-	numPages: number;
-}
 
 function applyGrayscale(ctx: CanvasRenderingContext2D, width: number, height: number, contrast: number): void {
 	logger.log('pdf-splitter', 'applyGrayscale called, width:', width, 'height:', height, 'contrast:', contrast);

@@ -1,13 +1,5 @@
 <script lang="ts">
-	interface InputProps {
-		value?: string | number | null;
-		placeholder?: string;
-		label?: string;
-		type?: string;
-		min?: number | string | null;
-		max?: number | string | null;
-		oninput?: (event: Event) => void;
-	}
+	import type { InputProps } from '$lib/types';
 
 	let {
 		value = $bindable(),

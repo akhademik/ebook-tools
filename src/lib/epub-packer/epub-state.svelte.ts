@@ -5,22 +5,19 @@ import {
 	groupChapters,
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
-	parseTxtToChapters,
-	type CleanedLinesReportItem,
-	type CustomDefinition
+	parseTxtToChapters
 } from './parser/epub-parser.js';
-import {
-	buildEpubBlob,
-	EPUB_CSS,
-	type EpubFontsConfig,
-	type EpubJacketConfig,
-	type CoverBlobItem
-} from './epub-packer.js';
+import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
 import type {
+	EpubFontsConfig,
+	EpubJacketConfig,
+	CoverBlobItem,
 	EpubChapterItem,
 	OrnamentsConfig,
-	IllustrationImageItem
-} from './xml-builders/opf-builder.js';
+	IllustrationImageItem,
+	CleanedLinesReportItem,
+	CustomDefinition
+} from '$lib/types';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
 import JSZip from 'jszip';

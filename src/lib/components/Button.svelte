@@ -1,13 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-
-	interface ButtonProps {
-		onclick?: (event: MouseEvent) => void;
-		disabled?: boolean;
-		variant?: 'primary' | 'secondary';
-		type?: 'button' | 'submit' | 'reset';
-		children?: Snippet;
-	}
+	import type { ButtonProps } from '$lib/types';
 
 	let {
 		onclick,

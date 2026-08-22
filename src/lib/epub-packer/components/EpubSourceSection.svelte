@@ -1,12 +1,7 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
   import Input from "$lib/components/Input.svelte";
-  import type { EpubState } from "../epub-state.svelte.js";
-
-  interface EpubSourceSectionProps {
-    epubState: EpubState;
-    onOpenSyntaxModal: () => void;
-  }
+  import type { EpubSourceSectionProps } from "$lib/types";
 
   let { epubState, onOpenSyntaxModal }: EpubSourceSectionProps = $props();
 </script>

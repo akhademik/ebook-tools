@@ -1,11 +1,6 @@
 <script lang="ts">
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
-  import type { EpubState } from "../epub-state.svelte.js";
-
-  interface EpubJacketModalProps {
-    show?: boolean;
-    epubState: EpubState;
-  }
+  import type { EpubJacketModalProps } from "$lib/types";
 
   let { show = $bindable(false), epubState }: EpubJacketModalProps = $props();
 

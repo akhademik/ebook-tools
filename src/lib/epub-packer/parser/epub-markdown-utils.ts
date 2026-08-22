@@ -1,21 +1,18 @@
 // src/lib/epub-packer/parser/epub-markdown-utils.ts
 import { escapeXml } from '$lib/helpers/helpers.js';
 import * as logger from '$lib/helpers/logger.js';
-import type { MarkdownBlock } from './epub-chapter-utils.js';
+import type {
+	MarkdownBlock,
+	CustomDefinition,
+	RenderMarkdownBlocksOptions,
+	RenderMarkdownBlocksResult
+} from '$lib/types';
 
-export interface CustomDefinition {
-	pattern: string;
-	tag: string;
-}
-
-export interface RenderMarkdownBlocksOptions {
-	ignoreMarkdownFormat?: boolean;
-}
-
-export interface RenderMarkdownBlocksResult {
-	html: string;
-	title: string | null;
-}
+export type {
+	CustomDefinition,
+	RenderMarkdownBlocksOptions,
+	RenderMarkdownBlocksResult
+};
 
 function convertInline(text: unknown, ignoreFormat = false): string {
 	if (ignoreFormat) {

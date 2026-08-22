@@ -1,12 +1,9 @@
 // src/lib/epub-packer/parser/txt-parser.ts
 import * as logger from '$lib/helpers/logger.js';
 import { escapeXml } from '$lib/helpers/helpers.js';
-import type { CustomDefinition } from './epub-markdown-utils.js';
+import type { CustomDefinition, ParseTxtOptions } from '$lib/types';
 
-export interface ParseTxtOptions {
-	customDefinitions?: CustomDefinition[];
-	images?: Record<string, { fileName?: string }>;
-}
+export type { ParseTxtOptions };
 
 export function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

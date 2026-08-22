@@ -1,12 +1,7 @@
 <script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Button from "$lib/components/Button.svelte";
-  import type { EpubState } from "../epub-state.svelte.js";
-
-  interface EpubPackSectionProps {
-    epubState: EpubState;
-    onDownload: () => void;
-  }
+  import type { EpubPackSectionProps } from "$lib/types";
 
   let { epubState, onDownload }: EpubPackSectionProps = $props();
 </script>

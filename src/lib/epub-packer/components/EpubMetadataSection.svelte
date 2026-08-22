@@ -2,12 +2,7 @@
   import Input from "$lib/components/Input.svelte";
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
-  import type { EpubState } from "../epub-state.svelte.js";
-
-  interface EpubMetadataSectionProps {
-    epubState: EpubState;
-    onOpenJacketModal: () => void;
-  }
+  import type { EpubMetadataSectionProps } from "$lib/types";
 
   let { epubState, onOpenJacketModal }: EpubMetadataSectionProps = $props();
 

@@ -1,7 +1,7 @@
 // src/lib/epub-packer/xml-builders/chapter-builder.ts
 import { escapeXml } from '$lib/utils/xml.js';
 import * as logger from '$lib/helpers/logger.js';
-import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from './opf-builder.js';
+import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from '$lib/types';
 
 export function mergeBrokenParagraphs(html: string): string {
   logger.log(

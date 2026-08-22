@@ -1,6 +1,17 @@
 // src/lib/markdown-fixer/markdown-fixer.ts
 import JSZip from 'jszip';
 import * as logger from '../helpers/logger.js';
+import type {
+	ConvertedBracketsResult,
+	ProcessedMarkdownFileRow,
+	FixMarkdownZipResult
+} from '$lib/types';
+
+export type {
+	ConvertedBracketsResult,
+	ProcessedMarkdownFileRow,
+	FixMarkdownZipResult
+};
 
 const MAX_SPAN = 150;
 const SPAN = '(?:(?!\\n[ \\t]*\\n)[\\s\\S]){1,' + MAX_SPAN + '}?';
@@ -25,23 +36,6 @@ const UNDERLINE_PATTERNS = [
 	new RegExp('<u>(' + SPAN + ')</u>', 'gi'),
 	new RegExp('<ins>(' + SPAN + ')</ins>', 'gi')
 ];
-
-export interface ConvertedBracketsResult {
-	converted: string;
-	count: number;
-}
-
-export interface ProcessedMarkdownFileRow {
-	path: string;
-	count: number;
-}
-
-export interface FixMarkdownZipResult {
-	zipBlob: Blob;
-	totalFiles: number;
-	totalReplacements: number;
-	processedFilesList: ProcessedMarkdownFileRow[];
-}
 
 export function convertBrackets(text: string): ConvertedBracketsResult {
 	logger.log('markdown-fixer', 'convertBrackets called, input length:', text.length);
