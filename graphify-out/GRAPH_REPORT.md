@@ -1,16 +1,16 @@
 # Graph Report - ebook-tools  (2026-08-22)
 
 ## Corpus Check
-- 66 files · ~36,946 words
+- 67 files · ~39,216 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 349 nodes · 705 edges · 27 communities (23 shown, 4 thin omitted)
+- 350 nodes · 705 edges · 28 communities (24 shown, 4 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 1.0)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2d1c87e0`
+- Built from commit: `0de489bd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -64,6 +64,7 @@
 - 4-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
 - 4-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 - 4-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/templates/fonts.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
+- 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/epub-packer/parser/txt-parser.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 - 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/templates/fonts.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
 - 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/templates/jacket-templates.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
 - 5-file cycle: `src/lib/epub-packer/epub-packer.ts -> src/lib/epub-packer/xml-builders/chapter-builder.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/epub-packer.ts`
@@ -74,9 +75,8 @@
 - 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/epub-packer/parser/epub-ocr-utils.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 - 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/epub-packer/parser/epub-single-grouper.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 - 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/epub-packer/parser/epub-zip-grouper.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
-- 5-file cycle: `src/lib/epub-packer/epub-state.svelte.ts -> src/lib/epub-packer/parser/epub-parser.ts -> src/lib/epub-packer/parser/txt-parser.ts -> src/lib/types/index.ts -> src/lib/types/components.type.ts -> src/lib/epub-packer/epub-state.svelte.ts`
 
-## Communities (27 total, 4 thin omitted)
+## Communities (28 total, 4 thin omitted)
 
 ### Community 0 - "epub-parser.ts"
 Cohesion: 0.15
@@ -147,7 +147,7 @@ Nodes (4): EPUB Packer, Markdown Fixer, PDF Processor, TXT to PDF CJK Desktop Ap
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `../src/lib/helpers/logger.js?test=2` connect `epub-state.svelte.ts` to `epub-parser.ts`, `epub-packer.ts`, `pdf-splitter.ts`, `txt-parser.ts`, `index.ts`?**
-  _High betweenness centrality (0.067) - this node is a cross-community bridge._
+  _High betweenness centrality (0.066) - this node is a cross-community bridge._
 - **Why does `EpubState` connect `EpubState` to `epub-packer.ts`, `epub-state.svelte.ts`?**
   _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Why does `devDependencies` connect `devDependencies` to `scripts`?**

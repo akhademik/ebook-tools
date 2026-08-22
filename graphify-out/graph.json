@@ -2714,6 +2714,18 @@
       "source_location": "L1"
     },
     {
+      "id": "task_clean_code",
+      "label": "clean-code.md",
+      "_origin": "ast",
+      "community": 19,
+      "community_name": "clean-code.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "clean-code.md",
+      "source_file": "_task/clean-code.md",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_epub_packer_epub_packer",
       "label": "epub-packer.ts",
       "_origin": "ast",
@@ -12173,5 +12185,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2d1c87e06c0a625424b98f54b7d0de0e0e11a318"
+  "built_at_commit": "0de489bdbf278c923d6b6ec976639ef4d16ed337"
 }

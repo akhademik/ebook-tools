@@ -1,6 +1,6 @@
 // src/lib/types/index.ts
-export * from './result.type.js';
-export * from './epub.type.js';
-export * from './markdown-fixer.type.js';
-export * from './pdf-splitter.type.js';
-export * from './components.type.js';
+export * from "./result.type";
+export * from "./epub.type";
+export * from "./markdown-fixer.type";
+export * from "./pdf-splitter.type";
+export * from "./components.type";
