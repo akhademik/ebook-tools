@@ -1,27 +1,28 @@
+// src/lib/pdf-splitter/pdf-splitter-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
-import { loadPdfPreview, processPdfToJpg } from './pdf-splitter.js';
+import { loadPdfPreview, processPdfToJpg, type PdfPreviewPage } from './pdf-splitter.js';
 
 export class PdfSplitterState {
-	pdfSelectedFile = $state(null);
-	pdfZipBlob = $state(null);
-	bookName = $state('');
-	keepColor = $state(false);
+	pdfSelectedFile = $state<File | null>(null);
+	pdfZipBlob = $state<Blob | null>(null);
+	bookName = $state<string>('');
+	keepColor = $state<boolean>(false);
 
-	selectedPreviewCount = $state(10);
-	previewPages = $state([]);
-	currentPreviewIndex = $state(0);
-	cropTopPx = $state(0);
-	cropBottomPx = $state(0);
+	selectedPreviewCount = $state<number>(10);
+	previewPages = $state<PdfPreviewPage[]>([]);
+	currentPreviewIndex = $state<number>(0);
+	cropTopPx = $state<number>(0);
+	cropBottomPx = $state<number>(0);
 
-	status = $state('');
-	isError = $state(false);
+	status = $state<string>('');
+	isError = $state<boolean>(false);
 	
-	loadingPreview = $state(false);
-	processing = $state(false);
+	loadingPreview = $state<boolean>(false);
+	processing = $state<boolean>(false);
 	
-	progressPercent = $state(0);
-	progressLabel = $state('');
+	progressPercent = $state<number>(0);
+	progressLabel = $state<string>('');
 
 	zipNamePreview = $derived(ensureZipExt(this.bookName.trim() || 'ten-sach'));
 	cropSummary = $derived(
@@ -30,7 +31,7 @@ export class PdfSplitterState {
 			: ''
 	);
 
-	handleFile(file) {
+	handleFile(file: File | null): void {
 		if (!file) return;
 		if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
 			this.status = 'Vui lòng chọn một tệp PDF hợp lệ.';
@@ -49,7 +50,7 @@ export class PdfSplitterState {
 		this.cropBottomPx = 0;
 	}
 
-	async loadPreview() {
+	async loadPreview(): Promise<void> {
 		if (!this.pdfSelectedFile) return;
 		this.loadingPreview = true;
 		this.status = '';
@@ -58,26 +59,27 @@ export class PdfSplitterState {
 		try {
 			this.previewPages = await loadPdfPreview(this.pdfSelectedFile, this.selectedPreviewCount, this.keepColor);
 			this.currentPreviewIndex = 0;
-		} catch (err) {
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[PdfSplitterState]', 'Failed to load preview', err);
-			this.status = 'Không tải được xem trước: ' + err.message;
+			this.status = 'Không tải được xem trước: ' + errorMsg;
 			this.isError = true;
 		} finally {
 			this.loadingPreview = false;
 		}
 	}
 
-	prevPreviewPage() {
+	prevPreviewPage(): void {
 		if (this.previewPages.length === 0) return;
 		this.currentPreviewIndex = (this.currentPreviewIndex - 1 + this.previewPages.length) % this.previewPages.length;
 	}
 
-	nextPreviewPage() {
+	nextPreviewPage(): void {
 		if (this.previewPages.length === 0) return;
 		this.currentPreviewIndex = (this.currentPreviewIndex + 1) % this.previewPages.length;
 	}
 
-	adjustCrop(dir, val) {
+	adjustCrop(dir: 'top' | 'bottom', val: number): void {
 		if (dir === 'top') {
 			this.cropTopPx = Math.max(0, this.cropTopPx + val);
 		} else {
@@ -85,12 +87,12 @@ export class PdfSplitterState {
 		}
 	}
 
-	resetCrop() {
+	resetCrop(): void {
 		this.cropTopPx = 0;
 		this.cropBottomPx = 0;
 	}
 
-	async processPdf() {
+	async processPdf(): Promise<void> {
 		if (!this.pdfSelectedFile) return;
 		this.processing = true;
 		this.pdfZipBlob = null;
@@ -111,16 +113,17 @@ export class PdfSplitterState {
 			);
 			this.pdfZipBlob = res.zipBlob;
 			this.status = `Hoàn tất — ${res.numPages} trang đã sẵn sàng.`;
-		} catch (err) {
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[PdfSplitterState]', 'Failed to process PDF', err);
-			this.status = 'Có lỗi khi xử lý: ' + err.message;
+			this.status = 'Có lỗi khi xử lý: ' + errorMsg;
 			this.isError = true;
 		} finally {
 			this.processing = false;
 		}
 	}
 
-	downloadZip() {
+	downloadZip(): void {
 		if (!this.pdfZipBlob) return;
 		triggerDownload(this.pdfZipBlob, this.zipNamePreview);
 	}

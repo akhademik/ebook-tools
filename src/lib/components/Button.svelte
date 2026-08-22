@@ -1,11 +1,21 @@
-<script>
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	interface ButtonProps {
+		onclick?: (event: MouseEvent) => void;
+		disabled?: boolean;
+		variant?: 'primary' | 'secondary';
+		type?: 'button' | 'submit' | 'reset';
+		children?: Snippet;
+	}
+
 	let {
 		onclick,
 		disabled = false,
-		variant = 'primary', // 'primary' | 'secondary'
+		variant = 'primary',
 		type = 'button',
 		children
-	} = $props();
+	}: ButtonProps = $props();
 </script>
 
 <button
@@ -17,5 +27,7 @@
 			? 'bg-accent-color text-white hover:bg-accent-hover shadow-lg shadow-accent-color/20' 
 			: 'bg-amber-color hover:bg-amber-600 text-brand-bg shadow-lg shadow-amber-color/10'}"
 >
-	{@render children()}
+	{#if children}
+		{@render children()}
+	{/if}
 </button>

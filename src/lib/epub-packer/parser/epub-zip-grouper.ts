@@ -1,3 +1,4 @@
+// src/lib/epub-packer/parser/epub-zip-grouper.ts
 import * as logger from '$lib/helpers/logger.js';
 import {
 	makeChapterMatcher,
@@ -5,15 +6,24 @@ import {
 	scoreHeadingCandidate,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks
+	extractChunkBlocks,
+	type MarkdownBlock,
+	type ChapterCutPoint,
+	type ChapterMatcher,
+	type RawFileItem
 } from './epub-chapter-utils.js';
-import { renderMarkdownBlocks } from './epub-markdown-utils.js';
+import { renderMarkdownBlocks, type RenderMarkdownBlocksOptions } from './epub-markdown-utils.js';
 
 // ZIP mode marker finder (at most one chapter candidate near the top of each file)
-export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristicThreshold = 5) {
+export function findMarkersForZip(
+	blocks: MarkdownBlock[],
+	chapterMatcher: ChapterMatcher | null,
+	useHeuristic: boolean,
+	heuristicThreshold = 5
+): ChapterCutPoint[] {
 	if (useHeuristic) {
 		// 1. Find the first non-empty text block
-		let firstTextBlock = null;
+		let firstTextBlock: MarkdownBlock | null = null;
 		let firstTextBlockIdx = -1;
 		for (let idx = 0; idx < blocks.length; idx++) {
 			if (blocks[idx].text && blocks[idx].text.trim()) {
@@ -52,7 +62,7 @@ export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristi
 
 	// Keyword mode (limitOneChapter is true)
 	if (!chapterMatcher) return [];
-	const raw = [];
+	const raw: ChapterCutPoint[] = [];
 	let foundChapter = false;
 
 	for (let i = 0; i < blocks.length; i++) {
@@ -77,11 +87,19 @@ export function findMarkersForZip(blocks, chapterMatcher, useHeuristic, heuristi
 	return raw;
 }
 
-export function groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5, options = {}) {
+export function groupChaptersZip(
+	rawFilesList: RawFileItem[],
+	patternRaw: string,
+	useHeuristic: boolean,
+	startPage: number,
+	endPage: number,
+	heuristicThreshold = 5,
+	options: RenderMarkdownBlocksOptions = {}
+): any[] {
 	logger.log('epub-parser', 'groupChaptersZip called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const groups = [];
-	let current = null;
+	const groups: any[] = [];
+	let current: any = null;
 	let seenMarker = false;
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {

@@ -1,9 +1,15 @@
-<script>
+<script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import { AVAILABLE_FONTS } from "$lib/epub-packer/templates/fonts.js";
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates.js";
+  import type { EpubState } from "../epub-state.svelte.js";
 
-  let { epubState, onOpenJacketModal } = $props();
+  interface EpubMetadataSectionProps {
+    epubState: EpubState;
+    onOpenJacketModal: () => void;
+  }
+
+  let { epubState, onOpenJacketModal }: EpubMetadataSectionProps = $props();
 
   const selectedTemplateName = $derived(
     JACKET_TEMPLATES.find((t) => t.id === epubState.jacketTemplateId)?.name || "",

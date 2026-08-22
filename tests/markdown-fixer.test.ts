@@ -13,7 +13,7 @@ vi.mock('jszip', () => {
 	const MockJSZip = vi.fn().mockImplementation(function() {
 		return mockInstance;
 	});
-	MockJSZip.loadAsync = vi.fn().mockResolvedValue(mockInstance);
+	(MockJSZip as any).loadAsync = vi.fn().mockResolvedValue(mockInstance);
 	
 	return {
 		default: MockJSZip
@@ -107,12 +107,12 @@ describe('markdown-fixer tests', () => {
 			};
 
 			const mockZipInstance = new JSZip();
-			mockZipInstance.files = mockFiles;
-			JSZip.loadAsync.mockResolvedValue(mockZipInstance);
+			(mockZipInstance as any).files = mockFiles;
+			(JSZip.loadAsync as any).mockResolvedValue(mockZipInstance);
 
 			const fakeFile = {
 				arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-			};
+			} as unknown as File;
 
 			const result = await fixMarkdownZip(fakeFile);
 
@@ -148,12 +148,12 @@ describe('markdown-fixer tests', () => {
 			};
 
 			const mockZipInstance = new JSZip();
-			mockZipInstance.files = mockFiles;
-			JSZip.loadAsync.mockResolvedValue(mockZipInstance);
+			(mockZipInstance as any).files = mockFiles;
+			(JSZip.loadAsync as any).mockResolvedValue(mockZipInstance);
 
 			const fakeFile = {
 				arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-			};
+			} as unknown as File;
 
 			const result = await fixMarkdownZip(fakeFile);
 

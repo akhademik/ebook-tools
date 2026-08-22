@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import DropZone from '$lib/components/DropZone.svelte';
 	import Input from '$lib/components/Input.svelte';

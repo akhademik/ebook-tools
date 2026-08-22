@@ -23,7 +23,7 @@ const mockAnchor = {
 };
 
 const mockDocument = {
-	createElement: vi.fn().mockImplementation((type) => {
+	createElement: vi.fn().mockImplementation((type: string) => {
 		if (type === 'a') return mockAnchor;
 		return {};
 	}),

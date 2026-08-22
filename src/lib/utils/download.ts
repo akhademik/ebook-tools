@@ -1,12 +1,12 @@
-// src/lib/utils/download.js
+// src/lib/utils/download.ts
 import * as logger from '$lib/helpers/logger.js';
 
 /**
  * Triggers a browser file download using a Blob object.
- * @param {Blob} blob - The file content blob to download.
- * @param {string} filename - Desired output filename.
+ * @param blob - The file content blob to download.
+ * @param filename - Desired output filename.
  */
-export function triggerDownload(blob, filename) {
+export function triggerDownload(blob: Blob | unknown, filename?: string | null): void {
   logger.log('download', 'triggerDownload called with filename:', filename, 'blob:', blob);
   if (!blob || !(blob instanceof Blob)) {
     logger.error('download', 'Invalid blob:', blob);

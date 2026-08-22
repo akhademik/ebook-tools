@@ -1,30 +1,37 @@
+// src/lib/epub-packer/parser/txt-parser.ts
 import * as logger from '$lib/helpers/logger.js';
 import { escapeXml } from '$lib/helpers/helpers.js';
+import type { CustomDefinition } from './epub-markdown-utils.js';
 
-function escapeRegExp(str) {
+export interface ParseTxtOptions {
+	customDefinitions?: CustomDefinition[];
+	images?: Record<string, { fileName?: string }>;
+}
+
+export function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function getClosingTag(openTag) {
+export function getClosingTag(openTag: string): string {
 	const match = openTag.match(/<([a-zA-Z0-9]+)/);
 	return match ? `</${match[1]}>` : '';
 }
 
-function stripHtmlTags(html) {
+export function stripHtmlTags(html: string): string {
 	return html.replace(/<[^>]+>/g, '').trim();
 }
 
-function applyInlineFormatting(text, customDefinitions = []) {
+export function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
 	let t = escapeXml(String(text || ''));
 
-	const customTags = [];
+	const customTags: string[] = [];
 
 	if (Array.isArray(customDefinitions)) {
 		for (const def of customDefinitions) {
 			if (def.pattern && def.tag) {
 				const escapedP = escapeRegExp(def.pattern);
 				const reCustom = new RegExp(escapedP + '(.+?)' + escapedP, 'g');
-				t = t.replace(reCustom, (m, content) => {
+				t = t.replace(reCustom, (_m, content) => {
 					const closingTag = getClosingTag(def.tag);
 					const openIdx = customTags.length;
 					customTags.push(def.tag);
@@ -62,18 +69,18 @@ function applyInlineFormatting(text, customDefinitions = []) {
 	     .replace(/XUNDERLINEXOPENX/g, '<u>')
 	     .replace(/XUNDERLINEXCLOSEX/g, '</u>');
 
-	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (m, idx) => {
+	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (_m, idx) => {
 		return customTags[Number(idx)];
 	});
 
-	t = t.replace(/\{(\d+)\}/g, (m, n) => {
+	t = t.replace(/\{(\d+)\}/g, (_m, n) => {
 		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
 	});
 
 	return t;
 }
 
-function isIllustrationTag(tagKey, imagesMap = {}) {
+export function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?: string }> = {}): string | null {
 	const lowerKey = (tagKey || '').toLowerCase();
 	if (['letter', '/letter', 'poem', '/poem', 'new', '/new'].includes(lowerKey)) {
 		return null;
@@ -94,7 +101,11 @@ function isIllustrationTag(tagKey, imagesMap = {}) {
 	return null;
 }
 
-export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chương 1') {
+export function parseTxtToChapters(
+	rawText: string,
+	options: ParseTxtOptions = {},
+	fallbackTitle = 'Chương 1'
+): any[] {
 	const customDefinitions = options.customDefinitions || [];
 	const imagesMap = options.images || {};
 	logger.log('epub-parser', 'parseTxtToChapters starting parse with new conventions.');
@@ -132,7 +143,7 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 	}
 
 	const rawLines = mainLines;
-	const preprocessedLines = [];
+	const preprocessedLines: string[] = [];
 	let lastWasEmpty = false;
 	for (let i = 0; i < rawLines.length; i++) {
 		const line = rawLines[i];
@@ -148,10 +159,10 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		}
 	}
 
-	const chapters = [];
-	let currentChapter = null;
+	const chapters: any[] = [];
+	let currentChapter: any = null;
 
-	const ensureChapterOpen = () => {
+	const ensureChapterOpen = (): void => {
 		if (!currentChapter) {
 			currentChapter = {
 				title: `${fallbackTitle}`,
@@ -165,7 +176,7 @@ export function parseTxtToChapters(rawText, options = {}, fallbackTitle = 'Chư�
 		}
 	};
 
-	let currentBlock = null;
+	let currentBlock: string | null = null;
 	let isInsideNewBlock = false;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {

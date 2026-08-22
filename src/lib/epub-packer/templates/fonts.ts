@@ -1,32 +1,43 @@
-// src/lib/epub-packer/fonts.js
+// src/lib/epub-packer/templates/fonts.ts
 // Discover all fonts in src/assets/fonts directory dynamically
 // Using Vite's import.meta.glob.
 
-import fontMetaMap from "../../../assets/fonts-metadata.json";
+import fontMetaMapRaw from '../../../assets/fonts-metadata.json';
+
+const fontMetaMap = fontMetaMapRaw as Record<string, string>;
 
 const fontFiles = import.meta.glob(
-  "../../../assets/fonts/*.{ttf,otf,woff,woff2}",
+  '../../../assets/fonts/*.{ttf,otf,woff,woff2}',
   {
     eager: true,
-    import: "default",
+    import: 'default',
   },
-);
+) as Record<string, string>;
 
-export const AVAILABLE_FONTS = Object.entries(fontFiles).map(([path, url]) => {
-  const fileName = path.split("/").pop();
-  const baseName = fileName.replace(/\.[^/.]+$/, "");
+export interface FontInfo {
+  id: string;
+  name: string;
+  cssFamily: string;
+  fileName: string;
+  url: string;
+  mimeType: string;
+}
+
+export const AVAILABLE_FONTS: FontInfo[] = Object.entries(fontFiles).map(([path, url]) => {
+  const fileName = path.split('/').pop() || '';
+  const baseName = fileName.replace(/\.[^/.]+$/, '');
 
   // 1. Lấy tên thật từ metadata JSON (ví dụ: "KKTTAbsolute", "1314 Zahra")
   // Nếu không tìm thấy mới dùng fallback
   const cssFamily =
-    fontMetaMap[fileName] || baseName.replace(/[_-]/g, " ").trim();
+    fontMetaMap[fileName] || baseName.replace(/[_-]/g, ' ').trim();
 
   // 2. Tạo tên hiển thị gọn gàng cho giao diện (UI)
-  let cleanName = baseName.replace(/^(UTM_|SVN-|LNTH-|DFVN-|TP-)/i, "");
-  cleanName = cleanName.replace(/[_-]/g, " ").trim();
+  let cleanName = baseName.replace(/^(UTM_|SVN-|LNTH-|DFVN-|TP-)/i, '');
+  cleanName = cleanName.replace(/[_-]/g, ' ').trim();
 
   // 3. Chuẩn hóa media-type (MIME) cho EPUB 3 / EPUB 2
-  let mimeType = "application/vnd.ms-opentype";
+  const mimeType = 'application/vnd.ms-opentype';
 
   return {
     id: baseName, // e.g. "Absolute-VH"
@@ -40,11 +51,11 @@ export const AVAILABLE_FONTS = Object.entries(fontFiles).map(([path, url]) => {
 
 /**
  * Tìm font theo id, cssFamily, tên cleanName hoặc tên file
- * @param {string} fontName
- * @returns {object|null}
+ * @param fontName
+ * @returns FontInfo | null
  */
-export function findFont(fontName) {
-  if (!fontName || fontName === "default") return null;
+export function findFont(fontName: string | null | undefined): FontInfo | null {
+  if (!fontName || fontName === 'default') return null;
 
   const search = fontName.toLowerCase().trim();
 
@@ -72,21 +83,21 @@ export function findFont(fontName) {
 
 /**
  * Lấy tên file của font
- * @param {string} fontName
- * @returns {string}
+ * @param fontName
+ * @returns string
  */
-export function getFontFileName(fontName) {
+export function getFontFileName(fontName: string): string {
   const font = findFont(fontName);
-  return font ? font.fileName : "";
+  return font ? font.fileName : '';
 }
 
 /**
  * Sinh khối @font-face CSS chuẩn
- * @param {string} fontName
- * @returns {string}
+ * @param fontName
+ * @returns string
  */
-export function getFontCSSDeclaration(fontName) {
+export function getFontCSSDeclaration(fontName: string): string {
   const font = findFont(fontName);
-  if (!font) return "";
+  if (!font) return '';
   return `@font-face {\n  font-family: "${font.cssFamily}";\n  font-weight: normal;\n  font-style: normal;\n  src: url("../fonts/${font.fileName}");\n}\n`;
 }

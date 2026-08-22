@@ -1,11 +1,11 @@
-// src/lib/utils/xml.js
+// src/lib/utils/xml.ts
 
 /**
  * Escapes XML/HTML special characters in a string for safe EPUB XHTML insertion.
- * @param {string|number} s - Input string or primitive.
- * @returns {string} Escaped XML string.
+ * @param s - Input string or primitive.
+ * @returns Escaped XML string.
  */
-export function escapeXml(s) {
+export function escapeXml(s: unknown): string {
   if (s === null || s === undefined) return '';
   return String(s)
     .replace(/&/g, '&amp;')

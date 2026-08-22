@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
   import "./layout.css";
   import { page } from "$app/stores";
-  import { onMount } from "svelte";
+  import { onMount, type Snippet } from "svelte";
 
-  let { children } = $props();
+  let { children }: { children?: Snippet } = $props();
 
   let mobileMenuOpen = $state(false);
   let isDark = $state(true);

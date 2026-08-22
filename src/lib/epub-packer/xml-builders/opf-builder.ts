@@ -1,19 +1,58 @@
-// src/lib/epub-packer/xml-builders/opf-builder.js
+// src/lib/epub-packer/xml-builders/opf-builder.ts
 import { escapeXml } from '$lib/utils/xml.js';
 import * as logger from '$lib/helpers/logger.js';
 import { findFont } from '../templates/fonts.js';
+
+export interface EpubMetadata {
+  title: string;
+  author: string;
+  language: string;
+  identifier?: string;
+  publisher?: string;
+}
+
+export interface EpubChapterItem {
+  title: string;
+  fileName: string;
+  xmlId: string;
+  html?: string;
+  isChapter?: boolean;
+  chapterIndex?: number | null;
+  firstSourcePageNum?: number;
+  sources?: string[];
+}
+
+export interface OrnamentItem {
+  blob: Blob | File;
+  fileName: string;
+  mimeType: string;
+}
+
+export interface OrnamentsConfig {
+  chapterOrnament?: OrnamentItem;
+  subchapterOrnament?: OrnamentItem;
+}
+
+export interface IllustrationImageItem {
+  id?: string;
+  name?: string;
+  fileName: string;
+  mimeType?: string;
+  blob?: Blob | File;
+  size?: number;
+}
 
 /**
  * Builds OEBPS/content.opf package file
  */
 export function buildContentOpf(
-  meta,
-  chapters,
+  meta: EpubMetadata,
+  chapters: EpubChapterItem[],
   hasCover = false,
-  activeFonts = [],
-  ornaments = null,
-  images = [],
-) {
+  activeFonts: string[] = [],
+  ornaments: OrnamentsConfig | null = null,
+  images: IllustrationImageItem[] = [],
+): string {
   logger.log(
     'epub-packer',
     'buildContentOpf called with chapters count:',

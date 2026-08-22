@@ -1,7 +1,20 @@
+// src/lib/epub-packer/parser/epub-ocr-utils.ts
 import * as logger from '$lib/helpers/logger.js';
 import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
 
-export function isRealParagraph(line) {
+export interface ScannedReportItem {
+	lineNum: number;
+	text: string;
+	location: string;
+	isRemoved: boolean;
+}
+
+export interface CleanedLinesReportItem {
+	fileName: string;
+	scanned: ScannedReportItem[];
+}
+
+export function isRealParagraph(line: string): boolean {
 	const trim = line.trim();
 	if (!trim) return false;
 	const endsSentence = /[.!?…”"’]/.test(trim.slice(-1));
@@ -9,7 +22,7 @@ export function isRealParagraph(line) {
 	return endsSentence && (wordCount > 5 || trim.length > 30);
 }
 
-function shouldSkipHeaderFooter(lines, normKeywords = []) {
+function shouldSkipHeaderFooter(lines: string[], normKeywords: string[] = []): boolean {
 	if (lines.length < 6) return true;
 	if (normKeywords && normKeywords.length > 0) return false;
 	const first = lines.find(l => l.trim()) || '';
@@ -23,8 +36,12 @@ function shouldSkipHeaderFooter(lines, normKeywords = []) {
 	return isRealParagraph(first) || isRealParagraph(last);
 }
 
-function compileCleanKeywords(keywords) {
-	let keywordsList = [];
+function compileCleanKeywords(keywords: string[] | string | undefined): {
+	cleanArabic: boolean;
+	cleanRoman: boolean;
+	normKeywords: string[];
+} {
+	let keywordsList: string[] = [];
 	if (Array.isArray(keywords)) {
 		keywordsList = keywords;
 	} else if (typeof keywords === 'string') {
@@ -47,7 +64,12 @@ function compileCleanKeywords(keywords) {
 	return { cleanArabic, cleanRoman, normKeywords };
 }
 
-function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
+function isLineHeaderFooter(
+	line: string,
+	cleanArabic: boolean,
+	cleanRoman: boolean,
+	normKeywords: string[]
+): boolean {
 	const trimmed = line.trim();
 	if (!trimmed) return false;
 
@@ -78,7 +100,11 @@ function isLineHeaderFooter(line, cleanArabic, cleanRoman, normKeywords) {
 	return false;
 }
 
-export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
+export function cleanHeaderFooterOcr(
+	text: string,
+	keywords: string[] | string | undefined,
+	lineLimit = 2
+): string {
 	logger.log('epub-parser', 'cleanHeaderFooterOcr called, lines:', String(text || '').split('\n').length, 'keywords:', keywords);
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
@@ -87,7 +113,7 @@ export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 		return text;
 	}
 
-	const linesToRemove = [];
+	const linesToRemove: number[] = [];
 	for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
 		if (isLineHeaderFooter(lines[i], cleanArabic, cleanRoman, normKeywords)) linesToRemove.push(i);
 	}
@@ -100,16 +126,20 @@ export function cleanHeaderFooterOcr(text, keywords, lineLimit = 2) {
 	return resultLines.join('\n');
 }
 
-export function getCleanedLinesReport(rawFilesList, keywords, lineLimit = 2) {
-	const report = [];
+export function getCleanedLinesReport(
+	rawFilesList: Array<{ baseName: string; rawText?: string }>,
+	keywords: string[] | string | undefined,
+	lineLimit = 2
+): CleanedLinesReportItem[] {
+	const report: CleanedLinesReportItem[] = [];
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
-		const lines = String(f.rawText).replace(/\r\n/g, '\n').split('\n');
+		const lines = String(f.rawText || '').replace(/\r\n/g, '\n').split('\n');
 		if (shouldSkipHeaderFooter(lines, normKeywords)) continue;
 
-		const scanned = [];
+		const scanned: ScannedReportItem[] = [];
 		for (let i = 0; i < Math.min(lineLimit, lines.length); i++) {
 			scanned.push({
 				lineNum: i + 1,

@@ -1,3 +1,4 @@
+// src/lib/markdown-fixer/markdown-fixer.ts
 import JSZip from 'jszip';
 import * as logger from '../helpers/logger.js';
 
@@ -25,31 +26,48 @@ const UNDERLINE_PATTERNS = [
 	new RegExp('<ins>(' + SPAN + ')</ins>', 'gi')
 ];
 
-export function convertBrackets(text) {
+export interface ConvertedBracketsResult {
+	converted: string;
+	count: number;
+}
+
+export interface ProcessedMarkdownFileRow {
+	path: string;
+	count: number;
+}
+
+export interface FixMarkdownZipResult {
+	zipBlob: Blob;
+	totalFiles: number;
+	totalReplacements: number;
+	processedFilesList: ProcessedMarkdownFileRow[];
+}
+
+export function convertBrackets(text: string): ConvertedBracketsResult {
 	logger.log('markdown-fixer', 'convertBrackets called, input length:', text.length);
 	let count = 0;
 	let converted = text;
 	
 	for (const pattern of BOLD_ITALIC_PATTERNS) {
-		converted = converted.replace(pattern, (match, inner) => {
+		converted = converted.replace(pattern, (_match, inner) => {
 			count++;
 			return '%%BI_OPEN%%' + inner + '%%BI_CLOSE%%';
 		});
 	}
 	for (const pattern of BOLD_PATTERNS) {
-		converted = converted.replace(pattern, (match, inner) => {
+		converted = converted.replace(pattern, (_match, inner) => {
 			count++;
 			return '%%B_OPEN%%' + inner + '%%B_CLOSE%%';
 		});
 	}
 	for (const pattern of ITALIC_PATTERNS) {
-		converted = converted.replace(pattern, (match, inner) => {
+		converted = converted.replace(pattern, (_match, inner) => {
 			count++;
 			return '%%I_OPEN%%' + inner + '%%I_CLOSE%%';
 		});
 	}
 	for (const pattern of UNDERLINE_PATTERNS) {
-		converted = converted.replace(pattern, (match, inner) => {
+		converted = converted.replace(pattern, (_match, inner) => {
 			count++;
 			return '%%U_OPEN%%' + inner + '%%U_CLOSE%%';
 		});
@@ -69,7 +87,7 @@ export function convertBrackets(text) {
 	return { converted, count };
 }
 
-export async function fixMarkdownZip(mdSelectedFile) {
+export async function fixMarkdownZip(mdSelectedFile: File | null): Promise<FixMarkdownZipResult> {
 	if (!mdSelectedFile) {
 		logger.error('markdown-fixer', 'fixMarkdownZip called without file');
 		throw new Error('Chưa chọn tệp .ZIP.');
@@ -82,7 +100,7 @@ export async function fixMarkdownZip(mdSelectedFile) {
 
 	let fileCount = 0;
 	let replaceCount = 0;
-	const rows = [];
+	const rows: ProcessedMarkdownFileRow[] = [];
 
 	const entries = Object.values(inZip.files);
 	for (const entry of entries) {

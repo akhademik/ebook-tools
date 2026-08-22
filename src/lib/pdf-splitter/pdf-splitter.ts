@@ -1,3 +1,4 @@
+// src/lib/pdf-splitter/pdf-splitter.ts
 import JSZip from 'jszip';
 import * as logger from '../helpers/logger.js';
 
@@ -5,7 +6,26 @@ const PDF_SCALE = 2.0;
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
 
-function applyGrayscale(ctx, width, height, contrast) {
+export interface PdfPreviewPage {
+	pageNum: number;
+	dataUrl: string;
+	width: number;
+	height: number;
+}
+
+export interface PdfProgressInfo {
+	progressPercent: number;
+	progressLabel: string;
+	completed: number;
+	numPages: number;
+}
+
+export interface ProcessPdfResult {
+	zipBlob: Blob;
+	numPages: number;
+}
+
+function applyGrayscale(ctx: CanvasRenderingContext2D, width: number, height: number, contrast: number): void {
 	logger.log('pdf-splitter', 'applyGrayscale called, width:', width, 'height:', height, 'contrast:', contrast);
 	const imgData = ctx.getImageData(0, 0, width, height);
 	const d = imgData.data;
@@ -18,7 +38,7 @@ function applyGrayscale(ctx, width, height, contrast) {
 	ctx.putImageData(imgData, 0, 0);
 }
 
-function cropCanvas(sourceCanvas, topPx, bottomPx) {
+function cropCanvas(sourceCanvas: HTMLCanvasElement, topPx: number, bottomPx: number): HTMLCanvasElement {
 	const w = sourceCanvas.width;
 	const h = sourceCanvas.height;
 	const safeTop = Math.max(0, Math.min(topPx, h - 1));
@@ -29,37 +49,44 @@ function cropCanvas(sourceCanvas, topPx, bottomPx) {
 	out.width = w;
 	out.height = newH;
 	const octx = out.getContext('2d', { alpha: false });
-	octx.drawImage(sourceCanvas, 0, safeTop, w, newH, 0, 0, w, newH);
+	if (octx) {
+		octx.drawImage(sourceCanvas, 0, safeTop, w, newH, 0, 0, w, newH);
+	}
 	return out;
 }
 
-export function formatEta(seconds) {
+export function formatEta(seconds: number): string {
 	if (!isFinite(seconds) || seconds < 0) return '--:--';
 	const m = Math.floor(seconds / 60);
 	const s = Math.round(seconds % 60);
 	return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
-function pickConcurrency(fileSizeBytes, numPages) {
-	let c = navigator.hardwareConcurrency || 4;
+function pickConcurrency(fileSizeBytes: number, numPages: number): number {
+	let c = typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 4;
 	c = Math.min(c, 8);
 	if (fileSizeBytes > 300 * 1024 * 1024) c = Math.min(c, 3);
 	else if (fileSizeBytes > 150 * 1024 * 1024) c = Math.min(c, 4);
 	return Math.max(1, Math.min(c, numPages));
 }
 
-export async function loadPdfPreview(pdfSelectedFile, selectedPreviewCount, keepColor) {
-	if (!pdfSelectedFile || !window.pdfjsLib) {
+export async function loadPdfPreview(
+	pdfSelectedFile: File | null,
+	selectedPreviewCount: number,
+	keepColor: boolean
+): Promise<PdfPreviewPage[]> {
+	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+	if (!pdfSelectedFile || !globalPdfjs) {
 		logger.error('pdf-splitter', 'loadPdfPreview error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 	}
 	logger.log('pdf-splitter', 'loadPdfPreview called, file size:', pdfSelectedFile.size, 'preview count limit:', selectedPreviewCount, 'keepColor:', keepColor);
 
 	const arrayBuffer = await pdfSelectedFile.arrayBuffer();
-	const doc = await window.pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+	const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
 	const count = Math.min(selectedPreviewCount, doc.numPages);
 	logger.log('pdf-splitter', `loadPdfPreview: loading ${count} preview pages (total pages in doc: ${doc.numPages})`);
-	const pages = [];
+	const pages: PdfPreviewPage[] = [];
 	
 	for (let p = 1; p <= count; p++) {
 		logger.log('pdf-splitter', `loadPdfPreview: rendering page ${p}`);
@@ -69,9 +96,11 @@ export async function loadPdfPreview(pdfSelectedFile, selectedPreviewCount, keep
 		canvas.width = viewport.width;
 		canvas.height = viewport.height;
 		const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
-		await page.render({ canvasContext: ctx, viewport }).promise;
-		if (!keepColor) {
-			applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+		if (ctx) {
+			await page.render({ canvasContext: ctx, viewport }).promise;
+			if (!keepColor) {
+				applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+			}
 		}
 		pages.push({
 			pageNum: p,
@@ -86,15 +115,22 @@ export async function loadPdfPreview(pdfSelectedFile, selectedPreviewCount, keep
 	return pages;
 }
 
-export async function processPdfToJpg(pdfSelectedFile, keepColor, cropTopPx, cropBottomPx, onProgress) {
-	if (!pdfSelectedFile || !window.pdfjsLib) {
+export async function processPdfToJpg(
+	pdfSelectedFile: File | null,
+	keepColor: boolean,
+	cropTopPx: number,
+	cropBottomPx: number,
+	onProgress?: (info: PdfProgressInfo) => void
+): Promise<ProcessPdfResult> {
+	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+	if (!pdfSelectedFile || !globalPdfjs) {
 		logger.error('pdf-splitter', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 	}
 	logger.log('pdf-splitter', 'processPdfToJpg called, size:', pdfSelectedFile.size, 'keepColor:', keepColor, 'cropTop:', cropTopPx, 'cropBottom:', cropBottomPx);
 
 	const arrayBuffer = await pdfSelectedFile.arrayBuffer();
-	const probeDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+	const probeDoc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
 	const numPages = probeDoc.numPages;
 	probeDoc.destroy();
 	logger.log('pdf-splitter', `processPdfToJpg: total pages to process: ${numPages}`);
@@ -105,7 +141,7 @@ export async function processPdfToJpg(pdfSelectedFile, keepColor, cropTopPx, cro
 	const startTime = performance.now();
 	logger.log('pdf-splitter', `processPdfToJpg: starting ${concurrency} parallel workers`);
 
-	function updateProgress() {
+	function updateProgress(): void {
 		const elapsedSec = (performance.now() - startTime) / 1000;
 		const rate = completed / Math.max(elapsedSec, 0.001);
 		const remaining = numPages - completed;
@@ -123,9 +159,9 @@ export async function processPdfToJpg(pdfSelectedFile, keepColor, cropTopPx, cro
 
 	updateProgress();
 
-	async function runWorker(workerIndex) {
+	async function runWorker(workerIndex: number): Promise<void> {
 		logger.log('pdf-splitter', `Worker ${workerIndex} started`);
-		const doc = await window.pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+		const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
 		const ctxOpts = keepColor ? { alpha: false } : { alpha: false, willReadFrequently: true };
 		
 		for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
@@ -135,20 +171,24 @@ export async function processPdfToJpg(pdfSelectedFile, keepColor, cropTopPx, cro
 			let canvas = document.createElement('canvas');
 			canvas.width = viewport.width;
 			canvas.height = viewport.height;
-			let ctx = canvas.getContext('2d', ctxOpts);
-			await page.render({ canvasContext: ctx, viewport }).promise;
+			let ctx = canvas.getContext('2d', ctxOpts as any);
+			if (ctx) {
+				await page.render({ canvasContext: ctx, viewport }).promise;
 
-			if (cropTopPx > 0 || cropBottomPx > 0) {
-				canvas = cropCanvas(canvas, cropTopPx, cropBottomPx);
-				ctx = canvas.getContext('2d', ctxOpts);
+				if (cropTopPx > 0 || cropBottomPx > 0) {
+					canvas = cropCanvas(canvas, cropTopPx, cropBottomPx);
+					ctx = canvas.getContext('2d', ctxOpts as any);
+				}
+
+				if (!keepColor && ctx) {
+					applyGrayscale(ctx as CanvasRenderingContext2D, canvas.width, canvas.height, GRAY_CONTRAST);
+				}
 			}
 
-			if (!keepColor) {
-				applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+			const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
+			if (blob) {
+				zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
 			}
-
-			const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
-			zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
 			page.cleanup();
 			completed++;
 			updateProgress();
@@ -157,7 +197,7 @@ export async function processPdfToJpg(pdfSelectedFile, keepColor, cropTopPx, cro
 		logger.log('pdf-splitter', `Worker ${workerIndex} finished`);
 	}
 
-	const workers = [];
+	const workers: Promise<void>[] = [];
 	for (let w = 0; w < concurrency; w++) {
 		workers.push(runWorker(w));
 	}

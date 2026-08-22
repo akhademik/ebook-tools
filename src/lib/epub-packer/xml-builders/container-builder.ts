@@ -1,10 +1,10 @@
-// src/lib/epub-packer/xml-builders/container-builder.js
+// src/lib/epub-packer/xml-builders/container-builder.ts
 
 /**
  * Builds standard EPUB META-INF/container.xml
- * @returns {string}
+ * @returns string
  */
-export function buildContainerXml() {
+export function buildContainerXml(): string {
   return (
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n' +

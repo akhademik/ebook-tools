@@ -1,8 +1,13 @@
-<script>
+<script lang="ts">
+	interface PageHeaderProps {
+		title?: string;
+		description?: string;
+	}
+
 	let {
 		title = '',
 		description = ''
-	} = $props();
+	}: PageHeaderProps = $props();
 </script>
 
 <div class="mb-10 animate-fade-in">

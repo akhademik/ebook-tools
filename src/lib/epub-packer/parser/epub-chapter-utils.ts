@@ -1,20 +1,58 @@
+// src/lib/epub-packer/parser/epub-chapter-utils.ts
 import * as logger from '$lib/helpers/logger.js';
 import { normalizeCharPreserveLength } from '$lib/helpers/helpers.js';
 
-function isDecorationOnly(s) {
+export interface MarkdownBlock {
+	type: 'heading' | 'p' | 'hr' | 'blockquote' | string;
+	level?: number;
+	text: string;
+	html?: string;
+}
+
+export interface RawFileItem {
+	path: string;
+	baseName: string;
+	rawText?: string;
+	blocks: MarkdownBlock[];
+}
+
+export interface ChapterCutPoint {
+	blockIndex: number;
+	offset: number;
+	type: string;
+}
+
+export interface ChapterCandidateItem {
+	pageNum: number;
+	fileName: string;
+	blockIndex: number;
+	text: string;
+	type: string;
+	score: number;
+	regexMatch: boolean;
+	heuristicMatch: boolean;
+	isMatch: boolean;
+	snippet: string;
+}
+
+export interface ChapterMatcher {
+	locate: (text: string, fromIndex?: number) => { index: number } | null;
+}
+
+function isDecorationOnly(s: string): boolean {
 	return /^[\s*_]*$/.test(s);
 }
 
-export function stripDecoration(s) {
+export function stripDecoration(s: unknown): string {
 	return String(s || '').replace(/^[\s*_]+|[\s*_]+$/g, '').trim();
 }
 
-export function makeChapterMatcher(patternRaw) {
+export function makeChapterMatcher(patternRaw?: string): ChapterMatcher | null {
 	const pattern = (patternRaw || '').trim();
 	if (!pattern) return null;
 	const asRegex = pattern.match(/^\/(.+)\/([a-z]*)$/i);
 	if (asRegex) {
-		let re;
+		let re: RegExp;
 		try {
 			const flags = asRegex[2].includes('g') ? asRegex[2] : asRegex[2] + 'g';
 			re = new RegExp(asRegex[1], flags);
@@ -43,14 +81,20 @@ export function makeChapterMatcher(patternRaw) {
 	};
 }
 
-export function extractMarkerTitle(text, matchIndex, fallback) {
+export function extractMarkerTitle(text: string, matchIndex: number, fallback: string): string {
 	const rest = text.slice(matchIndex);
 	const m = rest.match(/^(\S+(?:\s+[IVXLCDM]+|\s+\d+)?(?:\s*[:\-–—]\s*[^.?!\n]{0,40})?)/);
 	const t = (m ? m[1] : rest.slice(0, 30)).trim();
 	return t || fallback;
 }
 
-export function pushIfLineStart(arr, text, blockIndex, matchIndex, type) {
+export function pushIfLineStart(
+	arr: ChapterCutPoint[],
+	text: string,
+	blockIndex: number,
+	matchIndex: number,
+	type: string
+): boolean {
 	const lastNewline = text.lastIndexOf('\n', matchIndex - 1);
 	const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
 	const prefix = text.slice(lineStart, matchIndex);
@@ -61,7 +105,7 @@ export function pushIfLineStart(arr, text, blockIndex, matchIndex, type) {
 	return false;
 }
 
-export function scoreHeadingCandidate(rawText, blockType = 'p', isFirstBlock = false) {
+export function scoreHeadingCandidate(rawText: string, blockType = 'p', isFirstBlock = false): number {
 	const plain = rawText.replace(/^[\s*_“"‘«]+|[\s*_”"’»]+$/g, '').trim();
 	if (!plain) return -99;
 	if (/^[-—–~]\s+\S+/.test(plain)) return -99;
@@ -105,11 +149,15 @@ export function scoreHeadingCandidate(rawText, blockType = 'p', isFirstBlock = f
 	return score;
 }
 
-export function extractChunkBlocks(blocks, start, end) {
+export function extractChunkBlocks(
+	blocks: MarkdownBlock[],
+	start: ChapterCutPoint | null,
+	end: ChapterCutPoint | null
+): MarkdownBlock[] {
 	const startBI = start ? start.blockIndex : 0;
 	const startOff = start ? start.offset : 0;
 	const lastBI = end ? end.blockIndex : blocks.length - 1;
-	const result = [];
+	const result: MarkdownBlock[] = [];
 	for (let i = startBI; i <= lastBI; i++) {
 		const b = blocks[i];
 		if (!b) continue;
@@ -125,7 +173,7 @@ export function extractChunkBlocks(blocks, start, end) {
 	return result;
 }
 
-export function assignSequentialChapterIds(chapters) {
+export function assignSequentialChapterIds(chapters: any[]): any[] {
 	logger.log('epub-parser', 'assignSequentialChapterIds called for chapters count:', chapters.length);
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
@@ -148,10 +196,17 @@ export function assignSequentialChapterIds(chapters) {
 	return result;
 }
 
-export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5) {
+export function analyzeChapterCandidates(
+	rawFilesList: RawFileItem[],
+	patternRaw: string,
+	useHeuristic: boolean,
+	startPage: number,
+	endPage: number,
+	heuristicThreshold = 5
+): ChapterCandidateItem[] {
 	logger.log('epub-parser', 'analyzeChapterCandidates called, files count:', rawFilesList.length, 'pattern:', patternRaw, 'useHeuristic:', useHeuristic, 'threshold:', heuristicThreshold);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const candidates = [];
+	const candidates: ChapterCandidateItem[] = [];
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
@@ -179,7 +234,7 @@ export function analyzeChapterCandidates(rawFilesList, patternRaw, useHeuristic,
 			const isMatch = regexMatch || heuristicMatch;
 			
 			if (b.type === 'heading' || score > -10 || isMatch) {
-				const nextBlocks = [];
+				const nextBlocks: string[] = [];
 				let count = 0;
 				for (let j = i + 1; j < f.blocks.length && count < 2; j++) {
 					if (f.blocks[j].text && f.blocks[j].text.trim()) {

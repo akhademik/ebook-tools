@@ -37,14 +37,14 @@ Object.defineProperty(globalThis, 'navigator', {
 });
 
 // Track mock canvas creations to inspect call arguments
-const createdCanvases = [];
+const createdCanvases: any[] = [];
 
 Object.defineProperty(globalThis, 'document', {
 	value: {
-		createElement: vi.fn().mockImplementation((type) => {
+		createElement: vi.fn().mockImplementation((type: string) => {
 			if (type === 'canvas') {
 				const ctx = {
-					getImageData: vi.fn().mockImplementation((x, y, w, h) => {
+					getImageData: vi.fn().mockImplementation((_x: number, _y: number, w: number, h: number) => {
 						// Create data array: size is w * h * 4
 						const data = new Uint8Array(w * h * 4);
 						// Fill it with some non-zero data to test grayscale calculations
@@ -61,7 +61,7 @@ Object.defineProperty(globalThis, 'document', {
 					height: 0,
 					getContext: vi.fn().mockReturnValue(ctx),
 					toDataURL: vi.fn().mockReturnValue('data:image/jpeg;base64,mocked'),
-					toBlob: vi.fn().mockImplementation((resolve) => {
+					toBlob: vi.fn().mockImplementation((resolve: (blob: Blob | null) => void) => {
 						resolve(new Blob(['mocked-blob-image']));
 					})
 				};
@@ -98,7 +98,7 @@ vi.mock('jszip', () => {
 	const MockJSZip = vi.fn().mockImplementation(function() {
 		return mockInstance;
 	});
-	MockJSZip.loadAsync = vi.fn().mockResolvedValue(mockInstance);
+	(MockJSZip as any).loadAsync = vi.fn().mockResolvedValue(mockInstance);
 	
 	return {
 		default: MockJSZip
@@ -115,8 +115,8 @@ describe('pdf-splitter tests', () => {
 		mockTime = 0;
 		// Reset PDF.js mock properties
 		mockDoc.numPages = 2;
-		globalThis.window.pdfjsLib = mockPdfjsLib;
-		globalThis.navigator.hardwareConcurrency = 4;
+		(globalThis as any).window.pdfjsLib = mockPdfjsLib;
+		(globalThis as any).navigator.hardwareConcurrency = 4;
 	});
 
 	describe('formatEta', () => {
@@ -140,17 +140,17 @@ describe('pdf-splitter tests', () => {
 	describe('loadPdfPreview', () => {
 		const fakeFile = {
 			arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-		};
+		} as unknown as File;
 
 		it('should throw an error if no file is provided', async () => {
 			await expect(loadPdfPreview(null, 3, false)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 		});
 
 		it('should throw an error if pdfjsLib is missing', async () => {
-			const originalPdfjs = globalThis.window.pdfjsLib;
-			globalThis.window.pdfjsLib = undefined;
+			const originalPdfjs = (globalThis as any).window.pdfjsLib;
+			(globalThis as any).window.pdfjsLib = undefined;
 			await expect(loadPdfPreview(fakeFile, 3, false)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
-			globalThis.window.pdfjsLib = originalPdfjs;
+			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
 
 		it('should load preview pages with grayscale applied', async () => {
@@ -192,17 +192,17 @@ describe('pdf-splitter tests', () => {
 		const fakeFile = {
 			size: 1024,
 			arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-		};
+		} as unknown as File;
 
 		it('should throw an error if no file is provided', async () => {
 			await expect(processPdfToJpg(null, false, 0, 0)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 		});
 
 		it('should throw an error if pdfjsLib is missing', async () => {
-			const originalPdfjs = globalThis.window.pdfjsLib;
-			globalThis.window.pdfjsLib = undefined;
+			const originalPdfjs = (globalThis as any).window.pdfjsLib;
+			(globalThis as any).window.pdfjsLib = undefined;
 			await expect(processPdfToJpg(fakeFile, false, 0, 0)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
-			globalThis.window.pdfjsLib = originalPdfjs;
+			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
 
 		it('should split PDF pages and return zipBlob with progress notifications', async () => {
@@ -255,10 +255,6 @@ describe('pdf-splitter tests', () => {
 			renderCanvas.width = 100;
 
 			const croppedCanvas = createdCanvases[1];
-			// Verify cropCanvas dimensions:
-			// safeTop = Math.max(0, Math.min(10, 199)) = 10
-			// safeBottom = Math.max(0, Math.min(15, 200 - 1 - 10)) = 15
-			// newH = Math.max(1, 200 - 10 - 15) = 175
 			expect(croppedCanvas.height).toBe(175);
 			
 			const croppedCtx = croppedCanvas.getContext('2d');
@@ -272,33 +268,28 @@ describe('pdf-splitter tests', () => {
 			const largeFile = {
 				size: 350 * 1024 * 1024,
 				arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-			};
+			} as unknown as File;
 			mockDoc.numPages = 10;
-			globalThis.navigator.hardwareConcurrency = 8;
+			(globalThis as any).navigator.hardwareConcurrency = 8;
 			
 			await processPdfToJpg(largeFile, true, 0, 0);
-			// Concurrency should be capped at 3 for file size > 300MB
-			// We can verify pickConcurrency indirectly or check if threads ran.
-			// Let's also check with medium file > 150MB
+
 			const mediumFile = {
 				size: 200 * 1024 * 1024,
 				arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8))
-			};
+			} as unknown as File;
 			await processPdfToJpg(mediumFile, true, 0, 0);
-
-			// Concurrency should be capped at 4 for file size > 150MB
-			// All calls should pass.
 		});
 
 		it('should fallback to 4 if hardwareConcurrency is undefined', async () => {
-			const originalVal = globalThis.navigator.hardwareConcurrency;
-			globalThis.navigator.hardwareConcurrency = undefined;
+			const originalVal = (globalThis as any).navigator.hardwareConcurrency;
+			(globalThis as any).navigator.hardwareConcurrency = undefined;
 
 			// mockDoc.numPages is 2 by default in beforeEach
 			const result = await processPdfToJpg(fakeFile, true, 0, 0);
 			expect(result.numPages).toBe(2);
 
-			globalThis.navigator.hardwareConcurrency = originalVal;
+			(globalThis as any).navigator.hardwareConcurrency = originalVal;
 		});
 	});
 });

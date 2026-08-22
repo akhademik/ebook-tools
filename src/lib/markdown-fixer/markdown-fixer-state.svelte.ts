@@ -1,23 +1,24 @@
+// src/lib/markdown-fixer/markdown-fixer-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
-import { fixMarkdownZip } from './markdown-fixer.js';
+import { fixMarkdownZip, type ProcessedMarkdownFileRow } from './markdown-fixer.js';
 
 export class MarkdownFixerState {
-	mdSelectedFile = $state(null);
-	mdOutZipBlob = $state(null);
-	zipOutName = $state('');
+	mdSelectedFile = $state<File | null>(null);
+	mdOutZipBlob = $state<Blob | null>(null);
+	zipOutName = $state<string>('');
 
-	status = $state('');
-	isError = $state(false);
-	processing = $state(false);
+	status = $state<string>('');
+	isError = $state<boolean>(false);
+	processing = $state<boolean>(false);
 
-	totalFiles = $state(0);
-	totalReplacements = $state(0);
-	processedFilesList = $state([]);
+	totalFiles = $state<number>(0);
+	totalReplacements = $state<number>(0);
+	processedFilesList = $state<ProcessedMarkdownFileRow[]>([]);
 
 	zipNamePreview = $derived(ensureZipExt(this.zipOutName.trim() || 'ten-file-goc-da-fix'));
 
-	handleFile(file) {
+	handleFile(file: File | null): void {
 		if (!file) return;
 		if (!/\.zip$/i.test(file.name)) {
 			this.status = 'Vui lòng chọn một tệp .ZIP hợp lệ.';
@@ -32,7 +33,7 @@ export class MarkdownFixerState {
 		this.processedFilesList = [];
 	}
 
-	async processMarkdownZip() {
+	async processMarkdownZip(): Promise<void> {
 		if (!this.mdSelectedFile) return;
 		this.processing = true;
 		this.status = 'Đang đọc tệp .ZIP...';
@@ -48,16 +49,17 @@ export class MarkdownFixerState {
 			this.status = this.totalFiles > 0
 				? 'Hoàn tất — sẵn sàng tải về.'
 				: 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
-		} catch (err) {
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[MarkdownFixerState]', 'Error processing markdown zip', err);
-			this.status = 'Có lỗi khi xử lý tệp: ' + err.message;
+			this.status = 'Có lỗi khi xử lý tệp: ' + errorMsg;
 			this.isError = true;
 		} finally {
 			this.processing = false;
 		}
 	}
 
-	downloadZip() {
+	downloadZip(): void {
 		if (!this.mdOutZipBlob) return;
 		triggerDownload(this.mdOutZipBlob, this.zipNamePreview);
 	}

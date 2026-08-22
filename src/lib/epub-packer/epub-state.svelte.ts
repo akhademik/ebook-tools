@@ -1,5 +1,26 @@
-import { cleanHeaderFooterOcr, parseMarkdownBlocks, groupChapters, getCleanedLinesReport, assignSequentialChapterIds, parseTxtToChapters } from './parser/epub-parser.js';
-import { buildEpubBlob, EPUB_CSS } from './epub-packer.js';
+// src/lib/epub-packer/epub-state.svelte.ts
+import {
+	cleanHeaderFooterOcr,
+	parseMarkdownBlocks,
+	groupChapters,
+	getCleanedLinesReport,
+	assignSequentialChapterIds,
+	parseTxtToChapters,
+	type CleanedLinesReportItem,
+	type CustomDefinition
+} from './parser/epub-parser.js';
+import {
+	buildEpubBlob,
+	EPUB_CSS,
+	type EpubFontsConfig,
+	type EpubJacketConfig,
+	type CoverBlobItem
+} from './epub-packer.js';
+import type {
+	EpubChapterItem,
+	OrnamentsConfig,
+	IllustrationImageItem
+} from './xml-builders/opf-builder.js';
 import { slugify, ensureEpubExt } from '$lib/helpers/helpers.js';
 import { Logger } from '$lib/helpers/logger.js';
 import JSZip from 'jszip';
@@ -7,74 +28,74 @@ import JSZip from 'jszip';
 import { findFont } from './templates/fonts.js';
 
 export class EpubState {
-	epubFileSelected = $state(null);
-	epubRawFiles = $state([]);
-	epubChapters = $state([]);
-	epubBlob = $state(null);
+	epubFileSelected = $state<File | null>(null);
+	epubRawFiles = $state<Array<{ path: string; baseName: string; rawText: string }>>([]);
+	epubChapters = $state<EpubChapterItem[]>([]);
+	epubBlob = $state<Blob | null>(null);
 	
-	fileType = $state('zip'); // 'zip' | 'txt'
-	rawTxtText = $state('');
-	customDefinitions = $state([]);
-	ignoreMarkdownFormat = $state(false);
+	fileType = $state<'zip' | 'txt'>('zip');
+	rawTxtText = $state<string>('');
+	customDefinitions = $state<CustomDefinition[]>([]);
+	ignoreMarkdownFormat = $state<boolean>(false);
 
-	txtH1Delim = $state('##');
-	txtH2Delim = $state('#');
-	txtEmDelim = $state('*');
-	txtStrongDelim = $state('**');
-	txtBreakDelim = $state('•••');
+	txtH1Delim = $state<string>('##');
+	txtH2Delim = $state<string>('#');
+	txtEmDelim = $state<string>('*');
+	txtStrongDelim = $state<string>('**');
+	txtBreakDelim = $state<string>('•••');
 
-	mergePattern = $state('');
-	heuristicMode = $state(false);
-	heuristicStart = $state(null);
-	heuristicEnd = $state(null);
-	cleanKeywords = $state('{no}, {roman_no}');
-	heuristicThreshold = $state(5);
-	activeTab = $state('toc');
-	cleanedLinesReport = $state([]);
-	visibleCleanedCount = $state(20);
-	cleanLineLimit = $state(2);
+	mergePattern = $state<string>('');
+	heuristicMode = $state<boolean>(false);
+	heuristicStart = $state<string | number | null>(null);
+	heuristicEnd = $state<string | number | null>(null);
+	cleanKeywords = $state<string>('{no}, {roman_no}');
+	heuristicThreshold = $state<number>(5);
+	activeTab = $state<string>('toc');
+	cleanedLinesReport = $state<CleanedLinesReportItem[]>([]);
+	visibleCleanedCount = $state<number>(20);
+	cleanLineLimit = $state<number>(2);
 
-	status = $state('');
-	isError = $state(false);
-	parseStatus = $state('');
-	parseIsError = $state(false);
-	processing = $state(false);
+	status = $state<string>('');
+	isError = $state<boolean>(false);
+	parseStatus = $state<string>('');
+	parseIsError = $state<boolean>(false);
+	processing = $state<boolean>(false);
 
-	title = $state('');
-	author = $state('');
-	lang = $state('vi');
-	publisher = $state('');
-	epubOutName = $state('');
+	title = $state<string>('');
+	author = $state<string>('');
+	lang = $state<string>('vi');
+	publisher = $state<string>('');
+	epubOutName = $state<string>('');
 	
-	jacketTemplateId = $state(1);
-	originalTitle = $state('');
-	distributor = $state('');
-	translator = $state(''); // Translator field
+	jacketTemplateId = $state<number>(1);
+	originalTitle = $state<string>('');
+	distributor = $state<string>('');
+	translator = $state<string>('');
 
-	jacketFont = $state('default'); 
-	h1Font = $state('default');     
-	h2Font = $state('default');     
-	dropcapFont = $state('default');
+	jacketFont = $state<string>('default'); 
+	h1Font = $state<string>('default');     
+	h2Font = $state<string>('default');     
+	dropcapFont = $state<string>('default');
 
 	// Cover Image States
-	coverFile = $state(null);
-	coverOriginalUrl = $state(null);
-	coverWidth = $state(0);
-	coverHeight = $state(0);
-	coverCropTop = $state(0);
-	coverCropBottom = $state(0);
-	coverCropLeft = $state(0);
-	coverCropRight = $state(0);
+	coverFile = $state<File | null>(null);
+	coverOriginalUrl = $state<string | null>(null);
+	coverWidth = $state<number>(0);
+	coverHeight = $state<number>(0);
+	coverCropTop = $state<number>(0);
+	coverCropBottom = $state<number>(0);
+	coverCropLeft = $state<number>(0);
+	coverCropRight = $state<number>(0);
 
 	// Ornament States
-	chapterOrnamentFile = $state(null);
-	subchapterOrnamentFile = $state(null);
+	chapterOrnamentFile = $state<File | null>(null);
+	subchapterOrnamentFile = $state<File | null>(null);
 
 	// Illustration Images States
-	illustrationFiles = $state([]);
+	illustrationFiles = $state<IllustrationImageItem[]>([]);
 
-	getImageMimeType(fileName) {
-		const ext = (fileName || '').split('.').pop().toLowerCase();
+	getImageMimeType(fileName?: string): string {
+		const ext = (fileName || '').split('.').pop()?.toLowerCase();
 		switch (ext) {
 			case 'png': return 'image/png';
 			case 'webp': return 'image/webp';
@@ -87,9 +108,9 @@ export class EpubState {
 		}
 	}
 
-	async handleIllustrationFiles(filesInput) {
+	async handleIllustrationFiles(filesInput: FileList | File[] | File | null): Promise<void> {
 		if (!filesInput) return;
-		const filesList = filesInput instanceof FileList || Array.isArray(filesInput) 
+		const filesList: File[] = filesInput instanceof FileList || Array.isArray(filesInput) 
 			? Array.from(filesInput) 
 			: [filesInput];
 
@@ -100,12 +121,12 @@ export class EpubState {
 					for (const name of Object.keys(zip.files)) {
 						if (!zip.files[name].dir && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
 							const blob = await zip.files[name].async('blob');
-							const fileName = name.split('/').pop();
+							const fileName = name.split('/').pop() || name;
 							const baseName = fileName.replace(/\.[^.]+$/, '');
 							const mimeType = this.getImageMimeType(fileName);
 							
-							const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || f.name.toLowerCase() === baseName.toLowerCase());
-							const item = { name: baseName, fileName, mimeType, blob, size: blob.size };
+							const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || (f.name && f.name.toLowerCase() === baseName.toLowerCase()));
+							const item: IllustrationImageItem = { name: baseName, fileName, mimeType, blob, size: blob.size };
 							if (existingIdx !== -1) {
 								this.illustrationFiles[existingIdx] = item;
 							} else {
@@ -121,8 +142,8 @@ export class EpubState {
 				const baseName = fileName.replace(/\.[^.]+$/, '');
 				const mimeType = file.type || this.getImageMimeType(fileName);
 
-				const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || f.name.toLowerCase() === baseName.toLowerCase());
-				const item = { name: baseName, fileName, mimeType, blob: file, size: file.size };
+				const existingIdx = this.illustrationFiles.findIndex(f => f.fileName.toLowerCase() === fileName.toLowerCase() || (f.name && f.name.toLowerCase() === baseName.toLowerCase()));
+				const item: IllustrationImageItem = { name: baseName, fileName, mimeType, blob: file, size: file.size };
 				if (existingIdx !== -1) {
 					this.illustrationFiles[existingIdx] = item;
 				} else {
@@ -136,50 +157,50 @@ export class EpubState {
 		}
 	}
 
-	removeIllustrationFile(idx) {
+	removeIllustrationFile(idx: number): void {
 		this.illustrationFiles.splice(idx, 1);
 		if (this.fileType === 'txt' && this.rawTxtText) {
 			this.applyTxtGrouping();
 		}
 	}
 
-	clearIllustrationFiles() {
+	clearIllustrationFiles(): void {
 		this.illustrationFiles = [];
 		if (this.fileType === 'txt' && this.rawTxtText) {
 			this.applyTxtGrouping();
 		}
 	}
 
-	handleChapterOrnamentFile(file) {
+	handleChapterOrnamentFile(file: File | null): void {
 		if (!file) return;
 		this.chapterOrnamentFile = file;
 	}
 
-	removeChapterOrnamentFile() {
+	removeChapterOrnamentFile(): void {
 		this.chapterOrnamentFile = null;
 	}
 
-	handleSubchapterOrnamentFile(file) {
+	handleSubchapterOrnamentFile(file: File | null): void {
 		if (!file) return;
 		this.subchapterOrnamentFile = file;
 	}
 
-	removeSubchapterOrnamentFile() {
+	removeSubchapterOrnamentFile(): void {
 		this.subchapterOrnamentFile = null;
 	}
 
 	epubOutNamePreview = $derived(ensureEpubExt(this.epubOutName.trim() || 'ten-sach'));
 
-	addCustomDefinition() {
+	addCustomDefinition(): void {
 		this.customDefinitions.push({ pattern: '', tag: '' });
 	}
 
-	removeCustomDefinition(idx) {
+	removeCustomDefinition(idx: number): void {
 		this.customDefinitions.splice(idx, 1);
 		this.applyTxtGrouping();
 	}
 
-	applyGrouping() {
+	applyGrouping(): void {
 		if (this.fileType === 'txt') {
 			this.applyTxtGrouping();
 			return;
@@ -201,8 +222,8 @@ export class EpubState {
 			};
 		});
 
-		const startPage = parseInt(this.heuristicStart, 10) || 1;
-		const endPage = parseInt(this.heuristicEnd, 10) || processedFiles.length;
+		const startPage = parseInt(String(this.heuristicStart || '1'), 10) || 1;
+		const endPage = parseInt(String(this.heuristicEnd || ''), 10) || processedFiles.length;
 
 		const grouped = groupChapters(
 			processedFiles,
@@ -223,12 +244,12 @@ export class EpubState {
 		this.parseIsError = false;
 	}
 
-	applyTxtGrouping() {
+	applyTxtGrouping(): void {
 		Logger.debug('[EpubState]', 'applyTxtGrouping called, rawTxtText length:', this.rawTxtText?.length);
 		if (!this.rawTxtText) return;
 		
 		const fallbackTitle = this.title.trim() || 'Chương 1';
-		const imagesMap = {};
+		const imagesMap: Record<string, { fileName?: string }> = {};
 		for (const img of this.illustrationFiles) {
 			if (img.name) imagesMap[img.name.toLowerCase()] = img;
 			if (img.fileName) imagesMap[img.fileName.toLowerCase()] = img;
@@ -241,9 +262,9 @@ export class EpubState {
 		this.epubChapters = assignSequentialChapterIds(chapters);
 
 		// Resolve footnote backlinks
-		const footnoteMap = {};
+		const footnoteMap: Record<string, string> = {};
 		for (const chap of this.epubChapters) {
-			if (chap.fileName !== 'notes') {
+			if (chap.fileName !== 'notes' && chap.html) {
 				const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
 				for (const match of matches) {
 					footnoteMap[match[1]] = chap.fileName;
@@ -253,8 +274,8 @@ export class EpubState {
 
 		// Replace placeholders in notes chapter
 		const notesChap = this.epubChapters.find(c => c.fileName === 'notes');
-		if (notesChap) {
-			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (match, n) => {
+		if (notesChap && notesChap.html) {
+			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
 				return footnoteMap[n] || 'chap_01';
 			});
 		}
@@ -265,8 +286,8 @@ export class EpubState {
 		Logger.info('[EpubState]', 'applyTxtGrouping completed, chapters count:', this.epubChapters.length);
 	}
 
-	async handleFile(file) {
-		Logger.debug('[EpubState]', 'handleFile selected file:', file?.name, 'size:', file?.size, 'type:', file?.type);
+	async handleFile(file: File | null): Promise<void> {
+		Logger.debug('[EpubState]', `handleFile selected file: ${file?.name}, size: ${file?.size}, type: ${file?.type}`);
 		if (!file) return;
 		
 		const isZip = /\.zip$/i.test(file.name);
@@ -301,9 +322,10 @@ export class EpubState {
 				Logger.debug('[EpubState]', 'File text read successfully, character count:', text.length);
 				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
 				this.applyTxtGrouping();
-			} catch (err) {
+			} catch (err: unknown) {
+				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubState]', 'Error reading TXT file', err);
-				this.parseStatus = 'Lỗi khi đọc tệp .TXT: ' + err.message;
+				this.parseStatus = 'Lỗi khi đọc tệp .TXT: ' + errorMsg;
 				this.parseIsError = true;
 			}
 		} else {
@@ -312,22 +334,22 @@ export class EpubState {
 			const base = slugify(file.name.replace(/\.zip$/i, ''));
 			this.epubOutName = base;
 			this.title = base.replace(/-/g, ' ');
-			this.loadZipContent(file);
+			await this.loadZipContent(file);
 		}
 	}
 
-	async loadZipContent(file) {
+	async loadZipContent(file: File): Promise<void> {
 		Logger.debug('[EpubState]', 'loadZipContent starting for:', file.name);
 		try {
 			const zip = await JSZip.loadAsync(file);
-			const files = [];
+			const files: Array<{ path: string; baseName: string; rawText: string }> = [];
 			const mdFiles = Object.keys(zip.files).filter(name => name.endsWith('.md') && !zip.files[name].dir);
 			
 			mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
 			for (const name of mdFiles) {
 				const text = await zip.files[name].async('string');
-				const baseName = name.replace(/\.md$/i, '').split('/').pop();
+				const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
 				files.push({
 					path: name,
 					baseName,
@@ -344,36 +366,38 @@ export class EpubState {
 
 			this.epubRawFiles = files;
 			this.applyGrouping();
-		} catch (err) {
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubState]', 'Error loading ZIP', err);
-			this.parseStatus = 'Lỗi khi đọc tệp .ZIP: ' + err.message;
+			this.parseStatus = 'Lỗi khi đọc tệp .ZIP: ' + errorMsg;
 			this.parseIsError = true;
 		}
 	}
 
 	// Cover Image Crop logic
-	adjustCoverCrop(side, value) {
+	adjustCoverCrop(side: 'top' | 'bottom' | 'left' | 'right', value: number): void {
 		if (side === 'top') this.coverCropTop = Math.max(0, this.coverCropTop + value);
 		if (side === 'bottom') this.coverCropBottom = Math.max(0, this.coverCropBottom + value);
 		if (side === 'left') this.coverCropLeft = Math.max(0, this.coverCropLeft + value);
 		if (side === 'right') this.coverCropRight = Math.max(0, this.coverCropRight + value);
 	}
 
-	resetCoverCrop() {
+	resetCoverCrop(): void {
 		this.coverCropTop = 0;
 		this.coverCropBottom = 0;
 		this.coverCropLeft = 0;
 		this.coverCropRight = 0;
 	}
 
-	async handleCoverFile(file) {
+	async handleCoverFile(file: File | null): Promise<void> {
 		if (!file) return;
 		this.coverFile = file;
 		this.resetCoverCrop();
 		
 		const isPdf = /\.pdf$/i.test(file.name);
 		if (isPdf) {
-			if (!window.pdfjsLib) {
+			const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+			if (!globalPdfjs) {
 				Logger.error('[EpubState]', 'pdfjsLib is missing');
 				this.status = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';
 				this.isError = true;
@@ -382,7 +406,7 @@ export class EpubState {
 			try {
 				this.status = 'Đang trích xuất trang bìa từ tệp PDF...';
 				const arrayBuffer = await file.arrayBuffer();
-				const doc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+				const doc = await globalPdfjs.getDocument({ data: arrayBuffer }).promise;
 				const page = await doc.getPage(1);
 				// Cover page render (scale 2.0 is good for high quality)
 				const viewport = page.getViewport({ scale: 2.0 });
@@ -390,17 +414,20 @@ export class EpubState {
 				canvas.width = viewport.width;
 				canvas.height = viewport.height;
 				const ctx = canvas.getContext('2d');
-				await page.render({ canvasContext: ctx, viewport }).promise;
-				this.coverOriginalUrl = canvas.toDataURL('image/jpeg', 0.9);
-				this.coverWidth = canvas.width;
-				this.coverHeight = canvas.height;
+				if (ctx) {
+					await page.render({ canvasContext: ctx, viewport }).promise;
+					this.coverOriginalUrl = canvas.toDataURL('image/jpeg', 0.9);
+					this.coverWidth = canvas.width;
+					this.coverHeight = canvas.height;
+				}
 				page.cleanup();
 				doc.destroy();
 				this.status = '';
 				this.isError = false;
-			} catch (err) {
+			} catch (err: unknown) {
+				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubState]', 'Error extracting PDF page 1', err);
-				this.status = 'Lỗi trích xuất PDF: ' + err.message;
+				this.status = 'Lỗi trích xuất PDF: ' + errorMsg;
 				this.isError = true;
 			}
 		} else {
@@ -409,17 +436,17 @@ export class EpubState {
 			reader.onload = (e) => {
 				const img = new Image();
 				img.onload = () => {
-					this.coverOriginalUrl = e.target.result;
+					this.coverOriginalUrl = (e.target?.result as string) || null;
 					this.coverWidth = img.naturalWidth;
 					this.coverHeight = img.naturalHeight;
 				};
-				img.src = e.target.result;
+				img.src = e.target?.result as string;
 			};
 			reader.readAsDataURL(file);
 		}
 	}
 
-	removeCoverFile() {
+	removeCoverFile(): void {
 		this.coverFile = null;
 		this.coverOriginalUrl = null;
 		this.coverWidth = 0;
@@ -427,7 +454,7 @@ export class EpubState {
 		this.resetCoverCrop();
 	}
 
-	async getOptimizedCoverBlob() {
+	async getOptimizedCoverBlob(): Promise<CoverBlobItem | null> {
 		if (!this.coverOriginalUrl) return null;
 		return new Promise((resolve, reject) => {
 			const img = new Image();
@@ -452,26 +479,31 @@ export class EpubState {
 				canvas.height = Math.round(croppedH * scale);
 				
 				const ctx = canvas.getContext('2d');
-				ctx.drawImage(
-					img,
-					safeLeft, safeTop, croppedW, croppedH,
-					0, 0, canvas.width, canvas.height
-				);
+				if (ctx) {
+					ctx.drawImage(
+						img,
+						safeLeft, safeTop, croppedW, croppedH,
+						0, 0, canvas.width, canvas.height
+					);
+				}
 				canvas.toBlob((blob) => {
 					if (blob) {
-						blob.width = canvas.width;
-						blob.height = canvas.height;
+						const coverBlob = blob as CoverBlobItem;
+						coverBlob.width = canvas.width;
+						coverBlob.height = canvas.height;
+						resolve(coverBlob);
+					} else {
+						resolve(null);
 					}
-					resolve(blob);
 				}, 'image/jpeg', 0.82); // Good compression quality
 			};
-			img.onerror = (err) => reject(new Error('Lỗi tải ảnh bìa: ' + err.message));
-			img.src = this.coverOriginalUrl;
+			img.onerror = (err) => reject(new Error('Lỗi tải ảnh bìa: ' + err));
+			img.src = this.coverOriginalUrl!;
 		});
 	}
 
-	async processEpub() {
-		Logger.debug('[EpubState]', 'processEpub invoked, chapters count:', this.epubChapters.length, 'fileType:', this.fileType);
+	async processEpub(): Promise<void> {
+		Logger.debug('[EpubState]', `processEpub invoked, chapters count: ${this.epubChapters.length}, fileType: ${this.fileType}`);
 		if (this.epubChapters.length === 0) {
 			Logger.warn('[EpubState]', 'processEpub aborted: epubChapters is empty');
 			this.status = 'Không có chương nào để đóng gói. Vui lòng chọn tệp hợp lệ.';
@@ -484,7 +516,7 @@ export class EpubState {
 
 		try {
 			// Extract and optimize cover if uploaded
-			let coverBlob = null;
+			let coverBlob: CoverBlobItem | null = null;
 			if (this.coverOriginalUrl) {
 				this.status = 'Đang tối ưu hóa ảnh bìa...';
 				coverBlob = await this.getOptimizedCoverBlob();
@@ -497,7 +529,7 @@ export class EpubState {
 				publisher: this.publisher.trim()
 			};
 			const isTxtMode = this.fileType === 'txt';
-			const jacket = {
+			const jacket: EpubJacketConfig = {
 				enabled: true,
 				templateId: this.jacketTemplateId,
 				title: this.title.trim() || 'Không tên',
@@ -505,10 +537,10 @@ export class EpubState {
 				originalTitle: this.originalTitle.trim(),
 				publisher: this.publisher.trim(),
 				distributor: this.distributor.trim(),
-				translator: this.translator.trim() // Pass translator to jacket
+				translator: this.translator.trim()
 			};
-			let fontBlobs = {};
-			const neededFonts = [];
+			const fontBlobs: Record<string, Blob> = {};
+			const neededFonts: string[] = [];
 			if (this.jacketFont !== 'default' && !neededFonts.includes(this.jacketFont)) {
 				neededFonts.push(this.jacketFont);
 			}
@@ -539,7 +571,7 @@ export class EpubState {
 				}
 			}
 
-			const fontsConfig = {
+			const fontsConfig: EpubFontsConfig = {
 				jacketFont: this.jacketFont,
 				h1Font: this.h1Font,
 				h2Font: this.h2Font,
@@ -547,9 +579,9 @@ export class EpubState {
 				blobs: fontBlobs
 			};
 
-			const ornamentsConfig = {};
+			const ornamentsConfig: OrnamentsConfig = {};
 			if (this.chapterOrnamentFile) {
-				const ext = this.chapterOrnamentFile.name.split('.').pop().toLowerCase();
+				const ext = this.chapterOrnamentFile.name.split('.').pop()?.toLowerCase() || 'png';
 				ornamentsConfig.chapterOrnament = {
 					blob: this.chapterOrnamentFile,
 					fileName: `pre-chap.${ext}`,
@@ -557,7 +589,7 @@ export class EpubState {
 				};
 			}
 			if (this.subchapterOrnamentFile) {
-				const ext = this.subchapterOrnamentFile.name.split('.').pop().toLowerCase();
+				const ext = this.subchapterOrnamentFile.name.split('.').pop()?.toLowerCase() || 'png';
 				ornamentsConfig.subchapterOrnament = {
 					blob: this.subchapterOrnamentFile,
 					fileName: `pre-small-chap.${ext}`,
@@ -571,9 +603,10 @@ export class EpubState {
 			Logger.info('[EpubState]', 'buildEpubBlob returned blob successfully');
 			this.epubBlob = blob;
 			this.status = `Hoàn tất — ${this.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;
-		} catch (err) {
+		} catch (err: unknown) {
+			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubState]', 'ERROR in processEpub', err);
-			this.status = 'Có lỗi khi đóng gói: ' + err.message;
+			this.status = 'Có lỗi khi đóng gói: ' + errorMsg;
 			this.isError = true;
 		} finally {
 			this.processing = false;

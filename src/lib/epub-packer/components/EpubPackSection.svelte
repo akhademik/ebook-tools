@@ -1,8 +1,14 @@
-<script>
+<script lang="ts">
   import Input from "$lib/components/Input.svelte";
   import Button from "$lib/components/Button.svelte";
+  import type { EpubState } from "../epub-state.svelte.js";
 
-  let { epubState, onDownload } = $props();
+  interface EpubPackSectionProps {
+    epubState: EpubState;
+    onDownload: () => void;
+  }
+
+  let { epubState, onDownload }: EpubPackSectionProps = $props();
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">

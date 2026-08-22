@@ -1,4 +1,15 @@
-<script>
+<script lang="ts">
+	interface DropZoneProps {
+		accept?: string;
+		multiple?: boolean;
+		onSelect?: (file: File) => void;
+		onSelectMultiple?: (files: FileList | File[]) => void;
+		title?: string;
+		subtitle?: string;
+		selectedFile?: File | null;
+		selectedCount?: number;
+	}
+
 	let {
 		accept = '',
 		multiple = false,
@@ -8,20 +19,20 @@
 		subtitle = '',
 		selectedFile = null,
 		selectedCount = 0
-	} = $props();
+	}: DropZoneProps = $props();
 
 	let isDragOver = $state(false);
 
-	function handleDragOver(e) {
+	function handleDragOver(e: DragEvent): void {
 		e.preventDefault();
 		isDragOver = true;
 	}
 
-	function handleDragLeave() {
+	function handleDragLeave(): void {
 		isDragOver = false;
 	}
 
-	function handleDrop(e) {
+	function handleDrop(e: DragEvent): void {
 		e.preventDefault();
 		isDragOver = false;
 		if (multiple && onSelectMultiple && e.dataTransfer?.files?.length) {
@@ -32,11 +43,12 @@
 		}
 	}
 
-	function handleFileChange(e) {
-		if (multiple && onSelectMultiple && e.target.files?.length) {
-			onSelectMultiple(e.target.files);
+	function handleFileChange(e: Event): void {
+		const target = e.target as HTMLInputElement;
+		if (multiple && onSelectMultiple && target.files?.length) {
+			onSelectMultiple(target.files);
 		} else {
-			const file = e.target.files?.[0];
+			const file = target.files?.[0];
 			if (file && onSelect) onSelect(file);
 		}
 	}

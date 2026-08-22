@@ -1,25 +1,40 @@
-import { escapeXml } from "$lib/helpers/helpers.js";
-import introCss from "./css-template/intro-css.css?raw";
+// src/lib/epub-packer/templates/jacket-templates.ts
+import { escapeXml } from '$lib/utils/xml.js';
+import introCss from './css-template/intro-css.css?raw';
 
-function getJacketCss(templateId) {
+function getJacketCss(templateId: number): string {
   const regex = new RegExp(
     `\\/\\*\\s*intro-${templateId}\\s*\\*\\/([\\s\\S]*?)(?:\\/\\*\\s*intro-\\d+\\s*\\*\\/|$)`,
   );
   const match = introCss.match(regex);
-  return match ? match[1].trim() : "";
+  return match ? match[1].trim() : '';
 }
 
-const formatTranslator = (t) => {
-  if (!t) return "";
+const formatTranslator = (t?: string): string => {
+  if (!t) return '';
   const trimmed = t.trim();
   if (/dịch$/i.test(trimmed)) return trimmed;
-  return trimmed + " dịch";
+  return trimmed + ' dịch';
 };
 
-export const JACKET_TEMPLATES = [
+export interface JacketTemplate {
+  id: number;
+  name: string;
+  css: string;
+  render: (
+    title: string,
+    original: string,
+    author: string,
+    translator: string,
+    publisher: string,
+    distributor: string,
+  ) => string;
+}
+
+export const JACKET_TEMPLATES: JacketTemplate[] = [
   {
     id: 1,
-    name: "Mẫu 1 - Bất đối xứng",
+    name: 'Mẫu 1 - Bất đối xứng',
     get css() {
       return getJacketCss(1);
     },
@@ -40,13 +55,13 @@ export const JACKET_TEMPLATES = [
       if (publisher) html += `  <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `  <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 2,
-    name: "Mẫu 2 - Cột dọc",
+    name: 'Mẫu 2 - Cột dọc',
     get css() {
       return getJacketCss(2);
     },
@@ -65,14 +80,14 @@ export const JACKET_TEMPLATES = [
         html += `    <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `    <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "  </div>\n";
-      html += "</div>";
+      html += '  </div>\n';
+      html += '</div>';
       return html;
     },
   },
   {
     id: 3,
-    name: "Mẫu 3 - Đường chéo",
+    name: 'Mẫu 3 - Đường chéo',
     get css() {
       return getJacketCss(3);
     },
@@ -89,13 +104,13 @@ export const JACKET_TEMPLATES = [
       if (publisher) html += `  <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `  <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 4,
-    name: "Mẫu 4 - Khung lệch",
+    name: 'Mẫu 4 - Khung lệch',
     get css() {
       return getJacketCss(4);
     },
@@ -112,14 +127,14 @@ export const JACKET_TEMPLATES = [
         html += `    <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `    <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "  </div>\n";
-      html += "</div>";
+      html += '  </div>\n';
+      html += '</div>';
       return html;
     },
   },
   {
     id: 5,
-    name: "Mẫu 5 - Ngoặc góc",
+    name: 'Mẫu 5 - Ngoặc góc',
     get css() {
       return getJacketCss(5);
     },
@@ -138,13 +153,13 @@ export const JACKET_TEMPLATES = [
       if (publisher) html += `  <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `  <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 6,
-    name: "Mẫu 6 - Hai cực",
+    name: 'Mẫu 6 - Hai cực',
     get css() {
       return getJacketCss(6);
     },
@@ -154,7 +169,7 @@ export const JACKET_TEMPLATES = [
       if (title) html += `    <p class="title">${escapeXml(title)}</p>\n`;
       if (original)
         html += `    <p class="original">${escapeXml(original)}</p>\n`;
-      html += "  </div>\n";
+      html += '  </div>\n';
       html += '  <div class="bottom">\n';
       if (author) html += `    <p class="author">${escapeXml(author)}</p>\n`;
       if (translator)
@@ -163,14 +178,14 @@ export const JACKET_TEMPLATES = [
         html += `    <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `    <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "  </div>\n";
-      html += "</div>";
+      html += '  </div>\n';
+      html += '</div>';
       return html;
     },
   },
   {
     id: 7,
-    name: "Mẫu 7 - Báo chí",
+    name: 'Mẫu 7 - Báo chí',
     get css() {
       return getJacketCss(7);
     },
@@ -186,15 +201,15 @@ export const JACKET_TEMPLATES = [
         html += `  <p class="translator">${escapeXml(formatTranslator(translator))}</p>\n`;
       const metaParts = [publisher, distributor].filter(Boolean);
       if (metaParts.length > 0) {
-        html += `  <p class="meta">${metaParts.map(escapeXml).join(" &nbsp;•&nbsp; ")}</p>\n`;
+        html += `  <p class="meta">${metaParts.map(escapeXml).join(' &nbsp;•&nbsp; ')}</p>\n`;
       }
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 8,
-    name: "Mẫu 8 - Nhãn dán",
+    name: 'Mẫu 8 - Nhãn dán',
     get css() {
       return getJacketCss(8);
     },
@@ -212,15 +227,15 @@ export const JACKET_TEMPLATES = [
         for (const t of tags) {
           html += `    <span class="tag">${escapeXml(t)}</span>\n`;
         }
-        html += "  </div>\n";
+        html += '  </div>\n';
       }
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 9,
-    name: "Mẫu 9 - Viền chấm",
+    name: 'Mẫu 9 - Viền chấm',
     get css() {
       return getJacketCss(9);
     },
@@ -235,13 +250,13 @@ export const JACKET_TEMPLATES = [
       if (publisher) html += `  <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `  <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },
   {
     id: 10,
-    name: "Mẫu 10 - Đối xứng tỏa tâm",
+    name: 'Mẫu 10 - Đối xứng tỏa tâm',
     get css() {
       return getJacketCss(10);
     },
@@ -262,7 +277,7 @@ export const JACKET_TEMPLATES = [
       if (publisher) html += `  <p class="meta">${escapeXml(publisher)}</p>\n`;
       if (distributor)
         html += `  <p class="meta">${escapeXml(distributor)}</p>\n`;
-      html += "</div>";
+      html += '</div>';
       return html;
     },
   },

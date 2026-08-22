@@ -1,8 +1,9 @@
-// src/lib/epub-packer/xml-builders/chapter-builder.js
+// src/lib/epub-packer/xml-builders/chapter-builder.ts
 import { escapeXml } from '$lib/utils/xml.js';
 import * as logger from '$lib/helpers/logger.js';
+import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from './opf-builder.js';
 
-export function mergeBrokenParagraphs(html) {
+export function mergeBrokenParagraphs(html: string): string {
   logger.log(
     'epub-packer',
     'mergeBrokenParagraphs called, html length:',
@@ -37,12 +38,12 @@ export function mergeBrokenParagraphs(html) {
 }
 
 export function buildChapterXhtml(
-  meta,
-  chapter,
+  meta: EpubMetadata,
+  chapter: EpubChapterItem,
   skipParagraphMerge = false,
   customCss = '',
-  ornaments = null,
-) {
+  ornaments: OrnamentsConfig | null = null,
+): string {
   logger.log(
     'epub-packer',
     'buildChapterXhtml called for:',
@@ -51,8 +52,8 @@ export function buildChapterXhtml(
     skipParagraphMerge,
   );
   let content = skipParagraphMerge
-    ? chapter.html
-    : mergeBrokenParagraphs(chapter.html);
+    ? (chapter.html || '')
+    : mergeBrokenParagraphs(chapter.html || '');
   content = content.replace(
     /<p>\s*###\s*<\/p>/g,
     '<p class="scene-break-big" role="separator">• • •</p>',
@@ -88,9 +89,9 @@ export function buildChapterXhtml(
     content = content.replace(
       /(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
       (match, p1, p2, p3, p4) => {
-        let updatedP2;
+        let updatedP2: string;
         if (p2.includes('class=')) {
-          updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
+          updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
             return `class="${classNames} has-dropcap"`;
           });
         } else {
@@ -107,9 +108,9 @@ export function buildChapterXhtml(
         if (pAttrs.includes('has-dropcap')) {
           return match;
         }
-        let updatedPAttrs;
+        let updatedPAttrs: string;
         if (pAttrs.includes('class=')) {
-          updatedPAttrs = pAttrs.replace(/class=["']([^"']*)["']/i, (cMatch, classNames) => {
+          updatedPAttrs = pAttrs.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
             return `class="${classNames} has-dropcap"`;
           });
         } else {
@@ -122,7 +123,7 @@ export function buildChapterXhtml(
 
   // Clean up internal marker classes (e.g. no-toc) from heading tags in final XHTML
   content = content.replace(/(<h[12]\b[^>]*>)/gi, (match) => {
-    return match.replace(/class=["']([^"']*)["']/gi, (cMatch, classNames) => {
+    return match.replace(/class=["']([^"']*)["']/gi, (_cMatch, classNames) => {
       const cleaned = classNames.replace(/\bno-toc\b/g, '').trim().replace(/\s+/g, ' ');
       return cleaned ? `class="${cleaned}"` : '';
     }).replace(/\s{2,}/g, ' ').replace(/\s+>/g, '>');

@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest';
 import { setDebug, isDebug, log, warn, error } from '../src/lib/helpers/logger.js';
 
 describe('logger tests', () => {
-  let consoleLogSpy;
-  let consoleWarnSpy;
-  let consoleErrorSpy;
+  let consoleLogSpy: MockInstance;
+  let consoleWarnSpy: MockInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -66,9 +66,9 @@ describe('logger tests', () => {
   });
 
   it('should initialize to true if window.DEBUG_LOG is set', async () => {
-    globalThis.window = { DEBUG_LOG: true };
+    (globalThis as any).window = { DEBUG_LOG: true };
     const tempLogger = await import(`../src/lib/helpers/logger.js?test=2`);
     expect(tempLogger.isDebug()).toBe(true);
-    delete globalThis.window;
+    delete (globalThis as any).window;
   });
 });

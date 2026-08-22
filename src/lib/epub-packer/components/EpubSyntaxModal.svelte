@@ -1,5 +1,9 @@
-<script>
-  let { show = $bindable(false) } = $props();
+<script lang="ts">
+  interface EpubSyntaxModalProps {
+    show?: boolean;
+  }
+
+  let { show = $bindable(false) }: EpubSyntaxModalProps = $props();
 </script>
 
 {#if show}

@@ -1,14 +1,20 @@
-// src/lib/epub-packer/xml-builders/nav-builder.js
+// src/lib/epub-packer/xml-builders/nav-builder.ts
 import { escapeXml } from '$lib/utils/xml.js';
+import type { EpubMetadata, EpubChapterItem } from './opf-builder.js';
 
-export function injectHeadingIds(chapters) {
+export interface TocEntry {
+  title: string;
+  url: string;
+}
+
+export function injectHeadingIds(chapters: EpubChapterItem[]): EpubChapterItem[] {
   let headingCounter = 0;
   return chapters.map((chapter) => {
     if (chapter.fileName === 'cover' || chapter.fileName === 'jacket' || !chapter.html) {
       return chapter;
     }
     const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
-    const newHtml = chapter.html.replace(headingRegex, (match, levelStr, attrs, innerContent) => {
+    const newHtml = chapter.html.replace(headingRegex, (_match, levelStr, attrs, innerContent) => {
       const level = parseInt(levelStr, 10);
       const idMatch = attrs.match(/id=["']([^"']*)["']/i);
       let updatedAttrs = attrs;
@@ -26,8 +32,8 @@ export function injectHeadingIds(chapters) {
   });
 }
 
-export function getTocEntries(chapters) {
-  const entries = [];
+export function getTocEntries(chapters: EpubChapterItem[]): TocEntry[] {
+  const entries: TocEntry[] = [];
   for (const c of chapters) {
     if (c.fileName === 'cover') {
       continue;
@@ -35,8 +41,8 @@ export function getTocEntries(chapters) {
     
     const html = c.html || '';
     const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
-    const headings = [];
-    let match;
+    const headings: Array<{ level: number; id: string; title: string }> = [];
+    let match: RegExpExecArray | null;
     
     headingRegex.lastIndex = 0;
     while ((match = headingRegex.exec(html)) !== null) {
@@ -101,7 +107,7 @@ export function getTocEntries(chapters) {
   return entries;
 }
 
-export function buildNavXhtml(meta, chapters) {
+export function buildNavXhtml(meta: EpubMetadata, chapters: EpubChapterItem[]): string {
   const processedChapters = injectHeadingIds(chapters);
   const entries = getTocEntries(processedChapters);
   const items = entries
@@ -127,7 +133,7 @@ export function buildNavXhtml(meta, chapters) {
   );
 }
 
-export function buildTocNcx(meta, chapters) {
+export function buildTocNcx(meta: EpubMetadata, chapters: EpubChapterItem[]): string {
   const processedChapters = injectHeadingIds(chapters);
   const entries = getTocEntries(processedChapters);
   const navPoints = entries

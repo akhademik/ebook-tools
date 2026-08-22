@@ -1,3 +1,4 @@
+// src/lib/epub-packer/parser/epub-single-grouper.ts
 import * as logger from '$lib/helpers/logger.js';
 
 import {
@@ -6,16 +7,25 @@ import {
 	scoreHeadingCandidate,
 	stripDecoration,
 	extractMarkerTitle,
-	extractChunkBlocks
+	extractChunkBlocks,
+	type MarkdownBlock,
+	type ChapterCutPoint,
+	type ChapterMatcher,
+	type RawFileItem
 } from './epub-chapter-utils.js';
 import { isRealParagraph } from './epub-ocr-utils.js';
-import { renderMarkdownBlocks } from './epub-markdown-utils.js';
+import { renderMarkdownBlocks, type RenderMarkdownBlocksOptions } from './epub-markdown-utils.js';
 
 // Single File mode marker finder
-export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuristicThreshold = 5) {
+export function findMarkersForSingle(
+	blocks: MarkdownBlock[],
+	chapterMatcher: ChapterMatcher | null,
+	useHeuristic: boolean,
+	heuristicThreshold = 5
+): ChapterCutPoint[] {
 	if (useHeuristic) {
 		// Single file mode: match headings anywhere, but paragraphs ONLY within the first 3 blocks and if no long prose paragraphs precede them
-		const heuristicCuts = [];
+		const heuristicCuts: ChapterCutPoint[] = [];
 		let firstTextBlockIdx = -1;
 		for (let i = 0; i < blocks.length; i++) {
 			if (blocks[i].text && blocks[i].text.trim()) {
@@ -55,7 +65,7 @@ export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuri
 
 	// Keyword mode (limitOneChapter is false)
 	if (!chapterMatcher) return [];
-	const raw = [];
+	const raw: ChapterCutPoint[] = [];
 
 	for (let i = 0; i < blocks.length; i++) {
 		const b = blocks[i];
@@ -72,7 +82,7 @@ export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuri
 	}
 
 	raw.sort((a, b) => a.blockIndex - b.blockIndex || a.offset - b.offset);
-	const deduped = [];
+	const deduped: ChapterCutPoint[] = [];
 	for (const p of raw) {
 		const last = deduped[deduped.length - 1];
 		if (!last || last.blockIndex !== p.blockIndex || last.offset !== p.offset) deduped.push(p);
@@ -80,10 +90,18 @@ export function findMarkersForSingle(blocks, chapterMatcher, useHeuristic, heuri
 	return deduped;
 }
 
-export function groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold = 5, options = {}) {
+export function groupChaptersSingle(
+	rawFilesList: RawFileItem[],
+	patternRaw: string,
+	useHeuristic: boolean,
+	_startPage?: number,
+	_endPage?: number,
+	heuristicThreshold = 5,
+	options: RenderMarkdownBlocksOptions = {}
+): any[] {
 	logger.log('epub-parser', 'groupChaptersSingle called, pattern:', patternRaw, 'useHeuristic:', useHeuristic);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const groups = [];
+	const groups: any[] = [];
 
 	const f = rawFilesList[0];
 	if (!f) return [];
