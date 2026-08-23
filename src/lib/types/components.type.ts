@@ -12,6 +12,7 @@ export interface ButtonProps {
 export interface DropZoneProps {
 	accept?: string;
 	multiple?: boolean;
+	disabled?: boolean;
 	onSelect?: (file: File) => void;
 	onSelectMultiple?: (files: FileList | File[]) => void;
 	title?: string;

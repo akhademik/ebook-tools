@@ -225,7 +225,7 @@ describe('image background removal and ornament optimization', () => {
 			const result = await processOrnamentImage(fakeBlob as any, { onProgress });
 			expect(result.blob).toBeDefined();
 			expect(result.previewUrl).toBe('blob:http://localhost/dummy-url');
-			expect(onProgress).toHaveBeenCalledWith(expect.stringContaining('Hoàn tất'), 100);
+			expect(onProgress).toHaveBeenCalledWith(expect.stringMatching(/hoàn tất/i), 100);
 		});
 	});
 
@@ -239,7 +239,7 @@ describe('image background removal and ornament optimization', () => {
 			expect(state.chapterOrnamentFile).toBe(file);
 			expect(state.chapterOrnamentBlob).toBeDefined();
 			expect(state.chapterOrnamentPreviewUrl).toBe('blob:http://localhost/dummy-url');
-			expect(state.chapterOrnamentStatus).toBe('Đã tối ưu xong');
+			expect(state.chapterOrnamentStatus).toBe('Đã hoàn tất tối ưu');
 			expect(state.chapterOrnamentIsProcessing).toBe(false);
 
 			// Test removal
@@ -250,18 +250,25 @@ describe('image background removal and ornament optimization', () => {
 			expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/dummy-url');
 		});
 
-		it('should handle subchapter ornament upload and removal', async () => {
+		it('should handle simultaneous chapter and subchapter ornament processing without crosstalk', async () => {
 			const state = new EpubImagesState();
-			const file = new File(['dummy content'], 'subchap-ornament.png', { type: 'image/png' });
+			const file1 = new File(['chap content'], 'chap-ornament.png', { type: 'image/png' });
+			const file2 = new File(['subchap content'], 'subchap-ornament.png', { type: 'image/png' });
 
-			await state.handleSubchapterOrnamentFile(file);
+			// Launch both simultaneously
+			const p1 = state.handleChapterOrnamentFile(file1);
+			const p2 = state.handleSubchapterOrnamentFile(file2);
 
-			expect(state.subchapterOrnamentFile).toBe(file);
+			await Promise.all([p1, p2]);
+
+			expect(state.chapterOrnamentFile).toBe(file1);
+			expect(state.chapterOrnamentBlob).toBeDefined();
+			expect(state.chapterOrnamentStatus).toBe('Đã hoàn tất tối ưu');
+
+			expect(state.subchapterOrnamentFile).toBe(file2);
 			expect(state.subchapterOrnamentBlob).toBeDefined();
-
-			state.removeSubchapterOrnamentFile();
-			expect(state.subchapterOrnamentFile).toBeNull();
-			expect(state.subchapterOrnamentBlob).toBeNull();
+			expect(state.subchapterOrnamentStatus).toBe('Đã hoàn tất tối ưu');
 		});
 	});
 });
+

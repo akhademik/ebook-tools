@@ -4,6 +4,7 @@
 	let {
 		accept = '',
 		multiple = false,
+		disabled = false,
 		onSelect,
 		onSelectMultiple,
 		title = 'Kéo thả hoặc click để chọn tệp',
@@ -15,6 +16,7 @@
 	let isDragOver = $state(false);
 
 	function handleDragOver(e: DragEvent): void {
+		if (disabled) return;
 		e.preventDefault();
 		isDragOver = true;
 	}
@@ -24,6 +26,7 @@
 	}
 
 	function handleDrop(e: DragEvent): void {
+		if (disabled) return;
 		e.preventDefault();
 		isDragOver = false;
 		if (multiple && onSelectMultiple && e.dataTransfer?.files?.length) {
@@ -35,24 +38,34 @@
 	}
 
 	function handleFileChange(e: Event): void {
+		if (disabled) return;
 		const target = e.target as HTMLInputElement;
-		if (multiple && onSelectMultiple && target.files?.length) {
-			onSelectMultiple(target.files);
+		const files = target.files ? Array.from(target.files) : [];
+		if (multiple && onSelectMultiple && files.length) {
+			onSelectMultiple(files);
 		} else {
-			const file = target.files?.[0];
+			const file = files[0];
 			if (file && onSelect) onSelect(file);
 		}
+		target.value = '';
 	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="border border-dashed border-border-color rounded-xl p-10 text-center cursor-pointer transition-colors relative {isDragOver ? 'border-accent-color bg-accent-soft/30' : 'hover:border-accent-color hover:bg-accent-soft/10'}"
+	class="border border-dashed border-border-color rounded-xl p-10 text-center transition-colors relative {disabled ? 'opacity-50 cursor-not-allowed bg-surface-alt/50' : 'cursor-pointer'} {isDragOver && !disabled ? 'border-accent-color bg-accent-soft/30' : !disabled ? 'hover:border-accent-color hover:bg-accent-soft/10' : ''}"
 	ondragover={handleDragOver}
 	ondragleave={handleDragLeave}
 	ondrop={handleDrop}
 >
-	<input type="file" {accept} {multiple} class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange={handleFileChange} oninput={handleFileChange} />
+	<input
+		type="file"
+		{accept}
+		{multiple}
+		{disabled}
+		class="absolute inset-0 opacity-0 w-full h-full {disabled ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
+		onchange={handleFileChange}
+	/>
 	<p class="text-base font-semibold mb-1">{title}</p>
 	{#if subtitle}
 		<p class="text-sm text-text-mute">{subtitle}</p>

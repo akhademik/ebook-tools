@@ -51,7 +51,7 @@
               />
             </div>
             <div class="text-xs">
-              <div class="font-semibold text-text-bright">Đã tách nền & tối ưu</div>
+              <div class="font-semibold text-text-bright">Đã hoàn tất tối ưu</div>
               <div class="text-text-mute font-mono">PNG trong suốt</div>
             </div>
           </div>
@@ -61,10 +61,10 @@
             type="button">Xóa ảnh</button
           >
         </div>
-      {:else if epubState.images.chapterOrnamentFile}
-        <div class="flex justify-end">
+      {:else if epubState.images.chapterOrnamentError}
+        <div class="flex justify-end mt-1">
           <button
-            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
             onclick={() => epubState.images.removeChapterOrnamentFile()}
             type="button">Xóa ảnh</button
           >
@@ -103,7 +103,7 @@
               />
             </div>
             <div class="text-xs">
-              <div class="font-semibold text-text-bright">Đã tách nền & tối ưu</div>
+              <div class="font-semibold text-text-bright">Đã hoàn tất tối ưu</div>
               <div class="text-text-mute font-mono">PNG trong suốt</div>
             </div>
           </div>
@@ -113,10 +113,10 @@
             type="button">Xóa ảnh</button
           >
         </div>
-      {:else if epubState.images.subchapterOrnamentFile}
-        <div class="flex justify-end">
+      {:else if epubState.images.subchapterOrnamentError}
+        <div class="flex justify-end mt-1">
           <button
-            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
             onclick={() => epubState.images.removeSubchapterOrnamentFile()}
             type="button">Xóa ảnh</button
           >
@@ -125,4 +125,5 @@
     </div>
   </div>
 </div>
+
 

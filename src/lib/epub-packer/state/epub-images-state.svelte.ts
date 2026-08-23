@@ -119,7 +119,7 @@ export class EpubImagesState {
 		if (!file) return;
 		this.chapterOrnamentFile = file;
 		this.chapterOrnamentError = null;
-		this.chapterOrnamentStatus = 'Đang chuẩn bị xử lý ảnh...';
+		this.chapterOrnamentStatus = 'Đang xếp hàng chờ xử lý...';
 		this.chapterOrnamentIsProcessing = true;
 
 		if (this.chapterOrnamentPreviewUrl) {
@@ -135,7 +135,7 @@ export class EpubImagesState {
 			});
 			this.chapterOrnamentBlob = result.blob;
 			this.chapterOrnamentPreviewUrl = result.previewUrl;
-			this.chapterOrnamentStatus = 'Đã tối ưu xong';
+			this.chapterOrnamentStatus = 'Đã hoàn tất tối ưu';
 		} catch (err) {
 			Logger.error('[EpubImagesState]', 'Error processing chapter ornament', err);
 			this.chapterOrnamentError = err instanceof Error ? err.message : String(err);
@@ -161,7 +161,7 @@ export class EpubImagesState {
 		if (!file) return;
 		this.subchapterOrnamentFile = file;
 		this.subchapterOrnamentError = null;
-		this.subchapterOrnamentStatus = 'Đang chuẩn bị xử lý ảnh...';
+		this.subchapterOrnamentStatus = 'Đang xếp hàng chờ xử lý...';
 		this.subchapterOrnamentIsProcessing = true;
 
 		if (this.subchapterOrnamentPreviewUrl) {
@@ -177,7 +177,7 @@ export class EpubImagesState {
 			});
 			this.subchapterOrnamentBlob = result.blob;
 			this.subchapterOrnamentPreviewUrl = result.previewUrl;
-			this.subchapterOrnamentStatus = 'Đã tối ưu xong';
+			this.subchapterOrnamentStatus = 'Đã hoàn tất tối ưu';
 		} catch (err) {
 			Logger.error('[EpubImagesState]', 'Error processing subchapter ornament', err);
 			this.subchapterOrnamentError = err instanceof Error ? err.message : String(err);

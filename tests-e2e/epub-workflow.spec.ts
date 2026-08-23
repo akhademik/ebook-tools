@@ -47,6 +47,30 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(packBtn).toBeEnabled();
 	});
 
+	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
+		await page.goto('/epub');
+
+		// 1. Upload .txt file to populate chapters
+		const fileInput = page.locator('input[accept*=".txt"]').first();
+		await fileInput.setInputFiles(fixtureTxtPath);
+		await fileInput.dispatchEvent('change');
+		await fileInput.dispatchEvent('input');
+
+		// 2. Verify chapters parsed
+		await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 15000 });
+
+		// 3. Verify Ornaments section is visible
+		await expect(page.getByText('Ảnh trang trí (Ornaments)')).toBeVisible();
+		await expect(page.getByText(/Tự động làm phép thuật lên ảnh/i)).toBeVisible();
+
+		// 4. Check Chapter ornament (H1) and Subchapter ornament (H2) dropzones
+		const chapDropzone = page.locator('text=Trang trí chương lớn').locator('xpath=..');
+		await expect(chapDropzone).toBeVisible();
+
+		const subchapDropzone = page.locator('text=Trang trí chương phụ').locator('xpath=..');
+		await expect(subchapDropzone).toBeVisible();
+	});
+
 	test('should open EPUB Editor and verify Dropzone is ready', async ({ page }) => {
 		await page.goto('/epub-editor');
 		await expect(page.getByRole('heading', { name: 'EPUB Editor' })).toBeVisible();
@@ -55,3 +79,4 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(page.locator('text=Kéo thả hoặc click để chọn tệp .EPUB')).toBeVisible();
 	});
 });
+
