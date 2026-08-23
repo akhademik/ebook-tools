@@ -1,8 +1,12 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
-  import type { EpubSectionBaseProps } from "$lib/types";
+  import type { EpubState } from "../epub-state.svelte";
 
-  let { epubState }: EpubSectionBaseProps = $props();
+  interface Props {
+    epubState: EpubState;
+  }
+
+  let { epubState }: Props = $props();
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">

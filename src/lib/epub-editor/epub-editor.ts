@@ -29,8 +29,48 @@ export function categorizeFile(path: string): EpubFileCategory {
 
 /**
  * Extract reading order from the EPUB spine if present in OPF content.
+ * Uses DOMParser for robust XML structural parsing with fallback.
  */
-function parseSpineOrder(opfContent: string, opfPath: string): string[] {
+export function parseSpineOrder(opfContent: string, opfPath: string): string[] {
+	if (typeof DOMParser !== 'undefined') {
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(opfContent, 'application/xml');
+			const parserError = doc.querySelector('parsererror');
+			if (!parserError) {
+				const manifestMap = new Map<string, string>(); // id -> resolvedPath
+				const itemEls = Array.from(doc.querySelectorAll('manifest > item, item'));
+				for (const item of itemEls) {
+					const id = item.getAttribute('id');
+					const href = item.getAttribute('href');
+					if (id && href) {
+						const resolved = resolveRelativePath(opfPath, href);
+						manifestMap.set(id, resolved);
+					}
+				}
+
+				const spinePaths: string[] = [];
+				const itemrefEls = Array.from(doc.querySelectorAll('spine > itemref, itemref'));
+				for (const itemref of itemrefEls) {
+					const idref = itemref.getAttribute('idref');
+					if (idref) {
+						const path = manifestMap.get(idref);
+						if (path && !spinePaths.includes(path)) {
+							spinePaths.push(path);
+						}
+					}
+				}
+
+				if (spinePaths.length > 0) {
+					return spinePaths;
+				}
+			}
+		} catch {
+			// Fallback to regex parser
+		}
+	}
+
+	// Fallback regex parser for non-DOM environments or broken XML
 	const manifestMap = new Map<string, string>(); // id -> resolvedPath
 	const itemRegex = /<item\b[^>]*>/gi;
 	let match: RegExpExecArray | null;
@@ -40,7 +80,7 @@ function parseSpineOrder(opfContent: string, opfPath: string): string[] {
 		const idMatch = /id\s*=\s*["']([^"']+)["']/i.exec(tag);
 		const hrefMatch = /href\s*=\s*["']([^"']+)["']/i.exec(tag);
 		if (idMatch && hrefMatch) {
-			const resolved = resolveRelativePath(opfPath, decodeURIComponent(hrefMatch[1]));
+			const resolved = resolveRelativePath(opfPath, hrefMatch[1]);
 			manifestMap.set(idMatch[1], resolved);
 		}
 	}
@@ -133,8 +173,14 @@ export async function parseZipEntries(zip: JSZip): Promise<EpubEditorFileItem[]>
  */
 export function resolveRelativePath(baseFilePath: string, relativePath: string): string {
 	// Strip any query or hash from the relative path
-	const cleanRel = relativePath.split('?')[0].split('#')[0].trim();
+	let cleanRel = relativePath.split('?')[0].split('#')[0].trim();
 	if (!cleanRel) return baseFilePath;
+
+	try {
+		cleanRel = decodeURIComponent(cleanRel);
+	} catch {
+		// Ignore decode error for malformed URI sequences
+	}
 
 	// If absolute-like (starts with /), treat from root
 	if (cleanRel.startsWith('/')) {
@@ -190,7 +236,20 @@ export function extractLinkedCssPaths(html: string, baseHtmlPath: string): strin
 }
 
 /**
- * Compute SHA-1 hash of string input into a 20-byte Uint8Array.
+ * Compute SHA-1 hash asynchronously using standard Web Crypto API (crypto.subtle)
+ * with graceful fallback to pure JS implementation.
+ */
+export async function sha1Async(input: string): Promise<Uint8Array> {
+	if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
+		const data = new TextEncoder().encode(input);
+		const hashBuffer = await globalThis.crypto.subtle.digest('SHA-1', data);
+		return new Uint8Array(hashBuffer);
+	}
+	return sha1(input);
+}
+
+/**
+ * Compute SHA-1 hash of string input into a 20-byte Uint8Array (pure JS implementation).
  */
 export function sha1(input: string): Uint8Array {
 	const utf8 = new TextEncoder().encode(input);
@@ -317,8 +376,48 @@ function deobfuscateAdobeFont(fontBytes: Uint8Array, identifier: string): Uint8A
 
 /**
  * Extract publication identifiers from OPF XML content.
+ * Uses DOMParser for robust XML structural handling with regex fallback.
  */
-function extractPublicationIdentifiers(opfContent: string): string[] {
+export function extractPublicationIdentifiers(opfContent: string): string[] {
+	if (typeof DOMParser !== 'undefined') {
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(opfContent, 'application/xml');
+			const parserError = doc.querySelector('parsererror');
+			if (!parserError) {
+				const ids: string[] = [];
+				const pkgEl = doc.querySelector('package');
+				const uniqueIdAttr = pkgEl?.getAttribute('unique-identifier');
+
+				const metadataEl = doc.querySelector('metadata') || doc.documentElement;
+				const allChildren = Array.from(metadataEl.getElementsByTagName('*'));
+				const identifierEls = allChildren.filter((el) => {
+					return el.localName === 'identifier' || el.tagName.toLowerCase().endsWith(':identifier');
+				});
+
+				if (uniqueIdAttr) {
+					const uniqueEl = identifierEls.find((el) => el.getAttribute('id') === uniqueIdAttr);
+					if (uniqueEl?.textContent?.trim()) {
+						ids.push(uniqueEl.textContent.trim());
+					}
+				}
+
+				for (const el of identifierEls) {
+					const val = el.textContent?.trim();
+					if (val && !ids.includes(val)) {
+						ids.push(val);
+					}
+				}
+
+				if (ids.length > 0) {
+					return ids;
+				}
+			}
+		} catch {
+			// Fallback to regex parser
+		}
+	}
+
 	const ids: string[] = [];
 
 	const pkgMatch = /<package\b[^>]*unique-identifier\s*=\s*["']([^"']+)["']/i.exec(opfContent);

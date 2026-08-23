@@ -1,12 +1,21 @@
 <!-- src/lib/epub-editor/components/EpubEditorModal.svelte -->
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
-  import type { EpubEditorModalProps } from "$lib/types";
+  import type { EpubEditorState } from "../epub-editor-state.svelte";
   import EpubEditorSidebar from "./EpubEditorSidebar.svelte";
   import EpubEditorCodePane from "./EpubEditorCodePane.svelte";
   import EpubEditorPreviewPane from "./EpubEditorPreviewPane.svelte";
+  import EpubCleanerModal from "./EpubCleanerModal.svelte";
+  import EpubValidatorModal from "./EpubValidatorModal.svelte";
+  import EpubMetadataModal from "./EpubMetadataModal.svelte";
 
-  let { show = $bindable(false), editorState, onClose }: EpubEditorModalProps = $props();
+  interface Props {
+    show?: boolean;
+    editorState: EpubEditorState;
+    onClose?: () => void;
+  }
+
+  let { show = $bindable(false), editorState, onClose }: Props = $props();
 
   let activeView = $state<"split" | "code" | "preview">("split");
   let isSidebarOpen = $state(true);
@@ -147,8 +156,43 @@
       </div>
 
       <!-- Right: Action buttons -->
-      <div class="flex items-center gap-2.5 shrink-0">
-        <div class="w-36 sm:w-44">
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+          onclick={() => {
+            editorState.isMetadataModalOpen = true;
+          }}
+          title="Chỉnh sửa Metadata (Tên sách, Tác giả) và Rebuild TOC"
+        >
+          ⚙️ Thông tin
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+          onclick={() => {
+            editorState.isValidatorModalOpen = true;
+          }}
+          title="Kiểm định tính hợp lệ & tương thích máy đọc sách Kobo / EPUB3"
+        >
+          🛡️ Kiểm định
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+          onclick={() => {
+            editorState.cleanAnalysis = null;
+            editorState.cleanReport = null;
+            editorState.isCleanerModalOpen = true;
+          }}
+          title="Quét và xóa ảnh, font, CSS thừa không được sử dụng"
+        >
+          🧹 Dọn rác
+        </button>
+
+        <div class="w-32 sm:w-40">
           <Button
             onclick={() => handleExport(false)}
             disabled={editorState.isExporting}
@@ -160,7 +204,7 @@
 
         <button
           type="button"
-          class="h-10 px-3.5 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
           onclick={requestClose}
           title="Đóng Editor"
         >
@@ -331,4 +375,22 @@
       </div>
     {/if}
   </div>
+
+  <!-- Modal Cleanup -->
+  <EpubCleanerModal
+    bind:show={editorState.isCleanerModalOpen}
+    {editorState}
+  />
+
+  <!-- Modal Validator -->
+  <EpubValidatorModal
+    bind:show={editorState.isValidatorModalOpen}
+    {editorState}
+  />
+
+  <!-- Modal Metadata -->
+  <EpubMetadataModal
+    bind:show={editorState.isMetadataModalOpen}
+    {editorState}
+  />
 {/if}

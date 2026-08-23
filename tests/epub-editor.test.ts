@@ -4,11 +4,14 @@ import JSZip from 'jszip';
 import {
 	categorizeFile,
 	parseZipEntries,
+	parseSpineOrder,
+	extractPublicationIdentifiers,
 	resolveRelativePath,
 	extractLinkedCssPaths,
 	buildPreviewHtml,
 	getAssetDataUrl,
 	sha1,
+	sha1Async,
 	isValidFontMagic,
 	deobfuscateIdpfFont,
 	validateHtml,
@@ -101,33 +104,174 @@ describe('EPUB Editor unit tests', () => {
 		});
 	});
 
-	describe('resolveRelativePath', () => {
-		it('should resolve relative paths in parent and sibling folders', () => {
-			expect(
-				resolveRelativePath('OEBPS/text/chap1.xhtml', '../styles/main.css')
-			).toBe('OEBPS/styles/main.css');
+	describe('parseSpineOrder (XML / DOMParser structural parsing)', () => {
+		it('should parse OPF with namespaces, comments, and reordered attributes', () => {
+			const opf = `<?xml version="1.0" encoding="utf-8"?>
+			<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId">
+				<!-- Manifest items with attributes in varying order and line breaks -->
+				<manifest>
+					<item
+						media-type="application/xhtml+xml"
+						href="text/intro.xhtml"
+						id="item-intro"
+					/>
+					<item media-type="application/xhtml+xml" id="item-c1" href="text/c1.xhtml"/>
+					<item id="style" href="styles/main.css" media-type="text/css"/>
+				</manifest>
+				<!-- Spine order -->
+				<spine page-progression-direction="ltr">
+					<itemref idref="item-intro" linear="yes" />
+					<itemref idref="item-c1" />
+				</spine>
+			</package>`;
 
-			expect(
-				resolveRelativePath('OEBPS/text/chap1.xhtml', 'sub/note.xhtml')
-			).toBe('OEBPS/text/sub/note.xhtml');
-
-			expect(
-				resolveRelativePath('OEBPS/text/sub/chap1.xhtml', '../../styles/main.css')
-			).toBe('OEBPS/styles/main.css');
-
-			expect(
-				resolveRelativePath('chap1.html', 'style.css')
-			).toBe('style.css');
-
-			expect(
-				resolveRelativePath('OEBPS/text/chap1.xhtml', '../images/pic.png#fig1?v=2')
-			).toBe('OEBPS/images/pic.png');
+			const spine = parseSpineOrder(opf, 'OEBPS/content.opf');
+			expect(spine).toEqual(['OEBPS/text/intro.xhtml', 'OEBPS/text/c1.xhtml']);
 		});
 
-		it('should handle leading slash root paths', () => {
-			expect(
-				resolveRelativePath('OEBPS/text/chap1.xhtml', '/OEBPS/styles/main.css')
-			).toBe('OEBPS/styles/main.css');
+		it('should handle OPF with fallback regex if XML is malformed', () => {
+			const brokenOpf = `
+				<package>
+					<metadata>
+						<title>Unclosed title & unescaped & ampersands
+					</metadata>
+					<manifest>
+						<item id="c1" href="chap1.xhtml" media-type="application/xhtml+xml"/>
+						<item id="c2" href="chap2.xhtml" media-type="application/xhtml+xml"/>
+					</manifest>
+					<spine>
+						<itemref idref="c1"/>
+						<itemref idref="c2"/>
+					</spine>
+				</package>
+			`;
+			const spine = parseSpineOrder(brokenOpf, 'content.opf');
+			expect(spine).toEqual(['chap1.xhtml', 'chap2.xhtml']);
+		});
+	});
+
+	describe('extractPublicationIdentifiers', () => {
+		it('should prioritize unique-identifier attribute and extract all identifier nodes', () => {
+			const opf = `
+				<package unique-identifier="PrimaryID" xmlns:dc="http://purl.org/dc/elements/1.1/">
+					<metadata>
+						<dc:identifier id="SecondaryID">978-0-123456-47-2</dc:identifier>
+						<dc:identifier id="PrimaryID">urn:uuid:11112222-3333-4444-5555-666677778888</dc:identifier>
+						<dc:identifier>doi:10.1000/182</dc:identifier>
+					</metadata>
+				</package>
+			`;
+
+			const ids = extractPublicationIdentifiers(opf);
+			expect(ids[0]).toBe('urn:uuid:11112222-3333-4444-5555-666677778888');
+			expect(ids).toContain('978-0-123456-47-2');
+			expect(ids).toContain('doi:10.1000/182');
+		});
+	});
+
+	describe('resolveRelativePath (table-driven tests)', () => {
+		const testCases: Array<{
+			name: string;
+			base: string;
+			rel: string;
+			expected: string;
+		}> = [
+			{
+				name: 'parent folder resolution (../)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../styles/main.css',
+				expected: 'OEBPS/styles/main.css'
+			},
+			{
+				name: 'multiple parent folders (../../)',
+				base: 'OEBPS/text/sub/chap1.xhtml',
+				rel: '../../styles/main.css',
+				expected: 'OEBPS/styles/main.css'
+			},
+			{
+				name: 'explicit current directory (./)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: './chap2.xhtml',
+				expected: 'OEBPS/text/chap2.xhtml'
+			},
+			{
+				name: 'sibling / downward subfolder',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: 'sub/note.xhtml',
+				expected: 'OEBPS/text/sub/note.xhtml'
+			},
+			{
+				name: 'path cancellation (a/../b)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: 'images/../styles/theme.css',
+				expected: 'OEBPS/text/styles/theme.css'
+			},
+			{
+				name: 'root level base file',
+				base: 'chap1.html',
+				rel: 'style.css',
+				expected: 'style.css'
+			},
+			{
+				name: 'strip hash fragment (#anchor)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../text/chap2.xhtml#section-2',
+				expected: 'OEBPS/text/chap2.xhtml'
+			},
+			{
+				name: 'strip query params (?v=2)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../styles/main.css?v=2.1&debug=true',
+				expected: 'OEBPS/styles/main.css'
+			},
+			{
+				name: 'strip both query and hash (#fig1?v=2)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../images/pic.png#fig1?v=2',
+				expected: 'OEBPS/images/pic.png'
+			},
+			{
+				name: 'URL-encoded spaces (%20)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../images/cover%20image%20art.jpg',
+				expected: 'OEBPS/images/cover image art.jpg'
+			},
+			{
+				name: 'raw spaces in path',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../images/my cover.jpg',
+				expected: 'OEBPS/images/my cover.jpg'
+			},
+			{
+				name: 'URL-encoded unicode (%C3%A0)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '../text/ch%C3%A0o.xhtml',
+				expected: 'OEBPS/text/chào.xhtml'
+			},
+			{
+				name: 'leading slash root path (/OEBPS/...)',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '/OEBPS/styles/main.css',
+				expected: 'OEBPS/styles/main.css'
+			},
+			{
+				name: 'empty or whitespace relative path returns base path',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '   ',
+				expected: 'OEBPS/text/chap1.xhtml'
+			},
+			{
+				name: 'extra slashes normalized',
+				base: 'OEBPS/text/chap1.xhtml',
+				rel: '..//styles///main.css',
+				expected: 'OEBPS/styles/main.css'
+			}
+		];
+
+		testCases.forEach(({ name, base, rel, expected }) => {
+			it(`should correctly resolve: ${name}`, () => {
+				expect(resolveRelativePath(base, rel)).toBe(expected);
+			});
 		});
 	});
 
@@ -271,9 +415,35 @@ describe('EPUB Editor unit tests', () => {
 	});
 
 	describe('Font Deobfuscation (IDPF & Adobe)', () => {
-		it('should correctly hash string with sha1', () => {
-			const hashBytes = sha1('urn:uuid:12345');
-			expect(hashBytes.length).toBe(20);
+		describe('SHA-1 cryptographic test vectors (RFC 3174 / NIST)', () => {
+			function bytesToHex(bytes: Uint8Array): string {
+				return Array.from(bytes)
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join('');
+			}
+
+			it('should match RFC 3174 test vector 1: empty string', () => {
+				const hash = sha1('');
+				expect(bytesToHex(hash)).toBe('da39a3ee5e6b4b0d3255bfef95601890afd80709');
+			});
+
+			it('should match RFC 3174 test vector 2: "abc"', () => {
+				const hash = sha1('abc');
+				expect(bytesToHex(hash)).toBe('a9993e364706816aba3e25717850c26c9cd0d89d');
+			});
+
+			it('should match RFC 3174 test vector 3: "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"', () => {
+				const input = 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq';
+				const hash = sha1(input);
+				expect(bytesToHex(hash)).toBe('84983e441c3bd26ebaae4aa1f95129e5e54670f1');
+			});
+
+			it('should correctly hash UTF-8 Unicode characters (Vietnamese)', async () => {
+				const input = 'Tiếng Việt Chế Bản Sách';
+				const syncHash = sha1(input);
+				const asyncHash = await sha1Async(input);
+				expect(bytesToHex(syncHash)).toBe(bytesToHex(asyncHash));
+			});
 		});
 
 		it('should validate font magic numbers correctly', () => {
@@ -283,6 +453,8 @@ describe('EPUB Editor unit tests', () => {
 			expect(isValidFontMagic(new Uint8Array([0x4f, 0x54, 0x54, 0x4f, 0x00]))).toBe(true);
 			// Valid WOFF
 			expect(isValidFontMagic(new Uint8Array([0x77, 0x4f, 0x46, 0x46, 0x00]))).toBe(true);
+			// Valid WOFF2
+			expect(isValidFontMagic(new Uint8Array([0x77, 0x4f, 0x46, 0x32, 0x00]))).toBe(true);
 			// Scrambled bytes
 			expect(isValidFontMagic(new Uint8Array([0xc9, 0x7a, 0xd6, 0x85, 0x00]))).toBe(false);
 		});
@@ -315,6 +487,44 @@ describe('EPUB Editor unit tests', () => {
 			expect(decodedBinary.charCodeAt(1)).toBe(0x54);
 			expect(decodedBinary.charCodeAt(2)).toBe(0x54);
 			expect(decodedBinary.charCodeAt(3)).toBe(0x4f);
+		});
+
+		it('should deobfuscate Adobe obfuscated font and restore valid magic', async () => {
+			const uid = 'urn:uuid:12345678-1234-5678-1234-567812345678';
+			const hex = uid.replace(/urn:uuid:/i, '').replace(/[^0-9a-fA-F]/g, '');
+			const adobeKey = new Uint8Array(16);
+			for (let i = 0; i < 16; i++) {
+				adobeKey[i] = parseInt(hex.substring(i * 2, i * 2 + 2), 16);
+			}
+
+			// Original valid WOFF font header
+			const rawFont = new Uint8Array(2000);
+			rawFont[0] = 0x77; // 'w'
+			rawFont[1] = 0x4f; // 'O'
+			rawFont[2] = 0x46; // 'F'
+			rawFont[3] = 0x46; // 'F'
+
+			// Obfuscate with Adobe algorithm
+			const obfuscatedFont = new Uint8Array(rawFont);
+			for (let i = 0; i < 1024; i++) {
+				obfuscatedFont[i] ^= adobeKey[i % 16];
+			}
+			expect(isValidFontMagic(obfuscatedFont)).toBe(false);
+
+			// Zip containing OPF with uid and obfuscated font
+			const zip = new JSZip();
+			zip.file('content.opf', `<package unique-identifier="pub-id"><metadata><dc:identifier id="pub-id">${uid}</dc:identifier></metadata></package>`);
+			zip.file('fonts/font.woff', obfuscatedFont);
+
+			const dataUrl = await getAssetDataUrl(zip, 'fonts/font.woff');
+			expect(dataUrl).toContain('data:font/woff;base64,');
+
+			const base64Data = dataUrl!.split(',')[1];
+			const decodedBinary = atob(base64Data);
+			expect(decodedBinary.charCodeAt(0)).toBe(0x77);
+			expect(decodedBinary.charCodeAt(1)).toBe(0x4f);
+			expect(decodedBinary.charCodeAt(2)).toBe(0x46);
+			expect(decodedBinary.charCodeAt(3)).toBe(0x46);
 		});
 	});
 

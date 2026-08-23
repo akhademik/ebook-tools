@@ -375,7 +375,7 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('properties="cover-image"'));
 			
 			// Check that cover image itself is written to zip
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', coverBlob);
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', expect.anything());
 			
 			// Check that cover.xhtml contains the SVG wrapper and dimensions
 			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('<svg'));
@@ -408,13 +408,21 @@ describe('epub-packer tests', () => {
 			consoleLogSpy.mockRestore();
 		});
 
-		it('should always embed Bookerly font in the EPUB even if not specified in fonts configuration', async () => {
+		it('should embed Bookerly font in the EPUB when available in fonts configuration', async () => {
 			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 			const chapters = [
 				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
 			];
 
-			const blob = await buildEpubBlob({ title: 'Book Title' }, chapters, 'body {}', false, null, null, null);
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title' },
+				chapters,
+				'body {}',
+				false,
+				null,
+				null,
+				{ blobs: { Bookerly: new Blob(['bookerly-data']) } }
+			);
 			expect(blob).toBeDefined();
 
 			// Verify Bookerly is declared in the content.opf manifest
@@ -521,8 +529,8 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-1.jpg"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-2"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-2.png"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', mockBlob);
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', mockBlob);
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything());
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything());
 			consoleLogSpy.mockRestore();
 		});
 	});

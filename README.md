@@ -1,6 +1,6 @@
 # ⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử
 
-> **Ebook Forge**: Bộ công cụ chuẩn hóa, đóng gói và biên tập sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn, bảo mật tuyệt đối không gửi dữ liệu lên bất kỳ máy chủ nào.
+> **Ebook Forge**: Bộ công cụ chuẩn hóa, đóng gói và biên tập sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn — tệp được xử lý cục bộ và không tải lên bất kỳ máy chủ nào.
 
 ---
 
@@ -18,7 +18,10 @@ Công cụ biên tập và xem trước tệp `.epub` thời gian thực mạnh 
   * Thanh phân chia kéo thả (Resizable Split Pane) điều chỉnh độ rộng Editor / Preview tùy ý.
   * Chế độ xem **100% Real View** hoặc mô phỏng máy đọc sách (600px), máy tính bảng (768px), điện thoại (390px).
   * Ẩn / hiện danh sách tệp bên trái để tối ưu diện tích màn hình.
-* **Kiểm định & Xuất file an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi xuất, cảnh báo khi đóng mà chưa lưu và đóng gói tải về tệp `.epub` hoàn chỉnh.
+* **Dọn rác & Tối ưu dung lượng (EPUB Cleanup)**: Tự động quét và loại bỏ hình ảnh, fonts nhúng, CSS mồ côi không được sử dụng trong sách; tự động làm sạch OPF manifest và giảm mạnh dung lượng file.
+* **Kiểm định & Tương thích máy đọc sách (EPUB & Kobo Validator)**: Kiểm định toàn diện theo hồ sơ **Generic EPUB**, **EPUB 3.0** và **Kobo e-Reader** (kiểm tra cấu trúc container, OPF manifest, spine, TOC, thẻ XHTML, phát hiện trùng lặp ID, font magic và ảnh bìa cover).
+* **Quản lý Thông tin sách & Tự động Rebuild TOC (Book Operations)**: Chỉnh sửa trực tiếp Metadata sách (Tên sách, Tác giả, Ngôn ngữ, UUID/Identifier, Nhà xuất bản) trong `content.opf`; 1-click tự động tái tạo đồng bộ mục lục `nav.xhtml` (EPUB 3) và `toc.ncx` (EPUB 2 / Kobo).
+* **Kiểm tra cú pháp & Xuất file an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi xuất, cảnh báo khi đóng mà chưa lưu và đóng gói tải về tệp `.epub` hoàn chỉnh.
 
 ---
 
@@ -61,25 +64,25 @@ Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `
 
 ### Yêu cầu hệ thống
 * **Node.js**: Phiên bản 18 trở lên.
-* **npm**: Phiên bản 9 trở lên.
+* **pnpm**: Phiên bản 9 trở lên.
 
 ### Khởi chạy ứng dụng
 ```bash
 # 1. Cài đặt các gói phụ thuộc
-npm install
+pnpm install
 
 # 2. Khởi chạy ở chế độ phát triển
-npm run dev
+pnpm dev
 ```
 Truy cập ứng dụng tại địa chỉ: `http://localhost:5173`
 
 ### Đóng gói ứng dụng (Production Build)
 ```bash
-npm run build
+pnpm build
 ```
 
 ---
 
 ## 🛡️ Quyền riêng tư & Bảo mật
 * **100% Client-Side**: Toàn bộ quá trình đọc, giải nén, chỉnh sửa và đóng gói tệp PDF, EPUB, TXT diễn ra hoàn toàn trong bộ nhớ trình duyệt máy tính của bạn.
-* **Bảo mật tuyệt đối**: Không có bất kỳ dữ liệu hay nội dung sách nào được gửi lên máy chủ bên ngoài.
+* **An toàn dữ liệu**: Tệp được xử lý trực tiếp trên thiết bị của bạn và không được tải lên bất kỳ máy chủ bên ngoài nào.

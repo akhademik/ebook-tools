@@ -1,7 +1,9 @@
 <script lang="ts">
-  import type { EpubSyntaxModalProps } from "$lib/types";
+  interface Props {
+    show?: boolean;
+  }
 
-  let { show = $bindable(false) }: EpubSyntaxModalProps = $props();
+  let { show = $bindable(false) }: Props = $props();
 </script>
 
 {#if show}

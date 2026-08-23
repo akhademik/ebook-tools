@@ -1,8 +1,13 @@
 <script lang="ts">
   import { JACKET_TEMPLATES } from "$lib/epub-packer/templates/jacket-templates";
-  import type { EpubJacketModalProps } from "$lib/types";
+  import type { EpubState } from "../epub-state.svelte";
 
-  let { show = $bindable(false), epubState }: EpubJacketModalProps = $props();
+  interface Props {
+    show?: boolean;
+    epubState: EpubState;
+  }
+
+  let { show = $bindable(false), epubState }: Props = $props();
 
   let currentPreviewTemplateIdx = $state(0);
 

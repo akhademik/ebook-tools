@@ -5,6 +5,9 @@
   import Button from "$lib/components/Button.svelte";
   import { EpubEditorState } from "$lib/epub-editor/epub-editor-state.svelte";
   import EpubEditorModal from "$lib/epub-editor/components/EpubEditorModal.svelte";
+  import EpubCleanerModal from "$lib/epub-editor/components/EpubCleanerModal.svelte";
+  import EpubValidatorModal from "$lib/epub-editor/components/EpubValidatorModal.svelte";
+  import EpubMetadataModal from "$lib/epub-editor/components/EpubMetadataModal.svelte";
 
   const editorState = new EpubEditorState();
 
@@ -63,13 +66,47 @@
         </p>
       </div>
 
-      <div class="w-full sm:w-auto sm:min-w-48">
-        <Button
-          onclick={() => (editorState.isModalOpen = true)}
-          variant="primary"
+      <div class="w-full sm:w-auto flex items-center gap-3">
+        <button
+          type="button"
+          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-hover-bg text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          onclick={() => {
+            editorState.isMetadataModalOpen = true;
+          }}
         >
-          ✏️ Mở trình chỉnh sửa
-        </Button>
+          ⚙️ Thông tin
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          onclick={() => {
+            editorState.isValidatorModalOpen = true;
+          }}
+        >
+          🛡️ Kiểm định
+        </button>
+
+        <button
+          type="button"
+          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          onclick={() => {
+            editorState.cleanAnalysis = null;
+            editorState.cleanReport = null;
+            editorState.isCleanerModalOpen = true;
+          }}
+        >
+          🧹 Dọn rác EPUB
+        </button>
+
+        <div class="min-w-44">
+          <Button
+            onclick={() => (editorState.isModalOpen = true)}
+            variant="primary"
+          >
+            ✏️ Mở trình chỉnh sửa
+          </Button>
+        </div>
       </div>
     </div>
   {/if}
@@ -78,6 +115,24 @@
 <!-- Modal Fullscreen Editor -->
 <EpubEditorModal
   bind:show={editorState.isModalOpen}
+  {editorState}
+/>
+
+<!-- Modal Cleaner -->
+<EpubCleanerModal
+  bind:show={editorState.isCleanerModalOpen}
+  {editorState}
+/>
+
+<!-- Modal Validator -->
+<EpubValidatorModal
+  bind:show={editorState.isValidatorModalOpen}
+  {editorState}
+/>
+
+<!-- Modal Metadata -->
+<EpubMetadataModal
+  bind:show={editorState.isMetadataModalOpen}
   {editorState}
 />
 

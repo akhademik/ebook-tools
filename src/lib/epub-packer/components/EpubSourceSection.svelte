@@ -1,9 +1,14 @@
 <script lang="ts">
   import DropZone from "$lib/components/DropZone.svelte";
   import Input from "$lib/components/Input.svelte";
-  import type { EpubSourceSectionProps } from "$lib/types";
+  import type { EpubState } from "../epub-state.svelte";
 
-  let { epubState, onOpenSyntaxModal }: EpubSourceSectionProps = $props();
+  interface Props {
+    epubState: EpubState;
+    onOpenSyntaxModal: () => void;
+  }
+
+  let { epubState, onOpenSyntaxModal }: Props = $props();
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6">

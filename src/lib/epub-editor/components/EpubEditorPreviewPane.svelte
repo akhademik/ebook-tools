@@ -1,8 +1,12 @@
 <!-- src/lib/epub-editor/components/EpubEditorPreviewPane.svelte -->
 <script lang="ts">
-  import type { EpubEditorPreviewPaneProps } from "$lib/types";
+  import type { EpubEditorState } from "../epub-editor-state.svelte";
 
-  let { editorState }: EpubEditorPreviewPaneProps = $props();
+  interface Props {
+    editorState: EpubEditorState;
+  }
+
+  let { editorState }: Props = $props();
 
   let viewSize = $state<"100%" | "600px" | "768px" | "390px">("100%");
   let iframeEl = $state<HTMLIFrameElement | null>(null);

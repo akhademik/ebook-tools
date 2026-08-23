@@ -20,10 +20,12 @@ export default defineConfig({
     }),
   ],
   test: {
+    include: ["tests/**/*.test.ts"],
+    exclude: ["tests-e2e/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       all: true,
-      include: ["src/**/*.js"],
+      include: ["src/**/*.js", "src/**/*.ts"],
       exclude: ["src/**/*.test.js", "src/**/*.spec.js"],
     },
   },

@@ -10,6 +10,21 @@ import {
 	validateDirtyPages,
 	exportEpubBlob
 } from './epub-editor';
+import {
+	analyzeEpub,
+	cleanEpub,
+	formatByteSize,
+	type EpubAnalysisResult,
+	type EpubCleanReport,
+	type EpubCleanOptions
+} from './epub-cleaner';
+import {
+	findOpfPath,
+	extractBookMetadata,
+	updateBookMetadata,
+	rebuildEpubToc,
+	type BookMetadataDetails
+} from './epub-book-ops';
 import { Logger, triggerDownload } from '$lib/utils';
 
 export class EpubEditorState {
@@ -28,6 +43,9 @@ export class EpubEditorState {
 
 	// UI & modal states
 	isModalOpen = $state<boolean>(false);
+	isCleanerModalOpen = $state<boolean>(false);
+	isValidatorModalOpen = $state<boolean>(false);
+	isMetadataModalOpen = $state<boolean>(false);
 	isLoading = $state<boolean>(false);
 	statusMessage = $state<string>('');
 	isError = $state<boolean>(false);
@@ -35,6 +53,13 @@ export class EpubEditorState {
 
 	previewSrcDoc = $state<string>('');
 	validationErrors = $state<EpubValidationError[]>([]);
+
+	// Book metadata & TOC state
+	bookMetadata = $state<BookMetadataDetails | null>(null);
+
+	// Cleaner analysis & report
+	cleanAnalysis = $state<EpubAnalysisResult | null>(null);
+	cleanReport = $state<EpubCleanReport | null>(null);
 
 	// Sync View (Scroll & Highlight)
 	syncViewEnabled = $state<boolean>(true);
@@ -230,6 +255,112 @@ export class EpubEditorState {
 		}
 	}
 
+	async analyzeForClean(): Promise<EpubAnalysisResult | null> {
+		if (!this.zip) return null;
+		try {
+			this.cleanReport = null;
+			const analysis = await analyzeEpub(this.zip, this.editBuffer);
+			this.cleanAnalysis = analysis;
+			return analysis;
+		} catch (err) {
+			Logger.error('[EpubEditorState]', 'Failed to analyze EPUB for cleanup', err);
+			return null;
+		}
+	}
+
+	async runCleanup(options?: EpubCleanOptions): Promise<EpubCleanReport | null> {
+		if (!this.zip) return null;
+		try {
+			const report = await cleanEpub(this.zip, options, this.editBuffer);
+			this.cleanReport = report;
+			this.cleanAnalysis = null;
+
+			// Refresh entries after deletion
+			this.files = await parseZipEntries(this.zip);
+
+			// If current editorTarget was deleted, reselect first available page
+			if (this.editorTarget && !this.files.some((f) => f.path === this.editorTarget)) {
+				const firstPage = this.files.find((f) => f.category === 'page') || this.files[0];
+				if (firstPage) {
+					this.editorTarget = firstPage.path;
+					this.previewTarget = firstPage.path;
+					await this.ensureFileLoaded(firstPage.path);
+					await this.renderPreview();
+				}
+			}
+
+			this.statusMessage = `Đã dọn dẹp ${report.savedBytes > 0 ? formatByteSize(report.savedBytes) : 'tài nguyên'}`;
+			return report;
+		} catch (err) {
+			Logger.error('[EpubEditorState]', 'Failed to run EPUB cleanup', err);
+			return null;
+		}
+	}
+
+	async loadBookMetadata(): Promise<BookMetadataDetails | null> {
+		if (!this.zip) return null;
+		try {
+			const opfPath = await findOpfPath(this.zip);
+			if (!opfPath) return null;
+			await this.ensureFileLoaded(opfPath);
+			const opfXml = this.editBuffer.get(opfPath) || '';
+			const meta = extractBookMetadata(opfXml);
+			this.bookMetadata = meta;
+			return meta;
+		} catch (err) {
+			Logger.error('[EpubEditorState]', 'Failed to load book metadata', err);
+			return null;
+		}
+	}
+
+	async saveBookMetadata(newMeta: BookMetadataDetails): Promise<boolean> {
+		if (!this.zip) return false;
+		try {
+			const opfPath = await findOpfPath(this.zip);
+			if (!opfPath) return false;
+			await this.ensureFileLoaded(opfPath);
+			const opfXml = this.editBuffer.get(opfPath) || '';
+			const updated = updateBookMetadata(opfXml, newMeta);
+			this.editBuffer.set(opfPath, updated);
+			this.dirtyPaths.add(opfPath);
+			this.bookMetadata = newMeta;
+			this.statusMessage = 'Đã cập nhật metadata trong content.opf';
+			return true;
+		} catch (err) {
+			Logger.error('[EpubEditorState]', 'Failed to save book metadata', err);
+			return false;
+		}
+	}
+
+	async rebuildToc(): Promise<boolean> {
+		if (!this.zip) return false;
+		try {
+			const res = await rebuildEpubToc(this.zip, this.editBuffer);
+			if (!res) return false;
+
+			// Write nav.xhtml
+			this.editBuffer.set(res.navPath, res.navXhtml);
+			this.dirtyPaths.add(res.navPath);
+			if (this.zip.file(res.navPath)) {
+				this.zip.file(res.navPath, res.navXhtml);
+			}
+
+			// Write toc.ncx
+			this.editBuffer.set(res.ncxPath, res.tocNcx);
+			this.dirtyPaths.add(res.ncxPath);
+			if (this.zip.file(res.ncxPath)) {
+				this.zip.file(res.ncxPath, res.tocNcx);
+			}
+
+			this.files = await parseZipEntries(this.zip);
+			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';
+			return true;
+		} catch (err) {
+			Logger.error('[EpubEditorState]', 'Failed to rebuild TOC', err);
+			return false;
+		}
+	}
+
 	cleanupObjectUrls(): void {
 		for (const url of this.currentObjectUrls) {
 			try {
@@ -263,11 +394,17 @@ export class EpubEditorState {
 		this.dirtyPaths.clear();
 		this.originalContents.clear();
 		this.isModalOpen = false;
+		this.isCleanerModalOpen = false;
+		this.isValidatorModalOpen = false;
+		this.isMetadataModalOpen = false;
 		this.isLoading = false;
 		this.statusMessage = '';
 		this.isError = false;
 		this.isExporting = false;
 		this.previewSrcDoc = '';
 		this.validationErrors = [];
+		this.cleanAnalysis = null;
+		this.cleanReport = null;
+		this.bookMetadata = null;
 	}
 }

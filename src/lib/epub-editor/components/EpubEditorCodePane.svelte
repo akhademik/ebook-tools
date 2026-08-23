@@ -8,9 +8,13 @@
   import { oneDark } from "@codemirror/theme-one-dark";
   import { keymap } from "@codemirror/view";
   import { indentWithTab } from "@codemirror/commands";
-  import type { EpubEditorCodePaneProps } from "$lib/types";
+  import type { EpubEditorState } from "../epub-editor-state.svelte";
 
-  let { editorState }: EpubEditorCodePaneProps = $props();
+  interface Props {
+    editorState: EpubEditorState;
+  }
+
+  let { editorState }: Props = $props();
 
   let lineWrap = $state(true);
   let editorContainerEl = $state<HTMLDivElement | null>(null);

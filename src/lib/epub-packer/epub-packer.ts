@@ -13,6 +13,7 @@ import { buildContainerXml } from './xml-builders/container-builder';
 import { buildContentOpf } from './xml-builders/opf-builder';
 import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder';
 import { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder';
+import { assignSequentialChapterIds } from './parser/epub-chapter-utils';
 import type {
   EpubMetadata,
   EpubChapterItem,
@@ -189,22 +190,25 @@ export async function buildEpubBlob(
   }
 
   let activeFonts: string[] = [];
-  if (fonts) {
-    if (fonts.jacketFont && fonts.jacketFont !== 'default')
+  if (fonts && fonts.blobs) {
+    if (fonts.jacketFont && fonts.jacketFont !== 'default' && fonts.blobs[fonts.jacketFont])
       activeFonts.push(fonts.jacketFont);
-    if (fonts.h1Font && fonts.h1Font !== 'default')
+    if (fonts.h1Font && fonts.h1Font !== 'default' && fonts.blobs[fonts.h1Font])
       activeFonts.push(fonts.h1Font);
-    if (fonts.h2Font && fonts.h2Font !== 'default')
+    if (fonts.h2Font && fonts.h2Font !== 'default' && fonts.blobs[fonts.h2Font])
       activeFonts.push(fonts.h2Font);
-    if (fonts.dropcapFont && fonts.dropcapFont !== 'default')
+    if (fonts.dropcapFont && fonts.dropcapFont !== 'default' && fonts.blobs[fonts.dropcapFont])
       activeFonts.push(fonts.dropcapFont);
-  }
-  if (findFont('Bookerly')) {
-    activeFonts.push('Bookerly');
+    if (fonts.blobs['Bookerly']) {
+      activeFonts.push('Bookerly');
+    }
   }
   activeFonts = [...new Set(activeFonts)];
 
   let chaptersToPack: EpubChapterItem[] = [...chapters];
+  if (chaptersToPack.some((c) => !c.fileName || !c.xmlId)) {
+    chaptersToPack = assignSequentialChapterIds(chaptersToPack);
+  }
   let finalCss = css && css !== EPUB_CSS ? css : getDynamicCss(chaptersToPack);
 
   if (ornaments?.chapterOrnament) {
@@ -345,20 +349,26 @@ export async function buildEpubBlob(
   if (coverBlob) {
     const imgFolder = oebps.folder('images');
     if (imgFolder) {
-      imgFolder.file('cover.jpg', coverBlob);
+      const rawCover = (coverBlob as any).blob || coverBlob;
+      const data = typeof rawCover.arrayBuffer === 'function' ? await rawCover.arrayBuffer() : rawCover;
+      imgFolder.file('cover.jpg', data);
     }
   }
 
   if (ornaments?.chapterOrnament?.blob) {
     const imgFolder = oebps.folder('images');
     if (imgFolder) {
-      imgFolder.file(ornaments.chapterOrnament.fileName, ornaments.chapterOrnament.blob);
+      const b = ornaments.chapterOrnament.blob;
+      const data = typeof b.arrayBuffer === 'function' ? await b.arrayBuffer() : b;
+      imgFolder.file(ornaments.chapterOrnament.fileName, data);
     }
   }
   if (ornaments?.subchapterOrnament?.blob) {
     const imgFolder = oebps.folder('images');
     if (imgFolder) {
-      imgFolder.file(ornaments.subchapterOrnament.fileName, ornaments.subchapterOrnament.blob);
+      const b = ornaments.subchapterOrnament.blob;
+      const data = typeof b.arrayBuffer === 'function' ? await b.arrayBuffer() : b;
+      imgFolder.file(ornaments.subchapterOrnament.fileName, data);
     }
   }
 
@@ -367,7 +377,8 @@ export async function buildEpubBlob(
     if (imagesFolder) {
       for (const img of images) {
         if (img && img.fileName && img.blob) {
-          imagesFolder.file(img.fileName, img.blob);
+          const data = typeof img.blob.arrayBuffer === 'function' ? await img.blob.arrayBuffer() : img.blob;
+          imagesFolder.file(img.fileName, data);
         }
       }
     }
@@ -379,7 +390,8 @@ export async function buildEpubBlob(
       for (const [fontName, blob] of Object.entries(fonts.blobs)) {
         const fileName = getFontFileName(fontName);
         if (fileName && blob) {
-          fontsFolder.file(fileName, blob);
+          const data = typeof blob.arrayBuffer === 'function' ? await blob.arrayBuffer() : blob;
+          fontsFolder.file(fileName, data);
         }
       }
     }

@@ -5,9 +5,14 @@ node_modules
 .vercel
 .netlify
 .wrangler
-._task
 /.svelte-kit
 /build
+
+# Tasks & Internal Agents
+_task/
+.agents/
+update.md
+
 
 # OS
 .DS_Store
@@ -23,8 +28,9 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Coverage
-/coverage
+# Test Results
+/test-results
+/playwright-report
 
 # Graphify
 graphify-out/*

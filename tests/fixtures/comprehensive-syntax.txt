@@ -1,0 +1,42 @@
+@@ Chương 1: Khởi Đầu Cuộc Hành Trình
+
+*Mặt trời* vừa ló rạng qua rặng tre đầu làng. /Nguyễn Du/ từng miêu tả những cảnh sắc tương tự trong thi ca_{1}_. Đây là câu chuyện về một chuyến phiêu lưu không tưởng_{2}_.
+
+@ Phần 1: Buổi Sáng Ở Làng Quê
+
+Mọi người trong làng đã bắt đầu thức giấc để ra đồng làm việc. Không khí sớm mai thật trong lành và dễ chịu.
+
+[letter]
+Gửi người bạn phương xa,
+Tôi viết bức thư này khi tiếng chim hót ríu rít ngoài cửa sổ.
+Chúc bạn một ngày an lành.
+[/letter]
+
+###
+
+Buổi trưa, ánh nắng vàng rực rỡ chiếu qua kẽ lá.
+
+@! Ghi Chú Riêng (Không Đưa Vào Mục Lục)
+
+Phần này là lời tâm sự riêng của tác giả và không xuất hiện trong cây mục lục.
+
+~ "Cuộc hành trình vạn dặm luôn bắt đầu bằng một bước chân." - Lão Tử
+
+[poem]
+Gió đưa cành trúc la đà
+Tiếng chuông Trấn Vũ canh gà Thọ Xương
+Mịt mù khói tỏa ngàn sương
+Nhịp chày Yên Thái mặt gương Tây Hồ.
+[/poem]
+
+##
+
+[hinh-1.jpg]
+
+@@t Chương 2: Ngôi Nhà Cổ Bên Sông
+
+Ngôi nhà nằm nép mình bên dòng sông êm đềm trôi. Những bức tường rêu phong ghi dấu ấn của thời gian.
+
+Chú thích:
+{1} Tham khảo Tuyển tập Văn học Cổ điển Việt Nam.
+{2} Ghi chép từ nhật ký hành trình năm 1945.

@@ -1,8 +1,13 @@
 <!-- src/lib/epub-editor/components/EpubEditorSidebar.svelte -->
 <script lang="ts">
-  import type { EpubEditorSidebarProps, EpubEditorFileItem } from "$lib/types";
+  import type { EpubEditorFileItem } from "$lib/types";
+  import type { EpubEditorState } from "../epub-editor-state.svelte";
 
-  let { editorState }: EpubEditorSidebarProps = $props();
+  interface Props {
+    editorState: EpubEditorState;
+  }
+
+  let { editorState }: Props = $props();
 
   let filterTab = $state<"all" | "page" | "style" | "image" | "other">("all");
 

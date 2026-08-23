@@ -52,7 +52,7 @@
 	ondragleave={handleDragLeave}
 	ondrop={handleDrop}
 >
-	<input type="file" {accept} {multiple} class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange={handleFileChange} />
+	<input type="file" {accept} {multiple} class="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onchange={handleFileChange} oninput={handleFileChange} />
 	<p class="text-base font-semibold mb-1">{title}</p>
 	{#if subtitle}
 		<p class="text-sm text-text-mute">{subtitle}</p>
