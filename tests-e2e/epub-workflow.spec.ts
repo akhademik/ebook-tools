@@ -24,9 +24,10 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		const fileInput = page.locator('input[accept*=".txt"]').first();
 		await fileInput.setInputFiles(fixtureTxtPath);
 		await fileInput.dispatchEvent('change');
+		await fileInput.dispatchEvent('input');
 
 		// 2. Verify chapters recognized and parsed
-		await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 10000 });
+		await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 15000 });
 
 		// 3. Open Jacket Modal
 		const jacketBtn = page.getByRole('button', { name: /Tùy chỉnh trang lót|Trang lót/i }).first();

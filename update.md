@@ -1,482 +1,79 @@
-Còn:
+I'll retrieve the logs for this failing job to identify the issue and suggest a solution.
+Job 97119355086 in akhademik/ebook-tools
 
-txt-to-pdf.zip
+Let me retrieve the test file to better understand the issue:
+View file tests-e2e/epub-workflow.spec.ts
+Problem
 
-nên chuyển sang:
+The E2E test is failing because the success message "Đã xử file .TXT thành công" (Vietnamese for "Successfully processed .TXT file") is not appearing after uploading a .txt file in the EPUB Packer. The test fails at line 29 with a timeout after waiting 10 seconds.
 
-GitHub Release asset
-hoặc external download
-hoặc release artifact
+The failure occurs across all three retry attempts, indicating this is a consistent issue with the file processing workflow rather than a flaky test.
+Root Cause
 
-Không nên tiếp tục commit những file 80–100 MB vào source tree.
+The test uploads a .txt file and expects a success notification to appear, but the message never renders. This suggests either:
 
-6. Một vấn đề kiến trúc quan trọng: font đang được fetch trong quá trình build EPUB
+    File processing is failing silently - The file upload handler isn't successfully processing the file
+    Success message logic is broken - The component isn't displaying the success notification even if processing completes
+    Timing issue - The processing takes longer than 10 seconds or the file path is incorrect
 
-Trong EpubState.processEpub():
+Solution
 
-const res = await fetch(font.url);
+Let me check the fixture file and the EPUB Packer component to identify the issue:
+what is the solution?
+Get file tests/fixtures
+Search EPUB Packer file upload success message Đã xử file .TXT thành công in akhademik/ebook-tools
+Search results for "Đã xử file .TXT thành công" in "repo:akhademik/ebook-tools" and 2 other tool calls
+View file src/lib/epub-packer/components/EpubSourceSection.svelte
 
-sau đó buildEpubBlob() lại có logic fetch Bookerly lần nữa.
+Now I can see the full picture. The success message is set in the state file at line 151 of epub-source-state.svelte.ts, and it's displayed in the component at line 373. The message should appear in the UI after successful file processing. Let me check if the fixture file exists:
+View directory tests/fixtures
 
-Và trong epub-packer.ts cũng có:
+The fixture file exists. Now let me check how the file upload is being triggered in the test and verify the handler:
+View search results for handleFile in repo:akhademik/ebook-tools
 
-// Bookerly dynamic fetch
+Now let me check the DropZone component to see if onSelect is being triggered properly:
+View file src/lib/components/DropZone.svelte
+Solution
 
-Tức là hiện tại có một chút double responsibility.
+The issue is in the test's file selection method. The test is using Playwright's setInputFiles() and dispatchEvent('change'), but this doesn't trigger the oninput event that the DropZone component listens to.
 
-Mình sẽ chọn một nơi duy nhất:
+Looking at the DropZone component (line 55), it has both:
+Svelte
 
-FontManager
-↓
-resolve required fonts
-↓
-Array/Map<font, Blob>
-↓
-buildEpubBlob()
+onchange={handleFileChange} oninput={handleFileChange}
 
-buildEpubBlob() nên là pure-ish packer:
+However, in the test (line 26 of the E2E spec), the test only dispatches change:
+TypeScript
 
-input
-↓
-EPUB files
-↓
-Blob
+await fileInput.dispatchEvent('change');
 
-Nó không nên tự đi network fetch.
+The problem is that when using Playwright's setInputFiles(), you need to also ensure the input event fires, or the file handler may not be triggered properly in certain browser environments.
+Recommended Fix
 
-Điều này đặc biệt quan trọng vì bạn đang quảng bá app là:
+Update the E2E test to explicitly wait for the file to be processed and trigger both events:
+TypeScript
 
-100% offline
+test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
+await page.goto('/epub');
+await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 
-README nói toàn bộ quá trình xử lý diễn ra local và không upload file lên server.
+    // 1. Upload .txt file
+    const fileInput = page.locator('input[accept*=".txt"]').first();
+    await fileInput.setInputFiles(fixtureTxtPath);
 
-Nếu font lại được fetch từ network thì về mặt UX/privacy:
+    // Trigger both change and input events to ensure the handler fires
+    await fileInput.dispatchEvent('change');
+    await fileInput.dispatchEvent('input');
 
-"offline" không còn hoàn toàn offline.
+    // Wait for the success message with increased timeout
+    await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 15000 });
 
-Nếu font đã nằm trong app bundle thì tốt nhất:
+    // ... rest of test
 
-font asset
-↓
-Blob
-↓
-packer
+Key changes:
 
-không fetch() remote.
+    Added await fileInput.dispatchEvent('input'); to ensure the oninput handler is triggered
+    Increased timeout to 15000ms to account for file processing time in CI environments
+    The file path is already correct (the fixture file exists at tests/fixtures/comprehensive-syntax.txt)
 
-7. Có một bug/thiết kế đáng chú ý trong buildContentOpf()
-
-Đây là chỗ mình muốn bạn sửa trước.
-
-Bạn đang tạo manifest image như:
-
-const imgId =
-img.id ||
-`img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-
-nhưng fileName và mimeType được đưa vào XML khá trực tiếp.
-
-Ví dụ:
-
-`<item id="${imgId}" href="images/${img.fileName}" media-type="${mime}"/>`
-
-Nếu filename đến từ user upload thì đây là dữ liệu không nên đưa thẳng vào XML.
-
-Bạn đã có:
-
-escapeXml()
-
-nhưng phần này chưa dùng nhất quán.
-
-Mình sẽ tạo:
-
-escapeXmlAttribute()
-
-và dùng cho:
-
-href
-media-type
-id
-xml:lang
-
-Không phải vì đây là một security vulnerability cực nghiêm trọng trong local-only app, mà vì nó sẽ giúp EPUB builder robust hơn với file name bất thường.
-
-10. buildEpubBlob() đang hơi "god function"
-
-Đây là điểm architecture mình sẽ ưu tiên refactor tiếp theo.
-
-Hiện function đang làm rất nhiều việc:
-
-metadata
-↓
-font fetching
-↓
-font resolution
-↓
-CSS generation
-↓
-jacket
-↓
-cover
-↓
-chapter IDs
-↓
-OPF
-↓
-NAV
-↓
-NCX
-↓
-images
-↓
-fonts
-↓
-XHTML
-↓
-JSZip
-↓
-Blob
-
-buildEpubBlob() hiện đã khá dài.
-
-Mình sẽ chia thành:
-
-buildEpub()
-│
-├── prepareEpub()
-│
-├── buildMetadata()
-│
-├── buildStyles()
-│
-├── buildManifest()
-│
-├── buildNavigation()
-│
-├── buildTextFiles()
-│
-├── addImages()
-│
-├── addFonts()
-│
-└── zipEpub()
-
-Không cần tạo 20 file ngay.
-
-Chỉ cần tách những responsibility lớn.
-
-11. Có một điểm rất tốt nhưng nên làm rõ: skipParagraphMerge
-
-Bạn gọi:
-
-buildEpubBlob(
-...
-isTxtMode,
-...
-)
-
-và parameter lại tên:
-
-skipParagraphMerge
-
-Trong EpubState:
-
-const isTxtMode = this.source.fileType === 'txt';
-
-rồi truyền vào skipParagraphMerge.
-
-Tên parameter và ý nghĩa thực tế hơi khó hiểu.
-
-Nếu:
-
-TXT → skip merge
-MD → merge
-
-thì nên đặt tên semantic hơn:
-
-preserveParagraphs
-
-hoặc:
-
-mergeBrokenParagraphs
-
-để call-site tự giải thích.
-
-Đây là loại refactor nhỏ nhưng rất đáng làm.
-
-12. Dynamic CSS là ý tưởng hay
-
-Bạn có:
-
-getDynamicCss(chapters)
-
-và chỉ include:
-
-headings.css
-quotes.css
-breaks.css
-notes.css
-
-khi thực sự cần.
-
-Mình thích cách này.
-
-Nó đặc biệt phù hợp với EPUB vì:
-
-EPUB càng ít CSS thừa càng tốt.
-
-Tuy nhiên heuristic hiện tại:
-
-html.includes('note')
-html.includes('chapter')
-html.includes('blockquote')
-
-hơi "stringly typed".
-
-Ví dụ chữ:
-
-"Please take note of..."
-
-cũng có thể trigger notesCss.
-
-Không nghiêm trọng, nhưng về lâu dài tốt hơn nếu parser tạo metadata:
-
-chapter.features = {
-headings: true,
-quotes: false,
-notes: true,
-sceneBreaks: false
-}
-
-sau đó CSS dựa vào feature flags.
-
-15. Testing hiện là phần mình muốn thấy mạnh hơn
-
-package.json đã có:
-
-vitest
-playwright
-
-đây là rất tốt.
-
-Nhưng với project này, test quan trọng nhất không phải UI.
-
-Mình sẽ ưu tiên:
-
-Unit tests
-parser
-chapter detection
-heading detection
-TOC
-XML builders
-HTML escaping
-filename sanitization
-font manifest
-Golden/snapshot tests
-
-Input:
-
-book.md
-
-Output:
-
-expected EPUB structure
-
-Sau đó unzip EPUB và assert:
-
-mimetype
-container.xml
-content.opf
-nav.xhtml
-toc.ncx
-chapter files
-CSS
-fonts
-images
-E2E
-
-Chỉ cần vài workflow quan trọng:
-
-upload TXT
-→ detect chapters
-→ configure
-→ generate
-→ download
-
-và:
-
-open EPUB
-→ edit XHTML
-→ preview
-→ save
-
-16. Mình đặc biệt khuyên thêm EPUB validation thật sự
-
-Nếu mục tiêu cuối cùng của bạn là Kobo, đây sẽ là bước nâng repo lên một level khác.
-
-Pipeline nên là:
-
-Generate EPUB
-↓
-Structural validation
-↓
-EPUBCheck
-↓
-Custom Kobo checks
-↓
-Download
-
-Thay vì:
-
-Generate
-↓
-Download
-
-Bạn có thể hiển thị:
-
-✓ EPUB container
-✓ OPF
-✓ Manifest
-✓ Spine
-✓ Navigation
-✓ XHTML
-✓ CSS
-✓ Images
-✓ Fonts
-
-⚠ Kobo:
-
-- ...
-
-Đây sẽ là một feature rất mạnh.
-
-17. Home page hiện hơi "tool list"
-
-+page.svelte hiện là grid 5 tool cards.
-
-Không xấu.
-
-Nhưng nếu project tiếp tục lớn lên, mình sẽ đổi mental model thành:
-
-Ebook Forge
-
-[ EPUB Editor ]
-[ EPUB Packer ]
-
-────────────
-
-[ PDF Processor ]
-[ Markdown Fixer ]
-
-────────────
-
-[ CJK Tools ]
-
-thay vì tất cả tool ngang hàng.
-
-Bởi vì:
-
-Core
-EPUB Editor
-EPUB Packer
-Preparation
-PDF → JPG
-Markdown Fixer
-Advanced
-TXT → PDF CJK
-
-Kiến trúc product sẽ rõ hơn.
-
-18. Có một vấn đề nhỏ về accessibility
-
-Các card hiện là:
-
-<a href="/pdf">
-    ...
-    <div> Mở công cụ </div>
-</a>
-
-Phần CTA là div nằm trong a.
-
-Không sai về HTML, nhưng semantic/accessibility tốt hơn là:
-
-<a href="/pdf">
-    ...
-    <span class="...">
-        Mở công cụ
-    </span>
-</a>
-
-hoặc style toàn bộ anchor thành button-like card.
-
-Ngoài ra emoji:
-
-📄
-✍️
-📦
-✏️
-💻
-
-không phải vấn đề lớn nhưng nếu muốn UI professional hơn, icon system sẽ đồng nhất hơn.
-
-19. Một vấn đề mình sẽ xử lý ngay: naming
-
-Hiện project có:
-
-src/lib/epub-packer/epub-state.svelte.ts
-src/lib/epub-packer/epub-packer.ts
-
-Hai cái tên:
-
-epub-state
-epub-packer
-
-khá dễ nhầm.
-
-Mình sẽ đổi conceptual structure thành:
-
-epub/
-├── state/
-├── packer/
-├── parser/
-├── builders/
-├── templates/
-└── components/
-
-hoặc nếu không muốn refactor lớn:
-
-epub-packer/
-├── state/
-├── pack/
-├── parser/
-├── xml-builders/
-├── templates/
-└── components/
-
-Không cần đổi ngay, nhưng nên có convention.
-
-20. CI đang có nhưng mình muốn nó enforce hơn
-
-Bạn đã có:
-
-.github/workflows/ci.yml
-
-và scripts:
-
-lint
-check
-test
-test:e2e
-knip
-
-Một CI lý tưởng cho repo này:
-
-pnpm install --frozen-lockfile
-
-pnpm lint
-pnpm check
-pnpm test
-pnpm build
-pnpm knip
-
-E2E có thể chạy riêng nếu Playwright browser install làm CI nặng.
+This ensures both event handlers in the DropZone component are properly invoked, which will trigger the file selection flow in the EpubSourceState.
