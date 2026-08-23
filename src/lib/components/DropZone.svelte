@@ -50,14 +50,6 @@
 			if (file && onSelect) onSelect(file);
 		}
 	}
-
-	function handleClick(e: MouseEvent): void {
-		if (disabled) return;
-		const target = e.target as HTMLInputElement;
-		if (target && target.tagName === 'INPUT') {
-			target.value = '';
-		}
-	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -74,7 +66,7 @@
 		{disabled}
 		class="absolute inset-0 opacity-0 w-full h-full {disabled ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
 		onchange={handleFileChange}
-		onclick={handleClick}
+		oninput={handleFileChange}
 	/>
 	<p class="text-base font-semibold mb-1">{title}</p>
 	{#if subtitle}

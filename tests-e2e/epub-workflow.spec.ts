@@ -8,8 +8,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	const fixtureTxtPath = path.resolve('tests/fixtures/comprehensive-syntax.txt');
 	const fixtureEpubPath = path.resolve('tests/fixtures/sample-test-book.epub');
 
-	test.beforeAll(async () => {
-		// Generate sample EPUB fixture for E2E tests
+	async function ensureEpubFixture(): Promise<void> {
+		if (fs.existsSync(fixtureEpubPath)) return;
 		const zip = new JSZip();
 		zip.file('mimetype', 'application/epub+zip');
 		zip.file(
@@ -57,6 +57,10 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 		const buffer = await zip.generateAsync({ type: 'nodebuffer' });
 		fs.writeFileSync(fixtureEpubPath, buffer);
+	}
+
+	test.beforeAll(async () => {
+		await ensureEpubFixture();
 	});
 
 	test.afterAll(() => {
@@ -84,11 +88,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub-packer');
-		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 
 		// 1. Upload .txt file
 		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters recognized and parsed
@@ -114,11 +119,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub-packer');
-		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 
 		// 1. Upload .txt file to populate chapters
 		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters parsed
@@ -136,12 +142,14 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	});
 
 	test('should load EPUB into EPUB Editor, interact with Metadata, Validator, Cleaner, and open Editor Modal', async ({ page }) => {
+		await ensureEpubFixture();
 		await page.goto('/epub-editor');
-		await page.waitForLoadState('domcontentloaded');
+		await page.waitForLoadState('networkidle');
 		await expect(page.getByRole('heading', { name: 'EPUB Editor' })).toBeVisible();
 
 		// 1. Upload EPUB fixture
 		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
 		await fileInput.setInputFiles(fixtureEpubPath);
 
 		// 2. Verify files loaded and action buttons appear
