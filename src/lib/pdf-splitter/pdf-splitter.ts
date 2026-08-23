@@ -4,7 +4,8 @@ import { Logger } from '$lib/utils';
 import type {
 	PdfPreviewPage,
 	PdfProgressInfo,
-	ProcessPdfResult
+	ProcessPdfResult,
+	PdfJsLib
 } from '$lib/types';
 
 export type {
@@ -67,7 +68,7 @@ export async function loadPdfPreview(
 	selectedPreviewCount: number,
 	keepColor: boolean
 ): Promise<PdfPreviewPage[]> {
-	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'loadPdfPreview error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
@@ -114,7 +115,7 @@ export async function processPdfToJpg(
 	cropBottomPx: number,
 	onProgress?: (info: PdfProgressInfo) => void
 ): Promise<ProcessPdfResult> {
-	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
@@ -154,7 +155,7 @@ export async function processPdfToJpg(
 	async function runWorker(workerIndex: number): Promise<void> {
 		Logger.debug('[pdf-splitter]', `Worker ${workerIndex} started`);
 		const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
-		const ctxOpts = keepColor ? { alpha: false } : { alpha: false, willReadFrequently: true };
+		const ctxOpts: CanvasRenderingContext2DSettings = keepColor ? { alpha: false } : { alpha: false, willReadFrequently: true };
 		
 		for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
 			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} processing page ${p}`);
@@ -163,17 +164,17 @@ export async function processPdfToJpg(
 			let canvas = document.createElement('canvas');
 			canvas.width = viewport.width;
 			canvas.height = viewport.height;
-			let ctx = canvas.getContext('2d', ctxOpts as any);
+			let ctx = canvas.getContext('2d', ctxOpts);
 			if (ctx) {
 				await page.render({ canvasContext: ctx, viewport }).promise;
 
 				if (cropTopPx > 0 || cropBottomPx > 0) {
 					canvas = cropCanvas(canvas, cropTopPx, cropBottomPx);
-					ctx = canvas.getContext('2d', ctxOpts as any);
+					ctx = canvas.getContext('2d', ctxOpts);
 				}
 
 				if (!keepColor && ctx) {
-					applyGrayscale(ctx as CanvasRenderingContext2D, canvas.width, canvas.height, GRAY_CONTRAST);
+					applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
 				}
 			}
 

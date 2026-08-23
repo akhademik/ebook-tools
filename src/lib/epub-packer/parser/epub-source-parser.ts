@@ -1,4 +1,4 @@
-// src/lib/epub-packer/parser/epub-parser.ts
+// src/lib/epub-packer/parser/epub-source-parser.ts
 import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper';
 import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper';
 import { parseTxtToChapters } from './txt-parser';
@@ -7,7 +7,8 @@ import type {
 	ChapterMatcher,
 	RawFileItem,
 	ChapterCutPoint,
-	RenderMarkdownBlocksOptions
+	RenderMarkdownBlocksOptions,
+	RawChapterItem
 } from '$lib/types';
 
 export type {
@@ -21,7 +22,8 @@ export type {
 	ChapterCandidateItem,
 	ChapterMatcher,
 	RawFileItem,
-	ParseTxtOptions
+	ParseTxtOptions,
+	RawChapterItem
 } from '$lib/types';
 
 export {
@@ -70,7 +72,7 @@ export function groupChapters(
 	endPage: number,
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
-): any[] {
+): RawChapterItem[] {
 	if (rawFilesList.length > 1) {
 		return groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold, options);
 	} else {

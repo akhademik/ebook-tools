@@ -14,7 +14,8 @@ import type {
 	ChapterCutPoint,
 	ChapterMatcher,
 	RawFileItem,
-	RenderMarkdownBlocksOptions
+	RenderMarkdownBlocksOptions,
+	RawChapterItem
 } from '$lib/types';
 
 // ZIP mode marker finder (at most one chapter candidate near the top of each file)
@@ -98,11 +99,11 @@ export function groupChaptersZip(
 	endPage: number,
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
-): any[] {
+): RawChapterItem[] {
 	Logger.debug('[epub-parser]', `groupChaptersZip called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const groups: any[] = [];
-	let current: any = null;
+	const groups: RawChapterItem[] = [];
+	let current: RawChapterItem | null = null;
 	let seenMarker = false;
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
@@ -115,7 +116,8 @@ export function groupChaptersZip(
 			const { html, title: t } = renderMarkdownBlocks(f.blocks, options);
 			const chapTitle = (t && t.trim()) || f.baseName;
 			if ((matcher || isHeuristicActive) && seenMarker && current) {
-				current.html += '\n' + html;
+				current.html = (current.html || '') + '\n' + html;
+				current.sources = current.sources || [];
 				current.sources.push(f.path);
 			} else {
 				current = {
@@ -133,7 +135,8 @@ export function groupChaptersZip(
 			if (leadingBlocks.length > 0) {
 				const { html: leadHtml, title: leadTitle } = renderMarkdownBlocks(leadingBlocks, options);
 				if ((matcher || isHeuristicActive) && seenMarker && current) {
-					current.html += '\n' + leadHtml;
+					current.html = (current.html || '') + '\n' + leadHtml;
+					current.sources = current.sources || [];
 					current.sources.push(f.path + ' (phần trước mốc)');
 				} else {
 					current = {
@@ -151,11 +154,12 @@ export function groupChaptersZip(
 			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks, options);
 			let chunkTitle = f.baseName;
 			if (chunkBlocks.length > 0) {
+				const firstBlockText = chunkBlocks[0].text || '';
 				if (isHeuristicActive) {
-					chunkTitle = stripDecoration(chunkBlocks[0].text) || f.baseName;
+					chunkTitle = stripDecoration(firstBlockText) || f.baseName;
 				} else if (matcher) {
-					const relLoc = matcher.locate(chunkBlocks[0].text, 0);
-					if (relLoc) chunkTitle = extractMarkerTitle(chunkBlocks[0].text, relLoc.index, f.baseName);
+					const relLoc = matcher.locate(firstBlockText, 0);
+					if (relLoc) chunkTitle = extractMarkerTitle(firstBlockText, relLoc.index, f.baseName);
 				}
 			}
 			current = {

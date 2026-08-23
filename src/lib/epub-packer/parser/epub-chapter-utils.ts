@@ -6,7 +6,9 @@ import type {
 	RawFileItem,
 	ChapterCutPoint,
 	ChapterCandidateItem,
-	ChapterMatcher
+	ChapterMatcher,
+	RawChapterItem,
+	EpubChapterItem
 } from '$lib/types';
 
 export type {
@@ -14,7 +16,9 @@ export type {
 	RawFileItem,
 	ChapterCutPoint,
 	ChapterCandidateItem,
-	ChapterMatcher
+	ChapterMatcher,
+	RawChapterItem,
+	EpubChapterItem
 };
 
 function isDecorationOnly(s: string): boolean {
@@ -151,25 +155,29 @@ export function extractChunkBlocks(
 	return result;
 }
 
-export function assignSequentialChapterIds(chapters: any[]): any[] {
+export function assignSequentialChapterIds(chapters: RawChapterItem[]): EpubChapterItem[] {
 	Logger.debug('[epub-parser]', `assignSequentialChapterIds called for chapters count: ${chapters.length}`);
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
 		const html = c.html ? mergeBrokenParagraphs(c.html) : c.html;
 		if (c.fileName === 'notes' || c.isNotes) {
-			return { ...c, html, fileName: 'notes', xmlId: 'notes' };
+			const res = { ...c, fileName: 'notes', xmlId: 'notes' } as EpubChapterItem;
+			if (html !== undefined) res.html = html;
+			return res;
 		}
 		if (c.isChapter) {
 			chapCount++;
 		}
 		const fileName = c.isChapter
 			? 'chap_' + String(chapCount).padStart(width, '0')
-			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
+			: 'p' + String(c.firstSourcePageNum ?? 1).padStart(width, '0');
 		const xmlId = c.isChapter
 			? 'chap' + String(chapCount).padStart(width, '0')
-			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
-		return { ...c, html, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null };
+			: 'p' + String(c.firstSourcePageNum ?? 1).padStart(width, '0');
+		const res = { ...c, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null } as EpubChapterItem;
+		if (html !== undefined) res.html = html;
+		return res;
 	});
 	Logger.debug('[epub-parser]', `assignSequentialChapterIds finished: total chapters = ${chapCount}`);
 	return result;

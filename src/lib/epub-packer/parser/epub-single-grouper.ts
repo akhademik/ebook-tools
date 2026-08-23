@@ -15,7 +15,8 @@ import type {
 	ChapterCutPoint,
 	ChapterMatcher,
 	RawFileItem,
-	RenderMarkdownBlocksOptions
+	RenderMarkdownBlocksOptions,
+	RawChapterItem
 } from '$lib/types';
 
 // Single File mode marker finder
@@ -100,10 +101,10 @@ export function groupChaptersSingle(
 	_endPage?: number,
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
-): any[] {
+): RawChapterItem[] {
 	Logger.debug('[epub-parser]', `groupChaptersSingle called, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
-	const groups: any[] = [];
+	const groups: RawChapterItem[] = [];
 
 	const f = rawFilesList[0];
 	if (!f) return [];
@@ -145,11 +146,12 @@ export function groupChaptersSingle(
 			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks, options);
 			let chunkTitle = f.baseName;
 			if (chunkBlocks.length > 0) {
+				const firstBlockText = chunkBlocks[0].text || '';
 				if (useHeuristic) {
-					chunkTitle = stripDecoration(chunkBlocks[0].text) || f.baseName;
+					chunkTitle = stripDecoration(firstBlockText) || f.baseName;
 				} else if (matcher) {
-					const relLoc = matcher.locate(chunkBlocks[0].text, 0);
-					if (relLoc) chunkTitle = extractMarkerTitle(chunkBlocks[0].text, relLoc.index, f.baseName);
+					const relLoc = matcher.locate(firstBlockText, 0);
+					if (relLoc) chunkTitle = extractMarkerTitle(firstBlockText, relLoc.index, f.baseName);
 				}
 			}
 			groups.push({

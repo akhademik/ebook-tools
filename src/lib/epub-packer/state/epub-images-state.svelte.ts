@@ -1,6 +1,6 @@
 // src/lib/epub-packer/state/epub-images-state.svelte.ts
 import JSZip from 'jszip';
-import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
+import type { CoverBlobItem, IllustrationImageItem, PdfJsLib } from '$lib/types';
 import { Logger, processOrnamentImage } from '$lib/utils';
 
 export class EpubImagesState {
@@ -220,7 +220,7 @@ export class EpubImagesState {
 
 		const isPdf = /\.pdf$/i.test(file.name);
 		if (isPdf) {
-			const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: any }).pdfjsLib : null;
+			const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
 			if (!globalPdfjs) {
 				Logger.error('[EpubImagesState]', 'pdfjsLib is missing');
 				this.coverStatus = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';

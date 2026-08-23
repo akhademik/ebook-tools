@@ -57,7 +57,7 @@ function startsWithLowercaseLetter(str: unknown): boolean {
 export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
 	Logger.debug('[epub-parser]', `parseMarkdownBlocks called, input length: ${(String(md || '')).length}`);
 	const lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
-	const blocks: any[] = [];
+	const blocks: MarkdownBlock[] = [];
 	let i = 0;
 	const isHeading = (l: string) => /^#{1,6}\s+/.test(l);
 	const isFence = (l: string) => /^```/.test(l.trim());
@@ -140,19 +140,21 @@ export function renderMarkdownBlocks(
 	let t: string | null = null;
 	for (const b of blocks) {
 		if (b.type === 'heading') {
-			if (t === null && (b.level === 1 || b.level === 2)) t = b.text;
+			const headingText = b.text || '';
+			if (t === null && (b.level === 1 || b.level === 2)) t = headingText;
 			if (b.level === 2) {
-				html += '<h2><span class="ch-title">' + convertInline(b.text, ignoreFormat) + '</span></h2>\n';
+				html += '<h2><span class="ch-title">' + convertInline(headingText, ignoreFormat) + '</span></h2>\n';
 			} else {
-				html += '<h' + b.level + '>' + convertInline(b.text, ignoreFormat) + '</h' + b.level + '>\n';
+				html += '<h' + (b.level || 1) + '>' + convertInline(headingText, ignoreFormat) + '</h' + (b.level || 1) + '>\n';
 			}
 		} else if (b.type === 'p') {
-			if (b.text.trim() === '###') {
+			const pText = b.text || '';
+			if (pText.trim() === '###') {
 				html += '<p class="scene-break-big" role="separator">• • •</p>\n';
-			} else if (b.text.trim() === '##') {
+			} else if (pText.trim() === '##') {
 				html += '<p class="scene-break-small" role="separator">*</p>\n';
 			} else {
-				const cleanText = b.text.replace(/\n+/g, ' ').trim();
+				const cleanText = pText.replace(/\n+/g, ' ').trim();
 				const dropcapMatch = cleanText.match(/^\[([^\]\n])\]\s+(.+)$/);
 				if (dropcapMatch) {
 					const group1 = dropcapMatch[1];
@@ -165,15 +167,15 @@ export function renderMarkdownBlocks(
 				}
 			}
 		} else if (b.type === 'blockquote') {
-			html += '<blockquote><p>' + convertInline(b.text, ignoreFormat) + '</p></blockquote>\n';
-		} else if (b.type === 'ul' && (b as any).items) {
-			html += '<ul>\n' + (b as any).items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ul>\n';
-		} else if (b.type === 'ol' && (b as any).items) {
-			html += '<ol>\n' + (b as any).items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ol>\n';
+			html += '<blockquote><p>' + convertInline(b.text || '', ignoreFormat) + '</p></blockquote>\n';
+		} else if (b.type === 'ul' && b.items) {
+			html += '<ul>\n' + b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ul>\n';
+		} else if (b.type === 'ol' && b.items) {
+			html += '<ol>\n' + b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ol>\n';
 		} else if (b.type === 'hr') {
 			html += '<hr/>\n';
 		} else if (b.type === 'code') {
-			html += '<pre><code>' + escapeXml((b as any).content) + '</code></pre>\n';
+			html += '<pre><code>' + escapeXml(b.content || '') + '</code></pre>\n';
 		}
 	}
 	return { html, title: t };

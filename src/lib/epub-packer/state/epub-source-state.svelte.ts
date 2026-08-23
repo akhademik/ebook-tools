@@ -13,7 +13,7 @@ import {
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
 	parseTxtToChapters
-} from '../parser/epub-parser';
+} from '../parser/epub-source-parser';
 import { slugify, Logger } from '$lib/utils';
 
 export interface EpubSourceStateDependencies {

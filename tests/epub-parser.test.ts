@@ -10,7 +10,7 @@ import {
 	parseTxtToChapters,
 	renderMarkdownBlocks,
 	assignSequentialChapterIds
-} from '../src/lib/epub-packer/parser/epub-parser';
+} from '../src/lib/epub-packer/parser/epub-source-parser';
 
 describe('epub-parser tests', () => {
 	describe('cleanHeaderFooterOcr', () => {

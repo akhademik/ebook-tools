@@ -115,10 +115,24 @@ export interface TocEntry {
   url: string;
 }
 
+export interface RawChapterItem {
+  title: string;
+  fileName?: string;
+  xmlId?: string;
+  html?: string;
+  isChapter?: boolean;
+  isNotes?: boolean;
+  chapterIndex?: number | null;
+  firstSourcePageNum?: number;
+  sources?: string[];
+  hasCustomTitle?: boolean;
+  features?: EpubChapterFeatures;
+}
+
 export interface MarkdownBlock {
   type: 'heading' | 'p' | 'hr' | 'blockquote' | 'code' | 'ul' | 'ol' | string;
   level?: number;
-  text: string;
+  text?: string;
   html?: string;
   content?: string;
   items?: string[];

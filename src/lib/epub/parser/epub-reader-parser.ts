@@ -1,4 +1,4 @@
-// src/lib/epub/parser/epub-parser.ts
+// src/lib/epub/parser/epub-reader-parser.ts
 import JSZip from 'jszip';
 import type {
 	EpubBook,
@@ -15,7 +15,7 @@ import type {
 	EpubResourceCategory,
 	EpubResource
 } from '../types';
-import { resolveRelativePath } from '../../epub-editor/epub-editor';
+import { resolveRelativePath } from '../../utils/path';
 
 /**
  * Locate container OPF full-path from META-INF/container.xml or fallback to first *.opf

@@ -1,8 +1,8 @@
 // src/lib/epub-packer/parser/txt-parser.ts
 import { Logger, escapeXml } from '$lib/utils';
-import type { CustomDefinition, ParseTxtOptions } from '$lib/types';
+import type { CustomDefinition, ParseTxtOptions, RawChapterItem } from '$lib/types';
 
-export type { ParseTxtOptions };
+export type { ParseTxtOptions, RawChapterItem };
 
 function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -101,7 +101,7 @@ export function parseTxtToChapters(
 	rawText: string,
 	options: ParseTxtOptions = {},
 	fallbackTitle = 'Chương 1'
-): any[] {
+): RawChapterItem[] {
 	const customDefinitions = options.customDefinitions || [];
 	const imagesMap = options.images || {};
 	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
@@ -155,8 +155,8 @@ export function parseTxtToChapters(
 		}
 	}
 
-	const chapters: any[] = [];
-	let currentChapter: any = null;
+	const chapters: RawChapterItem[] = [];
+	let currentChapter: RawChapterItem | null = null;
 
 	const ensureChapterOpen = (): void => {
 		if (!currentChapter) {

@@ -320,7 +320,7 @@ async function assembleEpubZip(
   if (coverBlob) {
     const imgFolder = oebps.folder('images');
     if (imgFolder) {
-      const rawCover = (coverBlob as any).blob || coverBlob;
+      const rawCover = 'blob' in coverBlob ? (coverBlob as { blob: Blob | File }).blob : coverBlob;
       const data = typeof rawCover.arrayBuffer === 'function' ? await rawCover.arrayBuffer() : rawCover;
       imgFolder.file('cover.jpg', data);
     }

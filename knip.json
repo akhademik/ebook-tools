@@ -5,7 +5,7 @@
     "src/routes/**/+page.{svelte,js,ts}",
     "src/routes/**/+layout.{svelte,js,ts}",
     "tests/**/*.test.ts",
-    "src/lib/epub-packer/parser/epub-parser.ts",
+    "src/lib/epub-packer/parser/epub-source-parser.ts",
     "src/lib/epub-packer/epub-packer.ts",
     "src/lib/epub-editor/epub-validator.ts",
     "src/lib/utils/index.ts",
