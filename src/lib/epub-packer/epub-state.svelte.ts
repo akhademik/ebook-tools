@@ -128,20 +128,20 @@ export class EpubState {
 			};
 
 			const ornamentsConfig: OrnamentsConfig = {};
-			if (this.images.chapterOrnamentFile) {
-				const ext = this.images.chapterOrnamentFile.name.split('.').pop()?.toLowerCase() || 'png';
+			if (this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile) {
+				const blob = this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile!;
 				ornamentsConfig.chapterOrnament = {
-					blob: this.images.chapterOrnamentFile,
-					fileName: `pre-chap.${ext}`,
-					mimeType: this.images.chapterOrnamentFile.type || 'image/png'
+					blob,
+					fileName: 'pre-chap.png',
+					mimeType: 'image/png'
 				};
 			}
-			if (this.images.subchapterOrnamentFile) {
-				const ext = this.images.subchapterOrnamentFile.name.split('.').pop()?.toLowerCase() || 'png';
+			if (this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile) {
+				const blob = this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile!;
 				ornamentsConfig.subchapterOrnament = {
-					blob: this.images.subchapterOrnamentFile,
-					fileName: `pre-small-chap.${ext}`,
-					mimeType: this.images.subchapterOrnamentFile.type || 'image/png'
+					blob,
+					fileName: 'pre-small-chap.png',
+					mimeType: 'image/png'
 				};
 			}
 

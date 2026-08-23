@@ -10,12 +10,17 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-  <span
-    class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block font-semibold"
-    >Ảnh trang trí (Ornaments)</span
-  >
+  <div class="flex items-center justify-between mb-3">
+    <span class="font-mono text-xs tracking-wider text-text-mute uppercase font-semibold">
+      Ảnh trang trí (Ornaments)
+    </span>
+    <span class="text-xs text-text-mute">
+      Tự động làm phép thuật lên ảnh, cắt viền thừa & tối ưu EPUB
+    </span>
+  </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <!-- Chapter Ornament (H1) -->
     <div class="flex flex-col gap-2">
       <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương lớn</span>
       <DropZone
@@ -25,7 +30,38 @@
         subtitle="Chèn trước thẻ H1"
         selectedFile={epubState.images.chapterOrnamentFile}
       />
-      {#if epubState.images.chapterOrnamentFile}
+
+      {#if epubState.images.chapterOrnamentStatus}
+        <div class="flex items-center gap-2 text-xs font-mono {epubState.images.chapterOrnamentError ? 'text-red-400' : 'text-accent-color'}">
+          {#if epubState.images.chapterOrnamentIsProcessing}
+            <span class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"></span>
+          {/if}
+          <span>{epubState.images.chapterOrnamentStatus}</span>
+        </div>
+      {/if}
+
+      {#if epubState.images.chapterOrnamentPreviewUrl}
+        <div class="mt-2 p-3 rounded-xl bg-surface-alt border border-border-color flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-12 rounded-lg bg-[repeating-conic-gradient(#333_0%_25%,#222_0%_50%)] bg-size-[12px_12px] flex items-center justify-center overflow-hidden border border-border-color/50">
+              <img
+                src={epubState.images.chapterOrnamentPreviewUrl}
+                alt="Chapter ornament preview"
+                class="max-w-full max-h-full object-contain p-0.5"
+              />
+            </div>
+            <div class="text-xs">
+              <div class="font-semibold text-text-bright">Đã tách nền & tối ưu</div>
+              <div class="text-text-mute font-mono">PNG trong suốt</div>
+            </div>
+          </div>
+          <button
+            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+            onclick={() => epubState.images.removeChapterOrnamentFile()}
+            type="button">Xóa ảnh</button
+          >
+        </div>
+      {:else if epubState.images.chapterOrnamentFile}
         <div class="flex justify-end">
           <button
             class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
@@ -36,6 +72,7 @@
       {/if}
     </div>
 
+    <!-- Subchapter Ornament (H2) -->
     <div class="flex flex-col gap-2">
       <span class="font-mono text-xs text-text-mute uppercase font-semibold">Trang trí chương phụ</span>
       <DropZone
@@ -45,7 +82,38 @@
         subtitle="Chèn trước thẻ H2"
         selectedFile={epubState.images.subchapterOrnamentFile}
       />
-      {#if epubState.images.subchapterOrnamentFile}
+
+      {#if epubState.images.subchapterOrnamentStatus}
+        <div class="flex items-center gap-2 text-xs font-mono {epubState.images.subchapterOrnamentError ? 'text-red-400' : 'text-accent-color'}">
+          {#if epubState.images.subchapterOrnamentIsProcessing}
+            <span class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"></span>
+          {/if}
+          <span>{epubState.images.subchapterOrnamentStatus}</span>
+        </div>
+      {/if}
+
+      {#if epubState.images.subchapterOrnamentPreviewUrl}
+        <div class="mt-2 p-3 rounded-xl bg-surface-alt border border-border-color flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-12 rounded-lg bg-[repeating-conic-gradient(#333_0%_25%,#222_0%_50%)] bg-size-[12px_12px] flex items-center justify-center overflow-hidden border border-border-color/50">
+              <img
+                src={epubState.images.subchapterOrnamentPreviewUrl}
+                alt="Subchapter ornament preview"
+                class="max-w-full max-h-full object-contain p-0.5"
+              />
+            </div>
+            <div class="text-xs">
+              <div class="font-semibold text-text-bright">Đã tách nền & tối ưu</div>
+              <div class="text-text-mute font-mono">PNG trong suốt</div>
+            </div>
+          </div>
+          <button
+            class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+            onclick={() => epubState.images.removeSubchapterOrnamentFile()}
+            type="button">Xóa ảnh</button
+          >
+        </div>
+      {:else if epubState.images.subchapterOrnamentFile}
         <div class="flex justify-end">
           <button
             class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
@@ -57,3 +125,4 @@
     </div>
   </div>
 </div>
+

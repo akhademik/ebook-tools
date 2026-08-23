@@ -1,7 +1,7 @@
 // src/lib/epub-packer/state/epub-images-state.svelte.ts
 import JSZip from 'jszip';
 import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
-import { Logger } from '$lib/utils';
+import { Logger, processOrnamentImage } from '$lib/utils';
 
 export class EpubImagesState {
 	// Cover Image States
@@ -18,9 +18,21 @@ export class EpubImagesState {
 	coverStatus = $state<string>('');
 	coverIsError = $state<boolean>(false);
 
-	// Ornament States
+	// Chapter Ornament States
 	chapterOrnamentFile = $state<File | null>(null);
+	chapterOrnamentBlob = $state<Blob | null>(null);
+	chapterOrnamentPreviewUrl = $state<string | null>(null);
+	chapterOrnamentStatus = $state<string>('');
+	chapterOrnamentIsProcessing = $state<boolean>(false);
+	chapterOrnamentError = $state<string | null>(null);
+
+	// Subchapter Ornament States
 	subchapterOrnamentFile = $state<File | null>(null);
+	subchapterOrnamentBlob = $state<Blob | null>(null);
+	subchapterOrnamentPreviewUrl = $state<string | null>(null);
+	subchapterOrnamentStatus = $state<string>('');
+	subchapterOrnamentIsProcessing = $state<boolean>(false);
+	subchapterOrnamentError = $state<string | null>(null);
 
 	// Illustration Images States
 	illustrationFiles = $state<IllustrationImageItem[]>([]);
@@ -103,22 +115,88 @@ export class EpubImagesState {
 		this.onIllustrationsChanged?.();
 	}
 
-	handleChapterOrnamentFile(file: File | null): void {
+	async handleChapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
 		this.chapterOrnamentFile = file;
+		this.chapterOrnamentError = null;
+		this.chapterOrnamentStatus = 'Đang chuẩn bị xử lý ảnh...';
+		this.chapterOrnamentIsProcessing = true;
+
+		if (this.chapterOrnamentPreviewUrl) {
+			URL.revokeObjectURL(this.chapterOrnamentPreviewUrl);
+			this.chapterOrnamentPreviewUrl = null;
+		}
+
+		try {
+			const result = await processOrnamentImage(file, {
+				onProgress: (statusText) => {
+					this.chapterOrnamentStatus = statusText;
+				}
+			});
+			this.chapterOrnamentBlob = result.blob;
+			this.chapterOrnamentPreviewUrl = result.previewUrl;
+			this.chapterOrnamentStatus = 'Đã tối ưu xong';
+		} catch (err) {
+			Logger.error('[EpubImagesState]', 'Error processing chapter ornament', err);
+			this.chapterOrnamentError = err instanceof Error ? err.message : String(err);
+			this.chapterOrnamentStatus = 'Lỗi xử lý ảnh';
+		} finally {
+			this.chapterOrnamentIsProcessing = false;
+		}
 	}
 
 	removeChapterOrnamentFile(): void {
+		if (this.chapterOrnamentPreviewUrl) {
+			URL.revokeObjectURL(this.chapterOrnamentPreviewUrl);
+		}
 		this.chapterOrnamentFile = null;
+		this.chapterOrnamentBlob = null;
+		this.chapterOrnamentPreviewUrl = null;
+		this.chapterOrnamentStatus = '';
+		this.chapterOrnamentIsProcessing = false;
+		this.chapterOrnamentError = null;
 	}
 
-	handleSubchapterOrnamentFile(file: File | null): void {
+	async handleSubchapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
 		this.subchapterOrnamentFile = file;
+		this.subchapterOrnamentError = null;
+		this.subchapterOrnamentStatus = 'Đang chuẩn bị xử lý ảnh...';
+		this.subchapterOrnamentIsProcessing = true;
+
+		if (this.subchapterOrnamentPreviewUrl) {
+			URL.revokeObjectURL(this.subchapterOrnamentPreviewUrl);
+			this.subchapterOrnamentPreviewUrl = null;
+		}
+
+		try {
+			const result = await processOrnamentImage(file, {
+				onProgress: (statusText) => {
+					this.subchapterOrnamentStatus = statusText;
+				}
+			});
+			this.subchapterOrnamentBlob = result.blob;
+			this.subchapterOrnamentPreviewUrl = result.previewUrl;
+			this.subchapterOrnamentStatus = 'Đã tối ưu xong';
+		} catch (err) {
+			Logger.error('[EpubImagesState]', 'Error processing subchapter ornament', err);
+			this.subchapterOrnamentError = err instanceof Error ? err.message : String(err);
+			this.subchapterOrnamentStatus = 'Lỗi xử lý ảnh';
+		} finally {
+			this.subchapterOrnamentIsProcessing = false;
+		}
 	}
 
 	removeSubchapterOrnamentFile(): void {
+		if (this.subchapterOrnamentPreviewUrl) {
+			URL.revokeObjectURL(this.subchapterOrnamentPreviewUrl);
+		}
 		this.subchapterOrnamentFile = null;
+		this.subchapterOrnamentBlob = null;
+		this.subchapterOrnamentPreviewUrl = null;
+		this.subchapterOrnamentStatus = '';
+		this.subchapterOrnamentIsProcessing = false;
+		this.subchapterOrnamentError = null;
 	}
 
 	adjustCoverCrop(side: 'top' | 'bottom' | 'left' | 'right', value: number): void {
