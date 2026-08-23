@@ -9,6 +9,8 @@ import headingsCss from './templates/css-template/headings.css?raw';
 import quotesCss from './templates/css-template/quotes.css?raw';
 import breaksCss from './templates/css-template/breaks.css?raw';
 import notesCss from './templates/css-template/notes.css?raw';
+import ornamentsCss from './templates/css-template/ornaments.css?raw';
+import coverCss from './templates/css-template/cover.css?raw';
 
 import { buildContainerXml } from './xml-builders/container-builder';
 import { buildContentOpf } from './xml-builders/opf-builder';
@@ -45,6 +47,8 @@ export {
 export const EPUB_CSS =
   baseCss +
   '\n' +
+  ornamentsCss +
+  '\n' +
   headingsCss +
   '\n' +
   quotesCss +
@@ -53,7 +57,7 @@ export const EPUB_CSS =
   '\n' +
   notesCss;
 
-export function getDynamicCss(chapters: EpubChapterItem[]): string {
+export function getDynamicCss(chapters: EpubChapterItem[], ornaments?: OrnamentsConfig | null): string {
   let css = baseCss;
   let hasHeadings = false;
   let hasQuotes = false;
@@ -96,6 +100,9 @@ export function getDynamicCss(chapters: EpubChapterItem[]): string {
     }
   }
 
+  if (ornaments?.chapterOrnament || ornaments?.subchapterOrnament) {
+    css += '\n' + ornamentsCss;
+  }
   if (hasHeadings) css += '\n' + headingsCss;
   if (hasQuotes) css += '\n' + quotesCss;
   if (hasBreaks) css += '\n' + breaksCss;
@@ -152,52 +159,25 @@ function prepareFinalCss(
   fonts?: EpubFontsConfig | null,
   ornaments?: OrnamentsConfig | null
 ): string {
-  let finalCss = customCss && customCss !== EPUB_CSS ? customCss : getDynamicCss(chapters);
+  let finalCss = customCss && customCss !== EPUB_CSS ? customCss : getDynamicCss(chapters, ornaments);
 
-  if (ornaments?.chapterOrnament) {
-    finalCss += `
-.chapter-ornament {
-  text-align: center;
-  margin-top: 1.5em;
-  margin-bottom: -1.5em;
-  padding: 0;
-}
-.chapter-ornament img {
-  display: inline-block;
-  max-width: 25%;
-  max-height: 60px;
-  height: auto;
-  width: auto;
-}
-`;
+  if ((ornaments?.chapterOrnament || ornaments?.subchapterOrnament) && !finalCss.includes('.chapter-ornament')) {
+    if (finalCss.includes('.dropcap')) {
+      finalCss = finalCss.replace('.dropcap', `${ornamentsCss}\n\n.dropcap`);
+    } else {
+      finalCss += '\n' + ornamentsCss;
+    }
   }
 
-  if (ornaments?.subchapterOrnament) {
-    finalCss += `
-.subchapter-ornament {
-  text-align: center;
-  margin-top: 1.5em;
-  margin-bottom: 0.3em;
-  padding: 0;
-}
-.subchapter-ornament img {
-  display: inline-block;
-  width: 5em;
-  max-width: 80px;
-  height: auto;
-}
-`;
-  }
-
-  // Generate @font-face and font-family selectors
+  // Generate @font-face and element-level font rules
   let fontFaces = '';
-  let fontSelectors = '';
+  let elementFontRules = '';
   if (fonts) {
     if (fonts.h1Font && fonts.h1Font !== 'default') {
       const f1 = findFont(fonts.h1Font);
       if (f1) {
         fontFaces += getFontCSSDeclaration(fonts.h1Font);
-        fontSelectors += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }\n`;
+        elementFontRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
       }
     }
     if (fonts.h2Font && fonts.h2Font !== 'default') {
@@ -206,7 +186,7 @@ function prepareFinalCss(
         if (fonts.h2Font !== fonts.h1Font) {
           fontFaces += getFontCSSDeclaration(fonts.h2Font);
         }
-        fontSelectors += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }\n`;
+        elementFontRules += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }`;
       }
     }
     if (fonts.dropcapFont && fonts.dropcapFont !== 'default') {
@@ -215,16 +195,30 @@ function prepareFinalCss(
         if (fonts.dropcapFont !== fonts.h1Font && fonts.dropcapFont !== fonts.h2Font) {
           fontFaces += getFontCSSDeclaration(fonts.dropcapFont);
         }
-        fontSelectors += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }\n`;
+        if (finalCss.includes('.dropcap {')) {
+          finalCss = finalCss.replace('.dropcap {', `.dropcap {\n  font-family: "${fd.cssFamily}", serif !important;`);
+        } else {
+          elementFontRules += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }`;
+        }
       }
     }
   }
 
-  if (fontFaces) {
-    finalCss = fontFaces + '\n' + finalCss;
+  // Inject element font rules at element selector position (before classes and combinators)
+  if (elementFontRules) {
+    if (finalCss.includes('p.has-dropcap')) {
+      finalCss = finalCss.replace('p.has-dropcap', `${elementFontRules.trim()}\n\np.has-dropcap`);
+    } else if (finalCss.includes('.chapter-ornament')) {
+      finalCss = finalCss.replace('.chapter-ornament', `${elementFontRules.trim()}\n\n.chapter-ornament`);
+    } else if (finalCss.includes('.dropcap')) {
+      finalCss = finalCss.replace('.dropcap', `${elementFontRules.trim()}\n\n.dropcap`);
+    } else {
+      finalCss = `${elementFontRules.trim()}\n` + finalCss;
+    }
   }
-  if (fontSelectors) {
-    finalCss = finalCss + '\n' + fontSelectors;
+
+  if (fontFaces) {
+    finalCss = fontFaces.trim() + '\n\n' + finalCss;
   }
 
   return finalCss;
@@ -393,8 +387,7 @@ async function assembleEpubZip(
           }
         }
       } else if (isCover) {
-        localCss =
-          '@page { margin: 0; padding: 0; }\nhtml, body { margin: 0; padding: 0; width: 100%; height: 100%; }\nbody { background-color: #ffffff; }\n.cover-wrapper { margin: 0; padding: 0; width: 100%; height: 100%; }\nsvg { display: block; width: 100%; height: 100%; }';
+        localCss = coverCss;
       }
       const xhtmlContent = buildChapterXhtml(
         meta,

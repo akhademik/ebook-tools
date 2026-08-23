@@ -1,15 +1,3 @@
-h1.main-chap + h1.main-chap {
-  margin-top: 0.3em !important;
-}
-
-h2.side-chap + h2.side-chap {
-  margin-top: -0.6em !important;
-}
-
-h1.main-chap + h2.side-chap {
-  margin-top: 1.2em !important;
-}
-
 .dropcap {
   float: left;
   font-size: 3em;
@@ -27,24 +15,41 @@ h1.main-chap + h2.side-chap {
   font-weight: bold;
   page-break-before: always;
 }
+
 .main-chap {
   margin-top: 1.5em;
   line-height: 1.2;
   font-size: 1.25em;
   font-weight: bold;
 }
+
 .side-chap {
   margin-top: 1.2em;
   line-height: 1.1;
   font-size: 1.1em;
   font-weight: bold;
 }
+
 .center {
   text-align: center;
 }
+
 .left {
   text-align: left;
 }
+
 .right {
   text-align: right;
+}
+
+h1.main-chap + h1.main-chap {
+  margin-top: 0.3em !important;
+}
+
+h2.side-chap + h2.side-chap {
+  margin-top: -0.6em !important;
+}
+
+h1.main-chap + h2.side-chap {
+  margin-top: 1.2em !important;
 }

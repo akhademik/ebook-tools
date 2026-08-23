@@ -5,9 +5,10 @@
 
   interface Props {
     editorState: EpubEditorState;
+    onFileSelected?: (item: EpubEditorFileItem) => void;
   }
 
-  let { editorState }: Props = $props();
+  let { editorState, onFileSelected }: Props = $props();
 
   let filterTab = $state<"all" | "page" | "style" | "image" | "other">("all");
 
@@ -46,14 +47,17 @@
   function handleItemClick(item: EpubEditorFileItem) {
     if (item.category === "page" || item.category === "style") {
       editorState.selectFile(item, "single");
+      onFileSelected?.(item);
     }
   }
 
   function handleItemDblClick(item: EpubEditorFileItem) {
     if (item.category === "page") {
       editorState.selectFile(item, "double");
+      onFileSelected?.(item);
     } else if (item.category === "style") {
       editorState.selectFile(item, "single");
+      onFileSelected?.(item);
     }
   }
 </script>

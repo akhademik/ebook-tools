@@ -52,9 +52,9 @@
   {/if}
 
   {#if editorState.files.length > 0}
-    <div class="mt-6 pt-5 border-t border-border-color flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h4 class="font-mono text-sm font-bold text-text-color">
+    <div class="mt-6 pt-5 border-t border-border-color flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="min-w-0">
+        <h4 class="font-mono text-sm font-bold text-text-color truncate">
           {editorState.fileName}
         </h4>
         <p class="text-xs text-text-mute font-mono mt-1">
@@ -66,10 +66,10 @@
         </p>
       </div>
 
-      <div class="w-full sm:w-auto flex items-center gap-3">
+      <div class="flex items-center justify-center gap-2.5 flex-wrap w-full lg:w-auto">
         <button
           type="button"
-          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-hover-bg text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          class="h-10 px-3.5 rounded-xl border border-border-color bg-panel hover:bg-hover-bg text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
           onclick={() => {
             editorState.isMetadataModalOpen = true;
           }}
@@ -79,7 +79,7 @@
 
         <button
           type="button"
-          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          class="h-10 px-3.5 rounded-xl border border-border-color bg-panel hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
           onclick={() => {
             editorState.isValidatorModalOpen = true;
           }}
@@ -89,7 +89,7 @@
 
         <button
           type="button"
-          class="h-10 px-4 rounded-xl border border-border-color bg-panel hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5"
+          class="h-10 px-3.5 rounded-xl border border-border-color bg-panel hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
           onclick={() => {
             editorState.cleanAnalysis = null;
             editorState.cleanReport = null;
@@ -99,7 +99,7 @@
           🧹 Dọn rác EPUB
         </button>
 
-        <div class="min-w-44">
+        <div class="w-auto min-w-44 shrink-0">
           <Button
             onclick={() => (editorState.isModalOpen = true)}
             variant="primary"

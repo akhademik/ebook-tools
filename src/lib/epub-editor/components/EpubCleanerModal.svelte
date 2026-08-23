@@ -62,21 +62,21 @@
       class="bg-panel border border-border-color w-full max-w-xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up"
     >
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-border-color flex justify-between items-center bg-sidebar-bg">
-        <div class="flex items-center gap-2.5">
-          <span class="text-xl">🧹</span>
-          <div>
-            <h3 class="font-mono text-base font-bold text-text-color">
-              Dọn rác & Tối ưu EPUB (Cleanup)
+      <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-color flex justify-between items-center bg-sidebar-bg">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <span class="text-xl shrink-0">🧹</span>
+          <div class="min-w-0">
+            <h3 class="font-mono text-sm sm:text-base font-bold text-text-color truncate">
+              Dọn rác & Tối ưu EPUB
             </h3>
-            <p class="text-xs text-text-mute font-mono">
+            <p class="text-xs text-text-mute font-mono truncate hidden sm:block">
               Quét và loại bỏ font, hình ảnh, CSS thừa không được sử dụng
             </p>
           </div>
         </div>
         <button
           type="button"
-          class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors"
+          class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
           onclick={handleClose}
           aria-label="Đóng modal"
         >
@@ -240,15 +240,7 @@
       </div>
 
       <!-- Footer Buttons -->
-      <div class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-between items-center">
-        <button
-          type="button"
-          class="px-4 py-2 rounded-xl text-xs font-mono text-text-mute hover:text-text-color cursor-pointer transition-colors"
-          onclick={handleClose}
-        >
-          {editorState.cleanReport ? "Đóng" : "Hủy"}
-        </button>
-
+      <div class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-end items-center">
         {#if editorState.cleanReport}
           <Button variant="primary" onclick={handleClose}>
             Hoàn tất

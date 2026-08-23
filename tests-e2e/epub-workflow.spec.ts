@@ -16,8 +16,14 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(editorLink).toBeVisible();
 	});
 
-	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
+	test('should redirect /epub to /epub-packer', async ({ page }) => {
 		await page.goto('/epub');
+		await expect(page).toHaveURL(/.*\/epub-packer/);
+		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
+	});
+
+	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
+		await page.goto('/epub-packer');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 
@@ -47,7 +53,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	});
 
 	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
-		await page.goto('/epub');
+		await page.goto('/epub-packer');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 

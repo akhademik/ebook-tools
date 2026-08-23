@@ -59,21 +59,21 @@
       class="bg-panel border border-border-color w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up"
     >
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-border-color flex justify-between items-center bg-sidebar-bg">
-        <div class="flex items-center gap-2.5">
-          <span class="text-xl">🛡️</span>
-          <div>
-            <h3 class="font-mono text-base font-bold text-text-color">
-              Kiểm định & Tương thích EPUB (Validator)
+      <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-color flex justify-between items-center bg-sidebar-bg">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <span class="text-xl shrink-0">🛡️</span>
+          <div class="min-w-0">
+            <h3 class="font-mono text-sm sm:text-base font-bold text-text-color truncate">
+              Kiểm định EPUB & Kobo
             </h3>
-            <p class="text-xs text-text-mute font-mono">
+            <p class="text-xs text-text-mute font-mono truncate hidden sm:block">
               Kiểm tra cấu trúc, thẻ XHTML, TOC, Font và độ tương thích máy đọc sách
             </p>
           </div>
         </div>
         <button
           type="button"
-          class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors"
+          class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
           onclick={handleClose}
           aria-label="Đóng modal"
         >
@@ -82,8 +82,8 @@
       </div>
 
       <!-- Profile Selector Tabs -->
-      <div class="px-6 pt-4 pb-2 border-b border-border-color bg-panel/50 flex items-center gap-2">
-        <span class="font-mono text-xs text-text-mute uppercase font-semibold mr-2">Hồ sơ kiểm định:</span>
+      <div class="px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 border-b border-border-color bg-panel/50 flex items-center gap-2 flex-wrap">
+        <span class="font-mono text-xs text-text-mute uppercase font-semibold mr-1 w-full sm:w-auto mb-1 sm:mb-0">Hồ sơ kiểm định:</span>
         <button
           type="button"
           class="px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-colors {selectedProfile === 'kobo'

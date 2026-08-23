@@ -108,7 +108,6 @@ export class EpubEditorState {
 				}
 			}
 
-			this.isModalOpen = true;
 			this.statusMessage = `Đã tải thành công ${file.name}`;
 		} catch (err: unknown) {
 			const msg = err instanceof Error ? err.message : String(err);
@@ -138,12 +137,13 @@ export class EpubEditorState {
 		return '';
 	}
 
-	async selectFile(item: EpubEditorFileItem, mode: 'single' | 'double'): Promise<void> {
+	async selectFile(item: EpubEditorFileItem, _mode: 'single' | 'double' = 'single'): Promise<void> {
 		if (item.category === 'page' || item.category === 'style') {
 			await this.ensureFileLoaded(item.path);
 			this.editorTarget = item.path;
 
-			if (item.category === 'page' && mode === 'double') {
+			// Whenever a page file is selected, update preview target and render preview immediately
+			if (item.category === 'page') {
 				this.previewTarget = item.path;
 				await this.renderPreview();
 			}

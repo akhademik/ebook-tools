@@ -23,6 +23,8 @@ vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => 
 vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({ default: '/* quotes.css */ .letter { margin: 1em; }' }));
 vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({ default: '/* breaks.css */ .scene-break { text-align: center; }' }));
 vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({ default: '/* notes.css */ .noteref { vertical-align: super; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/ornaments.css?raw', () => ({ default: '/* ornaments.css */ .chapter-ornament { text-align: center; } .subchapter-ornament { text-align: center; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/cover.css?raw', () => ({ default: '/* cover.css */ .cover-wrapper { margin: 0; }' }));
 
 import {
 	buildChapterXhtml,
@@ -597,6 +599,32 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-2.png"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything());
 			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything());
+			consoleLogSpy.mockRestore();
+		});
+
+		it('should inject ornaments.css when ornaments are configured', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const ornaments = {
+				chapterOrnament: { file: new File([''], 'orn1.png'), previewUrl: 'blob:orn1' },
+				subchapterOrnament: null
+			};
+
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title' },
+				chapters,
+				undefined,
+				false,
+				null,
+				null,
+				null,
+				ornaments
+			);
+
+			expect(blob).toBeDefined();
+			expect(mockZipInstance.file).toHaveBeenCalledWith('style.css', expect.stringContaining('.chapter-ornament'));
 			consoleLogSpy.mockRestore();
 		});
 	});

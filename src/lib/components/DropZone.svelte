@@ -62,7 +62,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="border border-dashed border-border-color rounded-xl p-10 text-center transition-colors relative {disabled ? 'opacity-50 cursor-not-allowed bg-surface-alt/50' : 'cursor-pointer'} {isDragOver && !disabled ? 'border-accent-color bg-accent-soft/30' : !disabled ? 'hover:border-accent-color hover:bg-accent-soft/10' : ''}"
+	class="border border-dashed border-border-color rounded-xl p-6 sm:p-10 text-center transition-colors relative {disabled ? 'opacity-50 cursor-not-allowed bg-surface-alt/50' : 'cursor-pointer'} {isDragOver && !disabled ? 'border-accent-color bg-accent-soft/30' : !disabled ? 'hover:border-accent-color hover:bg-accent-soft/10' : ''}"
 	ondragover={handleDragOver}
 	ondragleave={handleDragLeave}
 	ondrop={handleDrop}

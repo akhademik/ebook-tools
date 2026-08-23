@@ -194,15 +194,7 @@
       </div>
 
       <!-- Footer Buttons -->
-      <div class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-between items-center">
-        <button
-          type="button"
-          class="px-4 py-2 rounded-xl text-xs font-mono text-text-mute hover:text-text-color cursor-pointer transition-colors"
-          onclick={handleClose}
-        >
-          Đóng
-        </button>
-
+      <div class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-end items-center">
         <Button
           variant="primary"
           onclick={handleSave}

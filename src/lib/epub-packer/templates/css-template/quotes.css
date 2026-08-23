@@ -1,66 +1,14 @@
-/* ===== KHỐI THƯ (LETTER) ===== */
-.letter {
-  margin: 1.5em 1em;
-  padding: 0.3em 1.2em;
-  border-left: 2px solid #999;
+/* ===== KHỐI TRÍCH DẪN (BLOCKQUOTE) ===== */
+blockquote {
+  display: block;
+  margin: 1.2em 1.5em;
+  padding: 0;
 }
 
 blockquote p {
   text-indent: 0;
   line-height: 1.4;
   padding-top: 0.3em;
-}
-
-.letter p {
-  margin: 0 0 0.8em 0;
-  text-indent: 0;
-  /* thư thường không thụt đầu dòng như văn xuôi thường */
-}
-
-.poem p {
-  text-indent: 0;
-  text-align: center;
-}
-
-blockquote.center p {
-  text-align: center;
-}
-
-blockquote.left p {
-  text-align: left;
-}
-
-blockquote.right p {
-  text-align: right;
-}
-
-h1.main-chap + p {
-  margin-top: 1.5em !important;
-}
-
-h2.side-chap + p {
-  margin-top: 1.5em;
-}
-
-.letter p:last-child {
-  margin-bottom: 0;
-}
-
-/* ===== KHỐI THƠ (POEM) ===== */
-.poem {
-  margin: 1.5em auto;
-  text-align: center;
-  font-style: italic;
-}
-
-.poem p:last-child {
-  margin-bottom: 0;
-}
-
-blockquote {
-  display: block;
-  margin: 1.2em 1.5em;
-  padding: 0;
 }
 
 blockquote footer {
@@ -70,14 +18,62 @@ blockquote footer {
   opacity: 0.8;
 }
 
+/* ===== KHỐI THƯ (LETTER) ===== */
+.letter {
+  margin: 1.5em 1em;
+  padding: 0.3em 1.2em;
+  border-left: 2px solid #999;
+}
+
+.letter p {
+  margin: 0 0 0.8em 0;
+  text-indent: 0;
+}
+
+/* ===== KHỐI THƠ (POEM) ===== */
+.poem {
+  margin: 1.5em auto;
+  text-align: center;
+  font-style: italic;
+}
+
+.poem p {
+  text-indent: 0;
+  text-align: center;
+}
+
+/* ===== CĂN LỀ TRÍCH DẪN (ALIGNMENT) ===== */
+.center,
+.poem,
+.poem p,
+blockquote.center p,
 blockquote.center footer {
   text-align: center;
 }
 
+.left,
+blockquote.left p,
 blockquote.left footer {
   text-align: left;
 }
 
+.right,
+blockquote.right p,
 blockquote.right footer {
   text-align: right;
+}
+
+/* ===== KHOẢNG CÁCH SAU TIÊU ĐỀ ===== */
+h1.main-chap + p {
+  margin-top: 1.5em !important;
+}
+
+h2.side-chap + p {
+  margin-top: 1.5em;
+}
+
+/* ===== PHẦN TỬ CUỐI (LAST-CHILD) ===== */
+.letter p:last-child,
+.poem p:last-child {
+  margin-bottom: 0;
 }

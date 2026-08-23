@@ -133,10 +133,10 @@
         <span class="text-base font-medium">Markdown Fixer</span>
       </a>
       <a
-        href="/epub"
+        href="/epub-packer"
         onclick={closeMenu}
         class="tab-btn py-3 px-4 rounded-xl flex items-center gap-3 text-left transition-all duration-150 w-full border {$page
-          .url.pathname === '/epub'
+          .url.pathname.startsWith('/epub-packer')
           ? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
           : 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
       >

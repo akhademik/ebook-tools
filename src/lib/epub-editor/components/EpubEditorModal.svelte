@@ -1,13 +1,10 @@
 <!-- src/lib/epub-editor/components/EpubEditorModal.svelte -->
 <script lang="ts">
-  import Button from "$lib/components/Button.svelte";
+  import type { EpubEditorFileItem } from "$lib/types";
   import type { EpubEditorState } from "../epub-editor-state.svelte";
   import EpubEditorSidebar from "./EpubEditorSidebar.svelte";
   import EpubEditorCodePane from "./EpubEditorCodePane.svelte";
   import EpubEditorPreviewPane from "./EpubEditorPreviewPane.svelte";
-  import EpubCleanerModal from "./EpubCleanerModal.svelte";
-  import EpubValidatorModal from "./EpubValidatorModal.svelte";
-  import EpubMetadataModal from "./EpubMetadataModal.svelte";
 
   interface Props {
     show?: boolean;
@@ -20,10 +17,33 @@
   let activeView = $state<"split" | "code" | "preview">("split");
   let isSidebarOpen = $state(true);
   let showUnsavedConfirm = $state(false);
+  let showLandscapeHint = $state(true);
+  let isMobilePortrait = $state(false);
 
   let splitPercent = $state(50); // percentage for code pane width (15% - 85%)
   let isDragging = $state(false);
   let mainContainerEl = $state<HTMLElement | null>(null);
+
+  $effect(() => {
+    if (typeof window !== "undefined") {
+      const checkMobile = () => {
+        const isMobile = window.innerWidth < 768;
+        const isPortrait = window.innerHeight > window.innerWidth;
+        isMobilePortrait = isMobile && isPortrait;
+        if (isMobile) {
+          if (activeView === "split") {
+            activeView = "code";
+          }
+          isSidebarOpen = false;
+        } else {
+          isSidebarOpen = true;
+        }
+      };
+      checkMobile();
+      window.addEventListener("resize", checkMobile);
+      return () => window.removeEventListener("resize", checkMobile);
+    }
+  });
 
   function startResize(e: MouseEvent) {
     e.preventDefault();
@@ -72,6 +92,12 @@
       actuallyClose();
     }
   }
+
+  function handleFileSelectedMobile(_item?: EpubEditorFileItem) {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      isSidebarOpen = false;
+    }
+  }
 </script>
 
 {#if show}
@@ -81,70 +107,75 @@
     aria-modal="true"
   >
     <!-- Modal Header -->
-    <header class="h-14 px-4 bg-sidebar-bg border-b border-border-color flex items-center justify-between gap-4 shrink-0 shadow-sm">
+    <header class="h-14 px-3 sm:px-4 bg-sidebar-bg border-b border-border-color flex items-center justify-between gap-2 sm:gap-4 shrink-0 shadow-sm">
       <!-- Left: Title, File info & Sidebar toggle -->
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           type="button"
-          class="h-8 px-2.5 rounded-lg border border-border-color bg-panel hover:text-text-color text-text-mute font-mono text-xs cursor-pointer transition-colors flex items-center gap-1.5 shrink-0"
+          class="h-9 px-2.5 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-mono text-xs cursor-pointer transition-colors flex items-center gap-1.5 shrink-0"
           onclick={() => (isSidebarOpen = !isSidebarOpen)}
           title={isSidebarOpen ? "Ẩn danh sách tệp" : "Hiện danh sách tệp"}
         >
-          {isSidebarOpen ? "◀ Ẩn Files" : "▶ Hiện Files"}
+          <span>{isSidebarOpen ? "◀" : "▶"}</span>
+          <span class="hidden sm:inline">{isSidebarOpen ? "Ẩn Files" : "Hiện Files"}</span>
+          <span class="sm:hidden font-semibold">Files</span>
         </button>
 
-        <div class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center font-bold text-base shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center font-bold text-sm sm:text-base shrink-0">
           ✏️
         </div>
 
-        <div class="flex items-center gap-2 truncate">
-          <h2 class="font-mono text-sm font-bold text-text-color truncate">
+        <div class="flex items-center gap-1.5 min-w-0 truncate">
+          <h2 class="font-mono text-xs sm:text-sm font-bold text-text-color truncate max-w-[110px] sm:max-w-[220px]">
             {editorState.fileName || "EPUB Editor"}
           </h2>
           {#if editorState.dirtyPaths.size > 0}
-            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 font-mono text-xs font-semibold shrink-0">
-              ● {editorState.dirtyPaths.size} tệp đã sửa
+            <span class="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 font-mono text-[10px] sm:text-xs font-semibold shrink-0">
+              ● {editorState.dirtyPaths.size}
             </span>
           {/if}
         </div>
       </div>
 
-      <!-- Center: Layout View Switcher & Sync Toggle -->
-      <div class="hidden md:flex items-center gap-2">
-        <div class="flex items-center bg-panel rounded-xl p-1 border border-border-color font-mono text-xs">
+      <!-- Center: Responsive Layout View Switcher & Sync Toggle -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="flex items-center bg-panel rounded-xl p-0.5 sm:p-1 border border-border-color font-mono text-xs">
           <button
             type="button"
-            class="px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'split'
-              ? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
-              : 'text-text-mute hover:text-text-color'}"
-            onclick={() => (activeView = "split")}
-          >
-            ⬛|⬛
-          </button>
-          <button
-            type="button"
-            class="px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'code'
+            class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'code'
               ? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
               : 'text-text-mute hover:text-text-color'}"
             onclick={() => (activeView = "code")}
+            title="Xem mã nguồn Code"
           >
-            💻
+            💻 <span class="hidden md:inline">Code</span>
           </button>
           <button
             type="button"
-            class="px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'preview'
+            class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'preview'
               ? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
               : 'text-text-mute hover:text-text-color'}"
             onclick={() => (activeView = "preview")}
+            title="Xem trước Live Preview"
           >
-            👁️
+            👁️ <span class="hidden md:inline">Xem</span>
+          </button>
+          <button
+            type="button"
+            class="hidden md:inline-flex px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView === 'split'
+              ? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
+              : 'text-text-mute hover:text-text-color'}"
+            onclick={() => (activeView = "split")}
+            title="Chế độ Song song Code & Preview"
+          >
+            ⬛|⬛ Song song
           </button>
         </div>
 
         {#if activeView === 'split'}
           <button
             type="button"
-            class="h-8 px-2.5 rounded-xl border border-border-color bg-panel font-mono text-xs cursor-pointer transition-colors flex items-center gap-1.5 {editorState.syncViewEnabled
+            class="hidden lg:flex h-8 px-2.5 rounded-xl border border-border-color bg-panel font-mono text-xs cursor-pointer transition-colors items-center gap-1.5 {editorState.syncViewEnabled
               ? 'text-accent-color border-accent-color/30 bg-accent-soft/40 font-semibold'
               : 'text-text-mute hover:text-text-color'}"
             onclick={() => (editorState.syncViewEnabled = !editorState.syncViewEnabled)}
@@ -156,68 +187,49 @@
       </div>
 
       <!-- Right: Action buttons -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <button
           type="button"
-          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
-          onclick={() => {
-            editorState.isMetadataModalOpen = true;
-          }}
-          title="Chỉnh sửa Metadata (Tên sách, Tác giả) và Rebuild TOC"
+          class="h-9 sm:h-10 w-9 sm:w-10 rounded-xl bg-accent-color hover:bg-accent-color/90 text-white font-mono text-base font-bold cursor-pointer transition-colors flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          onclick={() => handleExport(false)}
+          disabled={editorState.isExporting}
+          title={editorState.isExporting ? "Đang xuất .EPUB..." : "Xuất tệp .EPUB (Download)"}
         >
-          ⚙️ Thông tin
+          <span>{editorState.isExporting ? "⏳" : "📥"}</span>
         </button>
 
         <button
           type="button"
-          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
-          onclick={() => {
-            editorState.isValidatorModalOpen = true;
-          }}
-          title="Kiểm định tính hợp lệ & tương thích máy đọc sách Kobo / EPUB3"
-        >
-          🛡️ Kiểm định
-        </button>
-
-        <button
-          type="button"
-          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
-          onclick={() => {
-            editorState.cleanAnalysis = null;
-            editorState.cleanReport = null;
-            editorState.isCleanerModalOpen = true;
-          }}
-          title="Quét và xóa ảnh, font, CSS thừa không được sử dụng"
-        >
-          🧹 Dọn rác
-        </button>
-
-        <div class="w-32 sm:w-40">
-          <Button
-            onclick={() => handleExport(false)}
-            disabled={editorState.isExporting}
-            variant="primary"
-          >
-            {editorState.isExporting ? "Đang xuất..." : "📥 Xuất .EPUB"}
-          </Button>
-        </div>
-
-        <button
-          type="button"
-          class="h-10 px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5"
+          class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1"
           onclick={requestClose}
           title="Đóng Editor"
         >
-          ✕ Đóng
+          ✕ <span class="hidden sm:inline">Đóng</span>
         </button>
       </div>
     </header>
 
+    <!-- Mobile Landscape Suggestion Hint Banner -->
+    {#if showLandscapeHint && isMobilePortrait}
+      <div class="bg-accent-soft/90 border-b border-accent-color/30 px-3.5 py-2 flex items-center justify-between gap-3 text-xs font-mono text-text-color shrink-0 animate-fade-in">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-base">📱🔄</span>
+          <span class="truncate">Mẹo: Xoay ngang màn hình (Landscape) để vừa soạn thảo vừa xem trước!</span>
+        </div>
+        <button
+          type="button"
+          class="text-text-mute hover:text-text-color p-1 cursor-pointer font-bold shrink-0"
+          onclick={() => (showLandscapeHint = false)}
+          title="Đóng gợi ý"
+        >✕</button>
+      </div>
+    {/if}
+
     <!-- Validation Errors Warning Banner -->
     {#if editorState.validationErrors.length > 0}
-      <div class="bg-red-500/10 border-b border-red-500/30 p-3 px-6 flex items-center justify-between gap-4 text-xs font-mono text-red-500 shrink-0">
+      <div class="bg-red-500/10 border-b border-red-500/30 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 text-xs font-mono text-red-500 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-          <span class="font-bold shrink-0">⚠️ Phát hiện lỗi XML/XHTML ({editorState.validationErrors.length}):</span>
+          <span class="font-bold shrink-0">⚠️ Lỗi XML/XHTML ({editorState.validationErrors.length}):</span>
           <div class="truncate">
             {#each editorState.validationErrors as err (err.path)}
               <span class="underline mr-2">[{err.path}: {err.error}]</span>
@@ -228,14 +240,14 @@
         <div class="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            class="px-2.5 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-600 cursor-pointer text-xs"
+            class="px-2 sm:px-2.5 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-600 cursor-pointer text-[11px] sm:text-xs"
             onclick={() => handleExport(true)}
           >
-            Vẫn xuất (Bỏ qua)
+            Bỏ qua
           </button>
           <button
             type="button"
-            class="px-2 py-1 rounded border border-red-500/40 hover:bg-red-500/20 cursor-pointer text-xs"
+            class="px-2 py-1 rounded border border-red-500/40 hover:bg-red-500/20 cursor-pointer text-[11px] sm:text-xs"
             onclick={() => (editorState.validationErrors = [])}
           >
             Đóng
@@ -245,11 +257,23 @@
     {/if}
 
     <!-- Main Workspace Layout -->
-    <div class="flex-1 flex overflow-hidden">
-      <!-- Left: Sidebar (Collapsible) -->
+    <div class="flex-1 flex overflow-hidden relative">
+      <!-- Mobile Backdrop for Sidebar Drawer -->
       {#if isSidebarOpen}
-        <aside class="w-64 md:w-72 shrink-0 h-full overflow-hidden border-r border-border-color">
-          <EpubEditorSidebar {editorState} />
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="fixed inset-0 top-14 bg-black/60 z-30 md:hidden backdrop-blur-xs transition-opacity"
+          onclick={() => (isSidebarOpen = false)}
+        ></div>
+      {/if}
+
+      <!-- Left: Sidebar (Collapsible & Mobile Drawer) -->
+      {#if isSidebarOpen}
+        <aside
+          class="fixed md:static top-14 bottom-0 left-0 z-40 w-72 sm:w-80 md:w-72 shrink-0 h-[calc(100vh-3.5rem)] md:h-full overflow-hidden border-r border-border-color bg-sidebar-bg shadow-2xl md:shadow-none animate-fade-in"
+        >
+          <EpubEditorSidebar {editorState} onFileSelected={handleFileSelectedMobile} />
         </aside>
       {/if}
 
@@ -286,11 +310,13 @@
             <EpubEditorPreviewPane {editorState} />
           </div>
         {:else if activeView === "code"}
-          <div class="flex-1 h-full min-w-0">
+          <!-- Single View: Code Only -->
+          <div class="w-full h-full overflow-hidden">
             <EpubEditorCodePane {editorState} />
           </div>
         {:else if activeView === "preview"}
-          <div class="flex-1 h-full min-w-0">
+          <!-- Single View: Preview Only -->
+          <div class="w-full h-full overflow-hidden">
             <EpubEditorPreviewPane {editorState} />
           </div>
         {/if}
@@ -375,22 +401,4 @@
       </div>
     {/if}
   </div>
-
-  <!-- Modal Cleanup -->
-  <EpubCleanerModal
-    bind:show={editorState.isCleanerModalOpen}
-    {editorState}
-  />
-
-  <!-- Modal Validator -->
-  <EpubValidatorModal
-    bind:show={editorState.isValidatorModalOpen}
-    {editorState}
-  />
-
-  <!-- Modal Metadata -->
-  <EpubMetadataModal
-    bind:show={editorState.isMetadataModalOpen}
-    {editorState}
-  />
 {/if}

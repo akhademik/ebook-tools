@@ -11,7 +11,7 @@
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<a href="/epub" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200 hover:border-accent-color/50">
+			<a href="/epub-packer" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200 hover:border-accent-color/50">
 				<div class="flex items-center justify-between mb-5">
 					<span class="font-mono text-xs text-accent-color bg-accent-color/10 border border-accent-color/20 px-2.5 py-1 rounded-lg font-medium">Core Suite</span>
 					<div class="text-2xl">📦</div>
