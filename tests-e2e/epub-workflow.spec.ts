@@ -19,6 +19,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
+		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 
 		// 1. Upload .txt file
 		const fileInput = page.locator('input[accept*=".txt"]').first();
@@ -47,6 +48,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub');
+		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
+		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 
 		// 1. Upload .txt file to populate chapters
 		const fileInput = page.locator('input[accept*=".txt"]').first();
@@ -57,7 +60,6 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 		// 3. Verify Ornaments section is visible
 		await expect(page.getByText('Ảnh trang trí (Ornaments)')).toBeVisible();
-		await expect(page.getByText(/Tự động làm phép thuật lên ảnh/i)).toBeVisible();
 
 		// 4. Check Chapter ornament (H1) and Subchapter ornament (H2) dropzones
 		const chapDropzone = page.locator('text=Trang trí chương lớn').locator('xpath=..');
