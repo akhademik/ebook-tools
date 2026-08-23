@@ -91,7 +91,7 @@
             : 'bg-sidebar-bg text-text-mute hover:text-text-color border border-border-color'}"
           onclick={() => handleProfileChange('kobo')}
         >
-          📖 Kobo e-Reader
+          📖 Kobo Compatibility
         </button>
         <button
           type="button"

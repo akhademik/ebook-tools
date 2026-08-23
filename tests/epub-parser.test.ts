@@ -1052,9 +1052,63 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 			}
 		});
 
-		it('should correctly parse the comprehensive test.txt file', async () => {
-			const fs = await import('fs');
-			const content = fs.readFileSync('test.txt', 'utf8');
+		it('should correctly parse the comprehensive test.txt file', () => {
+			const content = `@@ TIỂU THUYẾT THỬ NGHIỆM: VÒNG XOÁY KHÔNG GIAN
+Trong một buổi chiều
+
+@ Khởi nguồn những bí ẩn
+
+@! Ghi chú mật của thanh tra (Không vào TOC)
+
+[hinh-1]
+
+~t Đôi khi bí mật vĩ đại nhất lại ẩn mình trong những điều bình dị nhất.
+> Giáo sư Hùng - Trích "Nhật ký không gian"
+
+###
+
+[new]
+@@ PHẦN ĐẶC BIỆT: HỒI KÝ VÀ TƯ LIỆU GOM CHUNG
+
+@@ Hồ Sơ Nhân Vật A: Thư Tín Cổ
+[letter]
+Gửi người bạn phương xa...
+[/letter]
+
+[hinh-2]
+
+@!t Nhật ký nội bộ ngày mưa (Căn trái, không vào TOC)
+
+##
+
+@@p Hồ Sơ Nhân Vật B: Thi Ca Đương Đại (Căn phải)
+[poem]
+Trăng rơi đáy nước lung linh...
+[/poem]
+
+@p Điểm xuyết vần thơ (Căn phải, có trong TOC)
+[/new]
+
+@@t CHƯƠNG 3: NHỮNG THỬ THÁCH MỚI (Căn trái)
+Cuộc hành trình tiếp tục
+
+~p Kẻ chiến thắng
+~ Lời độc thoại căn giữa
+
+Đoạn văn ngăn cách
+
+> Dòng này bắt đầu bằng dấu > đứng độc lập
+
+@!p Các điều khoản pháp lý (Căn phải, không vào TOC)
+
+\\@ Dòng này bắt đầu bằng @
+
+\\[new] Thẻ new đã escape
+
+Chú thích:
+{1} *chữ in đậm*
+{2} /chữ in nghiêng/
+{3} _gạch chân_`;
 			const chapters = parseTxtToChapters(content, {}, 'Mặc định');
 
 			// 3 main chapters + 1 notes chapter = 4 chapters

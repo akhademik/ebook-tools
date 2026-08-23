@@ -265,6 +265,30 @@ describe('EPUB Editor unit tests', () => {
 				base: 'OEBPS/text/chap1.xhtml',
 				rel: '..//styles///main.css',
 				expected: 'OEBPS/styles/main.css'
+			},
+			{
+				name: 'nested parent traversal (../../Images/a.jpg)',
+				base: 'OEBPS/Text/Sub/ch1.xhtml',
+				rel: '../../Images/a.jpg',
+				expected: 'OEBPS/Images/a.jpg'
+			},
+			{
+				name: 'encoded space in font file (../Fonts/font%20name.ttf)',
+				base: 'OEBPS/Styles/main.css',
+				rel: '../Fonts/font%20name.ttf',
+				expected: 'OEBPS/Fonts/font name.ttf'
+			},
+			{
+				name: 'encoded space in image (Images/My%20Cover.jpg)',
+				base: 'OEBPS/content.opf',
+				rel: 'Images/My%20Cover.jpg',
+				expected: 'OEBPS/Images/My Cover.jpg'
+			},
+			{
+				name: 'explicit current dir sibling (./chapter.xhtml)',
+				base: 'OEBPS/Text/intro.xhtml',
+				rel: './chapter.xhtml',
+				expected: 'OEBPS/Text/chapter.xhtml'
 			}
 		];
 
