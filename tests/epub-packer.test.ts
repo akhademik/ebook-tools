@@ -262,6 +262,22 @@ describe('epub-packer tests', () => {
 			merged = mergeBrokenParagraphs('<p></p>\n<p>nội dung</p>');
 			expect(merged).toBe('<p></p>\n<p>nội dung</p>');
 		});
+
+		it('should safely merge paragraphs split across merged pages without trailing punctuation', () => {
+			const input = `<p>Ông nhìn quanh bãi biển và bắt gặp Lesley đang đứng cạnh một người phụ nữ Mã Lai ở đường mép thủy triều. Người phụ nữ Mã Lai</p>\n\n<p>đang đào cát bằng một cây que, cạnh bà là một chiếc xô.</p>`;
+			const merged = mergeBrokenParagraphs(input);
+			expect(merged).toBe('<p>Ông nhìn quanh bãi biển và bắt gặp Lesley đang đứng cạnh một người phụ nữ Mã Lai ở đường mép thủy triều. Người phụ nữ Mã Lai đang đào cát bằng một cây que, cạnh bà là một chiếc xô.</p>');
+
+			const userExcerpt = `<p>“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được</p>\n\n  <p>nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”</p>`;
+			const userMerged = mergeBrokenParagraphs(userExcerpt);
+			expect(userMerged).toBe('<p>“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”</p>');
+		});
+
+		it('should not merge paragraphs if paragraph 1 ends with quotes or closing brackets', () => {
+			expect(mergeBrokenParagraphs('<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>')).toBe('<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>');
+			expect(mergeBrokenParagraphs('<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>')).toBe('<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>');
+			expect(mergeBrokenParagraphs('<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>')).toBe('<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>');
+		});
 	});
 
 	describe('buildEpubBlob', () => {

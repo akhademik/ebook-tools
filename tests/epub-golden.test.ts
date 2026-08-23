@@ -150,4 +150,109 @@ Chú thích:
 		expect(coverImg).toBeDefined();
 		expect(coverImg?.length).toBeGreaterThan(0);
 	});
+
+	it('should properly stitch broken paragraphs across merged markdown files in a zip upload', async () => {
+		const { parseMarkdownBlocks } = await import('../src/lib/epub-packer/parser/epub-markdown-utils');
+		const { groupChaptersZip } = await import('../src/lib/epub-packer/parser/epub-zip-grouper');
+		const { assignSequentialChapterIds } = await import('../src/lib/epub-packer/parser/epub-chapter-utils');
+
+		// 1. Create a dummy zip simulating the user scenario
+		const zip = new JSZip();
+		const page1 = `# Chương 1\n\n“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được`;
+		const page2 = `nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”\n\nMột đoạn văn tiếp theo bình thường.`;
+
+		zip.file('001_page1.md', page1);
+		zip.file('002_page2.md', page2);
+
+		const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
+
+		// 2. Read back zip entries like EpubSourceState
+		const loadedZip = await JSZip.loadAsync(zipBuffer);
+		const rawFiles: Array<{ path: string; baseName: string; rawText: string }> = [];
+		const mdFiles = Object.keys(loadedZip.files).filter(name => name.endsWith('.md') && !loadedZip.files[name].dir);
+		mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+		for (const name of mdFiles) {
+			const text = await loadedZip.files[name].async('string');
+			const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
+			rawFiles.push({ path: name, baseName, rawText: text });
+		}
+
+		// 3. Parse blocks
+		const processedFiles = rawFiles.map(f => ({
+			path: f.path,
+			baseName: f.baseName,
+			blocks: parseMarkdownBlocks(f.rawText)
+		}));
+
+		// 4. Group chapters using heuristic
+		const grouped = groupChaptersZip(processedFiles, '', true, 1, 2, 5);
+		expect(grouped.length).toBe(1);
+
+		// 5. Assign sequential chapter IDs
+		const chapters = assignSequentialChapterIds(grouped);
+		expect(chapters.length).toBe(1);
+
+		// Verify that broken paragraph was joined into one
+		expect(chapters[0].html).toContain('chịu đựng được nó.” Ông lắc đầu.');
+		expect(chapters[0].html).not.toMatch(/chịu đựng được<\/p>\s*<p>nó\./);
+
+		// 6. Build EPUB Blob and inspect output zip
+		const epubBlob = await buildEpubBlob(
+			{ title: 'Tác phẩm Test', author: 'Author' },
+			chapters,
+			'',
+			false // preserveParagraphs = false for zip mode
+		);
+
+		const epubArrayBuffer = await epubBlob.arrayBuffer();
+		const resultZip = await JSZip.loadAsync(epubArrayBuffer);
+		const chapterXhtml = await resultZip.file('OEBPS/text/chap_01.xhtml')?.async('text');
+
+		expect(chapterXhtml).toBeDefined();
+		expect(chapterXhtml).toContain('chịu đựng được nó.” Ông lắc đầu.');
+		expect(chapterXhtml).not.toMatch(/chịu đựng được<\/p>\s*<p>nó\./);
+	});
+
+	it('should properly process the actual nha-muon-canh-cua-da-fix.zip and merge broken paragraphs across chapters', async () => {
+		const fs = await import('fs');
+		const path = await import('path');
+		const zipPath = path.resolve('nha-muon-canh-cua-da-fix.zip');
+		if (!fs.existsSync(zipPath)) return;
+
+		const { parseMarkdownBlocks } = await import('../src/lib/epub-packer/parser/epub-markdown-utils');
+		const { groupChaptersZip } = await import('../src/lib/epub-packer/parser/epub-zip-grouper');
+		const { assignSequentialChapterIds } = await import('../src/lib/epub-packer/parser/epub-chapter-utils');
+		const { cleanHeaderFooterOcr } = await import('../src/lib/epub-packer/parser/epub-ocr-utils');
+
+		const zipBuffer = fs.readFileSync(zipPath);
+		const loadedZip = await JSZip.loadAsync(zipBuffer);
+		const rawFiles: Array<{ path: string; baseName: string; rawText: string }> = [];
+		const mdFiles = Object.keys(loadedZip.files).filter(name => name.endsWith('.md') && !loadedZip.files[name].dir);
+		mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+		for (const name of mdFiles) {
+			const text = await loadedZip.files[name].async('string');
+			const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
+			rawFiles.push({ path: name, baseName, rawText: text });
+		}
+
+		const processedFiles = rawFiles.map(f => {
+			const cleaned = cleanHeaderFooterOcr(f.rawText, [], 2);
+			return {
+				path: f.path,
+				baseName: f.baseName,
+				blocks: parseMarkdownBlocks(cleaned)
+			};
+		});
+
+		// Heuristic grouping on entire book
+		const grouped = groupChaptersZip(processedFiles, '', true, 1, processedFiles.length, 5);
+		const chapters = assignSequentialChapterIds(grouped);
+
+		const quoteChapter = chapters.find(c => c.html && c.html.includes('Một nhà cách mạng'));
+		expect(quoteChapter).toBeDefined();
+		expect(quoteChapter?.html).toContain('chịu đựng được nó.” Ông lắc đầu.');
+		expect(quoteChapter?.html).not.toMatch(/chịu đựng được<\/p>\s*<p>nó\./);
+	});
 });

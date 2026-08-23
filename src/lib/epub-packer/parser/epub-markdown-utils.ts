@@ -46,14 +46,12 @@ function convertInline(text: unknown, ignoreFormat = false): string {
 
 function endsWithSentencePunctuation(str: unknown): boolean {
 	const t = String(str || '').trim();
-	return /[.!?…](["'”’»)\]]*)$/.test(t);
+	return /[.!?:;…()\]}"'”’»›]$/u.test(t);
 }
 
 function startsWithLowercaseLetter(str: unknown): boolean {
 	const t = String(str || '').trim();
-	if (!t) return false;
-	const firstChar = t.charAt(0);
-	return firstChar === firstChar.toLowerCase() && firstChar !== firstChar.toUpperCase();
+	return /^\p{Ll}/u.test(t);
 }
 
 export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {

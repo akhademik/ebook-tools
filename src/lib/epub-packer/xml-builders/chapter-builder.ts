@@ -7,26 +7,86 @@ export function mergeBrokenParagraphs(html: string): string {
     '[EpubPacker]',
     `mergeBrokenParagraphs called, html length: ${html.length}`
   );
-  let result = html;
-  let changed = true;
-  while (changed) {
-    changed = false;
-    result = result.replace(
-      /<p>([\s\S]*?)<\/p>\s*\n?<p>([\s\S]*?)<\/p>/g,
-      (match, c1, c2) => {
-        const plain = c1.replace(/<[^>]+>/g, '').trim();
-        const plain2 = c2.replace(/<[^>]+>/g, '').trim();
-        if (!plain || !plain2) return match;
-        const endsSentence = /[.!?…]/.test(plain.slice(-1));
-        const startsLower = /\p{Ll}/u.test(plain2.slice(0, 1));
-        if (!endsSentence && startsLower) {
-          changed = true;
-          return '<p>' + c1.trim() + ' ' + c2.trim() + '</p>';
-        }
-        return match;
-      },
-    );
+  if (!html) return html;
+
+  // Sentence ending indicators: . ? ! … : ; ) ] } ” " ' » ›
+  const SENTENCE_END_REGEX = /[.!?:;…()\]}"'”’»›]$/u;
+  // Unicode lowercase letter
+  const LOWERCASE_START_REGEX = /^\p{Ll}/u;
+
+  // Tokenize HTML by matching <p ...>...</p> blocks and intervening non-<p> text
+  const P_REGEX = /<p(\s+[^>]*)?>([\s\S]*?)<\/p>/gi;
+  type Token = 
+    | { type: 'p'; attrs: string; content: string; raw: string }
+    | { type: 'other'; raw: string };
+
+  const tokens: Token[] = [];
+  let lastIdx = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = P_REGEX.exec(html)) !== null) {
+    if (match.index > lastIdx) {
+      tokens.push({ type: 'other', raw: html.slice(lastIdx, match.index) });
+    }
+    tokens.push({
+      type: 'p',
+      attrs: match[1] || '',
+      content: match[2],
+      raw: match[0]
+    });
+    lastIdx = match.index + match[0].length;
   }
+  if (lastIdx < html.length) {
+    tokens.push({ type: 'other', raw: html.slice(lastIdx) });
+  }
+
+  // Iterate tokens and merge adjacent <p> elements if only whitespace separates them
+  let i = 0;
+  while (i < tokens.length) {
+    const curr = tokens[i];
+    if (curr.type !== 'p') {
+      i++;
+      continue;
+    }
+
+    // Look for next token
+    let j = i + 1;
+    let onlyWhitespaceBetween = true;
+    while (j < tokens.length && tokens[j].type === 'other') {
+      if (tokens[j].raw.trim() !== '') {
+        onlyWhitespaceBetween = false;
+        break;
+      }
+      j++;
+    }
+
+    if (onlyWhitespaceBetween && j < tokens.length && tokens[j].type === 'p') {
+      const nextP = tokens[j] as { type: 'p'; attrs: string; content: string; raw: string };
+      // Check if both are plain paragraphs (no special class/attrs like scene-break)
+      if (!curr.attrs.trim() && !nextP.attrs.trim()) {
+        const plain1 = curr.content.replace(/<[^>]+>/g, '').trim();
+        const plain2 = nextP.content.replace(/<[^>]+>/g, '').trim();
+
+        if (plain1 && plain2) {
+          const endsSentence = SENTENCE_END_REGEX.test(plain1);
+          const startsLower = LOWERCASE_START_REGEX.test(plain2);
+
+          if (!endsSentence && startsLower) {
+            // Merge nextP into curr
+            curr.content = curr.content.trim() + ' ' + nextP.content.trim();
+            curr.raw = '<p>' + curr.content + '</p>';
+            // Remove intervening whitespace tokens and nextP
+            tokens.splice(i + 1, j - i);
+            // Do not increment i, re-check curr with its new next neighbour
+            continue;
+          }
+        }
+      }
+    }
+    i++;
+  }
+
+  const result = tokens.map((t) => (t.type === 'p' ? `<p${t.attrs}>${t.content}</p>` : t.raw)).join('');
   Logger.debug(
     '[EpubPacker]',
     `mergeBrokenParagraphs finished, result length: ${result.length}`

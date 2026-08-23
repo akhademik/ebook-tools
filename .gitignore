@@ -38,7 +38,5 @@ graphify-out/*
 !graphify-out/graph.html
 !graphify-out/GRAPH_REPORT.md
 
-# Large binary assets (store in GitHub Releases instead)
-src/assets/*.zip
-*.zip
+
 

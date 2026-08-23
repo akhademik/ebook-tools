@@ -1,5 +1,6 @@
 // src/lib/epub-packer/parser/epub-chapter-utils.ts
 import { Logger, normalizeCharPreserveLength } from '$lib/utils';
+import { mergeBrokenParagraphs } from '../xml-builders/chapter-builder';
 import type {
 	MarkdownBlock,
 	RawFileItem,
@@ -155,8 +156,9 @@ export function assignSequentialChapterIds(chapters: any[]): any[] {
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
+		const html = c.html ? mergeBrokenParagraphs(c.html) : c.html;
 		if (c.fileName === 'notes' || c.isNotes) {
-			return { ...c, fileName: 'notes', xmlId: 'notes' };
+			return { ...c, html, fileName: 'notes', xmlId: 'notes' };
 		}
 		if (c.isChapter) {
 			chapCount++;
@@ -167,7 +169,7 @@ export function assignSequentialChapterIds(chapters: any[]): any[] {
 		const xmlId = c.isChapter
 			? 'chap' + String(chapCount).padStart(width, '0')
 			: 'p' + String(c.firstSourcePageNum).padStart(width, '0');
-		return { ...c, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null };
+		return { ...c, html, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null };
 	});
 	Logger.debug('[epub-parser]', `assignSequentialChapterIds finished: total chapters = ${chapCount}`);
 	return result;
