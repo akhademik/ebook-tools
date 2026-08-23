@@ -14,9 +14,6 @@
     <span class="font-mono text-xs tracking-wider text-text-mute uppercase font-semibold">
       Ảnh trang trí (Ornaments)
     </span>
-    <span class="text-xs text-text-mute">
-      Tự động làm phép thuật lên ảnh, cắt viền thừa & tối ưu EPUB
-    </span>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

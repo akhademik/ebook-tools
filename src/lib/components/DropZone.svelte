@@ -40,14 +40,23 @@
 	function handleFileChange(e: Event): void {
 		if (disabled) return;
 		const target = e.target as HTMLInputElement;
-		const files = target.files ? Array.from(target.files) : [];
-		if (multiple && onSelectMultiple && files.length) {
-			onSelectMultiple(files);
+		const fileList = target.files;
+		if (!fileList || fileList.length === 0) return;
+
+		if (multiple && onSelectMultiple) {
+			onSelectMultiple(Array.from(fileList));
 		} else {
-			const file = files[0];
+			const file = fileList[0];
 			if (file && onSelect) onSelect(file);
 		}
-		target.value = '';
+	}
+
+	function handleClick(e: MouseEvent): void {
+		if (disabled) return;
+		const target = e.target as HTMLInputElement;
+		if (target && target.tagName === 'INPUT') {
+			target.value = '';
+		}
 	}
 </script>
 
@@ -65,6 +74,7 @@
 		{disabled}
 		class="absolute inset-0 opacity-0 w-full h-full {disabled ? 'cursor-not-allowed pointer-events-none' : 'cursor-pointer'}"
 		onchange={handleFileChange}
+		onclick={handleClick}
 	/>
 	<p class="text-base font-semibold mb-1">{title}</p>
 	{#if subtitle}
