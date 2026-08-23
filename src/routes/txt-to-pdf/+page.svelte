@@ -140,7 +140,7 @@
       </div>
 
       <a
-        href="https://github.com/akhademik/ebook-tools/raw/main/src/assets/txt-to-pdf.zip"
+        href="https://github.com/akhademik/ebook-tools/releases/latest/download/txt-to-pdf.zip"
         download="txt-to-pdf.zip"
         class="flex items-center justify-center gap-3 font-mono text-base tracking-wide py-4 px-6 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]"
       >

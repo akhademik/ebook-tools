@@ -1,3 +1,4 @@
+// src/lib/epub-packer/epub-packer.ts
 import JSZip from 'jszip';
 import { Logger } from '$lib/utils';
 import { JACKET_TEMPLATES } from './templates/jacket-templates';
@@ -52,7 +53,7 @@ export const EPUB_CSS =
   '\n' +
   notesCss;
 
-function getDynamicCss(chapters: EpubChapterItem[]): string {
+export function getDynamicCss(chapters: EpubChapterItem[]): string {
   let css = baseCss;
   let hasHeadings = false;
   let hasQuotes = false;
@@ -60,37 +61,37 @@ function getDynamicCss(chapters: EpubChapterItem[]): string {
   let hasNotes = false;
 
   for (const ch of chapters) {
+    if (ch.features) {
+      if (ch.features.hasHeadings) hasHeadings = true;
+      if (ch.features.hasQuotes) hasQuotes = true;
+      if (ch.features.hasBreaks) hasBreaks = true;
+      if (ch.features.hasNotes) hasNotes = true;
+    }
+
+    if (ch.isNotes) {
+      hasNotes = true;
+    }
+
     const html = ch.html || '';
-    if (
-      html.includes('break-main-chap') ||
-      html.includes('main-chap') ||
-      html.includes('side-chap') ||
-      html.includes('chno') ||
-      html.includes('chapter') ||
-      html.includes('dropcap')
-    ) {
+    if (!hasHeadings && (
+      /<h[1-6]\b/i.test(html) ||
+      /class=["'][^"']*(?:main-chap|side-chap|break-main-chap|chno|dropcap)[^"']*["']/i.test(html)
+    )) {
       hasHeadings = true;
     }
-    if (
-      html.includes('<blockquote') ||
-      html.includes('blockquote') ||
-      html.includes('class="letter"') ||
-      html.includes('class="poem"')
-    ) {
+    if (!hasQuotes && (
+      /<blockquote\b/i.test(html) ||
+      /class=["'][^"']*(?:letter|poem)[^"']*["']/i.test(html)
+    )) {
       hasQuotes = true;
     }
-    if (
-      html.includes('scene-break') ||
-      html.includes('sbreak') ||
-      html.includes('sbreak-big')
-    ) {
+    if (!hasBreaks && /class=["'][^"']*(?:scene-break|sbreak)[^"']*["']/i.test(html)) {
       hasBreaks = true;
     }
-    if (
-      html.includes('noteref') ||
-      html.includes('note') ||
-      html.includes('footnote')
-    ) {
+    if (!hasNotes && (
+      /<aside\b[^>]*epub:type=["']footnote["']/i.test(html) ||
+      /class=["'][^"']*(?:noteref|footnote|notenum)[^"']*["']/i.test(html)
+    )) {
       hasNotes = true;
     }
   }
@@ -103,31 +104,11 @@ function getDynamicCss(chapters: EpubChapterItem[]): string {
   return css;
 }
 
-export async function buildEpubBlob(
-  metadata: Partial<EpubMetadata>,
-  chapters: EpubChapterItem[],
-  css?: string,
-  skipParagraphMerge = false,
-  jacket: EpubJacketConfig | null = null,
-  coverBlob: CoverBlobItem | null = null,
-  fonts: EpubFontsConfig | null = null,
-  ornaments: OrnamentsConfig | null = null,
-  images: IllustrationImageItem[] = [],
-): Promise<Blob> {
-  Logger.debug(
-    '[EpubPacker]',
-    'buildEpubBlob called',
-    {
-      chaptersCount: chapters.length,
-      skipParagraphMerge,
-      jacket,
-      hasCoverBlob: !!coverBlob,
-      fontsConfig: fonts,
-      ornamentsConfig: ornaments,
-      imagesCount: images?.length || 0
-    }
-  );
-  const meta: EpubMetadata = {
+/**
+ * 1. Normalize metadata
+ */
+function prepareMetadata(metadata: Partial<EpubMetadata>): EpubMetadata {
+  return {
     title: metadata.title || 'Không tên',
     author: metadata.author || 'Không rõ tác giả',
     language: metadata.language || 'vi',
@@ -139,57 +120,13 @@ export async function buildEpubBlob(
           : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2)),
     publisher: metadata.publisher || '',
   };
-  if (!chapters.length) {
-    Logger.error(
-      '[EpubPacker]',
-      'buildEpubBlob error: chapters array is empty!'
-    );
-    throw new Error('Không có chương nào để đóng gói.');
-  }
+}
 
-  // Bookerly dynamic fetch
-  const bookerlyFont = findFont('Bookerly');
-  if (bookerlyFont && bookerlyFont.url && typeof fetch !== 'undefined') {
-    if (!fonts) {
-      fonts = { blobs: {} };
-    } else if (!fonts.blobs) {
-      fonts.blobs = {};
-    }
-
-    if (!fonts.blobs['Bookerly']) {
-      try {
-        const isBrowser = typeof window !== 'undefined';
-        const isAbsolute =
-          bookerlyFont.url &&
-          (bookerlyFont.url.startsWith('http://') ||
-            bookerlyFont.url.startsWith('https://'));
-        if (isBrowser || isAbsolute) {
-          Logger.debug(
-            '[EpubPacker]',
-            'Fetching Bookerly font dynamically inside buildEpubBlob...'
-          );
-          const res = await fetch(bookerlyFont.url);
-          if (res.ok) {
-            fonts.blobs['Bookerly'] = await res.blob();
-          } else {
-            Logger.error(
-              '[EpubPacker]',
-              'Failed to fetch Bookerly font inside buildEpubBlob:',
-              res.statusText
-            );
-          }
-        }
-      } catch (err) {
-        Logger.error(
-          '[EpubPacker]',
-          'Error fetching Bookerly font inside buildEpubBlob:',
-          err
-        );
-      }
-    }
-  }
-
-  let activeFonts: string[] = [];
+/**
+ * 2. Resolve active fonts
+ */
+function resolveActiveFonts(fonts: EpubFontsConfig | null): string[] {
+  const activeFonts: string[] = [];
   if (fonts && fonts.blobs) {
     if (fonts.jacketFont && fonts.jacketFont !== 'default' && fonts.blobs[fonts.jacketFont])
       activeFonts.push(fonts.jacketFont);
@@ -203,13 +140,19 @@ export async function buildEpubBlob(
       activeFonts.push('Bookerly');
     }
   }
-  activeFonts = [...new Set(activeFonts)];
+  return [...new Set(activeFonts)];
+}
 
-  let chaptersToPack: EpubChapterItem[] = [...chapters];
-  if (chaptersToPack.some((c) => !c.fileName || !c.xmlId)) {
-    chaptersToPack = assignSequentialChapterIds(chaptersToPack);
-  }
-  let finalCss = css && css !== EPUB_CSS ? css : getDynamicCss(chaptersToPack);
+/**
+ * 3. Prepare final CSS with font declarations and ornament styles
+ */
+function prepareFinalCss(
+  chapters: EpubChapterItem[],
+  customCss?: string,
+  fonts?: EpubFontsConfig | null,
+  ornaments?: OrnamentsConfig | null
+): string {
+  let finalCss = customCss && customCss !== EPUB_CSS ? customCss : getDynamicCss(chapters);
 
   if (ornaments?.chapterOrnament) {
     finalCss += `
@@ -246,7 +189,7 @@ export async function buildEpubBlob(
 `;
   }
 
-  // Sinh @font-face và font-family theo cssFamily
+  // Generate @font-face and font-family selectors
   let fontFaces = '';
   let fontSelectors = '';
   if (fonts) {
@@ -276,11 +219,28 @@ export async function buildEpubBlob(
       }
     }
   }
+
   if (fontFaces) {
     finalCss = fontFaces + '\n' + finalCss;
   }
   if (fontSelectors) {
     finalCss = finalCss + '\n' + fontSelectors;
+  }
+
+  return finalCss;
+}
+
+/**
+ * 4. Assemble chapter items including jacket, cover, and injected IDs
+ */
+function prepareChapters(
+  chapters: EpubChapterItem[],
+  jacket: EpubJacketConfig | null,
+  coverBlob: CoverBlobItem | null
+): EpubChapterItem[] {
+  let chaptersToPack: EpubChapterItem[] = [...chapters];
+  if (chaptersToPack.some((c) => !c.fileName || !c.xmlId)) {
+    chaptersToPack = assignSequentialChapterIds(chaptersToPack);
   }
 
   if (jacket && jacket.enabled) {
@@ -318,9 +278,25 @@ export async function buildEpubBlob(
     chaptersToPack.unshift(coverChapter);
   }
 
-  chaptersToPack = injectHeadingIds(chaptersToPack);
+  return injectHeadingIds(chaptersToPack);
+}
 
-  const zip = new JSZip();
+/**
+ * 5. Add all assets and text files to JSZip
+ */
+async function assembleEpubZip(
+  zip: JSZip,
+  meta: EpubMetadata,
+  chapters: EpubChapterItem[],
+  finalCss: string,
+  activeFonts: string[],
+  jacket: EpubJacketConfig | null,
+  coverBlob: CoverBlobItem | null,
+  fonts: EpubFontsConfig | null,
+  ornaments: OrnamentsConfig | null,
+  images: IllustrationImageItem[],
+  preserveParagraphs: boolean
+): Promise<void> {
   // File mimetype bắt buộc không nén (compression: STORE)
   zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
 
@@ -336,10 +312,10 @@ export async function buildEpubBlob(
 
   oebps.file(
     'content.opf',
-    buildContentOpf(meta, chaptersToPack, !!coverBlob, activeFonts, ornaments, images),
+    buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, images),
   );
-  oebps.file('nav.xhtml', buildNavXhtml(meta, chaptersToPack));
-  oebps.file('toc.ncx', buildTocNcx(meta, chaptersToPack));
+  oebps.file('nav.xhtml', buildNavXhtml(meta, chapters));
+  oebps.file('toc.ncx', buildTocNcx(meta, chapters));
 
   const stylesFolder = oebps.folder('styles');
   if (stylesFolder) {
@@ -399,8 +375,8 @@ export async function buildEpubBlob(
 
   const textFolder = oebps.folder('text');
   if (textFolder) {
-    for (let i = 0; i < chaptersToPack.length; i++) {
-      const chapter = chaptersToPack[i];
+    for (let i = 0; i < chapters.length; i++) {
+      const chapter = chapters[i];
       const isJacket = chapter.fileName === 'jacket';
       const isCover = chapter.fileName === 'cover';
       let localCss = '';
@@ -423,13 +399,70 @@ export async function buildEpubBlob(
       const xhtmlContent = buildChapterXhtml(
         meta,
         chapter,
-        isJacket || isCover || skipParagraphMerge,
+        isJacket || isCover || preserveParagraphs,
         localCss,
         ornaments,
       );
       textFolder.file(chapter.fileName + '.xhtml', xhtmlContent);
     }
   }
+}
+
+/**
+ * Pure EPUB packer function: builds full EPUB Blob without network fetching side-effects.
+ */
+export async function buildEpubBlob(
+  metadata: Partial<EpubMetadata>,
+  chapters: EpubChapterItem[],
+  css?: string,
+  preserveParagraphs = false,
+  jacket: EpubJacketConfig | null = null,
+  coverBlob: CoverBlobItem | null = null,
+  fonts: EpubFontsConfig | null = null,
+  ornaments: OrnamentsConfig | null = null,
+  images: IllustrationImageItem[] = [],
+): Promise<Blob> {
+  Logger.debug(
+    '[EpubPacker]',
+    'buildEpubBlob called',
+    {
+      chaptersCount: chapters.length,
+      preserveParagraphs,
+      jacket,
+      hasCoverBlob: !!coverBlob,
+      fontsConfig: fonts,
+      ornamentsConfig: ornaments,
+      imagesCount: images?.length || 0
+    }
+  );
+
+  if (!chapters.length) {
+    Logger.error(
+      '[EpubPacker]',
+      'buildEpubBlob error: chapters array is empty!'
+    );
+    throw new Error('Không có chương nào để đóng gói.');
+  }
+
+  const meta = prepareMetadata(metadata);
+  const activeFonts = resolveActiveFonts(fonts);
+  const chaptersToPack = prepareChapters(chapters, jacket, coverBlob);
+  const finalCss = prepareFinalCss(chaptersToPack, css, fonts, ornaments);
+
+  const zip = new JSZip();
+  await assembleEpubZip(
+    zip,
+    meta,
+    chaptersToPack,
+    finalCss,
+    activeFonts,
+    jacket,
+    coverBlob,
+    fonts,
+    ornaments,
+    images,
+    preserveParagraphs
+  );
 
   Logger.debug(
     '[EpubPacker]',

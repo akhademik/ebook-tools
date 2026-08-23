@@ -37,15 +37,15 @@ export function mergeBrokenParagraphs(html: string): string {
 export function buildChapterXhtml(
   meta: EpubMetadata,
   chapter: EpubChapterItem,
-  skipParagraphMerge = false,
+  preserveParagraphs = false,
   customCss = '',
   ornaments: OrnamentsConfig | null = null,
 ): string {
   Logger.debug(
     '[EpubPacker]',
-    `buildChapterXhtml called for: ${chapter.title}, skipParagraphMerge: ${skipParagraphMerge}`
+    `buildChapterXhtml called for: ${chapter.title}, preserveParagraphs: ${preserveParagraphs}`
   );
-  let content = skipParagraphMerge
+  let content = preserveParagraphs
     ? (chapter.html || '')
     : mergeBrokenParagraphs(chapter.html || '');
   content = content.replace(

@@ -17,3 +17,20 @@ export function escapeXml(s: unknown): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 }
+
+/**
+ * Escapes XML attribute values (specifically handles quotes, ampersands, and XML entities).
+ * @param s - Input value.
+ * @returns Escaped attribute string.
+ */
+export function escapeXmlAttribute(s: unknown): string {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}

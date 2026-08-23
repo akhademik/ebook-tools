@@ -8,6 +8,13 @@ export interface EpubMetadata {
   publisher?: string;
 }
 
+export interface EpubChapterFeatures {
+  hasHeadings?: boolean;
+  hasQuotes?: boolean;
+  hasBreaks?: boolean;
+  hasNotes?: boolean;
+}
+
 export interface EpubChapterItem {
   title: string;
   fileName: string;
@@ -19,6 +26,7 @@ export interface EpubChapterItem {
   firstSourcePageNum?: number;
   sources?: string[];
   hasCustomTitle?: boolean;
+  features?: EpubChapterFeatures;
 }
 
 export interface OrnamentItem {

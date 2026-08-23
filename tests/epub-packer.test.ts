@@ -18,6 +18,12 @@ vi.mock('jszip', () => {
 	};
 });
 
+vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({ default: '/* base.css */' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({ default: '/* headings.css */ .main-chap { font-size: 1.5em; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({ default: '/* quotes.css */ .letter { margin: 1em; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({ default: '/* breaks.css */ .scene-break { text-align: center; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({ default: '/* notes.css */ .noteref { vertical-align: super; }' }));
+
 import {
 	buildChapterXhtml,
 	buildContainerXml,
@@ -27,7 +33,8 @@ import {
 	mergeBrokenParagraphs,
 	buildEpubBlob,
 	injectHeadingIds,
-	getTocEntries
+	getTocEntries,
+	getDynamicCss
 } from '../src/lib/epub-packer/epub-packer';
 
 describe('epub-packer tests', () => {
@@ -56,7 +63,7 @@ describe('epub-packer tests', () => {
 			expect(html).not.toContain('no-toc');
 		});
 
-		it('should bypass paragraph merging if skipParagraphMerge is true', () => {
+		it('should bypass paragraph merging if preserveParagraphs is true', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },
 				{ title: 'Chương 1', html: '<p>Đây là dòng dở</p>\n<p>tiếp tục dòng này.</p>' },
@@ -198,6 +205,27 @@ describe('epub-packer tests', () => {
 			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' }, chapters, false, ['Akashi', 'Polliwog']);
 			expect(xml).toContain('<item id="font-utm_akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>');
 			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog.otf" media-type="application/vnd.ms-opentype"/>');
+		});
+
+		it('should escape XML attributes properly in manifest items and package tag', () => {
+			const chapters = [
+				{ xmlId: 'chap&"1"', title: 'Chương 1', fileName: 'chap_&_01' }
+			];
+			const images = [
+				{ fileName: 'cover & art "1".jpg', mimeType: 'image/jpeg' }
+			];
+			const xml = buildContentOpf(
+				{ title: 'Test Book', author: 'Author', identifier: '123', language: 'vi"&' },
+				chapters,
+				false,
+				[],
+				null,
+				images
+			);
+			expect(xml).toContain('xml:lang="vi&quot;&amp;"');
+			expect(xml).toContain('<item id="chap&amp;&quot;1&quot;" href="text/chap_&amp;_01.xhtml"');
+			expect(xml).toContain('<itemref idref="chap&amp;&quot;1&quot;"/>');
+			expect(xml).toContain('href="images/cover &amp; art &quot;1&quot;.jpg"');
 		});
 	});
 
@@ -428,6 +456,28 @@ describe('epub-packer tests', () => {
 			// Verify Bookerly is declared in the content.opf manifest
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="fonts/Bookerly.ttf"'));
 			consoleLogSpy.mockRestore();
+		});
+
+		it('should conditionally include CSS snippets based on chapter features and content', async () => {
+			const chapters = [
+				{
+					xmlId: 'chap1',
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap">Tiêu đề</h1>\n<blockquote class="letter"><p>Thư</p></blockquote>\n<p class="scene-break">*</p>',
+					features: { hasHeadings: true, hasQuotes: true, hasBreaks: true, hasNotes: false }
+				}
+			];
+
+			const dynamicCss = getDynamicCss(chapters);
+			expect(dynamicCss).toContain('.main-chap');
+			expect(dynamicCss).toContain('.letter');
+			expect(dynamicCss).toContain('.scene-break');
+			expect(dynamicCss).not.toContain('aside[epub\\:type="footnote"]');
+
+			const blob = await buildEpubBlob({ title: 'Book Title' }, chapters);
+			expect(blob).toBeDefined();
+			expect(mockZipInstance.file).toHaveBeenCalledWith('style.css', expect.any(String));
 		});
 	});
 

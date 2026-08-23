@@ -1,5 +1,5 @@
 // src/lib/epub-packer/xml-builders/opf-builder.ts
-import { escapeXml, Logger } from '$lib/utils';
+import { escapeXml, escapeXmlAttribute, Logger } from '$lib/utils';
 import { findFont } from '../templates/fonts';
 import type {
   EpubMetadata,
@@ -49,21 +49,21 @@ export function buildContentOpf(
   }
   if (ornaments?.chapterOrnament) {
     manifestItems.push(
-      `<item id="pre-chap" href="images/${ornaments.chapterOrnament.fileName}" media-type="${ornaments.chapterOrnament.mimeType}"/>`,
+      `<item id="pre-chap" href="images/${escapeXmlAttribute(ornaments.chapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.chapterOrnament.mimeType)}"/>`,
     );
   }
   if (ornaments?.subchapterOrnament) {
     manifestItems.push(
-      `<item id="pre-small-chap" href="images/${ornaments.subchapterOrnament.fileName}" media-type="${ornaments.subchapterOrnament.mimeType}"/>`,
+      `<item id="pre-small-chap" href="images/${escapeXmlAttribute(ornaments.subchapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.subchapterOrnament.mimeType)}"/>`,
     );
   }
   if (images && Array.isArray(images)) {
     for (const img of images) {
       if (img && img.fileName) {
-        const imgId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+        const rawId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
         const mime = img.mimeType || 'image/jpeg';
         manifestItems.push(
-          `<item id="${imgId}" href="images/${img.fileName}" media-type="${mime}"/>`,
+          `<item id="${escapeXmlAttribute(rawId)}" href="images/${escapeXmlAttribute(img.fileName)}" media-type="${escapeXmlAttribute(mime)}"/>`,
         );
       }
     }
@@ -73,25 +73,21 @@ export function buildContentOpf(
     if (font) {
       const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, '-');
       manifestItems.push(
-        `<item id="font-${fontId}" href="fonts/${font.fileName}" media-type="${font.mimeType}"/>`,
+        `<item id="font-${escapeXmlAttribute(fontId)}" href="fonts/${escapeXmlAttribute(font.fileName)}" media-type="${escapeXmlAttribute(font.mimeType)}"/>`,
       );
     }
   }
   for (const c of chapters) {
     manifestItems.push(
-      '<item id="' +
-        c.xmlId +
-        '" href="text/' +
-        c.fileName +
-        '.xhtml" media-type="application/xhtml+xml"/>',
+      `<item id="${escapeXmlAttribute(c.xmlId)}" href="text/${escapeXmlAttribute(c.fileName)}.xhtml" media-type="application/xhtml+xml"/>`,
     );
   }
-  const spineItems = chapters.map((c) => '<itemref idref="' + c.xmlId + '"/>');
+  const spineItems = chapters.map((c) => `<itemref idref="${escapeXmlAttribute(c.xmlId)}"/>`);
 
   return (
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId" xml:lang="' +
-    meta.language +
+    escapeXmlAttribute(meta.language || 'vi') +
     '">\n' +
     '  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n' +
     '    <dc:identifier id="BookId">' +
