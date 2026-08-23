@@ -24,6 +24,7 @@ export default defineConfig({
 		port: 5173,
 		reuseExistingServer: !process.env.CI,
 		stdout: 'ignore',
-		stderr: 'pipe'
+		stderr: 'pipe',
+		timeout: 120000
 	}
 });

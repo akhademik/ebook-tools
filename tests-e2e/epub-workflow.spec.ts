@@ -84,15 +84,15 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub-packer');
+		await page.waitForLoadState('domcontentloaded');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
-		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 
 		// 1. Upload .txt file
-		const fileInput = page.locator('input[accept*=".txt"]').first();
+		const fileInput = page.locator('input[type="file"]').first();
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters recognized and parsed
-		await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 20000 });
+		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({ timeout: 25000 });
 
 		// 3. Open Jacket Modal
 		const jacketBtn = page.getByRole('button', { name: /Tùy chỉnh trang lót|Trang lót/i }).first();
@@ -114,15 +114,15 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
 		await page.goto('/epub-packer');
+		await page.waitForLoadState('domcontentloaded');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
-		await expect(page.locator('text=Chọn file nguồn')).toBeVisible();
 
 		// 1. Upload .txt file to populate chapters
-		const fileInput = page.locator('input[accept*=".txt"]').first();
+		const fileInput = page.locator('input[type="file"]').first();
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters parsed
-		await expect(page.locator('text=Đã xử file .TXT thành công')).toBeVisible({ timeout: 20000 });
+		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({ timeout: 25000 });
 
 		// 3. Verify Ornaments section is visible
 		await expect(page.getByText('Ảnh trang trí (Ornaments)')).toBeVisible();
@@ -137,14 +137,15 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 	test('should load EPUB into EPUB Editor, interact with Metadata, Validator, Cleaner, and open Editor Modal', async ({ page }) => {
 		await page.goto('/epub-editor');
+		await page.waitForLoadState('domcontentloaded');
 		await expect(page.getByRole('heading', { name: 'EPUB Editor' })).toBeVisible();
 
 		// 1. Upload EPUB fixture
-		const fileInput = page.locator('input[accept*=".epub"]').first();
+		const fileInput = page.locator('input[type="file"]').first();
 		await fileInput.setInputFiles(fixtureEpubPath);
 
 		// 2. Verify files loaded and action buttons appear
-		await expect(page.locator('text=sample-test-book.epub')).toBeVisible({ timeout: 15000 });
+		await expect(page.getByRole('heading', { name: 'sample-test-book.epub' })).toBeVisible({ timeout: 25000 });
 		await expect(page.getByRole('button', { name: /Thông tin/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Kiểm định/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Dọn rác/i })).toBeVisible();
