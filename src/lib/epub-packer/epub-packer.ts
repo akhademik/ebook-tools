@@ -14,7 +14,7 @@ import coverCss from './templates/css-template/cover.css?raw';
 
 import { buildContainerXml } from './xml-builders/container-builder';
 import { buildContentOpf } from './xml-builders/opf-builder';
-import { injectHeadingIds, getTocEntries, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder';
+import { injectHeadingIds, getTocEntries, buildTocTree, buildNavXhtml, buildTocNcx } from './xml-builders/nav-builder';
 import { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder';
 import { assignSequentialChapterIds } from './parser/epub-chapter-utils';
 import type {
@@ -38,6 +38,7 @@ export {
   buildContentOpf,
   injectHeadingIds,
   getTocEntries,
+  buildTocTree,
   buildNavXhtml,
   buildTocNcx,
   mergeBrokenParagraphs,

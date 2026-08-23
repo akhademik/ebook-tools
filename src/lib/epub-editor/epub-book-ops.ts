@@ -1,8 +1,9 @@
 // src/lib/epub-editor/epub-book-ops.ts
 import type JSZip from 'jszip';
-import type { EpubMetadata } from '$lib/types';
+import type { EpubMetadata, TocNode, TocTree } from '$lib/types';
 import { resolveRelativePath } from './epub-editor';
 import { escapeXml } from '$lib/utils';
+import { buildNavXhtml, buildTocNcx } from '../epub-packer/xml-builders/nav-builder';
 
 export interface BookMetadataDetails extends EpubMetadata {
 	description?: string;
@@ -39,9 +40,70 @@ export async function findOpfPath(zip: JSZip): Promise<string | null> {
 }
 
 /**
- * Extract book metadata from OPF content.
+ * Extract book metadata from OPF content using DOMParser with regex fallback.
  */
 export function extractBookMetadata(opfXml: string): BookMetadataDetails {
+	if (typeof DOMParser !== 'undefined') {
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(opfXml, 'application/xml');
+			const parserError = doc.querySelector('parsererror');
+
+			if (!parserError) {
+				const metadataEl = doc.querySelector('metadata');
+				const allElements = metadataEl ? Array.from(metadataEl.getElementsByTagName('*')) : [];
+
+				const getElText = (tagPattern: string): string => {
+					const found = allElements.find((el) => {
+						const local = el.localName || el.tagName.split(':').pop() || '';
+						return local.toLowerCase() === tagPattern.toLowerCase();
+					});
+					return found?.textContent?.trim() || '';
+				};
+
+				const title = getElText('title') || 'Không tên';
+				const author = getElText('creator') || '';
+				const language = getElText('language') || 'vi';
+				const publisher = getElText('publisher') || '';
+				const description = getElText('description') || '';
+				const rights = getElText('rights') || '';
+				const pubDate = getElText('date') || '';
+
+				const pkgEl = doc.querySelector('package');
+				const uniqueIdAttr = pkgEl?.getAttribute('unique-identifier');
+				let identifier = '';
+
+				if (uniqueIdAttr) {
+					const uniqueEl = allElements.find(
+						(el) =>
+							(el.localName === 'identifier' || el.tagName.endsWith(':identifier')) &&
+							el.getAttribute('id') === uniqueIdAttr
+					);
+					if (uniqueEl?.textContent?.trim()) {
+						identifier = uniqueEl.textContent.trim();
+					}
+				}
+
+				if (!identifier) {
+					identifier = getElText('identifier');
+				}
+
+				return {
+					title,
+					author,
+					language,
+					identifier,
+					publisher,
+					description,
+					rights,
+					pubDate
+				};
+			}
+		} catch {
+			// Fallback to regex
+		}
+	}
+
 	const getTagValue = (tagName: string): string => {
 		const regex = new RegExp(`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`, 'i');
 		const match = regex.exec(opfXml);
@@ -308,12 +370,12 @@ export async function rebuildEpubToc(
 		});
 	}
 
-	// Build nav.xhtml
-	const navListItems: string[] = [];
-	let playOrder = 1;
-	const ncxNavPoints: string[] = [];
+	// Build TocTree
+	const tocNodes: TocNode[] = [];
+	let nodeCounter = 1;
 
-	for (const ch of tocChapters) {
+	for (let i = 0; i < tocChapters.length; i++) {
+		const ch = tocChapters[i];
 		// Calculate relative path from nav.xhtml to chapter
 		const navDir = navResolvedPath.includes('/') ? navResolvedPath.substring(0, navResolvedPath.lastIndexOf('/')) : '';
 		let relHref = ch.path;
@@ -331,80 +393,36 @@ export async function rebuildEpubToc(
 		}
 
 		if (ch.headings.length <= 1) {
-			navListItems.push(`      <li><a href="${escapeXml(relHref)}">${escapeXml(ch.title)}</a></li>`);
-			ncxNavPoints.push(
-				`    <navPoint id="num_${playOrder}" playOrder="${playOrder}">\n` +
-				`      <navLabel><text>${escapeXml(ch.title)}</text></navLabel>\n` +
-				`      <content src="${escapeXml(relHref)}"/>\n` +
-				`    </navPoint>`
-			);
-			playOrder++;
-		} else {
-			// Subheadings nested list (skip index 0 if it was used as chapter title)
-			const subHeadings = ch.headings.slice(1);
-			const subItems = subHeadings.map(
-				(h) => `          <li><a href="${escapeXml(relHref)}#${escapeXml(h.id)}">${escapeXml(h.title)}</a></li>`
-			);
-			navListItems.push(
-				`      <li>\n        <a href="${escapeXml(relHref)}">${escapeXml(ch.title)}</a>\n        <ol>\n${subItems.join('\n')}\n        </ol>\n      </li>`
-			);
-
-			const subNavPoints = subHeadings.map((h) => {
-				const currOrder = playOrder++;
-				return (
-					`      <navPoint id="num_${currOrder}" playOrder="${currOrder}">\n` +
-					`        <navLabel><text>${escapeXml(h.title)}</text></navLabel>\n` +
-					`        <content src="${escapeXml(relHref)}#${escapeXml(h.id)}"/>\n` +
-					`      </navPoint>`
-				);
+			tocNodes.push({
+				id: `num_${nodeCounter++}`,
+				title: ch.title,
+				href: relHref,
+				level: 1,
+				children: []
 			});
+		} else {
+			const subHeadings = ch.headings.slice(1);
+			const childNodes: TocNode[] = subHeadings.map((h) => ({
+				id: `num_${nodeCounter++}`,
+				title: h.title,
+				href: `${relHref}#${h.id}`,
+				level: h.level,
+				children: []
+			}));
 
-			ncxNavPoints.push(
-				`    <navPoint id="num_${playOrder}" playOrder="${playOrder}">\n` +
-				`      <navLabel><text>${escapeXml(ch.title)}</text></navLabel>\n` +
-				`      <content src="${escapeXml(relHref)}"/>\n` +
-				`${subNavPoints.join('\n')}\n` +
-				`    </navPoint>`
-			);
-			playOrder++;
+			tocNodes.push({
+				id: `num_${nodeCounter++}`,
+				title: ch.title,
+				href: relHref,
+				level: 1,
+				children: childNodes
+			});
 		}
 	}
 
-	const navXhtml =
-		'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
-		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' +
-		meta.language +
-		'">\n' +
-		'<head>\n  <meta charset="utf-8"/>\n  <title>' +
-		escapeXml(meta.title) +
-		' - Mục lục</title>\n</head>\n' +
-		'<body>\n' +
-		'  <nav epub:type="toc" id="toc">\n' +
-		'    <h1>Mục lục</h1>\n' +
-		'    <ol>\n' +
-		navListItems.join('\n') +
-		'\n    </ol>\n' +
-		'  </nav>\n' +
-		'</body>\n</html>';
-
-	const tocNcx =
-		'<?xml version="1.0" encoding="UTF-8"?>\n' +
-		'<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">\n' +
-		'  <head>\n' +
-		'    <meta name="dtb:uid" content="' +
-		escapeXml(meta.identifier || 'urn:uuid:ebook') +
-		'"/>\n' +
-		'    <meta name="dtb:depth" content="2"/>\n' +
-		'    <meta name="dtb:totalPageCount" content="0"/>\n' +
-		'    <meta name="dtb:maxPageNumber" content="0"/>\n' +
-		'  </head>\n' +
-		'  <docTitle><text>' +
-		escapeXml(meta.title) +
-		'</text></docTitle>\n' +
-		'  <navMap>\n' +
-		ncxNavPoints.join('\n') +
-		'\n  </navMap>\n' +
-		'</ncx>';
+	const tocTree: TocTree = { nodes: tocNodes };
+	const navXhtml = buildNavXhtml(meta, tocTree);
+	const tocNcx = buildTocNcx(meta, tocTree);
 
 	return {
 		navXhtml,

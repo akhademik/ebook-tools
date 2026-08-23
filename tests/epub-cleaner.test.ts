@@ -169,5 +169,23 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			expect(updatedOpf).toContain('used.jpg');
 			expect(updatedOpf).toContain('used.ttf');
 		});
+
+		it('should detect duplicate resources by content hash and optimize them', async () => {
+			const zip = await createSampleEpubZip();
+			// Add duplicate image
+			zip.file('OEBPS/images/dup_used.jpg', new Uint8Array(4000)); // identical byte array
+
+			const plan = await (await import('../src/lib/epub-editor/epub-cleaner')).analyzeOptimizationPlan(zip);
+			expect(plan.duplicateResources.length).toBeGreaterThan(0);
+			expect(plan.savingsBreakdown.duplicateResources).toBe(4000);
+
+			const report = await (await import('../src/lib/epub-editor/epub-cleaner')).optimizeEpub(zip, {
+				deduplicateResources: true,
+				cleanOpfManifest: true
+			});
+
+			expect(report.deduplicatedResources).toContain('OEBPS/images/dup_used.jpg');
+			expect(zip.file('OEBPS/images/dup_used.jpg')).toBeNull();
+		});
 	});
 });

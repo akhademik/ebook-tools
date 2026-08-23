@@ -116,4 +116,54 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 		const result = await validateEpub(zip, 'generic');
 		expect(result.issues.some((i) => i.message.includes('trùng lặp thuộc tính id="dup-1"'))).toBe(true);
 	});
+
+	it('should handle OPF with multiline attributes and reordered XML attributes without breaking', async () => {
+		const zip = new JSZip();
+		zip.file('mimetype', 'application/epub+zip');
+		zip.file(
+			'META-INF/container.xml',
+			`<?xml version="1.0"?>
+			<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+				<rootfiles>
+					<rootfile
+						media-type="application/oebps-package+xml"
+						full-path="EPUB/package.opf" />
+				</rootfiles>
+			</container>`
+		);
+		zip.file(
+			'EPUB/package.opf',
+			`<?xml version="1.0" encoding="utf-8"?>
+			<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+				<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+					<dc:identifier id="pub-id">urn:uuid:abc-123</dc:identifier>
+					<dc:title>Multiline OPF</dc:title>
+				</metadata>
+				<manifest>
+					<item
+						media-type="application/xhtml+xml"
+						href="text/c1.xhtml"
+						id="c1" />
+					<item
+						id="nav"
+						properties="nav"
+						media-type="application/xhtml+xml"
+						href="nav.xhtml" />
+				</manifest>
+				<spine>
+					<itemref
+						linear="yes"
+						idref="c1" />
+				</spine>
+			</package>`
+		);
+		zip.file('EPUB/nav.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>');
+		zip.file('EPUB/text/c1.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>OK</p></body></html>');
+
+		const result = await validateEpub(zip, 'epub3');
+		expect(result.passed).toBe(true);
+		expect(result.errorCount).toBe(0);
+		expect(result.summary.manifest).toBe('pass');
+		expect(result.summary.spine).toBe('pass');
+	});
 });

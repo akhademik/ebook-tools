@@ -96,6 +96,20 @@ export interface JacketTemplate {
   ) => string;
 }
 
+export interface TocNode {
+  id: string;
+  title: string;
+  href: string;
+  level?: number;
+  playOrder?: number;
+  children?: TocNode[];
+}
+
+export interface TocTree {
+  title?: string;
+  nodes: TocNode[];
+}
+
 export interface TocEntry {
   title: string;
   url: string;

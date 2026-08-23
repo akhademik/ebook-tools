@@ -18,9 +18,9 @@ Công cụ biên tập và xem trước tệp `.epub` thời gian thực mạnh 
   * Thanh phân chia kéo thả (Resizable Split Pane) điều chỉnh độ rộng Editor / Preview tùy ý.
   * Chế độ xem **100% Real View** hoặc mô phỏng máy đọc sách (600px), máy tính bảng (768px), điện thoại (390px).
   * Ẩn / hiện danh sách tệp bên trái để tối ưu diện tích màn hình.
-* **Dọn rác & Tối ưu dung lượng (EPUB Cleanup)**: Tự động quét và loại bỏ hình ảnh, fonts nhúng, CSS mồ côi không được sử dụng trong sách; tự động làm sạch OPF manifest và giảm mạnh dung lượng file.
-* **Kiểm định & Tương thích máy đọc sách (EPUB & Kobo Validator)**: Kiểm định toàn diện theo hồ sơ **Generic EPUB**, **EPUB 3.0** và **Kobo e-Reader** (kiểm tra cấu trúc container, OPF manifest, spine, TOC, thẻ XHTML, phát hiện trùng lặp ID, font magic và ảnh bìa cover).
-* **Quản lý Thông tin sách & Tự động Rebuild TOC (Book Operations)**: Chỉnh sửa trực tiếp Metadata sách (Tên sách, Tác giả, Ngôn ngữ, UUID/Identifier, Nhà xuất bản) trong `content.opf`; 1-click tự động tái tạo đồng bộ mục lục `nav.xhtml` (EPUB 3) và `toc.ncx` (EPUB 2 / Kobo).
+* **Dọn rác & Tối ưu dung lượng (EPUB Optimizer)**: Tự động quét và lập kế hoạch tối ưu (**Optimization Plan**) chi tiết: phát hiện hình ảnh/font/CSS/trang thừa, phát hiện tài nguyên trùng lặp (Duplicate Detection theo SHA-1 checksum), tính toán dung lượng tiết kiệm (Potential Savings) và loại bỏ an toàn với 1-click.
+* **Kiểm định & Tương thích máy đọc sách (EPUB Validator)**: Kiến trúc kiểm định DOM/XML nhiều tầng (**ValidationContext** + **ValidationRules**), kiểm định chuẩn xác theo hồ sơ **Generic EPUB**, **EPUB 3.0** và **Kobo e-Reader** (cấu trúc ZIP, META-INF/container.xml, OPF manifest/spine, TOC/NCX, kiểm tra cú pháp XHTML, phát hiện trùng lặp ID, magic bytes font chữ và hiển thị bìa sleep screen).
+* **Quản lý Thông tin sách & Tự động Rebuild TOC (Book Operations)**: Chỉnh sửa trực tiếp Metadata sách trong `content.opf`; 1-click tự động tái tạo đồng bộ mục lục thông qua mô hình trung gian **TocTree** thống nhất giữa `nav.xhtml` (EPUB 3) và `toc.ncx` (EPUB 2 / Kobo).
 * **Kiểm tra cú pháp & Xuất file an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi xuất, cảnh báo khi đóng mà chưa lưu và đóng gói tải về tệp `.epub` hoàn chỉnh.
 
 ---
@@ -36,7 +36,9 @@ Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `
   * `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote và tên tác giả.
   * Dropcap `[c]`, ảnh minh họa `[hinh-1]`, phân cảnh `###`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_` và chú thích chân trang `{n}` / `Chú thích:`.
 * **Xử lý hình ảnh**: Hỗ trợ tải lên ảnh bìa, ảnh đơn lẻ hoặc file `.zip` chứa ảnh để nhúng tự động vào sách.
-* **Tự động hóa thông minh**: Nhận diện cấu trúc chương theo thuật toán Heuristic, tự động lọc sạch header/footer thừa và tạo mục lục phân cấp chuẩn xác.
+* **Tự động hóa thông minh (Heuristic Chapter Detection)**:
+  * Tự động quét cấu trúc chương dựa trên điểm số heuristic (tiêu đề in hoa, độ dài chuỗi, số La Mã, từ khóa `Chương`/`Chapter`/`Hồi`/`Quyển`).
+  * **Lưu ý & Giới hạn khi sử dụng Heuristic**: Với các file text OCR chưa chuẩn hóa (dòng ngắt tự do, đoạn văn bản in hoa ngẫu nhiên), người dùng nên gán tiền tố tường minh `@@` ở đầu mỗi tên chương để đảm bảo việc phân chương và dựng cây mục lục TOC đạt độ chính xác 100%.
 
 ---
 
@@ -79,6 +81,21 @@ Truy cập ứng dụng tại địa chỉ: `http://localhost:5173`
 ### Đóng gói ứng dụng (Production Build)
 ```bash
 pnpm build
+```
+
+### 🧪 Bộ Kiểm Thử Tự Động (Test Suite)
+```bash
+# Chạy toàn bộ unit tests & kịch bản thực tế (214+ tests)
+pnpm test
+
+# Chế độ tự động chạy lại test khi lưu file (watch mode)
+pnpm test:watch
+
+# Báo cáo độ phủ kiểm thử (test coverage)
+pnpm test:coverage
+
+# Kiểm tra kiểu dữ liệu TypeScript & Svelte
+pnpm check
 ```
 
 ---

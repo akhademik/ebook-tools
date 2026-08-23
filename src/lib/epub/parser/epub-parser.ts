@@ -36,7 +36,7 @@ async function findOpfPath(zip: JSZip): Promise<string | null> {
 }
 
 /**
- * Parse OPF manifest and spine elements.
+ * Parse OPF manifest and spine elements using DOMParser with regex fallback.
  */
 function parseOpfManifestAndSpine(
 	opfXml: string,
@@ -48,6 +48,83 @@ function parseOpfManifestAndSpine(
 } {
 	const manifestItems = new Map<string, EpubManifestItem>();
 	const manifestByPath = new Map<string, EpubManifestItem>();
+
+	if (typeof DOMParser !== 'undefined') {
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(opfXml, 'application/xml');
+			const parserError = doc.querySelector('parsererror');
+
+			if (!parserError) {
+				const pkgEl = doc.querySelector('package');
+				const version = pkgEl?.getAttribute('version') || '2.0';
+				const uniqueIdentifierId = pkgEl?.getAttribute('unique-identifier') || undefined;
+
+				const itemEls = Array.from(doc.querySelectorAll('manifest > item, item'));
+				for (const itemEl of itemEls) {
+					const id = itemEl.getAttribute('id');
+					const href = itemEl.getAttribute('href');
+					if (id && href) {
+						const resolvedPath = resolveRelativePath(opfPath, href);
+						const item: EpubManifestItem = {
+							id,
+							href,
+							mediaType: itemEl.getAttribute('media-type') || 'application/octet-stream',
+							resolvedPath,
+							properties: itemEl.getAttribute('properties') || undefined,
+							fallback: itemEl.getAttribute('fallback') || undefined,
+							mediaOverlay: itemEl.getAttribute('media-overlay') || undefined
+						};
+						manifestItems.set(id, item);
+						manifestByPath.set(resolvedPath, item);
+					}
+				}
+
+				const spineEl = doc.querySelector('spine');
+				const tocId = spineEl?.getAttribute('toc') || undefined;
+				const rawPpd = spineEl?.getAttribute('page-progression-direction');
+				const pageProgressionDirection: 'ltr' | 'rtl' | 'default' =
+					rawPpd && ['ltr', 'rtl', 'default'].includes(rawPpd)
+						? (rawPpd as 'ltr' | 'rtl' | 'default')
+						: 'default';
+
+				const spineItems: EpubSpineItem[] = [];
+				const itemrefEls = Array.from(doc.querySelectorAll('spine > itemref, itemref'));
+				for (const itemref of itemrefEls) {
+					const idref = itemref.getAttribute('idref');
+					if (idref) {
+						const manifestItem = manifestItems.get(idref);
+						const resolvedPath = manifestItem ? manifestItem.resolvedPath : idref;
+						const linearAttr = itemref.getAttribute('linear');
+						spineItems.push({
+							idref,
+							resolvedPath,
+							linear: linearAttr ? linearAttr.toLowerCase() !== 'no' : true,
+							properties: itemref.getAttribute('properties') || undefined
+						});
+					}
+				}
+
+				return {
+					manifest: {
+						items: manifestItems,
+						byPath: manifestByPath
+					},
+					spine: {
+						toc: tocId,
+						pageProgressionDirection,
+						items: spineItems
+					},
+					packageInfo: {
+						version,
+						uniqueIdentifierId
+					}
+				};
+			}
+		} catch {
+			// Fallback to regex
+		}
+	}
 
 	// Package attributes
 	const pkgMatch = /<package\b([^>]*)>/i.exec(opfXml);
@@ -169,9 +246,99 @@ function categorizeResource(path: string): EpubResourceCategory {
 }
 
 /**
- * Extract book metadata from OPF content.
+ * Extract book metadata from OPF content using DOMParser with regex fallback.
  */
 function extractEpubMetadata(opfXml: string, manifest?: EpubManifest): EpubBookMetadata {
+	if (typeof DOMParser !== 'undefined') {
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(opfXml, 'application/xml');
+			const parserError = doc.querySelector('parsererror');
+
+			if (!parserError) {
+				const metadataEl = doc.querySelector('metadata');
+				const allElements = metadataEl ? Array.from(metadataEl.getElementsByTagName('*')) : [];
+
+				const getElText = (tagPattern: string): string => {
+					const found = allElements.find((el) => {
+						const local = el.localName || el.tagName.split(':').pop() || '';
+						return local.toLowerCase() === tagPattern.toLowerCase();
+					});
+					return found?.textContent?.trim() || '';
+				};
+
+				const title = getElText('title') || 'Không tên';
+				const author = getElText('creator') || '';
+				const language = getElText('language') || 'vi';
+				const publisher = getElText('publisher') || '';
+				const description = getElText('description') || '';
+				const rights = getElText('rights') || '';
+				const pubDate = getElText('date') || '';
+
+				const pkgEl = doc.querySelector('package');
+				const uniqueIdAttr = pkgEl?.getAttribute('unique-identifier');
+				let identifier = '';
+
+				if (uniqueIdAttr) {
+					const uniqueEl = allElements.find(
+						(el) =>
+							(el.localName === 'identifier' || el.tagName.endsWith(':identifier')) &&
+							el.getAttribute('id') === uniqueIdAttr
+					);
+					if (uniqueEl?.textContent?.trim()) {
+						identifier = uniqueEl.textContent.trim();
+					}
+				}
+
+				if (!identifier) {
+					identifier = getElText('identifier');
+				}
+
+				// Cover detection
+				let coverImageId: string | undefined;
+				let coverImagePath: string | undefined;
+
+				const metaCover = allElements.find(
+					(el) => el.localName === 'meta' && el.getAttribute('name') === 'cover'
+				);
+				if (metaCover) {
+					coverImageId = metaCover.getAttribute('content') || undefined;
+				}
+
+				if (!coverImageId && manifest) {
+					for (const [id, item] of manifest.items.entries()) {
+						if (item.properties && item.properties.includes('cover-image')) {
+							coverImageId = id;
+							break;
+						}
+					}
+				}
+
+				if (coverImageId && manifest) {
+					const item = manifest.items.get(coverImageId);
+					if (item) {
+						coverImagePath = item.resolvedPath;
+					}
+				}
+
+				return {
+					title,
+					author,
+					language,
+					identifier,
+					publisher,
+					description,
+					rights,
+					pubDate,
+					coverImageId,
+					coverImagePath
+				};
+			}
+		} catch {
+			// Fallback to regex
+		}
+	}
+
 	const getTagValue = (tagName: string): string => {
 		const regex = new RegExp(`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`, 'i');
 		const match = regex.exec(opfXml);
