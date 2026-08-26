@@ -6,9 +6,9 @@ import type {
 	EpubValidationError,
 	BuildPreviewHtmlOptions
 } from '$lib/types';
-import { Logger, resolveRelativePath } from '$lib/utils';
+import { Logger, resolveRelativePath, sha1, sha1Async } from '$lib/utils';
 
-export { resolveRelativePath };
+export { resolveRelativePath, sha1, sha1Async };
 
 /**
  * Categorize a file by its extension.
@@ -68,32 +68,34 @@ export function parseSpineOrder(opfContent: string, opfPath: string): string[] {
 				}
 			}
 		} catch {
-			// Fallback to regex parser
+			// Fallback to regex below
 		}
 	}
 
-	// Fallback regex parser for non-DOM environments or broken XML
-	const manifestMap = new Map<string, string>(); // id -> resolvedPath
-	const itemRegex = /<item\b[^>]*>/gi;
-	let match: RegExpExecArray | null;
+	// Fallback regex parsing
+	const idToHref = new Map<string, string>();
+	const itemRegex = /<item\b[^>]*\bid\s*=\s*["']([^"']+)["'][^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*>/gi;
+	let m: RegExpExecArray | null;
+	while ((m = itemRegex.exec(opfContent)) !== null) {
+		idToHref.set(m[1], m[2]);
+	}
 
-	while ((match = itemRegex.exec(opfContent)) !== null) {
-		const tag = match[0];
-		const idMatch = /id\s*=\s*["']([^"']+)["']/i.exec(tag);
-		const hrefMatch = /href\s*=\s*["']([^"']+)["']/i.exec(tag);
-		if (idMatch && hrefMatch) {
-			const resolved = resolveRelativePath(opfPath, hrefMatch[1]);
-			manifestMap.set(idMatch[1], resolved);
-		}
+	// Also handle reverse order of attributes (href before id)
+	const itemRegexRev = /<item\b[^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*\bid\s*=\s*["']([^"']+)["'][^>]*>/gi;
+	while ((m = itemRegexRev.exec(opfContent)) !== null) {
+		idToHref.set(m[2], m[1]);
 	}
 
 	const spinePaths: string[] = [];
-	const itemrefRegex = /<itemref\b[^>]*idref\s*=\s*["']([^"']+)["'][^>]*>/gi;
-	while ((match = itemrefRegex.exec(opfContent)) !== null) {
-		const idref = match[1];
-		const path = manifestMap.get(idref);
-		if (path && !spinePaths.includes(path)) {
-			spinePaths.push(path);
+	const itemrefRegex = /<itemref\b[^>]*\bidref\s*=\s*["']([^"']+)["'][^>]*>/gi;
+	while ((m = itemrefRegex.exec(opfContent)) !== null) {
+		const idref = m[1];
+		const href = idToHref.get(idref);
+		if (href) {
+			const resolved = resolveRelativePath(opfPath, href);
+			if (!spinePaths.includes(resolved)) {
+				spinePaths.push(resolved);
+			}
 		}
 	}
 
@@ -104,22 +106,29 @@ export function parseSpineOrder(opfContent: string, opfPath: string): string[] {
  * List files from JSZip ordered by EPUB spine (reading sequence) for pages,
  * and natural alphanumeric sort for chapters, styles, images, and other assets.
  */
-export async function parseZipEntries(zip: JSZip): Promise<EpubEditorFileItem[]> {
+export async function parseZipEntries(
+	zip: JSZip,
+	editBuffer?: Map<string, string>
+): Promise<EpubEditorFileItem[]> {
 	let spineOrder: string[] = [];
 	const opfPath = Object.keys(zip.files).find((p) => p.toLowerCase().endsWith('.opf'));
 	if (opfPath) {
-		const opfText = await zip.file(opfPath)?.async('text');
+		const opfText = (editBuffer && editBuffer.get(opfPath)) || (await zip.file(opfPath)?.async('text'));
 		if (opfText) {
 			spineOrder = parseSpineOrder(opfText, opfPath);
 		}
 	}
 
+	const allPaths = new Set(Object.keys(zip.files).filter((p) => !zip.files[p].dir));
+	if (editBuffer) {
+		for (const k of editBuffer.keys()) {
+			allPaths.add(k);
+		}
+	}
+
 	const items: EpubEditorFileItem[] = [];
 
-	for (const path of Object.keys(zip.files)) {
-		const entry = zip.files[path];
-		if (entry.dir) continue;
-
+	for (const path of allPaths) {
 		const name = path.split('/').pop() || path;
 		const cleanPath = path.split('?')[0].split('#')[0];
 		const extension = cleanPath.substring(cleanPath.lastIndexOf('.')).toLowerCase();
@@ -196,95 +205,6 @@ export function extractLinkedCssPaths(html: string, baseHtmlPath: string): strin
 	return cssPaths;
 }
 
-/**
- * Compute SHA-1 hash asynchronously using standard Web Crypto API (crypto.subtle)
- * with graceful fallback to pure JS implementation.
- */
-export async function sha1Async(input: string): Promise<Uint8Array> {
-	if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-		const data = new TextEncoder().encode(input);
-		const hashBuffer = await globalThis.crypto.subtle.digest('SHA-1', data);
-		return new Uint8Array(hashBuffer);
-	}
-	return sha1(input);
-}
-
-/**
- * Compute SHA-1 hash of string input into a 20-byte Uint8Array (pure JS implementation).
- */
-export function sha1(input: string): Uint8Array {
-	const utf8 = new TextEncoder().encode(input);
-	let h0 = 0x67452301;
-	let h1 = 0xefcdab89;
-	let h2 = 0x98badcfe;
-	let h3 = 0x10325476;
-	let h4 = 0xc3d2e1f0;
-
-	const msgLen = utf8.length;
-	const bitLen = msgLen * 8;
-	const newLen = (((msgLen + 8) >> 6) + 1) << 6;
-	const words = new Uint32Array(newLen >> 2);
-
-	for (let i = 0; i < msgLen; i++) {
-		words[i >> 2] |= utf8[i] << (24 - (i % 4) * 8);
-	}
-	words[msgLen >> 2] |= 0x80 << (24 - (msgLen % 4) * 8);
-	words[words.length - 1] = bitLen;
-	words[words.length - 2] = Math.floor(bitLen / 0x100000000);
-
-	const w = new Uint32Array(80);
-	for (let i = 0; i < words.length; i += 16) {
-		for (let j = 0; j < 16; j++) w[j] = words[i + j];
-		for (let j = 16; j < 80; j++) {
-			const n = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];
-			w[j] = (n << 1) | (n >>> 31);
-		}
-
-		let a = h0,
-			b = h1,
-			c = h2,
-			d = h3,
-			e = h4;
-		for (let j = 0; j < 80; j++) {
-			let f: number, k: number;
-			if (j < 20) {
-				f = (b & c) | (~b & d);
-				k = 0x5a827999;
-			} else if (j < 40) {
-				f = b ^ c ^ d;
-				k = 0x6ed9eba1;
-			} else if (j < 60) {
-				f = (b & c) | (b & d) | (c & d);
-				k = 0x8f1bbcdc;
-			} else {
-				f = b ^ c ^ d;
-				k = 0xca62c1d6;
-			}
-			const temp = (((a << 5) | (a >>> 27)) + f + e + k + w[j]) | 0;
-			e = d;
-			d = c;
-			c = (b << 30) | (b >>> 2);
-			b = a;
-			a = temp;
-		}
-
-		h0 = (h0 + a) | 0;
-		h1 = (h1 + b) | 0;
-		h2 = (h2 + c) | 0;
-		h3 = (h3 + d) | 0;
-		h4 = (h4 + e) | 0;
-	}
-
-	const result = new Uint8Array(20);
-	const h = [h0, h1, h2, h3, h4];
-	for (let i = 0; i < 5; i++) {
-		result[i * 4] = (h[i] >>> 24) & 0xff;
-		result[i * 4 + 1] = (h[i] >>> 16) & 0xff;
-		result[i * 4 + 2] = (h[i] >>> 8) & 0xff;
-		result[i * 4 + 3] = h[i] & 0xff;
-	}
-	return result;
-}
 
 /**
  * Check if the first 4 bytes match standard font magic bytes.
@@ -743,6 +663,6 @@ export async function exportEpubBlob(
 		type: 'blob',
 		mimeType: 'application/epub+zip',
 		compression: 'DEFLATE',
-		compressionOptions: { level: 9 }
+		compressionOptions: { level: 6 }
 	});
 }

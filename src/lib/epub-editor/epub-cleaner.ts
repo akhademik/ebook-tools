@@ -1,7 +1,9 @@
 // src/lib/epub-editor/epub-cleaner.ts
 import type JSZip from 'jszip';
 import { resolveRelativePath } from './epub-editor';
-import { Logger } from '$lib/utils';
+import { Logger, hashBytes } from '$lib/utils';
+
+export { hashBytes };
 
 export interface EpubResourceUsage {
 	path: string;
@@ -92,73 +94,6 @@ export function formatByteSize(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-/**
- * Compute quick SHA-1 hash for Uint8Array without WebCrypto dependency.
- */
-export function hashBytes(bytes: Uint8Array): string {
-	let h0 = 0x67452301;
-	let h1 = 0xefcdab89;
-	let h2 = 0x98badcfe;
-	let h3 = 0x10325476;
-	let h4 = 0xc3d2e1f0;
-
-	const msgLen = bytes.length;
-	const bitLen = msgLen * 8;
-	const newLen = (((msgLen + 8) >> 6) + 1) << 6;
-	const words = new Uint32Array(newLen >> 2);
-
-	for (let i = 0; i < msgLen; i++) {
-		words[i >> 2] |= bytes[i] << (24 - (i % 4) * 8);
-	}
-	words[msgLen >> 2] |= 0x80 << (24 - (msgLen % 4) * 8);
-	words[words.length - 1] = bitLen;
-	words[words.length - 2] = Math.floor(bitLen / 0x100000000);
-
-	const w = new Uint32Array(80);
-	for (let i = 0; i < words.length; i += 16) {
-		for (let j = 0; j < 16; j++) w[j] = words[i + j];
-		for (let j = 16; j < 80; j++) {
-			const n = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];
-			w[j] = (n << 1) | (n >>> 31);
-		}
-
-		let a = h0,
-			b = h1,
-			c = h2,
-			d = h3,
-			e = h4;
-		for (let j = 0; j < 80; j++) {
-			let f: number, k: number;
-			if (j < 20) {
-				f = (b & c) | (~b & d);
-				k = 0x5a827999;
-			} else if (j < 40) {
-				f = b ^ c ^ d;
-				k = 0x6ed9eba1;
-			} else if (j < 60) {
-				f = (b & c) | (b & d) | (c & d);
-				k = 0x8f1bbcdc;
-			} else {
-				f = b ^ c ^ d;
-				k = 0xca62c1d6;
-			}
-			const temp = (((a << 5) | (a >>> 27)) + f + e + k + w[j]) | 0;
-			e = d;
-			d = c;
-			c = (b << 30) | (b >>> 2);
-			b = a;
-			a = temp;
-		}
-
-		h0 = (h0 + a) | 0;
-		h1 = (h1 + b) | 0;
-		h2 = (h2 + c) | 0;
-		h3 = (h3 + d) | 0;
-		h4 = (h4 + e) | 0;
-	}
-
-	return [h0, h1, h2, h3, h4].map((v) => (v >>> 0).toString(16).padStart(8, '0')).join('');
-}
 
 /**
  * Helper to extract all url(...) targets from CSS string.
@@ -265,14 +200,20 @@ export async function analyzeOptimizationPlan(
 
 	let totalBytes = 0;
 	const resourceMap = new Map<string, EpubResourceUsage>();
-	const resourceBytesMap = new Map<string, Uint8Array>();
 
 	for (const path of filePaths) {
 		const file = zip.files[path];
-		const bytes = file ? await file.async('uint8array') : new Uint8Array(0);
-		const byteSize = bytes.byteLength;
+		let byteSize = 0;
+		if (file) {
+			const rawData = (file as unknown as { _data?: { uncompressedSize?: number } })._data;
+			if (typeof rawData?.uncompressedSize === 'number') {
+				byteSize = rawData.uncompressedSize;
+			} else {
+				const bytes = await file.async('uint8array');
+				byteSize = bytes.byteLength;
+			}
+		}
 		totalBytes += byteSize;
-		resourceBytesMap.set(path, bytes);
 
 		let specificCategory: 'image' | 'font' | 'style' | 'page' | 'other' = 'other';
 
@@ -443,19 +384,22 @@ export async function analyzeOptimizationPlan(
 
 	for (const res of allResources) {
 		if (res.category === 'image' || res.category === 'font') {
-			const bytes = resourceBytesMap.get(res.path);
-			if (bytes && bytes.byteLength > 0) {
-				const hash = hashBytes(bytes);
-				if (hashMap.has(hash)) {
-					const originalPath = hashMap.get(hash)!;
-					duplicateResources.push({
-						originalPath,
-						duplicatePath: res.path,
-						byteSize: res.byteSize,
-						hash
-					});
-				} else {
-					hashMap.set(hash, res.path);
+			const file = zip.file(res.path);
+			if (file) {
+				const bytes = await file.async('uint8array');
+				if (bytes && bytes.byteLength > 0) {
+					const hash = hashBytes(bytes);
+					if (hashMap.has(hash)) {
+						const originalPath = hashMap.get(hash)!;
+						duplicateResources.push({
+							originalPath,
+							duplicatePath: res.path,
+							byteSize: res.byteSize || bytes.byteLength,
+							hash
+						});
+					} else {
+						hashMap.set(hash, res.path);
+					}
 				}
 			}
 		}

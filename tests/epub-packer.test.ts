@@ -421,8 +421,8 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="cover-image"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('properties="cover-image"'));
 			
-			// Check that cover image itself is written to zip
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', expect.anything());
+			// Check that cover image itself is written to zip with STORE compression
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', expect.anything(), { compression: 'STORE' });
 			
 			// Check that cover.xhtml contains the SVG wrapper and dimensions
 			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('<svg'));
@@ -598,8 +598,8 @@ describe('epub-packer tests', () => {
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-1.jpg"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-2"'));
 			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-2.png"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything());
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything());
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything(), { compression: 'STORE' });
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything(), { compression: 'STORE' });
 			consoleLogSpy.mockRestore();
 		});
 

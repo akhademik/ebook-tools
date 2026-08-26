@@ -276,7 +276,7 @@ export class EpubEditorState {
 			this.cleanAnalysis = null;
 
 			// Refresh entries after deletion
-			this.files = await parseZipEntries(this.zip);
+			this.files = await parseZipEntries(this.zip, this.editBuffer);
 
 			// If current editorTarget was deleted, reselect first available page
 			if (this.editorTarget && !this.files.some((f) => f.path === this.editorTarget)) {
@@ -338,21 +338,14 @@ export class EpubEditorState {
 			const res = await rebuildEpubToc(this.zip, this.editBuffer);
 			if (!res) return false;
 
-			// Write nav.xhtml
+			// Write nav.xhtml & toc.ncx to editBuffer (canonical in-memory store)
 			this.editBuffer.set(res.navPath, res.navXhtml);
 			this.dirtyPaths.add(res.navPath);
-			if (this.zip.file(res.navPath)) {
-				this.zip.file(res.navPath, res.navXhtml);
-			}
 
-			// Write toc.ncx
 			this.editBuffer.set(res.ncxPath, res.tocNcx);
 			this.dirtyPaths.add(res.ncxPath);
-			if (this.zip.file(res.ncxPath)) {
-				this.zip.file(res.ncxPath, res.tocNcx);
-			}
 
-			this.files = await parseZipEntries(this.zip);
+			this.files = await parseZipEntries(this.zip, this.editBuffer);
 			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';
 			return true;
 		} catch (err) {
