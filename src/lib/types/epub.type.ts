@@ -9,6 +9,7 @@ export interface EpubMetadata {
 }
 
 export interface EpubChapterFeatures {
+  hasCenterPage?: boolean;
   hasHeadings?: boolean;
   hasQuotes?: boolean;
   hasBreaks?: boolean;
@@ -197,4 +198,5 @@ export interface CleanedLinesReportItem {
 export interface ParseTxtOptions {
   customDefinitions?: CustomDefinition[];
   images?: Record<string, { fileName?: string }>;
+  warnings?: string[];
 }

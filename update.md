@@ -1,15 +1,49 @@
-1. README — việc bắt buộc phải làm
+tôi muốn tái sử dụng thẻ [new] với biến thể mới là [new:center] và thẻ dóng vẫn là [/new]
 
-Cập nhật để phản ánh đúng scope hiện tại: thêm mục cho EPUB Editor (live preview, cleaner, validator — ~2.600 dòng code, chưa hề nhắc tới) và tính năng xoá nền ảnh bằng ML cho ornament. Đây là việc quan trọng nhất vì hiện README đang làm dự án trông nhỏ hơn thực tế rất nhiều.
+khi gặp cặp thẻ
 
-3. Vài điểm nhỏ đáng dọn (không khẩn cấp)
+[new:center]
+....
+[/new]
 
-a) Phụ thuộc chéo ngược hướng module
-src/lib/epub/parser/epub-parser.ts (module lõi "epub") lại import hàm resolveRelativePath từ src/lib/epub-editor/epub-editor.ts (module tính năng). Về nguyên tắc, module lõi (epub/) không nên phụ thuộc vào module tính năng (epub-editor/) — nên đảo ngược: chuyển resolveRelativePath xuống src/lib/utils/ hoặc src/lib/epub/, rồi để epub-editor import từ đó.
+thì nội dung bên trong sẽ được tách rời và canh giữa trang, (nhưng ko canh giữa text, các canh trái phải giữa sẽ được qui định với nội dung bên trong)
 
-b) Trùng tên file gây rối khi điều hướng
-Có 2 file cùng tên epub-parser.ts ở 2 thư mục khác nhau (src/lib/epub/parser/ và src/lib/epub-packer/parser/) — chức năng hoàn toàn khác nhau (một đọc EPUB có sẵn, một dựng chương từ markdown/txt/zip). Không phải bug, nhưng dễ gây nhầm khi mở nhiều tab trong IDE. Có thể đổi tên rõ ràng hơn, ví dụ epub-reader-parser.ts vs epub-source-parser.ts.
+đây là css đi kèm, hãy bỏ vào template và ịnject khi đóng gói epub, tuyệt đội không hardcoded, tôi muốn mọi css phải nằm trong tempalte, va kiểm tra luôn khi đóng có bị inject duplicate ko ví dụ body margin0, padding0, hay @page marigni : 0, tại thấy nhìu css template đều có dòng khai báo đó, nếu nó ko ảnh hưởng thì có thể cho nó vào template khi khởi tạo epub luôn để các mã ịnject không cần phải inject nó vào thêm nữa, xem như nó là mặc định khi đóng gói epub luôn.
 
-c) Rải rác any (14 chỗ) trong các file parser và pdf-splitter.ts, epub-images-state.svelte.ts. Không nghiêm trọng nhưng nếu có thời gian rảnh, siết kiểu dữ liệu ở các chỗ này sẽ tăng độ an toàn khi refactor sau này.
+/_ Thiết lập chiều cao chuẩn cho trang _/
+html, body {
+height: 100%;
+margin: 0;
+padding: 0;
+}
 
-d) File lớn nhất: epub-editor.ts (787 dòng), epub-cleaner.ts (702), epub-validator.ts (699) — chưa đến mức báo động, nhưng nếu ba file này tiếp tục phình to khi thêm tính năng, nên cân nhắc tách nhỏ theo mô hình đã áp dụng tốt ở epub-packer.ts (chia thành các hàm/module nhỏ có trách nhiệm rõ ràng).
+/_ Khung căn giữa toàn trang an toàn cho mọi e-reader _/
+.center-page {
+display: table;
+width: 100%;
+height: 100%;
+margin: 0 auto;
+
+}
+
+.center-page-content {
+display: table-cell;
+vertical-align: middle;
+
+}
+
+còn đây là ví dụ sau khi quét thấy thẻ [new:center] và được tạo ra html cùng với nội dung
+
+<section class="center-page">
+  <div class="center-page-content">
+    <h2 class='center'>TẬP THỨ NHẤT</h2>
+    <p>Dành tặng những người bạn đồng hành...</p>
+  </div>
+</section>
+
+mã tương ứng
+
+[new:center]
+@ TẬP THỨ NHẤT
+Dành tặng những người bạn đồng hành...
+[/new]

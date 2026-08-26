@@ -123,9 +123,11 @@ export class EpubSourceState {
 			if (img.fileName) imagesMap[img.fileName.toLowerCase()] = img;
 		}
 
+		const warnings: string[] = [];
 		const chapters = parseTxtToChapters(this.rawTxtText, {
 			customDefinitions: this.customDefinitions,
-			images: imagesMap
+			images: imagesMap,
+			warnings
 		}, fallbackTitle);
 		this.epubChapters = assignSequentialChapterIds(chapters);
 
@@ -149,7 +151,11 @@ export class EpubSourceState {
 		}
 
 		this.cleanedLinesReport = [];
-		this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
+		if (warnings.length > 0) {
+			this.parseStatus = `${warnings.join(' | ')} (Tìm thấy ${this.epubChapters.length} chương)`;
+		} else {
+			this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
+		}
 		this.parseIsError = false;
 		Logger.info('[EpubSourceState]', 'applyTxtGrouping completed, chapters count:', this.epubChapters.length);
 	}

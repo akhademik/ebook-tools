@@ -78,7 +78,7 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 
 function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?: string }> = {}): string | null {
 	const lowerKey = (tagKey || '').toLowerCase();
-	if (['letter', '/letter', 'poem', '/poem', 'new', '/new'].includes(lowerKey)) {
+	if (['letter', '/letter', 'poem', '/poem', 'new', '/new', 'new:center'].includes(lowerKey) || lowerKey.startsWith('new:')) {
 		return null;
 	}
 	if (imagesMap[lowerKey]) {
@@ -174,6 +174,7 @@ export function parseTxtToChapters(
 
 	let currentBlock: string | null = null;
 	let isInsideNewBlock = false;
+	let isInsideNewCenterBlock = false;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {
 		const origLine = preprocessedLines[lineIdx];
@@ -220,6 +221,7 @@ export function parseTxtToChapters(
 
 		if (stripped === '[new]') {
 			isInsideNewBlock = true;
+			isInsideNewCenterBlock = false;
 			currentChapter = {
 				title: `${fallbackTitle}`,
 				html: '',
@@ -233,7 +235,30 @@ export function parseTxtToChapters(
 			continue;
 		}
 
+		if (stripped === '[new:center]') {
+			isInsideNewBlock = true;
+			isInsideNewCenterBlock = true;
+			currentChapter = {
+				title: `${fallbackTitle}`,
+				html: '<section class="center-page">\n  <div class="center-page-content">\n',
+				sources: ['Tệp TXT'],
+				isChapter: true,
+				firstSourcePageNum: chapters.length + 1,
+				hasCustomTitle: false,
+				features: { hasCenterPage: true }
+			};
+			chapters.push(currentChapter);
+			lineIdx++;
+			continue;
+		}
+
 		if (stripped === '[/new]') {
+			if (isInsideNewCenterBlock) {
+				if (currentChapter) {
+					currentChapter.html += '  </div>\n</section>\n';
+				}
+				isInsideNewCenterBlock = false;
+			}
 			isInsideNewBlock = false;
 			currentChapter = null;
 			lineIdx++;
@@ -386,8 +411,13 @@ export function parseTxtToChapters(
 		}
 	}
 
-	if (isInsideNewBlock) {
-		Logger.warn('[epub-parser]', 'thiếu mã đóng thẻ [new]');
+	if (isInsideNewCenterBlock || isInsideNewBlock) {
+		const tagName = isInsideNewCenterBlock ? '[new:center]' : '[new]';
+		const warnMsg = `Cảnh báo: Thẻ ${tagName} chưa có mã đóng [/new] tương ứng.`;
+		Logger.warn('[epub-parser]', warnMsg);
+		if (options.warnings) {
+			options.warnings.push(warnMsg);
+		}
 	}
 
 	if (chapters.length === 0) {

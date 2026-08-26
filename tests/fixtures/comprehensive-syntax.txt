@@ -1,12 +1,24 @@
+[new]
+@@ LỜI TỰA ĐẦU SÁCH
+Cuốn sách này được biên soạn nhằm thử nghiệm toàn bộ hệ thống quy ước cú pháp chế bản sách điện tử.
+Tất cả các nội dung trong trang này được gom thành một file độc lập.
+[/new]
+
+[new:center]
+@ TẬP THỨ NHẤT
+Dành tặng những người bạn đồng hành trên con đường số hóa tri thức...
+[/new]
+
 @@ Chương 1: Khởi Đầu Cuộc Hành Trình
 
-*Mặt trời* vừa ló rạng qua rặng tre đầu làng. /Nguyễn Du/ từng miêu tả những cảnh sắc tương tự trong thi ca_{1}_. Đây là câu chuyện về một chuyến phiêu lưu không tưởng_{2}_.
+[M] ặt trời vừa ló rạng qua rặng tre đầu làng. /Nguyễn Du/ từng miêu tả những cảnh sắc tương tự trong thi ca {1}. Đây là câu chuyện về một chuyến phiêu lưu không tưởng {2} với những từ *in đậm*, /in nghiêng/ và _gạch chân_.
 
 @ Phần 1: Buổi Sáng Ở Làng Quê
 
 Mọi người trong làng đã bắt đầu thức giấc để ra đồng làm việc. Không khí sớm mai thật trong lành và dễ chịu.
 
 [letter]
+Hà Nội, ngày 12 tháng 8 năm 2026
 Gửi người bạn phương xa,
 Tôi viết bức thư này khi tiếng chim hót ríu rít ngoài cửa sổ.
 Chúc bạn một ngày an lành.
@@ -20,7 +32,8 @@ Buổi trưa, ánh nắng vàng rực rỡ chiếu qua kẽ lá.
 
 Phần này là lời tâm sự riêng của tác giả và không xuất hiện trong cây mục lục.
 
-~ "Cuộc hành trình vạn dặm luôn bắt đầu bằng một bước chân." - Lão Tử
+~p "Cuộc hành trình vạn dặm luôn bắt đầu bằng một bước chân."
+> Lão Tử
 
 [poem]
 Gió đưa cành trúc la đà
@@ -33,9 +46,17 @@ Nhịp chày Yên Thái mặt gương Tây Hồ.
 
 [hinh-1.jpg]
 
-@@t Chương 2: Ngôi Nhà Cổ Bên Sông
+@@t Chương 2: Ngôi Nhà Cổ Bên Sông (Căn Trái)
 
 Ngôi nhà nằm nép mình bên dòng sông êm đềm trôi. Những bức tường rêu phong ghi dấu ấn của thời gian.
+
+@t Mục Căn Trái Trong Chương 2
+Đoạn văn căn trái với ký tự escape: \@ Không phải tiêu đề, \~ Không phải trích dẫn, \> Không phải tác giả.
+
+@@p Chương 3: Kết Thúc Và Mở Đầu Mới (Căn Phải)
+
+@!p Ghi chú kết thúc căn phải không TOC
+Đoạn kết của tác phẩm.
 
 Chú thích:
 {1} Tham khảo Tuyển tập Văn học Cổ điển Việt Nam.

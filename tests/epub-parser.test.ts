@@ -653,6 +653,47 @@ Có từ *quan trọng*.
 			expect(chapters[2].html).toContain('<p>Đoạn kết.</p>');
 		});
 
+		it('should parse [new:center] ... [/new] into a centered page section and enable dynamic CSS injection', () => {
+			const txt = `[new:center]
+@ TẬP THỨ NHẤT
+Dành tặng những người bạn đồng hành...
+[/new]
+
+@@ Chương 1: Bắt đầu
+Nội dung chương 1.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Default Title');
+			expect(chapters).toHaveLength(2);
+
+			expect(chapters[0].title).toBe('TẬP THỨ NHẤT');
+			expect(chapters[0].html).toContain('<section class="center-page">');
+			expect(chapters[0].html).toContain('<div class="center-page-content">');
+			expect(chapters[0].html).toContain('<h2 class="side-chap center">TẬP THỨ NHẤT</h2>');
+			expect(chapters[0].html).toContain('<p>Dành tặng những người bạn đồng hành...</p>');
+			expect(chapters[0].html).toContain('</div>\n</section>');
+			expect(chapters[0].features?.hasCenterPage).toBe(true);
+
+			expect(chapters[1].title).toBe('Chương 1: Bắt đầu');
+			expect(chapters[1].html).toContain('<h1 class="main-chap center">Chương 1: Bắt đầu</h1>');
+		});
+
+		it('should warn when [new:center] or [new] is missing closing tag [/new] without arbitrarily auto-closing HTML', () => {
+			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+			const warnings: string[] = [];
+			const txt = `[new:center]
+@ Trang Đơn
+Nội dung chưa đóng thẻ.`;
+			const chapters = parseTxtToChapters(txt, { warnings }, 'Default Title');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<section class="center-page">\n  <div class="center-page-content">\n');
+			// Should NOT contain auto-closed tags
+			expect(chapters[0].html).not.toContain('</div>\n</section>\n');
+			expect(warnings).toHaveLength(1);
+			expect(warnings[0]).toContain('Cảnh báo: Thẻ [new:center] chưa có mã đóng [/new] tương ứng.');
+			expect(consoleWarnSpy).toHaveBeenCalled();
+			consoleWarnSpy.mockRestore();
+		});
+
 		it('should support @!, @!t, and @!p tags for h2 with no-toc', () => {
 			const txt = `@@ Chương 1
 @! Mục giữa không TOC

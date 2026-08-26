@@ -5,6 +5,7 @@ import { JACKET_TEMPLATES } from './templates/jacket-templates';
 import { findFont, getFontFileName, getFontCSSDeclaration } from './templates/fonts';
 
 import baseCss from './templates/css-template/base.css?raw';
+import centerPageCss from './templates/css-template/center-page.css?raw';
 import headingsCss from './templates/css-template/headings.css?raw';
 import quotesCss from './templates/css-template/quotes.css?raw';
 import breaksCss from './templates/css-template/breaks.css?raw';
@@ -48,6 +49,8 @@ export {
 export const EPUB_CSS =
   baseCss +
   '\n' +
+  centerPageCss +
+  '\n' +
   ornamentsCss +
   '\n' +
   headingsCss +
@@ -60,6 +63,7 @@ export const EPUB_CSS =
 
 export function getDynamicCss(chapters: EpubChapterItem[], ornaments?: OrnamentsConfig | null): string {
   let css = baseCss;
+  let hasCenterPage = false;
   let hasHeadings = false;
   let hasQuotes = false;
   let hasBreaks = false;
@@ -67,6 +71,7 @@ export function getDynamicCss(chapters: EpubChapterItem[], ornaments?: Ornaments
 
   for (const ch of chapters) {
     if (ch.features) {
+      if (ch.features.hasCenterPage) hasCenterPage = true;
       if (ch.features.hasHeadings) hasHeadings = true;
       if (ch.features.hasQuotes) hasQuotes = true;
       if (ch.features.hasBreaks) hasBreaks = true;
@@ -78,6 +83,9 @@ export function getDynamicCss(chapters: EpubChapterItem[], ornaments?: Ornaments
     }
 
     const html = ch.html || '';
+    if (!hasCenterPage && /class=["'][^"']*(?:center-page)[^"']*["']/i.test(html)) {
+      hasCenterPage = true;
+    }
     if (!hasHeadings && (
       /<h[1-6]\b/i.test(html) ||
       /class=["'][^"']*(?:main-chap|side-chap|break-main-chap|chno|dropcap)[^"']*["']/i.test(html)
@@ -101,6 +109,7 @@ export function getDynamicCss(chapters: EpubChapterItem[], ornaments?: Ornaments
     }
   }
 
+  if (hasCenterPage) css += '\n' + centerPageCss;
   if (ornaments?.chapterOrnament || ornaments?.subchapterOrnament) {
     css += '\n' + ornamentsCss;
   }

@@ -60,6 +60,11 @@ Trang lời tựa đặc biệt không chia chương.
 Đây là lời tựa đầu sách của nhà xuất bản.
 [/new]
 
+[new:center]
+@ TẬP THỨ NHẤT
+Dành tặng những người bạn đồng hành...
+[/new]
+
 @@t Chương 1: Khởi Đầu Hành Trình
 [c] Mùa thu năm ấy, gió heo may bắt đầu thổi qua từng con phố cổ Hà Nội. Tiết trời se lạnh báo hiệu một mùa đông sắp đến.
 
@@ -109,7 +114,15 @@ Chú thích:
 			const newPage = chapters.find((c) => c.html?.includes('Trang lời tựa đặc biệt'));
 			expect(newPage).toBeDefined();
 
-			// 2. Chapter 1 (@@t -> class="main-chap left")
+			// 2. [new:center] page
+			const centerPage = chapters.find((c) => c.html?.includes('center-page'));
+			expect(centerPage).toBeDefined();
+			expect(centerPage!.title).toBe('TẬP THỨ NHẤT');
+			expect(centerPage!.html).toContain('<section class="center-page">');
+			expect(centerPage!.html).toContain('<div class="center-page-content">');
+			expect(centerPage!.html).toContain('Dành tặng những người bạn đồng hành...');
+
+			// 3. Chapter 1 (@@t -> class="main-chap left")
 			const ch1 = chapters.find((c) => c.title.includes('Khởi Đầu'));
 			expect(ch1).toBeDefined();
 			expect(ch1!.html).toContain('<h1 class="main-chap left">Chương 1: Khởi Đầu Hành Trình</h1>');

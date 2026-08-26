@@ -258,16 +258,21 @@
                 </td>
               </tr>
               <tr>
-                <td class="py-3 px-3 whitespace-nowrap">
-                  <code
+                <td class="py-3 px-3 whitespace-nowrap"
+                  ><code
                     class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
                     >[new]...[/new]</code
-                  >
-                </td>
+                  ><br />
+                  <code
+                    class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color mt-1 inline-block"
+                    >[new:center]...[/new]</code
+                  ></td
+                >
                 <td class="py-3 px-3">
-                  <span class="text-text-mute">Gom thành 1 file XHTML:</span><br />
+                  <span class="text-text-mute">Gom thành 1 file XHTML / Căn giữa trang:</span><br />
                   <span class="text-[11px] text-text-mute"
-                    >Mọi nội dung nằm bên trong cặp thẻ này (kể cả chứa nhiều thẻ <code>@@</code> hoặc tiêu đề tách trang) đều sẽ được gom chung vào 1 file XHTML duy nhất, không bị tách thành nhiều file riêng.</span
+                    ><code>[new]</code>: Gom mọi nội dung bên trong vào 1 file XHTML duy nhất.<br />
+                    <code>[new:center]</code>: Tách thành 1 file XHTML và căn giữa toàn trang (sử dụng <code>&lt;section class="center-page"&gt;&lt;div class="center-page-content"&gt;...&lt;/div&gt;&lt;/section&gt;</code>).</span
                   >
                 </td>
               </tr>

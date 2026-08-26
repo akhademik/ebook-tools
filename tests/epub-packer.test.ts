@@ -19,6 +19,7 @@ vi.mock('jszip', () => {
 });
 
 vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({ default: '/* base.css */' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({ default: '/* center-page.css */ .center-page { display: table; } .center-page-content { display: table-cell; }' }));
 vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({ default: '/* headings.css */ .main-chap { font-size: 1.5em; }' }));
 vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({ default: '/* quotes.css */ .letter { margin: 1em; }' }));
 vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({ default: '/* breaks.css */ .scene-break { text-align: center; }' }));
@@ -626,6 +627,22 @@ describe('epub-packer tests', () => {
 			expect(blob).toBeDefined();
 			expect(mockZipInstance.file).toHaveBeenCalledWith('style.css', expect.stringContaining('.chapter-ornament'));
 			consoleLogSpy.mockRestore();
+		});
+
+		it('should dynamically inject center-page.css only when center-page is present in chapters', () => {
+			const normalChapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung thường</p>' }
+			];
+			const centerChapters = [
+				{ xmlId: 'chap1', title: 'Tập 1', fileName: 'chap_01', html: '<section class="center-page"><div class="center-page-content"><p>Giới thiệu</p></div></section>', features: { hasCenterPage: true } }
+			];
+
+			const normalCss = getDynamicCss(normalChapters);
+			expect(normalCss).not.toContain('.center-page');
+
+			const centerCss = getDynamicCss(centerChapters);
+			expect(centerCss).toContain('.center-page');
+			expect(centerCss).toContain('.center-page-content');
 		});
 	});
 });

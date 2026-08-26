@@ -4,14 +4,22 @@
 }
 
 @page {
-  margin-top: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Thiết lập chiều cao chuẩn cho trang */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   font-family: "Bookerly", serif;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
 }
+
 p {
   display: block;
   text-align: justify;
@@ -36,7 +44,6 @@ p.has-dropcap {
   text-indent: 0 !important;
 }
 
-/* Khung chứa ảnh: Căn giữa, ngắt dòng và chống dính lề */
 figure.illust-box {
   margin: 1.5em auto;
   padding: 0;
