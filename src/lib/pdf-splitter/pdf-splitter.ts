@@ -184,60 +184,151 @@ export async function processPdfToJpg(
 
 	updateProgress();
 
-	async function runWorker(workerIndex: number): Promise<void> {
-		Logger.debug('[pdf-splitter]', `Worker ${workerIndex} started`);
-		const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
-		const ctxOpts: CanvasRenderingContext2DSettings = keepColor
-			? { alpha: false }
-			: { alpha: false, willReadFrequently: true };
+	// Attempt real Web Worker offloading if Worker and OffscreenCanvas are supported
+	let usedWorker = false;
+	if (
+		typeof window !== 'undefined' &&
+		typeof Worker !== 'undefined' &&
+		typeof OffscreenCanvas !== 'undefined'
+	) {
+		try {
+			const workerPromises: Promise<void>[] = [];
+			const activeWorkers: Worker[] = [];
 
-		for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
-			if (signal?.aborted) {
-				doc.destroy();
-				throw new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError');
+			for (let w = 0; w < concurrency; w++) {
+				const worker = new Worker(new URL('./pdf-splitter.worker.ts', import.meta.url), {
+					type: 'module'
+				});
+				activeWorkers.push(worker);
+
+				const p = new Promise<void>((resolve, reject) => {
+					const requestId = `pdf-w-${w}-${Date.now()}`;
+
+					const cleanup = () => {
+						worker.removeEventListener('message', handleMsg);
+						worker.terminate();
+					};
+
+					const handleMsg = (e: MessageEvent) => {
+						if (e.data.id !== requestId) return;
+
+						if (signal?.aborted) {
+							cleanup();
+							reject(new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError'));
+							return;
+						}
+
+						if (e.data.type === 'page_done') {
+							zip.file('page' + e.data.pageNum + '.jpg', e.data.blob, { compression: 'STORE' });
+							completed++;
+							updateProgress();
+						} else if (e.data.type === 'success') {
+							cleanup();
+							resolve();
+						} else if (e.data.type === 'error') {
+							cleanup();
+							reject(new Error(e.data.error));
+						}
+					};
+
+					if (signal) {
+						signal.addEventListener(
+							'abort',
+							() => {
+								cleanup();
+								reject(new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError'));
+							},
+							{ once: true }
+						);
+					}
+
+					worker.addEventListener('message', handleMsg);
+					worker.postMessage(
+						{
+							id: requestId,
+							pdfBytes: arrayBuffer.slice(0),
+							startPage: w + 1,
+							endPage: numPages,
+							step: concurrency,
+							keepColor,
+							cropTopPx,
+							cropBottomPx
+						},
+						[arrayBuffer.slice(0)]
+					);
+				});
+
+				workerPromises.push(p);
 			}
-			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} processing page ${p}`);
-			const page = await doc.getPage(p);
-			const viewport = page.getViewport({ scale: PDF_SCALE });
-			let canvas = document.createElement('canvas');
-			canvas.width = viewport.width;
-			canvas.height = viewport.height;
-			let ctx = canvas.getContext('2d', ctxOpts);
-			if (ctx) {
-				await page.render({ canvasContext: ctx, viewport }).promise;
 
-				if (cropTopPx > 0 || cropBottomPx > 0) {
-					canvas = cropCanvas(canvas, cropTopPx, cropBottomPx);
-					ctx = canvas.getContext('2d', ctxOpts);
-				}
-
-				if (!keepColor && ctx) {
-					applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
-				}
+			await Promise.all(workerPromises);
+			usedWorker = true;
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				throw err;
 			}
-
-			const blob = await new Promise<Blob | null>((resolve) =>
-				canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
-			);
-			if (blob) {
-				zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
-			}
-			page.cleanup();
-			completed++;
-			updateProgress();
-
-			// Yield to main event loop to ensure smooth 60fps UI updates and prevent freeze
-			await new Promise((resolve) => setTimeout(resolve, 0));
+			Logger.warn('[pdf-splitter]', 'Worker rendering failed, falling back to main thread:', err);
 		}
-		doc.destroy();
-		Logger.debug('[pdf-splitter]', `Worker ${workerIndex} finished`);
 	}
 
-	const workers: Promise<void>[] = [];
-	for (let w = 0; w < concurrency; w++) {
-		workers.push(runWorker(w));
+	// Fallback to cooperative loop if workers are unsupported or failed
+	if (!usedWorker) {
+		async function runWorker(workerIndex: number): Promise<void> {
+			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} started`);
+			const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
+			const ctxOpts: CanvasRenderingContext2DSettings = keepColor
+				? { alpha: false }
+				: { alpha: false, willReadFrequently: true };
+
+			for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
+				if (signal?.aborted) {
+					doc.destroy();
+					throw new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError');
+				}
+				Logger.debug('[pdf-splitter]', `Worker ${workerIndex} processing page ${p}`);
+				const page = await doc.getPage(p);
+				const viewport = page.getViewport({ scale: PDF_SCALE });
+				let canvas = document.createElement('canvas');
+				canvas.width = viewport.width;
+				canvas.height = viewport.height;
+				let ctx = canvas.getContext('2d', ctxOpts);
+				if (ctx) {
+					await page.render({ canvasContext: ctx, viewport }).promise;
+
+					if (cropTopPx > 0 || cropBottomPx > 0) {
+						canvas = cropCanvas(canvas, cropTopPx, cropBottomPx);
+						ctx = canvas.getContext('2d', ctxOpts);
+					}
+
+					if (!keepColor && ctx) {
+						applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+					}
+				}
+
+				const blob = await new Promise<Blob | null>((resolve) =>
+					canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
+				);
+				if (blob) {
+					zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
+				}
+				page.cleanup();
+				completed++;
+				updateProgress();
+
+				// Yield to main event loop to ensure smooth 60fps UI updates and prevent freeze
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+			doc.destroy();
+			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} finished`);
+		}
+
+		const workers: Promise<void>[] = [];
+		for (let w = 0; w < concurrency; w++) {
+			workers.push(runWorker(w));
+		}
+		await Promise.all(workers);
 	}
-	await Promise.all(workers);
+
 	Logger.debug('[pdf-splitter]', 'All workers completed. Generating ZIP...');
 
 	if (onProgress) {

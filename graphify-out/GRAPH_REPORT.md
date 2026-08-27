@@ -4,50 +4,45 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 666 nodes · 1316 edges · 46 communities (30 shown, 16 thin omitted)
+- 670 nodes · 1321 edges · 41 communities (27 shown, 14 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8ee02b81`
+- Built from commit: `a8383ee7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- lib/types/index.ts
-- epub-source-parser.ts
+- zip-writer.ts
+- epub-book-ops.ts
 - utils/index.ts
+- epub-source-parser.ts
+- lib/types/index.ts
 - scripts
 - cleaner-engine.ts
 - 🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Test-Graphify Flow)
-- image-bg-remove-ml.ts
-- epub-state.svelte.ts
+- real-world-workflows.test.ts
 - validator-engine.ts
-- pdf-splitter.ts
+- image-bg-remove-ml.ts
+- constants.ts
 - preview-builder.ts
 - epub-reader-parser.ts
-- logger.ts
-- constants.ts
 - compilerOptions
 - tests-e2e/tsconfig.json
-- EpubEditorState
 - EpubImagesState
 - devDependencies
 - pdf-splitter.type.ts
 - entry
 - knip.json
 - generate-fonts-meta.js
-- result.type.ts
-- components.type.ts
-- epub-editor.type.ts
-- markdown-fixer.type.ts
 - eslint.config.js
-- eslint-plugin-svelte
+- @eslint/js
 - knip
 - prettier-plugin-svelte
+- @sveltejs/kit
 - svelte-check
 - @sveltejs/adapter-cloudflare
-- @sveltejs/kit
 - @sveltejs/vite-plugin-svelte
 - @tailwindcss/vite
 - @types/node
@@ -76,65 +71,69 @@
   src/lib/epub-editor/epub-book-ops.ts → src/lib/types/epub.type.ts
 - `EpubBookMetadata` --inherits--> `EpubMetadata`  [EXTRACTED]
   src/lib/epub/types/index.ts → src/lib/types/epub.type.ts
-- `prepareChapters()` --calls--> `assignSequentialChapterIds()`  [EXTRACTED]
-  src/lib/epub-packer/builders/asset-builder.ts → src/lib/epub-packer/parser/epub-chapter-utils.ts
+- `rebuildEpubToc()` --calls--> `buildNavXhtml()`  [EXTRACTED]
+  src/lib/epub-editor/epub-book-ops.ts → src/lib/epub-packer/xml-builders/nav-builder.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (46 total, 16 thin omitted)
+## Communities (41 total, 14 thin omitted)
 
-### Community 0 - "lib/types/index.ts"
-Cohesion: 0.09
-Nodes (45): prepareChapters(), prepareMetadata(), resolveActiveFonts(), EPUB_CSS, getDynamicCss(), prepareFinalCss(), assembleEpubZip(), buildEpubBlob() (+37 more)
+### Community 0 - "zip-writer.ts"
+Cohesion: 0.08
+Nodes (48): prepareChapters(), prepareMetadata(), resolveActiveFonts(), EPUB_CSS, getDynamicCss(), prepareFinalCss(), assembleEpubZip(), buildEpubBlob() (+40 more)
 
-### Community 1 - "epub-source-parser.ts"
-Cohesion: 0.09
-Nodes (50): analyzeChapterCandidates(), assignSequentialChapterIds(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate() (+42 more)
+### Community 1 - "epub-book-ops.ts"
+Cohesion: 0.08
+Nodes (16): MAX_EPUB_FILE_SIZE, isDirty, BookMetadataDetails, extractBookMetadata(), findOpfPath(), rebuildEpubToc(), reorderOpfSpine(), TocChapterInfo (+8 more)
 
 ### Community 2 - "utils/index.ts"
-Cohesion: 0.08
-Nodes (22): MAX_EPUB_FILE_SIZE, isDirty, BookMetadataDetails, extractBookMetadata(), findOpfPath(), rebuildEpubToc(), reorderOpfSpine(), TocChapterInfo (+14 more)
+Cohesion: 0.06
+Nodes (26): EpubMetadataState, applyGrayscale(), cropCanvas(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), runWorker() (+18 more)
 
-### Community 3 - "scripts"
+### Community 3 - "epub-source-parser.ts"
+Cohesion: 0.14
+Nodes (37): analyzeChapterCandidates(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate(), stripDecoration() (+29 more)
+
+### Community 4 - "lib/types/index.ts"
+Cohesion: 0.07
+Nodes (15): EpubState, ButtonProps, DropZoneProps, InputProps, PageHeaderProps, BuildPreviewHtmlOptions, EpubEditorFileItem, EpubFileCategory (+7 more)
+
+### Community 5 - "scripts"
 Cohesion: 0.05
 Nodes (41): @codemirror/commands, @codemirror/lang-css, @codemirror/lang-html, @codemirror/state, @codemirror/theme-one-dark, @codemirror/view, fontkit, @imgly/background-removal (+33 more)
 
-### Community 4 - "cleaner-engine.ts"
+### Community 6 - "cleaner-engine.ts"
 Cohesion: 0.10
 Nodes (28): analyzeEpub(), analyzeOptimizationPlan(), cleanEpub(), optimizeEpub(), getDuplicateWorker(), scanDuplicateResources(), computeDuplicateResources(), DuplicateDetectorWorkerRequest (+20 more)
 
-### Community 5 - "🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Test-Graphify Flow)"
+### Community 7 - "🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Test-Graphify Flow)"
 Cohesion: 0.07
 Nodes (27): 🔒 1. Quy tắc Quản lý Gói (Package Manager Rule), 🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Test-Graphify Flow), 🔹 Bước 1: Viết / Sửa code, 🔹 Bước 2: Kiểm tra kiểu dữ liệu (Type Check), 🔹 Bước 3: Kiểm tra định dạng & cú pháp (Linting), 🔹 Bước 4: Quét mã rác & exports thừa (Dead Code Analysis), 🔹 Bước 5: Chạy Bộ Kiểm Thử Tự Động (Unit & Integration Tests), 🔹 Bước 6: Chạy Kiểm thử Giao diện Trình duyệt Thật (Playwright E2E) (+19 more)
 
-### Community 6 - "image-bg-remove-ml.ts"
-Cohesion: 0.14
-Nodes (18): autoCropTransparentCanvas(), canvasToBlob(), cleanupWorkerAndRejectPending(), compressAndResizeCanvas(), getOrCreateWorker(), loadImage(), OrnamentProcessOptions, OrnamentProcessResult (+10 more)
+### Community 8 - "real-world-workflows.test.ts"
+Cohesion: 0.11
+Nodes (17): applyInlineFormatting(), escapeRegExp(), getClosingTag(), getTxtParserWorker(), isIllustrationTag(), parseTxtToChapters(), parseTxtToChaptersAsync(), stripHtmlTags() (+9 more)
 
-### Community 8 - "validator-engine.ts"
+### Community 9 - "validator-engine.ts"
 Cohesion: 0.14
 Nodes (17): CssAndFontsRule, XhtmlPagesRule, NavigationRule, OpfPackageRule, SpineRule, StructureRule, ManifestItemInfo, ValidationCategory (+9 more)
 
-### Community 9 - "pdf-splitter.ts"
-Cohesion: 0.13
-Nodes (13): applyGrayscale(), cropCanvas(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), runWorker(), updateProgress() (+5 more)
+### Community 10 - "image-bg-remove-ml.ts"
+Cohesion: 0.15
+Nodes (18): autoCropTransparentCanvas(), canvasToBlob(), cleanupWorkerAndRejectPending(), compressAndResizeCanvas(), getOrCreateWorker(), loadImage(), OrnamentProcessOptions, OrnamentProcessResult (+10 more)
 
-### Community 10 - "preview-builder.ts"
-Cohesion: 0.20
-Nodes (17): categorizeFile(), exportEpubBlob(), extractLinkedCssPaths(), parseSpineOrder(), parseZipEntries(), deobfuscateAdobeFont(), deobfuscateIdpfFont(), isValidFontMagic() (+9 more)
-
-### Community 11 - "epub-reader-parser.ts"
-Cohesion: 0.16
-Nodes (19): categorizeResource(), extractEpubMetadata(), findOpfPath(), parseEpub(), parseOpfManifestAndSpine(), EpubBook, EpubBookMetadata, EpubContainer (+11 more)
-
-### Community 12 - "logger.ts"
-Cohesion: 0.11
-Nodes (10): EpubMetadataState, isDebug(), isDebugEnabled, Logger, LogLevel, setDebug(), ensureEpubExt(), mockAnchor (+2 more)
-
-### Community 13 - "constants.ts"
+### Community 11 - "constants.ts"
 Cohesion: 0.13
 Nodes (9): MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE, EpubFontsState, EpubJacketState, EpubSourceState (+1 more)
+
+### Community 12 - "preview-builder.ts"
+Cohesion: 0.19
+Nodes (17): categorizeFile(), exportEpubBlob(), extractLinkedCssPaths(), parseSpineOrder(), parseZipEntries(), deobfuscateAdobeFont(), deobfuscateIdpfFont(), isValidFontMagic() (+9 more)
+
+### Community 13 - "epub-reader-parser.ts"
+Cohesion: 0.16
+Nodes (19): categorizeResource(), extractEpubMetadata(), findOpfPath(), parseEpub(), parseOpfManifestAndSpine(), EpubBook, EpubBookMetadata, EpubContainer (+11 more)
 
 ### Community 14 - "compilerOptions"
 Cohesion: 0.10
@@ -144,61 +143,45 @@ Nodes (20): playwright.config.ts, src/**/*, .svelte-kit/ambient.d.ts, .svelte-ki
 Cohesion: 0.11
 Nodes (16): @playwright/test, @playwright/test, vitest/globals, compilerOptions, types, extends, include, ./**/* (+8 more)
 
-### Community 18 - "devDependencies"
+### Community 17 - "devDependencies"
 Cohesion: 0.15
-Nodes (13): eslint, @eslint/js, globals, devDependencies, eslint, @eslint/js, globals, prettier (+5 more)
+Nodes (13): eslint, eslint-plugin-svelte, globals, devDependencies, eslint, eslint-plugin-svelte, globals, prettier (+5 more)
 
-### Community 19 - "pdf-splitter.type.ts"
+### Community 18 - "pdf-splitter.type.ts"
 Cohesion: 0.22
 Nodes (9): App, Window, PdfJsDocument, PdfJsLib, PdfJsPage, PdfJsViewport, PdfPreviewPage, PdfProgressInfo (+1 more)
 
-### Community 20 - "entry"
+### Community 19 - "entry"
 Cohesion: 0.22
 Nodes (9): entry, src/lib/epub-editor/epub-validator.ts, src/lib/epub-packer/epub-packer.ts, src/lib/epub-packer/parser/epub-source-parser.ts, src/lib/types/index.ts, src/lib/utils/index.ts, src/routes/**/+layout.{svelte,js,ts}, src/routes/**/+page.{svelte,js,ts} (+1 more)
 
-### Community 21 - "knip.json"
+### Community 20 - "knip.json"
 Cohesion: 0.25
 Nodes (7): ignoreDependencies, project, $schema, tailwindcss, src/**/*.{js,ts,svelte}, tests/**/*.{js,ts}, tailwindcss
 
-### Community 22 - "generate-fonts-meta.js"
+### Community 21 - "generate-fonts-meta.js"
 Cohesion: 0.29
 Nodes (6): files, fontkit, FONTS_DIR, metadata, OUTPUT_FILE, require
 
-### Community 23 - "result.type.ts"
-Cohesion: 0.40
-Nodes (3): AppError, Result, ValidationError
-
-### Community 24 - "components.type.ts"
-Cohesion: 0.40
-Nodes (4): ButtonProps, DropZoneProps, InputProps, PageHeaderProps
-
-### Community 25 - "epub-editor.type.ts"
-Cohesion: 0.40
-Nodes (4): BuildPreviewHtmlOptions, EpubEditorFileItem, EpubFileCategory, EpubValidationError
-
-### Community 26 - "markdown-fixer.type.ts"
-Cohesion: 0.50
-Nodes (3): ConvertedBracketsResult, FixMarkdownZipResult, ProcessedMarkdownFileRow
-
 ## Knowledge Gaps
-- **169 isolated node(s):** `EpubChapterFeatures`, `OrnamentItem`, `ParseTxtOptions`, `ParseTxtWorkerRequest`, `ParseTxtWorkerResponse` (+164 more)
+- **172 isolated node(s):** `EpubChapterFeatures`, `OrnamentItem`, `ParseTxtOptions`, `TocChapterInfo`, `OrnamentProcessOptions` (+167 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `EpubImagesState` connect `EpubImagesState` to `constants.ts`, `image-bg-remove-ml.ts`?**
+- **Why does `EpubImagesState` connect `EpubImagesState` to `image-bg-remove-ml.ts`, `constants.ts`?**
   _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `EpubEditorState` connect `EpubEditorState` to `utils/index.ts`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `devDependencies` connect `devDependencies` to `@sveltejs/adapter-cloudflare`, `@sveltejs/kit`, `@sveltejs/vite-plugin-svelte`, `scripts`, `@tailwindcss/vite`, `@types/node`, `typescript`, `vite`, `vitest`, `tests-e2e/tsconfig.json`, `knip.json`, `eslint-plugin-svelte`, `knip`, `prettier-plugin-svelte`, `svelte-check`?**
+- **Why does `devDependencies` connect `devDependencies` to `typescript`, `vite`, `vitest`, `scripts`, `tests-e2e/tsconfig.json`, `knip.json`, `@eslint/js`, `knip`, `prettier-plugin-svelte`, `@sveltejs/kit`, `svelte-check`, `@sveltejs/adapter-cloudflare`, `@sveltejs/vite-plugin-svelte`, `@tailwindcss/vite`, `@types/node`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `EpubChapterFeatures`, `OrnamentItem`, `ParseTxtOptions` to the rest of the system?**
-  _169 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `lib/types/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.08605769230769231 - nodes in this community are weakly interconnected._
-- **Should `epub-source-parser.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.09265536723163842 - nodes in this community are weakly interconnected._
+  _172 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `zip-writer.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.07869742198100407 - nodes in this community are weakly interconnected._
+- **Should `epub-book-ops.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.07609427609427609 - nodes in this community are weakly interconnected._
 - **Should `utils/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.055218855218855216 - nodes in this community are weakly interconnected._
+- **Should `epub-source-parser.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.13737373737373737 - nodes in this community are weakly interconnected._
