@@ -1,0 +1,16 @@
+# Build and cache outputs
+node_modules
+.svelte-kit
+build
+dist
+.output
+.vercel
+.netlify
+.wrangler
+
+# Test outputs
+/test-results
+/playwright-report
+
+# Graphify generated knowledge graph output
+graphify-out/
