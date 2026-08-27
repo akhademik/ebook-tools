@@ -160,6 +160,12 @@ export async function parseTxtToChaptersAsync(
 
 			const handleAbort = () => {
 				cleanup();
+				try {
+					worker.terminate();
+				} catch {
+					// ignore
+				}
+				txtWorkerInstance = null;
 				reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
 			};
 
@@ -196,6 +202,18 @@ export async function parseTxtToChaptersAsync(
 				}
 			};
 
+			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
+				cleanup();
+				Logger.warn('[txt-parser]', 'Worker event error, falling back to direct parse:', err);
+				try {
+					worker.terminate();
+				} catch {
+					// ignore
+				}
+				txtWorkerInstance = null;
+				resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+			};
+
 			if (options.signal) {
 				if (options.signal.aborted) {
 					reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
@@ -205,12 +223,42 @@ export async function parseTxtToChaptersAsync(
 			}
 
 			worker.addEventListener('message', handleMessage);
-			worker.postMessage({
-				id: requestId,
-				txtText: rawText,
-				options,
-				fallbackTitle
-			});
+			worker.addEventListener('error', handleWorkerError, { once: true });
+			worker.addEventListener('messageerror', handleWorkerError, { once: true });
+
+			// Sanitize options to avoid DataCloneError: DOMException / AbortSignal or Proxies cannot be cloned
+			const rawDefs = options.customDefinitions
+				? JSON.parse(JSON.stringify(options.customDefinitions))
+				: [];
+			const rawImages: Record<string, { fileName?: string }> = {};
+			if (options.images) {
+				for (const [k, v] of Object.entries(options.images)) {
+					rawImages[k] = { fileName: v.fileName };
+				}
+			}
+
+			const serializableOptions: ParseTxtOptions = {
+				customDefinitions: rawDefs,
+				images: rawImages,
+				warnings: []
+			};
+
+			try {
+				worker.postMessage({
+					id: requestId,
+					txtText: rawText,
+					options: serializableOptions,
+					fallbackTitle
+				});
+			} catch (postErr) {
+				cleanup();
+				Logger.warn(
+					'[txt-parser]',
+					'Failed to postMessage to worker, executing direct synchronous parse:',
+					postErr
+				);
+				resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+			}
 		});
 	}
 

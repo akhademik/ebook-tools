@@ -32,16 +32,28 @@
 
 			{#if epubState.images.chapterOrnamentStatus}
 				<div
-					class="flex items-center gap-2 text-xs font-mono {epubState.images.chapterOrnamentError
+					class="flex items-center justify-between gap-2 text-xs font-mono {epubState.images
+						.chapterOrnamentError
 						? 'text-red-400'
 						: 'text-accent-color'}"
 				>
+					<div class="flex items-center gap-2">
+						{#if epubState.images.chapterOrnamentIsProcessing}
+							<span
+								class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
+							></span>
+						{/if}
+						<span>{epubState.images.chapterOrnamentStatus}</span>
+					</div>
 					{#if epubState.images.chapterOrnamentIsProcessing}
-						<span
-							class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
-						></span>
+						<button
+							type="button"
+							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+							onclick={() => epubState.images.cancelChapterOrnamentProcessing()}
+						>
+							Hủy
+						</button>
 					{/if}
-					<span>{epubState.images.chapterOrnamentStatus}</span>
 				</div>
 			{/if}
 
@@ -96,16 +108,28 @@
 
 			{#if epubState.images.subchapterOrnamentStatus}
 				<div
-					class="flex items-center gap-2 text-xs font-mono {epubState.images.subchapterOrnamentError
+					class="flex items-center justify-between gap-2 text-xs font-mono {epubState.images
+						.subchapterOrnamentError
 						? 'text-red-400'
 						: 'text-accent-color'}"
 				>
+					<div class="flex items-center gap-2">
+						{#if epubState.images.subchapterOrnamentIsProcessing}
+							<span
+								class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
+							></span>
+						{/if}
+						<span>{epubState.images.subchapterOrnamentStatus}</span>
+					</div>
 					{#if epubState.images.subchapterOrnamentIsProcessing}
-						<span
-							class="inline-block w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
-						></span>
+						<button
+							type="button"
+							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+							onclick={() => epubState.images.cancelSubchapterOrnamentProcessing()}
+						>
+							Hủy
+						</button>
 					{/if}
-					<span>{epubState.images.subchapterOrnamentStatus}</span>
 				</div>
 			{/if}
 

@@ -96,6 +96,19 @@
 						<p class="font-mono text-sm text-text-color">
 							Đang phân tích cấu trúc EPUB & quét tài nguyên thừa...
 						</p>
+						{#if editorState.statusMessage}
+							<p class="font-mono text-xs text-text-mute mt-1">{editorState.statusMessage}</p>
+						{/if}
+						<button
+							type="button"
+							class="mt-4 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-mono cursor-pointer transition-colors"
+							onclick={() => {
+								editorState.cancelCleanupTask();
+								isAnalyzing = false;
+							}}
+						>
+							✕ Dừng phân tích
+						</button>
 					</div>
 				{:else if editorState.cleanReport}
 					<!-- Success Cleaning Report -->
@@ -292,8 +305,23 @@
 
 			<!-- Footer Buttons -->
 			<div
-				class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-end items-center"
+				class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-between items-center"
 			>
+				{#if isOptimizing}
+					<button
+						type="button"
+						class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+						onclick={() => {
+							editorState.cancelCleanupTask();
+							isOptimizing = false;
+						}}
+					>
+						Hủy quá trình dọn dẹp
+					</button>
+				{:else}
+					<div></div>
+				{/if}
+
 				{#if editorState.cleanReport}
 					<Button variant="primary" onclick={handleClose}>Hoàn tất</Button>
 				{:else}

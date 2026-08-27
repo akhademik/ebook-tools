@@ -4,7 +4,7 @@ import type { Snippet } from 'svelte';
 export interface ButtonProps {
 	onclick?: (event: MouseEvent) => void;
 	disabled?: boolean;
-	variant?: 'primary' | 'secondary';
+	variant?: 'primary' | 'secondary' | 'danger';
 	type?: 'button' | 'submit' | 'reset';
 	children?: Snippet;
 }

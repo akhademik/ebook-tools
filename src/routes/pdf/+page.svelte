@@ -189,15 +189,19 @@
 		</div>
 
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
-			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
-				<Button onclick={() => state.processPdf()} disabled={state.processing} variant="primary">
-					{state.processing ? 'Đang xử lý...' : 'Bắt đầu tách trang'}
-				</Button>
-			</div>
+			{#if state.processing}
+				<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
+					<Button onclick={() => state.cancelProcessTask()} variant="danger">Hủy xử lý</Button>
+				</div>
+			{:else}
+				<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
+					<Button onclick={() => state.processPdf()} variant="primary">Bắt đầu tách trang</Button>
+				</div>
+			{/if}
 			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button
 					onclick={() => state.downloadZip()}
-					disabled={!state.pdfZipBlob}
+					disabled={!state.pdfZipBlob || state.processing}
 					variant="secondary"
 				>
 					Tải tệp .ZIP
@@ -217,7 +221,18 @@
 
 		{#if state.processing || state.progressPercent > 0}
 			<div class="mt-5 animate-fade-in">
-				<p class="font-mono text-xs text-text-mute mb-2">{state.progressLabel}</p>
+				<div class="flex items-center justify-between gap-2 mb-2">
+					<p class="font-mono text-xs text-text-mute">{state.progressLabel}</p>
+					{#if state.processing}
+						<button
+							type="button"
+							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 p-0"
+							onclick={() => state.cancelProcessTask()}
+						>
+							Dừng lại
+						</button>
+					{/if}
+				</div>
 				<div class="h-2 bg-panel-2 rounded-full overflow-hidden">
 					<div
 						class="h-full bg-accent-color transition-all duration-150"

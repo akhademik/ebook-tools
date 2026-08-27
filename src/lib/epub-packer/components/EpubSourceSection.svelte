@@ -287,11 +287,21 @@
 
 	{#if epubState.source.parseStatus}
 		<div
-			class="font-mono text-sm mt-3 {epubState.source.parseIsError
+			class="font-mono text-sm mt-3 flex items-center justify-between gap-2 {epubState.source
+				.parseIsError
 				? 'text-red-500'
 				: 'text-text-mute'}"
 		>
-			{epubState.source.parseStatus}
+			<span>{epubState.source.parseStatus}</span>
+			{#if epubState.source.parseStatus.includes('Đang') || epubState.source.parseStatus.includes('xếp hàng')}
+				<button
+					type="button"
+					class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
+					onclick={() => epubState.source.cancelParseTask()}
+				>
+					Hủy
+				</button>
+			{/if}
 		</div>
 	{/if}
 </div>

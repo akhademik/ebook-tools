@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a8383ee7`
+- Built from commit: `5181db5b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -37,15 +37,15 @@
 - knip.json
 - generate-fonts-meta.js
 - eslint.config.js
-- @eslint/js
+- @types/node
+- eslint-plugin-svelte
 - knip
 - prettier-plugin-svelte
-- @sveltejs/kit
 - svelte-check
 - @sveltejs/adapter-cloudflare
+- @sveltejs/kit
 - @sveltejs/vite-plugin-svelte
 - @tailwindcss/vite
-- @types/node
 - typescript
 - vite
 - vitest
@@ -89,7 +89,7 @@ Nodes (16): MAX_EPUB_FILE_SIZE, isDirty, BookMetadataDetails, extractBookMetadat
 
 ### Community 2 - "utils/index.ts"
 Cohesion: 0.06
-Nodes (26): EpubMetadataState, applyGrayscale(), cropCanvas(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), runWorker() (+18 more)
+Nodes (24): applyGrayscale(), cropCanvas(), formatEta(), loadPdfPreview(), pickConcurrency(), processPdfToJpg(), runWorker(), updateProgress() (+16 more)
 
 ### Community 3 - "epub-source-parser.ts"
 Cohesion: 0.14
@@ -124,8 +124,8 @@ Cohesion: 0.15
 Nodes (18): autoCropTransparentCanvas(), canvasToBlob(), cleanupWorkerAndRejectPending(), compressAndResizeCanvas(), getOrCreateWorker(), loadImage(), OrnamentProcessOptions, OrnamentProcessResult (+10 more)
 
 ### Community 11 - "constants.ts"
-Cohesion: 0.13
-Nodes (9): MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE, EpubFontsState, EpubJacketState, EpubSourceState (+1 more)
+Cohesion: 0.11
+Nodes (11): MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE, EpubFontsState, EpubJacketState, EpubMetadataState (+3 more)
 
 ### Community 12 - "preview-builder.ts"
 Cohesion: 0.19
@@ -145,7 +145,7 @@ Nodes (16): @playwright/test, @playwright/test, vitest/globals, compilerOptions,
 
 ### Community 17 - "devDependencies"
 Cohesion: 0.15
-Nodes (13): eslint, eslint-plugin-svelte, globals, devDependencies, eslint, eslint-plugin-svelte, globals, prettier (+5 more)
+Nodes (13): eslint, @eslint/js, globals, devDependencies, eslint, @eslint/js, globals, prettier (+5 more)
 
 ### Community 18 - "pdf-splitter.type.ts"
 Cohesion: 0.22
@@ -173,7 +173,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `EpubImagesState` connect `EpubImagesState` to `image-bg-remove-ml.ts`, `constants.ts`?**
   _High betweenness centrality (0.032) - this node is a cross-community bridge._
-- **Why does `devDependencies` connect `devDependencies` to `typescript`, `vite`, `vitest`, `scripts`, `tests-e2e/tsconfig.json`, `knip.json`, `@eslint/js`, `knip`, `prettier-plugin-svelte`, `@sveltejs/kit`, `svelte-check`, `@sveltejs/adapter-cloudflare`, `@sveltejs/vite-plugin-svelte`, `@tailwindcss/vite`, `@types/node`?**
+- **Why does `devDependencies` connect `devDependencies` to `typescript`, `vite`, `vitest`, `scripts`, `tests-e2e/tsconfig.json`, `knip.json`, `@types/node`, `eslint-plugin-svelte`, `knip`, `prettier-plugin-svelte`, `svelte-check`, `@sveltejs/adapter-cloudflare`, `@sveltejs/kit`, `@sveltejs/vite-plugin-svelte`, `@tailwindcss/vite`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `EpubChapterFeatures`, `OrnamentItem`, `ParseTxtOptions` to the rest of the system?**
   _172 weakly-connected nodes found - possible documentation gaps or missing edges._
@@ -182,6 +182,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `epub-book-ops.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.07609427609427609 - nodes in this community are weakly interconnected._
 - **Should `utils/index.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.055218855218855216 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.058823529411764705 - nodes in this community are weakly interconnected._
 - **Should `epub-source-parser.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.13737373737373737 - nodes in this community are weakly interconnected._

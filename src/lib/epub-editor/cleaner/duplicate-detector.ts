@@ -99,6 +99,12 @@ export async function scanDuplicateResources(
 
 			const handleAbort = () => {
 				cleanup();
+				try {
+					worker.terminate();
+				} catch {
+					// ignore
+				}
+				workerInstance = null;
 				reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
 			};
 
