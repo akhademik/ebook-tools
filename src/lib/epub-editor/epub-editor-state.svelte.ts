@@ -25,6 +25,7 @@ import {
 	rebuildEpubToc,
 	type BookMetadataDetails
 } from './epub-book-ops';
+import { MAX_EPUB_FILE_SIZE } from '$lib/constants';
 import { Logger, triggerDownload } from '$lib/utils';
 
 export class EpubEditorState {
@@ -75,6 +76,13 @@ export class EpubEditorState {
 	async loadEpubFile(file: File): Promise<void> {
 		this.reset();
 		this.fileName = file.name;
+
+		if (file.size > MAX_EPUB_FILE_SIZE) {
+			this.statusMessage = 'Dung lượng tệp EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
+			this.isError = true;
+			return;
+		}
+
 		this.isLoading = true;
 		this.statusMessage = 'Đang giải nén tệp EPUB...';
 		this.isError = false;

@@ -1,5 +1,5 @@
-// src/lib/pdf-splitter/pdf-splitter-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
+import { MAX_PDF_FILE_SIZE } from '$lib/constants';
 import { loadPdfPreview, processPdfToJpg } from './pdf-splitter';
 import type { PdfPreviewPage } from '$lib/types';
 
@@ -35,6 +35,11 @@ export class PdfSplitterState {
 		if (!file) return;
 		if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
 			this.status = 'Vui lòng chọn một tệp PDF hợp lệ.';
+			this.isError = true;
+			return;
+		}
+		if (file.size > MAX_PDF_FILE_SIZE) {
+			this.status = 'Dung lượng tệp PDF vượt quá giới hạn cho phép (tối đa 1GB).';
 			this.isError = true;
 			return;
 		}

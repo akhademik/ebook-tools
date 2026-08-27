@@ -63,7 +63,7 @@
 			<p class="text-sm text-text-mute mt-2">Tệp xuất: <span class="text-text-color font-mono">{state.zipNamePreview}</span></p>
 		</div>
 
-		<div class="flex items-center gap-4 mt-6 flex-wrap md:flex-nowrap">
+		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			<div class="w-full md:w-auto md:flex-1 max-w-[220px] min-w-[170px] shrink-0">
 				<Button 
 					onclick={() => state.processMarkdownZip()} 

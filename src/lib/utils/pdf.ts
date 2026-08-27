@@ -1,22 +1,14 @@
 // src/lib/utils/pdf.ts
-
-declare global {
-  interface Window {
-    pdfjsLib?: {
-      GlobalWorkerOptions: {
-        workerSrc: string;
-      };
-    };
-  }
-}
+import { Logger } from './logger';
 
 /**
  * Configure PDF.js worker URL if PDF.js library is loaded globally via CDN.
  */
 export function initPdfWorker(): void {
-  if (typeof window !== 'undefined' && window.pdfjsLib) {
+  if (typeof window !== 'undefined' && window.pdfjsLib?.GlobalWorkerOptions) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    Logger.debug('[PDFWorker]', 'PDF.js worker configured');
   }
 }
 

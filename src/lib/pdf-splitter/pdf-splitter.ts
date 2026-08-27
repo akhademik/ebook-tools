@@ -4,8 +4,7 @@ import { Logger } from '$lib/utils';
 import type {
 	PdfPreviewPage,
 	PdfProgressInfo,
-	ProcessPdfResult,
-	PdfJsLib
+	ProcessPdfResult
 } from '$lib/types';
 
 export type {
@@ -68,7 +67,7 @@ export async function loadPdfPreview(
 	selectedPreviewCount: number,
 	keepColor: boolean
 ): Promise<PdfPreviewPage[]> {
-	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
+	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'loadPdfPreview error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
@@ -115,7 +114,7 @@ export async function processPdfToJpg(
 	cropBottomPx: number,
 	onProgress?: (info: PdfProgressInfo) => void
 ): Promise<ProcessPdfResult> {
-	const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
+	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');

@@ -2,23 +2,35 @@
 
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
 
-let isDebugEnabled = false;
+function detectDefaultDebug(): boolean {
+  // 1. In Vite dev server (pnpm dev), enable debug logging automatically (excluding vitest test environment)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    if (import.meta.env.DEV && import.meta.env.MODE !== 'test') {
+      return true;
+    }
+  }
 
-// Attempt to read from environment variable or global object to set default
-if (
-  typeof process !== 'undefined' &&
-  process.env &&
-  (process.env.DEBUG === 'true' || process.env.DEBUG === '1')
-) {
-  isDebugEnabled = true;
-} else if (
-  typeof window !== 'undefined' &&
-  ((window as unknown as Record<string, unknown>).DEBUG_LOG === true ||
-    (window as unknown as Record<string, unknown>).DEBUG_LOG === 'true' ||
-    (window as unknown as Record<string, unknown>).DEBUG_LOG === '1')
-) {
-  isDebugEnabled = true;
+  // 2. Node / process environment flag
+  if (
+    typeof process !== 'undefined' &&
+    process.env &&
+    (process.env.DEBUG === 'true' || process.env.DEBUG === '1')
+  ) {
+    return true;
+  }
+
+  // 3. Browser global flag (e.g. window.DEBUG_LOG = true)
+  if (typeof window !== 'undefined') {
+    const flag = window.DEBUG_LOG;
+    if (flag === true || flag === 'true' || flag === '1') {
+      return true;
+    }
+  }
+
+  return false;
 }
+
+let isDebugEnabled = detectDefaultDebug();
 
 function formatAndLog(
   level: LogLevel,

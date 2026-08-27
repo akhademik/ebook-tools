@@ -23,14 +23,6 @@
 		subtitle="Mỗi trang sẽ được xuất thành một tệp ảnh .JPG riêng biệt"
 		selectedFile={state.pdfSelectedFile}
 	/>
-
-	<div class="flex items-center gap-3 mt-6">
-		<input type="checkbox" id="keep-color" bind:checked={state.keepColor} class="w-4 h-4 accent-accent-color cursor-pointer" />
-		<div>
-			<label for="keep-color" class="text-sm text-text-color cursor-pointer font-medium">Giữ màu ảnh gốc</label>
-			<span class="block text-xs text-text-mute mt-0.5">Mặc định tách thành ảnh xám giúp tăng độ chính xác khi OCR</span>
-		</div>
-	</div>
 </div>
 
 {#if state.pdfSelectedFile}
@@ -54,14 +46,16 @@
 			</div>
 		</div>
 
-		<button 
-			class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2.5 px-5 rounded-xl cursor-pointer transition-colors w-full md:w-auto mb-5" 
-			onclick={() => state.loadPreview()}
-			disabled={state.loadingPreview}
-			type="button"
-		>
-			{state.loadingPreview ? 'Đang tải xem trước...' : (state.previewPages.length > 0 ? 'Tải lại xem trước' : 'Tải ảnh xem trước')}
-		</button>
+		<div class="flex justify-center mb-5">
+			<button 
+				class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2.5 px-6 rounded-xl cursor-pointer transition-colors w-full md:w-auto" 
+				onclick={() => state.loadPreview()}
+				disabled={state.loadingPreview}
+				type="button"
+			>
+				{state.loadingPreview ? 'Đang tải xem trước...' : (state.previewPages.length > 0 ? 'Tải lại xem trước' : 'Tải ảnh xem trước')}
+			</button>
+		</div>
 
 		{#if state.previewPages.length > 0}
 			<div class="mt-5 pt-5 border-t border-border-color animate-fade-in">
@@ -116,7 +110,7 @@
 			<p class="text-sm text-text-mute mt-2">Tệp tải về: <span class="text-text-color font-mono">{state.zipNamePreview}</span></p>
 		</div>
 
-		<div class="flex items-center gap-4 mt-6 flex-wrap md:flex-nowrap">
+		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button 
 					onclick={() => state.processPdf()} 

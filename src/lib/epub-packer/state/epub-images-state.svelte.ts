@@ -1,6 +1,6 @@
-// src/lib/epub-packer/state/epub-images-state.svelte.ts
 import JSZip from 'jszip';
-import type { CoverBlobItem, IllustrationImageItem, PdfJsLib } from '$lib/types';
+import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
+import { MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE } from '$lib/constants';
 import { Logger, processOrnamentImage } from '$lib/utils';
 
 export class EpubImagesState {
@@ -62,11 +62,16 @@ export class EpubImagesState {
 
 		for (const file of filesList) {
 			if (/\.zip$/i.test(file.name)) {
+				if (file.size > MAX_IMAGES_ZIP_FILE_SIZE) {
+					Logger.warn('[EpubImagesState]', `Images zip exceeds limit: ${file.name} (${file.size} bytes)`);
+					continue;
+				}
 				try {
 					const zip = await JSZip.loadAsync(file);
 					for (const name of Object.keys(zip.files)) {
 						if (!zip.files[name].dir && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
 							const blob = await zip.files[name].async('blob');
+							if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
 							const fileName = name.split('/').pop() || name;
 							const baseName = fileName.replace(/\.[^.]+$/, '');
 							const mimeType = this.getImageMimeType(fileName);
@@ -86,6 +91,10 @@ export class EpubImagesState {
 					Logger.error('[EpubImagesState]', 'Error extracting images zip', err);
 				}
 			} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
+				if (file.size > MAX_IMAGE_FILE_SIZE) {
+					Logger.warn('[EpubImagesState]', `Image file exceeds limit: ${file.name} (${file.size} bytes)`);
+					continue;
+				}
 				const fileName = file.name;
 				const baseName = fileName.replace(/\.[^.]+$/, '');
 				const mimeType = file.type || this.getImageMimeType(fileName);
@@ -117,6 +126,11 @@ export class EpubImagesState {
 
 	async handleChapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
+		if (file.size > MAX_IMAGE_FILE_SIZE) {
+			this.chapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
+			this.chapterOrnamentStatus = 'Lỗi tệp quá lớn';
+			return;
+		}
 		this.chapterOrnamentFile = file;
 		this.chapterOrnamentError = null;
 		this.chapterOrnamentStatus = 'Đang xếp hàng chờ xử lý...';
@@ -159,6 +173,11 @@ export class EpubImagesState {
 
 	async handleSubchapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
+		if (file.size > MAX_IMAGE_FILE_SIZE) {
+			this.subchapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
+			this.subchapterOrnamentStatus = 'Lỗi tệp quá lớn';
+			return;
+		}
 		this.subchapterOrnamentFile = file;
 		this.subchapterOrnamentError = null;
 		this.subchapterOrnamentStatus = 'Đang xếp hàng chờ xử lý...';
@@ -219,8 +238,17 @@ export class EpubImagesState {
 		this.resetCoverCrop();
 
 		const isPdf = /\.pdf$/i.test(file.name);
+		const maxAllowed = isPdf ? MAX_PDF_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
+		if (file.size > maxAllowed) {
+			this.coverStatus = isPdf
+				? 'Dung lượng tệp PDF bìa vượt quá giới hạn (tối đa 300MB).'
+				: 'Dung lượng ảnh bìa vượt quá giới hạn (tối đa 30MB).';
+			this.coverIsError = true;
+			return;
+		}
+
 		if (isPdf) {
-			const globalPdfjs = typeof window !== 'undefined' ? (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib : null;
+			const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 			if (!globalPdfjs) {
 				Logger.error('[EpubImagesState]', 'pdfjsLib is missing');
 				this.coverStatus = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';

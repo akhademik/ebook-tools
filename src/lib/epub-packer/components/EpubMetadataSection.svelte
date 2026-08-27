@@ -75,7 +75,7 @@
         bind:value={epubState.fonts.jacketFont}
         class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
       >
-        <option value="default">Mặc định (Không dùng font)</option>
+        <option value="default">Mặc định</option>
         {#each AVAILABLE_FONTS as font (font.id)}
           <option value={font.id}>{font.name}</option>
         {/each}

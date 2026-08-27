@@ -111,7 +111,7 @@ export function hashBytes(bytes: Uint8Array): string {
 export async function sha1Async(input: string | Uint8Array): Promise<Uint8Array> {
 	const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;
 	if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-		const hashBuffer = await globalThis.crypto.subtle.digest('SHA-1', data as unknown as BufferSource);
+		const hashBuffer = await globalThis.crypto.subtle.digest('SHA-1', data as BufferSource);
 		return new Uint8Array(hashBuffer);
 	}
 	return sha1Bytes(data);

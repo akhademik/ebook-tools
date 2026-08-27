@@ -1,5 +1,5 @@
-// src/lib/markdown-fixer/markdown-fixer-state.svelte.ts
 import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
+import { MAX_ZIP_FILE_SIZE } from '$lib/constants';
 import { fixMarkdownZip } from './markdown-fixer';
 import type { ProcessedMarkdownFileRow } from '$lib/types';
 
@@ -22,6 +22,11 @@ export class MarkdownFixerState {
 		if (!file) return;
 		if (!/\.zip$/i.test(file.name)) {
 			this.status = 'Vui lòng chọn một tệp .ZIP hợp lệ.';
+			this.isError = true;
+			return;
+		}
+		if (file.size > MAX_ZIP_FILE_SIZE) {
+			this.status = 'Dung lượng tệp .ZIP vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.isError = true;
 			return;
 		}

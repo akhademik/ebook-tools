@@ -43,7 +43,19 @@
 			<h2 class="font-mono text-xs uppercase tracking-wider text-text-mute font-semibold">Tiền xử lý tài liệu</h2>
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+			<a href="/epub-to-txt" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
+				<div class="flex items-center justify-between mb-5">
+					<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">Extraction</span>
+					<div class="text-2xl">📜</div>
+				</div>
+				<h3 class="text-lg font-semibold mb-2.5 text-text-color group-hover:text-accent-color transition-colors">EPUB → TXT</h3>
+				<p class="text-text-mute text-sm leading-relaxed mb-6 flex-1">Trích xuất sách EPUB thành văn bản thô sạch sẽ, loại bỏ dòng trống kép và chuẩn hóa khoảng trắng giữa các từ.</p>
+				<span class="inline-flex items-center justify-center font-mono text-sm tracking-wide py-2.5 px-4 rounded-xl bg-surface-hover text-text-color border border-border-color font-medium transition-all duration-150 group-hover:bg-accent-color group-hover:text-white group-hover:border-transparent active:scale-[0.98]">
+					Mở công cụ
+				</span>
+			</a>
+
 			<a href="/pdf" class="group modern-card rounded-2xl p-7 flex flex-col transition-all duration-200">
 				<div class="flex items-center justify-between mb-5">
 					<span class="font-mono text-xs text-text-mute border border-border-color px-2.5 py-1 rounded-lg">Preparation</span>

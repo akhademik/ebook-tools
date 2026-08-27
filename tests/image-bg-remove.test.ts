@@ -269,6 +269,17 @@ describe('image background removal and ornament optimization', () => {
 			expect(state.subchapterOrnamentBlob).toBeDefined();
 			expect(state.subchapterOrnamentStatus).toBe('Đã hoàn tất tối ưu');
 		});
+
+		it('should reject and set error when ornament file exceeds size limit', async () => {
+			const state = new EpubImagesState();
+			const hugeFile = new File([new ArrayBuffer(100)], 'huge-ornament.png', { type: 'image/png' });
+			Object.defineProperty(hugeFile, 'size', { value: 35 * 1024 * 1024 });
+
+			await state.handleChapterOrnamentFile(hugeFile);
+			expect(state.chapterOrnamentError).toContain('Dung lượng');
+			expect(state.chapterOrnamentStatus).toBe('Lỗi tệp quá lớn');
+		});
 	});
 });
+
 

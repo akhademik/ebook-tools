@@ -1,7 +1,7 @@
 // src/lib/epub-editor/epub-cleaner.ts
 import type JSZip from 'jszip';
 import { resolveRelativePath } from './epub-editor';
-import { Logger, hashBytes } from '$lib/utils';
+import { Logger, hashBytes, sha1HexAsync } from '$lib/utils';
 
 export { hashBytes };
 
@@ -388,7 +388,7 @@ export async function analyzeOptimizationPlan(
 			if (file) {
 				const bytes = await file.async('uint8array');
 				if (bytes && bytes.byteLength > 0) {
-					const hash = hashBytes(bytes);
+					const hash = await sha1HexAsync(bytes);
 					if (hashMap.has(hash)) {
 						const originalPath = hashMap.get(hash)!;
 						duplicateResources.push({

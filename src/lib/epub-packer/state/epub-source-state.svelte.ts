@@ -15,6 +15,7 @@ import {
 	parseTxtToChapters
 } from '../parser/epub-source-parser';
 import { slugify, Logger } from '$lib/utils';
+import { MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE } from '$lib/constants';
 
 export interface EpubSourceStateDependencies {
 	getTitle: () => string;
@@ -170,6 +171,18 @@ export class EpubSourceState {
 		if (!isZip && !isTxt) {
 			Logger.warn('[EpubSourceState]', 'Invalid file type selected', file.name);
 			this.parseStatus = 'Vui lòng chọn một tệp .ZIP hoặc .TXT hợp lệ.';
+			this.parseIsError = true;
+			return;
+		}
+
+		if (isTxt && file.size > MAX_TXT_FILE_SIZE) {
+			this.parseStatus = 'Dung lượng tệp .TXT vượt quá giới hạn cho phép (tối đa 50MB).';
+			this.parseIsError = true;
+			return;
+		}
+
+		if (isZip && file.size > MAX_ZIP_FILE_SIZE) {
+			this.parseStatus = 'Dung lượng tệp .ZIP vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.parseIsError = true;
 			return;
 		}

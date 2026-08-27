@@ -37,5 +37,8 @@ export interface PdfJsDocument {
 }
 
 export interface PdfJsLib {
+	GlobalWorkerOptions?: {
+		workerSrc?: string;
+	};
 	getDocument: (src: { data: ArrayBuffer }) => { promise: Promise<PdfJsDocument> };
 }

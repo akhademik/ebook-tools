@@ -28,8 +28,14 @@ export default defineConfig([
 	{
 		rules: {
 			'svelte/no-navigation-without-resolve': 'off',
-			'@typescript-eslint/no-explicit-any': 'off',
+			'@typescript-eslint/no-explicit-any': 'warn',
 			'@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+		}
+	},
+	{
+		files: ['tests/**/*', 'tests-e2e/**/*'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'off'
 		}
 	}
 ]);

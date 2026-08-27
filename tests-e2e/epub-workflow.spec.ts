@@ -153,7 +153,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureEpubPath);
 
 		// 2. Verify files loaded and action buttons appear
-		await expect(page.getByRole('heading', { name: 'sample-test-book.epub' })).toBeVisible({ timeout: 25000 });
+		await expect(page.getByRole('button', { name: /Mở trình chỉnh sửa/i })).toBeVisible({ timeout: 25000 });
 		await expect(page.getByRole('button', { name: /Thông tin/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Kiểm định/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Dọn rác/i })).toBeVisible();
@@ -206,5 +206,11 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	test('should open TXT to PDF CJK page and display features', async ({ page }) => {
 		await page.goto('/txt-to-pdf');
 		await expect(page.getByRole('heading', { name: /TXT → PDF CJK/i })).toBeVisible();
+	});
+
+	test('should open EPUB to TXT page and verify interface', async ({ page }) => {
+		await page.goto('/epub-to-txt');
+		await expect(page.getByRole('heading', { name: /EPUB → TXT/i })).toBeVisible();
+		await expect(page.locator('text=Kéo thả hoặc click để chọn tệp .EPUB')).toBeVisible();
 	});
 });

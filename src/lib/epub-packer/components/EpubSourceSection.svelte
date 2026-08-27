@@ -37,69 +37,11 @@
       class="bg-brand-bg border border-border-color hover:border-text-color text-text-color font-mono text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
       onclick={() => onOpenSyntaxModal()}
     >
-      Xem bảng quy ước
+      Xem
     </button>
   </div>
 
-  {#if epubState.source.fileType === "txt" && epubState.source.rawTxtText}
-    <div
-      class="mt-5 bg-panel-2 p-5 rounded-xl border border-border-color flex flex-col gap-4 animate-fade-in"
-    >
-      <div class="flex justify-between items-center">
-        <span
-          class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider"
-          >Quy ước riêng</span
-        >
-        <button
-          type="button"
-          class="bg-accent-color text-white font-mono text-xs font-semibold py-1.5 px-3 rounded-lg hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
-          onclick={() => epubState.source.addCustomDefinition()}
-        >
-          + Thêm quy ước
-        </button>
-      </div>
-
-      {#if epubState.source.customDefinitions.length === 0}
-        <p class="text-xs text-text-mute font-mono italic">
-          Chưa có quy ước riêng nào.
-        </p>
-      {:else}
-        <div class="flex flex-col gap-3">
-          {#each epubState.source.customDefinitions as def, idx (idx)}
-            <div
-              class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end bg-brand-bg p-3.5 rounded-lg border border-border-color animate-fade-in"
-            >
-              <div>
-                <Input
-                  bind:value={def.pattern}
-                  oninput={() => epubState.source.applyTxtGrouping()}
-                  label="Ký hiệu (Pattern)"
-                  placeholder="Ví dụ: $$$"
-                />
-              </div>
-              <div>
-                <Input
-                  bind:value={def.tag}
-                  oninput={() => epubState.source.applyTxtGrouping()}
-                  label="Thẻ HTML thay thế"
-                  placeholder="Ví dụ: &lt;span class=&quot;xya&quot;&gt;"
-                />
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="w-full sm:w-auto px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold rounded-xl border border-red-500/20 active:scale-[0.98] transition-all cursor-pointer h-10.5 flex items-center justify-center"
-                  onclick={() => epubState.source.removeCustomDefinition(idx)}
-                >
-                  Xóa
-                </button>
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  {:else if epubState.source.epubRawFiles.length > 0}
+  {#if epubState.source.epubRawFiles.length > 0}
     <div class="mt-5 animate-fade-in">
       <Input
         bind:value={epubState.source.mergePattern}

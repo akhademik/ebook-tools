@@ -28,6 +28,29 @@ let workerInstance: Worker | null = null;
 const pendingJobs = new Map<string, PendingJob>();
 
 /**
+ * Cleans up worker instance and rejects all pending jobs upon worker failure.
+ */
+function cleanupWorkerAndRejectPending(error: Error): void {
+  Logger.error("[ImageBgWorker]", "Cleaning up worker and rejecting pending jobs", error);
+  for (const [, job] of pendingJobs) {
+    try {
+      job.reject(error);
+    } catch {
+      // ignore
+    }
+  }
+  pendingJobs.clear();
+  if (workerInstance) {
+    try {
+      workerInstance.terminate();
+    } catch {
+      // ignore
+    }
+    workerInstance = null;
+  }
+}
+
+/**
  * Lazily initializes the background Web Worker.
  */
 function getOrCreateWorker(): Worker | null {
@@ -72,8 +95,20 @@ function getOrCreateWorker(): Worker | null {
         }
       };
 
-      workerInstance.onerror = (err) => {
-        Logger.error("[ImageBgWorker]", "Worker error", err);
+      workerInstance.onerror = (err: ErrorEvent) => {
+        Logger.error("[ImageBgWorker]", "Worker error event", err);
+        const errMsg =
+          err && typeof err === "object" && "message" in err && err.message
+            ? err.message
+            : "Web Worker gặp sự cố không thể xử lý ảnh";
+        cleanupWorkerAndRejectPending(new Error(errMsg));
+      };
+
+      workerInstance.onmessageerror = (err: MessageEvent) => {
+        Logger.error("[ImageBgWorker]", "Worker message error", err);
+        cleanupWorkerAndRejectPending(
+          new Error("Lỗi truyền dữ liệu với Web Worker"),
+        );
       };
     } catch (err) {
       Logger.warn(
