@@ -15,7 +15,7 @@ export function isRealParagraph(line: string): boolean {
 function shouldSkipHeaderFooter(lines: string[], normKeywords: string[] = []): boolean {
 	if (lines.length < 6) return true;
 	if (normKeywords && normKeywords.length > 0) return false;
-	const first = lines.find(l => l.trim()) || '';
+	const first = lines.find((l) => l.trim()) || '';
 	let last = '';
 	for (let i = lines.length - 1; i >= 0; i--) {
 		if (lines[i].trim()) {
@@ -35,21 +35,24 @@ function compileCleanKeywords(keywords: string[] | string | undefined): {
 	if (Array.isArray(keywords)) {
 		keywordsList = keywords;
 	} else if (typeof keywords === 'string') {
-		keywordsList = keywords.split(',').map(s => s.trim()).filter(Boolean);
+		keywordsList = keywords
+			.split(',')
+			.map((s) => s.trim())
+			.filter(Boolean);
 	}
 
-	const cleanArabic = keywordsList.some(k => k.trim().toLowerCase() === '{no}');
-	const cleanRoman = keywordsList.some(k => k.trim().toLowerCase() === '{roman_no}');
+	const cleanArabic = keywordsList.some((k) => k.trim().toLowerCase() === '{no}');
+	const cleanRoman = keywordsList.some((k) => k.trim().toLowerCase() === '{roman_no}');
 
-	const filteredKeywords = keywordsList.filter(k => {
+	const filteredKeywords = keywordsList.filter((k) => {
 		const trimmed = k.trim().toLowerCase();
 		return trimmed !== '{no}' && trimmed !== '{roman_no}';
 	});
 
 	const normKeywords = filteredKeywords
-		.map(k => String(k).trim())
+		.map((k) => String(k).trim())
 		.filter(Boolean)
-		.map(k => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
+		.map((k) => normalizeCharPreserveLength(k).replace(/[^a-z0-9]/g, ''));
 
 	return { cleanArabic, cleanRoman, normKeywords };
 }
@@ -81,7 +84,10 @@ function isLineHeaderFooter(
 		const normLine = normalizeCharPreserveLength(trimmed).replace(/[^a-z0-9]/g, '');
 		if (normLine) {
 			for (const nk of normKeywords) {
-				if (normLine === nk || (nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))) {
+				if (
+					normLine === nk ||
+					(nk.length > 3 && (normLine.includes(nk) || nk.includes(normLine)))
+				) {
 					return true;
 				}
 			}
@@ -95,11 +101,17 @@ export function cleanHeaderFooterOcr(
 	keywords: string[] | string | undefined,
 	lineLimit = 2
 ): string {
-	Logger.debug('[epub-parser]', `cleanHeaderFooterOcr called, lines: ${String(text || '').split('\n').length}, keywords: ${keywords}`);
+	Logger.debug(
+		'[epub-parser]',
+		`cleanHeaderFooterOcr called, lines: ${String(text || '').split('\n').length}, keywords: ${keywords}`
+	);
 	const lines = String(text).replace(/\r\n/g, '\n').split('\n');
 	const { cleanArabic, cleanRoman, normKeywords } = compileCleanKeywords(keywords);
 	if (shouldSkipHeaderFooter(lines, normKeywords)) {
-		Logger.debug('[epub-parser]', 'cleanHeaderFooterOcr: skipped cleaning (real paragraphs at boundary)');
+		Logger.debug(
+			'[epub-parser]',
+			'cleanHeaderFooterOcr: skipped cleaning (real paragraphs at boundary)'
+		);
 		return text;
 	}
 
@@ -112,7 +124,10 @@ export function cleanHeaderFooterOcr(
 	}
 
 	const resultLines = lines.filter((_, idx) => !linesToRemove.includes(idx));
-	Logger.debug('[epub-parser]', `cleanHeaderFooterOcr: removed ${linesToRemove.length} header/footer lines`);
+	Logger.debug(
+		'[epub-parser]',
+		`cleanHeaderFooterOcr: removed ${linesToRemove.length} header/footer lines`
+	);
 	return resultLines.join('\n');
 }
 
@@ -126,7 +141,9 @@ export function getCleanedLinesReport(
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
-		const lines = String(f.rawText || '').replace(/\r\n/g, '\n').split('\n');
+		const lines = String(f.rawText || '')
+			.replace(/\r\n/g, '\n')
+			.split('\n');
 		if (shouldSkipHeaderFooter(lines, normKeywords)) continue;
 
 		const scanned: ScannedReportItem[] = [];
@@ -139,7 +156,7 @@ export function getCleanedLinesReport(
 			});
 		}
 		for (let i = lines.length - 1; i >= Math.max(0, lines.length - lineLimit); i--) {
-			if (i < lineLimit) continue; 
+			if (i < lineLimit) continue;
 			scanned.push({
 				lineNum: i + 1,
 				text: lines[i],

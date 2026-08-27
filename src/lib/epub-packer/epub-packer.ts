@@ -9,19 +9,12 @@ export * from './builders';
 export { buildContainerXml } from './xml-builders/container-builder';
 export { buildContentOpf } from './xml-builders/opf-builder';
 export {
-  injectHeadingIds,
-  getTocEntries,
-  buildTocTree,
-  buildNavXhtml,
-  buildTocNcx
+	injectHeadingIds,
+	getTocEntries,
+	buildTocTree,
+	buildNavXhtml,
+	buildTocNcx
 } from './xml-builders/nav-builder';
-export {
-  mergeBrokenParagraphs,
-  buildChapterXhtml
-} from './xml-builders/chapter-builder';
+export { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder';
 
-export type {
-  EpubFontsConfig,
-  EpubJacketConfig,
-  CoverBlobItem
-} from '$lib/types';
+export type { EpubFontsConfig, EpubJacketConfig, CoverBlobItem } from '$lib/types';

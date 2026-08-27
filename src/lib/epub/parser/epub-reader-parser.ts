@@ -340,7 +340,10 @@ function extractEpubMetadata(opfXml: string, manifest?: EpubManifest): EpubBookM
 	}
 
 	const getTagValue = (tagName: string): string => {
-		const regex = new RegExp(`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`, 'i');
+		const regex = new RegExp(
+			`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`,
+			'i'
+		);
 		const match = regex.exec(opfXml);
 		if (!match) return '';
 		return match[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
@@ -359,7 +362,10 @@ function extractEpubMetadata(opfXml: string, manifest?: EpubManifest): EpubBookM
 	const pkgMatch = /<package\b[^>]*unique-identifier\s*=\s*["']([^"']+)["']/i.exec(opfXml);
 	if (pkgMatch) {
 		const idAttr = pkgMatch[1];
-		const idRegex = new RegExp(`<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${idAttr}["'][^>]*>([\\s\\S]*?)<\\/(?:dc:)?identifier>`, 'i');
+		const idRegex = new RegExp(
+			`<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${idAttr}["'][^>]*>([\\s\\S]*?)<\\/(?:dc:)?identifier>`,
+			'i'
+		);
 		const m = idRegex.exec(opfXml);
 		if (m) {
 			identifier = m[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
@@ -373,7 +379,8 @@ function extractEpubMetadata(opfXml: string, manifest?: EpubManifest): EpubBookM
 	let coverImageId: string | undefined;
 	let coverImagePath: string | undefined;
 
-	const metaCoverMatch = /<meta\b[^>]*name\s*=\s*["']cover["'][^>]*content\s*=\s*["']([^"']+)["']/i.exec(opfXml);
+	const metaCoverMatch =
+		/<meta\b[^>]*name\s*=\s*["']cover["'][^>]*content\s*=\s*["']([^"']+)["']/i.exec(opfXml);
 	if (metaCoverMatch) {
 		coverImageId = metaCoverMatch[1];
 	}

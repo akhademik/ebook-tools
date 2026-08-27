@@ -1,23 +1,23 @@
 .noteref {
-  text-decoration: none;
-  font-size: 0.8em;
-  vertical-align: super;
-  line-height: 0;
+	text-decoration: none;
+	font-size: 0.8em;
+	vertical-align: super;
+	line-height: 0;
 }
 .notes .note {
-  margin: 0 0 0.9em;
+	margin: 0 0 0.9em;
 }
 .notes .note p {
-  text-indent: 0;
-  font-size: 0.92em;
-  text-align: left;
+	text-indent: 0;
+	font-size: 0.92em;
+	text-align: left;
 }
 .notenum {
-  text-decoration: none;
-  font-weight: bold;
+	text-decoration: none;
+	font-weight: bold;
 }
 aside.footnote {
-  display: block;
-  color: green;
-  padding-bottom: 0.5em;
+	display: block;
+	color: green;
+	padding-bottom: 0.5em;
 }

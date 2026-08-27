@@ -1,62 +1,50 @@
 <script lang="ts">
-  import Input from "$lib/components/Input.svelte";
-  import Button from "$lib/components/Button.svelte";
-  import type { EpubState } from "../epub-state.svelte";
+	import Input from '$lib/components/Input.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import type { EpubState } from '../epub-state.svelte';
 
-  interface Props {
-    epubState: EpubState;
-    onDownload: () => void;
-  }
+	interface Props {
+		epubState: EpubState;
+		onDownload: () => void;
+	}
 
-  let { epubState, onDownload }: Props = $props();
+	let { epubState, onDownload }: Props = $props();
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-  <div class="mb-5">
-    <Input
-      bind:value={epubState.metadata.epubOutName}
-      label="Tên file EPUB"
-      placeholder="ten-sach"
-    />
-    <p class="text-sm text-text-mute mt-2">
-      File tải về: <span class="text-text-color font-mono"
-        >{epubState.metadata.epubOutNamePreview}</span
-      >
-    </p>
-  </div>
+	<div class="mb-5">
+		<Input
+			bind:value={epubState.metadata.epubOutName}
+			label="Tên file EPUB"
+			placeholder="ten-sach"
+		/>
+		<p class="text-sm text-text-mute mt-2">
+			File tải về: <span class="text-text-color font-mono"
+				>{epubState.metadata.epubOutNamePreview}</span
+			>
+		</p>
+	</div>
 
-  <div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
-    <div
-      class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0"
-    >
-      <Button
-        onclick={() => epubState.processEpub()}
-        disabled={epubState.source.epubChapters.length === 0 || epubState.processing}
-        variant="primary"
-      >
-        {epubState.processing ? "Đang đóng gói..." : "Đóng gói file EPUB"}
-      </Button>
-    </div>
-    <div
-      class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0"
-    >
-      <Button
-        onclick={() => onDownload()}
-        disabled={!epubState.epubBlob}
-        variant="secondary"
-      >
-        Tải file .EPUB
-      </Button>
-    </div>
-  </div>
+	<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
+		<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
+			<Button
+				onclick={() => epubState.processEpub()}
+				disabled={epubState.source.epubChapters.length === 0 || epubState.processing}
+				variant="primary"
+			>
+				{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
+			</Button>
+		</div>
+		<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
+			<Button onclick={() => onDownload()} disabled={!epubState.epubBlob} variant="secondary">
+				Tải file .EPUB
+			</Button>
+		</div>
+	</div>
 
-  {#if epubState.status}
-    <div
-      class="font-mono text-sm mt-4 {epubState.isError
-        ? 'text-red-500'
-        : 'text-text-mute'}"
-    >
-      {epubState.status}
-    </div>
-  {/if}
+	{#if epubState.status}
+		<div class="font-mono text-sm mt-4 {epubState.isError ? 'text-red-500' : 'text-text-mute'}">
+			{epubState.status}
+		</div>
+	{/if}
 </div>

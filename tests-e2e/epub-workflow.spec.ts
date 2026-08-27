@@ -41,8 +41,14 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 				</spine>
 			</package>`
 		);
-		zip.file('OEBPS/nav.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"><ol><li><a href="text/ch1.xhtml">Chương 1</a></li></ol></nav></html>');
-		zip.file('OEBPS/toc.ncx', '<ncx><navMap><navPoint id="p1"><navLabel><text>Chương 1</text></navLabel><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>');
+		zip.file(
+			'OEBPS/nav.xhtml',
+			'<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"><ol><li><a href="text/ch1.xhtml">Chương 1</a></li></ol></nav></html>'
+		);
+		zip.file(
+			'OEBPS/toc.ncx',
+			'<ncx><navMap><navPoint id="p1"><navLabel><text>Chương 1</text></navLabel><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>'
+		);
 		zip.file(
 			'OEBPS/text/ch1.xhtml',
 			'<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="../styles/main.css"/></head><body><h1>Chương 1: Mở Đầu</h1><p>Nội dung thử nghiệm 1.</p></body></html>'
@@ -86,7 +92,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
 	});
 
-	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({ page }) => {
+	test('should upload .txt fixture, customize metadata & jacket, and trigger packing in EPUB Packer', async ({
+		page
+	}) => {
 		await page.goto('/epub-packer');
 		await page.waitForLoadState('networkidle');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
@@ -97,7 +105,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters recognized and parsed
-		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({ timeout: 25000 });
+		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({
+			timeout: 25000
+		});
 
 		// 3. Open Jacket Modal
 		const jacketBtn = page.getByRole('button', { name: /Tùy chỉnh trang lót|Trang lót/i }).first();
@@ -117,7 +127,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(packBtn).toBeEnabled();
 	});
 
-	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({ page }) => {
+	test('should display ornaments section and support ornament image upload in EPUB Packer', async ({
+		page
+	}) => {
 		await page.goto('/epub-packer');
 		await page.waitForLoadState('networkidle');
 		await expect(page.getByRole('heading', { name: 'Đóng gói EPUB' })).toBeVisible();
@@ -128,7 +140,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters parsed
-		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({ timeout: 25000 });
+		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({
+			timeout: 25000
+		});
 
 		// 3. Verify Ornaments section is visible
 		await expect(page.getByText('Ảnh trang trí (Ornaments)')).toBeVisible();
@@ -141,7 +155,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(subchapDropzone).toBeVisible();
 	});
 
-	test('should load EPUB into EPUB Editor, interact with Metadata, Validator, Cleaner, and open Editor Modal', async ({ page }) => {
+	test('should load EPUB into EPUB Editor, interact with Metadata, Validator, Cleaner, and open Editor Modal', async ({
+		page
+	}) => {
 		await ensureEpubFixture();
 		await page.goto('/epub-editor');
 		await page.waitForLoadState('networkidle');
@@ -153,7 +169,9 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureEpubPath);
 
 		// 2. Verify files loaded and action buttons appear
-		await expect(page.getByRole('button', { name: /Mở trình chỉnh sửa/i })).toBeVisible({ timeout: 25000 });
+		await expect(page.getByRole('button', { name: /Mở trình chỉnh sửa/i })).toBeVisible({
+			timeout: 25000
+		});
 		await expect(page.getByRole('button', { name: /Thông tin/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Kiểm định/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Dọn rác/i })).toBeVisible();
@@ -162,7 +180,10 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await page.getByRole('button', { name: /Thông tin/i }).click();
 		await expect(page.locator('text=Thông tin sách')).toBeVisible();
 		// Close modal
-		await page.getByRole('button', { name: /Đóng|✕/i }).first().click();
+		await page
+			.getByRole('button', { name: /Đóng|✕/i })
+			.first()
+			.click();
 
 		// 4. Test Validator Modal
 		await page.getByRole('button', { name: /Kiểm định/i }).click();
@@ -170,7 +191,10 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		// Verify profile tabs or validation result
 		await expect(page.getByRole('button', { name: /Kobo Compatibility/i })).toBeVisible();
 		// Close validator modal
-		await page.getByRole('button', { name: /Đóng modal|✕/i }).first().click();
+		await page
+			.getByRole('button', { name: /Đóng modal|✕/i })
+			.first()
+			.click();
 
 		// 5. Test Cleaner / Optimizer Modal
 		await page.getByRole('button', { name: /Dọn rác/i }).click();
@@ -179,7 +203,10 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(page.getByText('Tổng dung lượng')).toBeVisible({ timeout: 10000 });
 		await expect(page.getByText('Tùy chọn dọn dẹp')).toBeVisible();
 		// Close cleaner modal
-		await page.getByRole('button', { name: /Đóng modal|✕/i }).first().click();
+		await page
+			.getByRole('button', { name: /Đóng modal|✕/i })
+			.first()
+			.click();
 
 		// 6. Test opening the Full Editor Modal
 		const openEditorBtn = page.getByRole('button', { name: /Mở trình chỉnh sửa/i });

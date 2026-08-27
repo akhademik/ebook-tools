@@ -42,23 +42,29 @@ export function findMarkersForSingle(
 			if (b.type !== 'heading' && b.type !== 'p') continue;
 			if (!b.text || !b.text.trim()) continue;
 
-			const isParagraphNearTop = b.type === 'p' && idx < 3 && (() => {
-				for (let prev = 0; prev < idx; prev++) {
-					const pb = blocks[prev];
-					if (pb && pb.text) {
-						const txt = pb.text.trim();
-						const wordCount = txt.split(/\s+/).filter(Boolean).length;
-						if (isRealParagraph(txt) || txt.length > 120 || wordCount > 15) {
-							return false;
+			const isParagraphNearTop =
+				b.type === 'p' &&
+				idx < 3 &&
+				(() => {
+					for (let prev = 0; prev < idx; prev++) {
+						const pb = blocks[prev];
+						if (pb && pb.text) {
+							const txt = pb.text.trim();
+							const wordCount = txt.split(/\s+/).filter(Boolean).length;
+							if (isRealParagraph(txt) || txt.length > 120 || wordCount > 15) {
+								return false;
+							}
 						}
 					}
-				}
-				return true;
-			})();
+					return true;
+				})();
 			const isHeading = b.type === 'heading';
 
 			if (isHeading || isParagraphNearTop) {
-				if (!b.text.includes('\n') && scoreHeadingCandidate(b.text, b.type, idx === firstTextBlockIdx) >= heuristicThreshold) {
+				if (
+					!b.text.includes('\n') &&
+					scoreHeadingCandidate(b.text, b.type, idx === firstTextBlockIdx) >= heuristicThreshold
+				) {
 					heuristicCuts.push({ blockIndex: idx, offset: 0, type: 'chapter' });
 				}
 			}
@@ -102,7 +108,10 @@ export function groupChaptersSingle(
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
 ): RawChapterItem[] {
-	Logger.debug('[epub-parser]', `groupChaptersSingle called, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`);
+	Logger.debug(
+		'[epub-parser]',
+		`groupChaptersSingle called, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`
+	);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups: RawChapterItem[] = [];
 
@@ -141,7 +150,7 @@ export function groupChaptersSingle(
 		// Subsequent chunks
 		for (let k = 0; k < cuts.length; k++) {
 			const cut = cuts[k];
-			const end = (k + 1 < cuts.length) ? cuts[k + 1] : null;
+			const end = k + 1 < cuts.length ? cuts[k + 1] : null;
 			const chunkBlocks = extractChunkBlocks(f.blocks, cut, end);
 			const { html: chunkHtml } = renderMarkdownBlocks(chunkBlocks, options);
 			let chunkTitle = f.baseName;
@@ -163,6 +172,9 @@ export function groupChaptersSingle(
 			});
 		}
 	}
-	Logger.debug('[epub-parser]', `groupChaptersSingle finished, total groups created: ${groups.length}`);
+	Logger.debug(
+		'[epub-parser]',
+		`groupChaptersSingle finished, total groups created: ${groups.length}`
+	);
 	return groups;
 }

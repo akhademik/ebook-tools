@@ -1,45 +1,45 @@
 /* ===== KHỐI TRÍCH DẪN (BLOCKQUOTE) ===== */
 blockquote {
-  display: block;
-  margin: 1.2em 1.5em;
-  padding: 0;
+	display: block;
+	margin: 1.2em 1.5em;
+	padding: 0;
 }
 
 blockquote p {
-  text-indent: 0;
-  line-height: 1.4;
-  padding-top: 0.3em;
+	text-indent: 0;
+	line-height: 1.4;
+	padding-top: 0.3em;
 }
 
 blockquote footer {
-  display: block;
-  font-size: 0.9em;
-  margin-top: 0.4em;
-  opacity: 0.8;
+	display: block;
+	font-size: 0.9em;
+	margin-top: 0.4em;
+	opacity: 0.8;
 }
 
 /* ===== KHỐI THƯ (LETTER) ===== */
 .letter {
-  margin: 1.5em 1em;
-  padding: 0.3em 1.2em;
-  border-left: 2px solid #999;
+	margin: 1.5em 1em;
+	padding: 0.3em 1.2em;
+	border-left: 2px solid #999;
 }
 
 .letter p {
-  margin: 0 0 0.8em 0;
-  text-indent: 0;
+	margin: 0 0 0.8em 0;
+	text-indent: 0;
 }
 
 /* ===== KHỐI THƠ (POEM) ===== */
 .poem {
-  margin: 1.5em auto;
-  text-align: center;
-  font-style: italic;
+	margin: 1.5em auto;
+	text-align: center;
+	font-style: italic;
 }
 
 .poem p {
-  text-indent: 0;
-  text-align: center;
+	text-indent: 0;
+	text-align: center;
 }
 
 /* ===== CĂN LỀ TRÍCH DẪN (ALIGNMENT) ===== */
@@ -48,32 +48,32 @@ blockquote footer {
 .poem p,
 blockquote.center p,
 blockquote.center footer {
-  text-align: center;
+	text-align: center;
 }
 
 .left,
 blockquote.left p,
 blockquote.left footer {
-  text-align: left;
+	text-align: left;
 }
 
 .right,
 blockquote.right p,
 blockquote.right footer {
-  text-align: right;
+	text-align: right;
 }
 
 /* ===== KHOẢNG CÁCH SAU TIÊU ĐỀ ===== */
 h1.main-chap + p {
-  margin-top: 1.5em !important;
+	margin-top: 1.5em !important;
 }
 
 h2.side-chap + p {
-  margin-top: 1.5em;
+	margin-top: 1.5em;
 }
 
 /* ===== PHẦN TỬ CUỐI (LAST-CHILD) ===== */
 .letter p:last-child,
 .poem p:last-child {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }

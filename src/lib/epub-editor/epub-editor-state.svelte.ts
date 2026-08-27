@@ -248,7 +248,9 @@ export class EpubEditorState {
 
 		try {
 			const blob = await exportEpubBlob(this.zip, this.editBuffer);
-			const downloadName = this.fileName ? this.fileName.replace(/\.epub$/i, '') + '-edited.epub' : 'ebook-edited.epub';
+			const downloadName = this.fileName
+				? this.fileName.replace(/\.epub$/i, '') + '-edited.epub'
+				: 'ebook-edited.epub';
 			triggerDownload(blob, downloadName);
 			this.statusMessage = `Đã xuất thành công: ${downloadName}`;
 			return blob;

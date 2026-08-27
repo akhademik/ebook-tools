@@ -7,10 +7,7 @@ import type {
 	FixMarkdownZipResult
 } from '$lib/types';
 
-export type {
-	ConvertedBracketsResult,
-	FixMarkdownZipResult
-};
+export type { ConvertedBracketsResult, FixMarkdownZipResult };
 
 const MAX_SPAN = 150;
 const SPAN = '(?:(?!\\n[ \\t]*\\n)[\\s\\S]){1,' + MAX_SPAN + '}?';
@@ -40,7 +37,7 @@ export function convertBrackets(text: string): ConvertedBracketsResult {
 	Logger.debug('[markdown-fixer]', `convertBrackets called, input length: ${text.length}`);
 	let count = 0;
 	let converted = text;
-	
+
 	for (const pattern of BOLD_ITALIC_PATTERNS) {
 		converted = converted.replace(pattern, (_match, inner) => {
 			count++;
@@ -105,7 +102,10 @@ export async function fixMarkdownZip(mdSelectedFile: File | null): Promise<FixMa
 			fileCount++;
 			replaceCount += count;
 			rows.push({ path: entry.name, count });
-			Logger.debug('[markdown-fixer]', `Processed markdown file: ${entry.name}, replaced: ${count}`);
+			Logger.debug(
+				'[markdown-fixer]',
+				`Processed markdown file: ${entry.name}, replaced: ${count}`
+			);
 		} else {
 			const blob = await entry.async('blob');
 			outZip.file(entry.name, blob);
@@ -116,7 +116,10 @@ export async function fixMarkdownZip(mdSelectedFile: File | null): Promise<FixMa
 	const zipBlob = await outZip.generateAsync({ type: 'blob' });
 	rows.sort((a, b) => b.count - a.count);
 
-	Logger.debug('[markdown-fixer]', `fixMarkdownZip finished, processed: ${fileCount} markdown files, total replacements: ${replaceCount}`);
+	Logger.debug(
+		'[markdown-fixer]',
+		`fixMarkdownZip finished, processed: ${fileCount} markdown files, total replacements: ${replaceCount}`
+	);
 	return {
 		zipBlob,
 		totalFiles: fileCount,

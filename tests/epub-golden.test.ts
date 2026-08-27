@@ -2,12 +2,25 @@
 import { describe, it, expect, vi } from 'vitest';
 import JSZip from 'jszip';
 
-vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({ default: '/* base.css */' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({ default: '/* center-page.css */ .center-page { display: table; } .center-page-content { display: table-cell; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({ default: '/* headings.css */ .main-chap { font-size: 1.5em; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({ default: '/* quotes.css */ .letter { margin: 1em; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({ default: '/* breaks.css */ .scene-break { text-align: center; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({ default: '/* notes.css */ .noteref { vertical-align: super; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({
+	default: '/* base.css */'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({
+	default:
+		'/* center-page.css */ .center-page { display: table; } .center-page-content { display: table-cell; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({
+	default: '/* headings.css */ .main-chap { font-size: 1.5em; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({
+	default: '/* quotes.css */ .letter { margin: 1em; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({
+	default: '/* breaks.css */ .scene-break { text-align: center; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({
+	default: '/* notes.css */ .noteref { vertical-align: super; }'
+}));
 
 import { parseTxtToChapters } from '../src/lib/epub-packer/parser/txt-parser';
 import { buildEpubBlob } from '../src/lib/epub-packer/epub-packer';
@@ -74,7 +87,7 @@ Chú thích:
 			metadata,
 			chapters,
 			undefined, // use dynamic CSS
-			false,     // mergeBrokenParagraphs
+			false, // mergeBrokenParagraphs
 			jacket,
 			coverBlob
 		);
@@ -93,7 +106,9 @@ Chú thích:
 		// Assert META-INF/container.xml points to OEBPS/content.opf
 		const containerXml = await zip.file('META-INF/container.xml')?.async('text');
 		expect(containerXml).toBeDefined();
-		expect(containerXml).toContain('<rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>');
+		expect(containerXml).toContain(
+			'<rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>'
+		);
 
 		// Assert OEBPS/content.opf
 		const contentOpf = await zip.file('OEBPS/content.opf')?.async('text');
@@ -153,9 +168,11 @@ Chú thích:
 	});
 
 	it('should properly stitch broken paragraphs across merged markdown files in a zip upload', async () => {
-		const { parseMarkdownBlocks } = await import('../src/lib/epub-packer/parser/epub-markdown-utils');
+		const { parseMarkdownBlocks } =
+			await import('../src/lib/epub-packer/parser/epub-markdown-utils');
 		const { groupChaptersZip } = await import('../src/lib/epub-packer/parser/epub-zip-grouper');
-		const { assignSequentialChapterIds } = await import('../src/lib/epub-packer/parser/epub-chapter-utils');
+		const { assignSequentialChapterIds } =
+			await import('../src/lib/epub-packer/parser/epub-chapter-utils');
 
 		// 1. Create a dummy zip simulating the user scenario
 		const zip = new JSZip();
@@ -170,7 +187,9 @@ Chú thích:
 		// 2. Read back zip entries like EpubSourceState
 		const loadedZip = await JSZip.loadAsync(zipBuffer);
 		const rawFiles: Array<{ path: string; baseName: string; rawText: string }> = [];
-		const mdFiles = Object.keys(loadedZip.files).filter(name => name.endsWith('.md') && !loadedZip.files[name].dir);
+		const mdFiles = Object.keys(loadedZip.files).filter(
+			(name) => name.endsWith('.md') && !loadedZip.files[name].dir
+		);
 		mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
 		for (const name of mdFiles) {
@@ -180,7 +199,7 @@ Chú thích:
 		}
 
 		// 3. Parse blocks
-		const processedFiles = rawFiles.map(f => ({
+		const processedFiles = rawFiles.map((f) => ({
 			path: f.path,
 			baseName: f.baseName,
 			blocks: parseMarkdownBlocks(f.rawText)
@@ -221,15 +240,19 @@ Chú thích:
 		const zipPath = path.resolve('nha-muon-canh-cua-da-fix.zip');
 		if (!fs.existsSync(zipPath)) return;
 
-		const { parseMarkdownBlocks } = await import('../src/lib/epub-packer/parser/epub-markdown-utils');
+		const { parseMarkdownBlocks } =
+			await import('../src/lib/epub-packer/parser/epub-markdown-utils');
 		const { groupChaptersZip } = await import('../src/lib/epub-packer/parser/epub-zip-grouper');
-		const { assignSequentialChapterIds } = await import('../src/lib/epub-packer/parser/epub-chapter-utils');
+		const { assignSequentialChapterIds } =
+			await import('../src/lib/epub-packer/parser/epub-chapter-utils');
 		const { cleanHeaderFooterOcr } = await import('../src/lib/epub-packer/parser/epub-ocr-utils');
 
 		const zipBuffer = fs.readFileSync(zipPath);
 		const loadedZip = await JSZip.loadAsync(zipBuffer);
 		const rawFiles: Array<{ path: string; baseName: string; rawText: string }> = [];
-		const mdFiles = Object.keys(loadedZip.files).filter(name => name.endsWith('.md') && !loadedZip.files[name].dir);
+		const mdFiles = Object.keys(loadedZip.files).filter(
+			(name) => name.endsWith('.md') && !loadedZip.files[name].dir
+		);
 		mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
 		for (const name of mdFiles) {
@@ -238,7 +261,7 @@ Chú thích:
 			rawFiles.push({ path: name, baseName, rawText: text });
 		}
 
-		const processedFiles = rawFiles.map(f => {
+		const processedFiles = rawFiles.map((f) => {
 			const cleaned = cleanHeaderFooterOcr(f.rawText, [], 2);
 			return {
 				path: f.path,
@@ -251,7 +274,7 @@ Chú thích:
 		const grouped = groupChaptersZip(processedFiles, '', true, 1, processedFiles.length, 5);
 		const chapters = assignSequentialChapterIds(grouped);
 
-		const quoteChapter = chapters.find(c => c.html && c.html.includes('Một nhà cách mạng'));
+		const quoteChapter = chapters.find((c) => c.html && c.html.includes('Một nhà cách mạng'));
 		expect(quoteChapter).toBeDefined();
 		expect(quoteChapter?.html).toContain('chịu đựng được nó.” Ông lắc đầu.');
 		expect(quoteChapter?.html).not.toMatch(/chịu đựng được<\/p>\s*<p>nó\./);
@@ -266,7 +289,9 @@ Chú thích:
 		expect(fs.existsSync(fixturePath)).toBe(true);
 
 		const rawFixtureText = fs.readFileSync(fixturePath, 'utf-8');
-		const dummyImageBlob = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], { type: 'image/jpeg' });
+		const dummyImageBlob = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], {
+			type: 'image/jpeg'
+		});
 		const illustrations = [
 			{ id: 'img-hinh-1', fileName: 'hinh-1.jpg', mimeType: 'image/jpeg', blob: dummyImageBlob }
 		];
@@ -291,41 +316,59 @@ Chú thích:
 		expect(parsedChapters[1].html).toContain('</div>\n</section>');
 
 		// Verify chapter 3: Chapter 1 with full formatting
-		const chap1 = parsedChapters.find(c => c.title.includes('Khởi Đầu Cuộc Hành Trình'));
+		const chap1 = parsedChapters.find((c) => c.title.includes('Khởi Đầu Cuộc Hành Trình'));
 		expect(chap1).toBeDefined();
-		expect(chap1!.html).toContain('<h1 class="main-chap center">Chương 1: Khởi Đầu Cuộc Hành Trình</h1>');
+		expect(chap1!.html).toContain(
+			'<h1 class="main-chap center">Chương 1: Khởi Đầu Cuộc Hành Trình</h1>'
+		);
 		expect(chap1!.html).toContain('<p class="has-dropcap"><span class="dropcap">M</span>ặt trời');
 		expect(chap1!.html).toContain('<i>Nguyễn Du</i>');
 		expect(chap1!.html).toContain('<b>in đậm</b>');
 		expect(chap1!.html).toContain('<i>in nghiêng</i>');
 		expect(chap1!.html).toContain('<u>gạch chân</u>');
-		expect(chap1!.html).toContain('<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>');
-		expect(chap1!.html).toContain('<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>');
+		expect(chap1!.html).toContain(
+			'<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
+		);
+		expect(chap1!.html).toContain(
+			'<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
+		);
 		expect(chap1!.html).toContain('<div class="letter">');
 		expect(chap1!.html).toContain('<p class="scene-break-big" role="separator">• • •</p>');
-		expect(chap1!.html).toContain('<h2 class="side-chap center no-toc">Ghi Chú Riêng (Không Đưa Vào Mục Lục)</h2>');
-		expect(chap1!.html).toContain('<blockquote class="right"><p>&quot;Cuộc hành trình vạn dặm luôn bắt đầu bằng một bước chân.&quot;</p><footer>Lão Tử</footer></blockquote>');
+		expect(chap1!.html).toContain(
+			'<h2 class="side-chap center no-toc">Ghi Chú Riêng (Không Đưa Vào Mục Lục)</h2>'
+		);
+		expect(chap1!.html).toContain(
+			'<blockquote class="right"><p>&quot;Cuộc hành trình vạn dặm luôn bắt đầu bằng một bước chân.&quot;</p><footer>Lão Tử</footer></blockquote>'
+		);
 		expect(chap1!.html).toContain('<div class="poem">');
 		expect(chap1!.html).toContain('<p class="scene-break-small" role="separator">*</p>');
-		expect(chap1!.html).toContain('<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.jpg" alt="hinh-1.jpg" />\n</figure>');
+		expect(chap1!.html).toContain(
+			'<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.jpg" alt="hinh-1.jpg" />\n</figure>'
+		);
 
 		// Verify chapter 4: Chapter 2 with left align and escapes
-		const chap2 = parsedChapters.find(c => c.title.includes('Ngôi Nhà Cổ'));
+		const chap2 = parsedChapters.find((c) => c.title.includes('Ngôi Nhà Cổ'));
 		expect(chap2).toBeDefined();
-		expect(chap2!.html).toContain('<h1 class="main-chap left">Chương 2: Ngôi Nhà Cổ Bên Sông (Căn Trái)</h1>');
+		expect(chap2!.html).toContain(
+			'<h1 class="main-chap left">Chương 2: Ngôi Nhà Cổ Bên Sông (Căn Trái)</h1>'
+		);
 		expect(chap2!.html).toContain('<h2 class="side-chap left">Mục Căn Trái Trong Chương 2</h2>');
 		expect(chap2!.html).toContain('@ Không phải tiêu đề');
 		expect(chap2!.html).toContain('~ Không phải trích dẫn');
 		expect(chap2!.html).toContain('&gt; Không phải tác giả');
 
 		// Verify chapter 5: Chapter 3 with right align and no-toc h2
-		const chap3 = parsedChapters.find(c => c.title.includes('Kết Thúc Và Mở Đầu Mới'));
+		const chap3 = parsedChapters.find((c) => c.title.includes('Kết Thúc Và Mở Đầu Mới'));
 		expect(chap3).toBeDefined();
-		expect(chap3!.html).toContain('<h1 class="main-chap right">Chương 3: Kết Thúc Và Mở Đầu Mới (Căn Phải)</h1>');
-		expect(chap3!.html).toContain('<h2 class="side-chap right no-toc">Ghi chú kết thúc căn phải không TOC</h2>');
+		expect(chap3!.html).toContain(
+			'<h1 class="main-chap right">Chương 3: Kết Thúc Và Mở Đầu Mới (Căn Phải)</h1>'
+		);
+		expect(chap3!.html).toContain(
+			'<h2 class="side-chap right no-toc">Ghi chú kết thúc căn phải không TOC</h2>'
+		);
 
 		// Verify Notes chapter
-		const notesChap = parsedChapters.find(c => c.isNotes || c.fileName === 'notes');
+		const notesChap = parsedChapters.find((c) => c.isNotes || c.fileName === 'notes');
 		expect(notesChap).toBeDefined();
 		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
 		expect(notesChap!.html).toContain('Tham khảo Tuyển tập Văn học Cổ điển Việt Nam.');
@@ -397,7 +440,7 @@ Chú thích:
 
 		// E. Check center-page xhtml
 		const files = Object.keys(zip.files);
-		const xhtmlFiles = files.filter(f => f.startsWith('OEBPS/text/') && f.endsWith('.xhtml'));
+		const xhtmlFiles = files.filter((f) => f.startsWith('OEBPS/text/') && f.endsWith('.xhtml'));
 		expect(xhtmlFiles.length).toBe(parsedChapters.length);
 
 		let foundCenterPageInZip = false;

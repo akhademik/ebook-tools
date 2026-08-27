@@ -33,11 +33,7 @@ export {
 	normalizeMultiLineChapterTags
 } from './epub-markdown-utils';
 
-export {
-	isRealParagraph,
-	cleanHeaderFooterOcr,
-	getCleanedLinesReport
-} from './epub-ocr-utils';
+export { isRealParagraph, cleanHeaderFooterOcr, getCleanedLinesReport } from './epub-ocr-utils';
 
 export {
 	stripDecoration,
@@ -74,9 +70,25 @@ export function groupChapters(
 	options: RenderMarkdownBlocksOptions = {}
 ): RawChapterItem[] {
 	if (rawFilesList.length > 1) {
-		return groupChaptersZip(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold, options);
+		return groupChaptersZip(
+			rawFilesList,
+			patternRaw,
+			useHeuristic,
+			startPage,
+			endPage,
+			heuristicThreshold,
+			options
+		);
 	} else {
-		return groupChaptersSingle(rawFilesList, patternRaw, useHeuristic, startPage, endPage, heuristicThreshold, options);
+		return groupChaptersSingle(
+			rawFilesList,
+			patternRaw,
+			useHeuristic,
+			startPage,
+			endPage,
+			heuristicThreshold,
+			options
+		);
 	}
 }
 

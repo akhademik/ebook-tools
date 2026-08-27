@@ -37,7 +37,8 @@ describe('EPUB to TXT Converter & Text Cleaning Rules', () => {
 
 	describe('decodeHtmlEntities', () => {
 		it('should decode named and numeric entities', () => {
-			const input = '&laquo;Ch&#224;o b&#7841;n&raquo; &amp; &quot;T&aacute;c ph&#7849;m&quot; &mdash; 100&#37;';
+			const input =
+				'&laquo;Ch&#224;o b&#7841;n&raquo; &amp; &quot;T&aacute;c ph&#7849;m&quot; &mdash; 100&#37;';
 			const decoded = decodeHtmlEntities(input);
 			expect(decoded).toContain('Chào bạn');
 			expect(decoded).toContain('& "Tác phẩm" —');

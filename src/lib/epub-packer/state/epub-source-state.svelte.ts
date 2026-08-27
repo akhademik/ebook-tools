@@ -78,10 +78,10 @@ export class EpubSourceState {
 
 		const keywords = (this.cleanKeywords || '')
 			.split(',')
-			.map(s => s.trim())
+			.map((s) => s.trim())
 			.filter(Boolean);
 
-		const processedFiles = this.epubRawFiles.map(f => {
+		const processedFiles = this.epubRawFiles.map((f) => {
 			const cleanedMd = cleanHeaderFooterOcr(f.rawText, keywords, this.cleanLineLimit);
 			return {
 				path: f.path,
@@ -103,17 +103,26 @@ export class EpubSourceState {
 			{ ignoreMarkdownFormat: this.ignoreMarkdownFormat }
 		);
 		this.epubChapters = assignSequentialChapterIds(grouped);
-		this.cleanedLinesReport = getCleanedLinesReport(this.epubRawFiles, this.cleanKeywords, this.cleanLineLimit);
+		this.cleanedLinesReport = getCleanedLinesReport(
+			this.epubRawFiles,
+			this.cleanKeywords,
+			this.cleanLineLimit
+		);
 
 		const mergedCount = this.epubRawFiles.length - grouped.length;
-		this.parseStatus = mergedCount > 0
-			? `Có ${this.epubRawFiles.length} tệp Markdown, gộp thành ${grouped.length} chương.`
-			: `Tìm thấy ${grouped.length} chương — kiểm tra thứ tự & tiêu đề bên trên trước khi đóng gói.`;
+		this.parseStatus =
+			mergedCount > 0
+				? `Có ${this.epubRawFiles.length} tệp Markdown, gộp thành ${grouped.length} chương.`
+				: `Tìm thấy ${grouped.length} chương — kiểm tra thứ tự & tiêu đề bên trên trước khi đóng gói.`;
 		this.parseIsError = false;
 	}
 
 	applyTxtGrouping(): void {
-		Logger.debug('[EpubSourceState]', 'applyTxtGrouping called, rawTxtText length:', this.rawTxtText?.length);
+		Logger.debug(
+			'[EpubSourceState]',
+			'applyTxtGrouping called, rawTxtText length:',
+			this.rawTxtText?.length
+		);
 		if (!this.rawTxtText) return;
 
 		const fallbackTitle = this.deps.getTitle().trim() || 'Chương 1';
@@ -125,11 +134,15 @@ export class EpubSourceState {
 		}
 
 		const warnings: string[] = [];
-		const chapters = parseTxtToChapters(this.rawTxtText, {
-			customDefinitions: this.customDefinitions,
-			images: imagesMap,
-			warnings
-		}, fallbackTitle);
+		const chapters = parseTxtToChapters(
+			this.rawTxtText,
+			{
+				customDefinitions: this.customDefinitions,
+				images: imagesMap,
+				warnings
+			},
+			fallbackTitle
+		);
 		this.epubChapters = assignSequentialChapterIds(chapters);
 
 		// Resolve footnote backlinks
@@ -144,7 +157,7 @@ export class EpubSourceState {
 		}
 
 		// Replace placeholders in notes chapter
-		const notesChap = this.epubChapters.find(c => c.fileName === 'notes');
+		const notesChap = this.epubChapters.find((c) => c.fileName === 'notes');
 		if (notesChap && notesChap.html) {
 			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
 				return footnoteMap[n] || 'chap_01';
@@ -158,11 +171,18 @@ export class EpubSourceState {
 			this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
 		}
 		this.parseIsError = false;
-		Logger.info('[EpubSourceState]', 'applyTxtGrouping completed, chapters count:', this.epubChapters.length);
+		Logger.info(
+			'[EpubSourceState]',
+			'applyTxtGrouping completed, chapters count:',
+			this.epubChapters.length
+		);
 	}
 
 	async handleFile(file: File | null): Promise<void> {
-		Logger.debug('[EpubSourceState]', `handleFile selected file: ${file?.name}, size: ${file?.size}, type: ${file?.type}`);
+		Logger.debug(
+			'[EpubSourceState]',
+			`handleFile selected file: ${file?.name}, size: ${file?.size}, type: ${file?.type}`
+		);
 		if (!file) return;
 
 		const isZip = /\.zip$/i.test(file.name);
@@ -204,7 +224,11 @@ export class EpubSourceState {
 			try {
 				Logger.debug('[EpubSourceState]', 'Reading file.text()...');
 				const text = await file.text();
-				Logger.debug('[EpubSourceState]', 'File text read successfully, character count:', text.length);
+				Logger.debug(
+					'[EpubSourceState]',
+					'File text read successfully, character count:',
+					text.length
+				);
 				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
 				this.applyTxtGrouping();
 			} catch (err: unknown) {
@@ -227,7 +251,9 @@ export class EpubSourceState {
 		try {
 			const zip = await JSZip.loadAsync(file);
 			const files: Array<{ path: string; baseName: string; rawText: string }> = [];
-			const mdFiles = Object.keys(zip.files).filter(name => name.endsWith('.md') && !zip.files[name].dir);
+			const mdFiles = Object.keys(zip.files).filter(
+				(name) => name.endsWith('.md') && !zip.files[name].dir
+			);
 
 			mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 

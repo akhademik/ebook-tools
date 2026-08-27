@@ -44,15 +44,17 @@ Object.defineProperty(globalThis, 'document', {
 		createElement: vi.fn().mockImplementation((type: string) => {
 			if (type === 'canvas') {
 				const ctx = {
-					getImageData: vi.fn().mockImplementation((_x: number, _y: number, w: number, h: number) => {
-						// Create data array: size is w * h * 4
-						const data = new Uint8Array(w * h * 4);
-						// Fill it with some non-zero data to test grayscale calculations
-						for (let i = 0; i < data.length; i++) {
-							data[i] = i % 256;
-						}
-						return { data };
-					}),
+					getImageData: vi
+						.fn()
+						.mockImplementation((_x: number, _y: number, w: number, h: number) => {
+							// Create data array: size is w * h * 4
+							const data = new Uint8Array(w * h * 4);
+							// Fill it with some non-zero data to test grayscale calculations
+							for (let i = 0; i < data.length; i++) {
+								data[i] = i % 256;
+							}
+							return { data };
+						}),
 					putImageData: vi.fn(),
 					drawImage: vi.fn()
 				};
@@ -94,12 +96,12 @@ vi.mock('jszip', () => {
 		generateAsync: vi.fn().mockResolvedValue(new Blob(['mocked-zip-output'])),
 		files: {}
 	};
-	
-	const MockJSZip = vi.fn().mockImplementation(function() {
+
+	const MockJSZip = vi.fn().mockImplementation(function () {
 		return mockInstance;
 	});
 	(MockJSZip as any).loadAsync = vi.fn().mockResolvedValue(mockInstance);
-	
+
 	return {
 		default: MockJSZip
 	};
@@ -143,13 +145,17 @@ describe('pdf-splitter tests', () => {
 		} as unknown as File;
 
 		it('should throw an error if no file is provided', async () => {
-			await expect(loadPdfPreview(null, 3, false)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+			await expect(loadPdfPreview(null, 3, false)).rejects.toThrow(
+				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+			);
 		});
 
 		it('should throw an error if pdfjsLib is missing', async () => {
 			const originalPdfjs = (globalThis as any).window.pdfjsLib;
 			(globalThis as any).window.pdfjsLib = undefined;
-			await expect(loadPdfPreview(fakeFile, 3, false)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+			await expect(loadPdfPreview(fakeFile, 3, false)).rejects.toThrow(
+				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+			);
 			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
 
@@ -195,19 +201,23 @@ describe('pdf-splitter tests', () => {
 		} as unknown as File;
 
 		it('should throw an error if no file is provided', async () => {
-			await expect(processPdfToJpg(null, false, 0, 0)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+			await expect(processPdfToJpg(null, false, 0, 0)).rejects.toThrow(
+				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+			);
 		});
 
 		it('should throw an error if pdfjsLib is missing', async () => {
 			const originalPdfjs = (globalThis as any).window.pdfjsLib;
 			(globalThis as any).window.pdfjsLib = undefined;
-			await expect(processPdfToJpg(fakeFile, false, 0, 0)).rejects.toThrow('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+			await expect(processPdfToJpg(fakeFile, false, 0, 0)).rejects.toThrow(
+				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+			);
 			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
 
 		it('should split PDF pages and return zipBlob with progress notifications', async () => {
 			const progressMock = vi.fn();
-			
+
 			// Mocking 3 pages to test concurrency loop
 			mockDoc.numPages = 3;
 
@@ -224,7 +234,7 @@ describe('pdf-splitter tests', () => {
 
 			// Checks if pages were loaded
 			expect(mockDoc.getPage).toHaveBeenCalledTimes(3);
-			
+
 			// Check if grayscale was applied
 			const canvas = createdCanvases[0];
 			const ctx = canvas.getContext('2d');
@@ -243,7 +253,7 @@ describe('pdf-splitter tests', () => {
 
 		it('should crop pages if crop settings are provided', async () => {
 			mockDoc.numPages = 1;
-			
+
 			// Test cropCanvas function path
 			const result = await processPdfToJpg(fakeFile, true, 10, 15);
 			expect(result.numPages).toBe(1);
@@ -256,10 +266,18 @@ describe('pdf-splitter tests', () => {
 
 			const croppedCanvas = createdCanvases[1];
 			expect(croppedCanvas.height).toBe(175);
-			
+
 			const croppedCtx = croppedCanvas.getContext('2d');
 			expect(croppedCtx.drawImage).toHaveBeenCalledWith(
-				renderCanvas, 0, 10, 100, 175, 0, 0, 100, 175
+				renderCanvas,
+				0,
+				10,
+				100,
+				175,
+				0,
+				0,
+				100,
+				175
 			);
 		});
 
@@ -271,7 +289,7 @@ describe('pdf-splitter tests', () => {
 			} as unknown as File;
 			mockDoc.numPages = 10;
 			(globalThis as any).navigator.hardwareConcurrency = 8;
-			
+
 			await processPdfToJpg(largeFile, true, 0, 0);
 
 			const mediumFile = {

@@ -7,11 +7,7 @@ import type {
 	RenderMarkdownBlocksResult
 } from '$lib/types';
 
-export type {
-	CustomDefinition,
-	RenderMarkdownBlocksOptions,
-	RenderMarkdownBlocksResult
-};
+export type { CustomDefinition, RenderMarkdownBlocksOptions, RenderMarkdownBlocksResult };
 
 function convertInline(text: unknown, ignoreFormat = false): string {
 	if (ignoreFormat) {
@@ -23,24 +19,60 @@ function convertInline(text: unknown, ignoreFormat = false): string {
 		return '___CODESPAN___' + (codeSpans.length - 1) + '___CODESPAN___';
 	});
 	t = escapeXml(t);
-	t = t.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, src) => '<img alt="' + alt + '" src="' + src + '"/>');
-	t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, txt, href) => '<a href="' + href + '">' + txt + '</a>');
-	
+	t = t.replace(
+		/!\[([^\]]*)\]\(([^)]+)\)/g,
+		(_m, alt, src) => '<img alt="' + alt + '" src="' + src + '"/>'
+	);
+	t = t.replace(
+		/\[([^\]]+)\]\(([^)]+)\)/g,
+		(_m, txt, href) => '<a href="' + href + '">' + txt + '</a>'
+	);
+
 	t = t.replace(/&lt;u&gt;([\s\S]{1,150}?)&lt;\/u&gt;/gi, (_m, s) => '<u>' + s + '</u>');
 	t = t.replace(/&lt;ins&gt;([\s\S]{1,150}?)&lt;\/ins&gt;/gi, (_m, s) => '<u>' + s + '</u>');
-	
+
 	const INLINE_SPAN = '[\\s\\S]{1,150}?';
-	t = t.replace(new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*\\*', 'g'), (_m, s) => '<b><i>' + s + '</i></b>');
-	t = t.replace(new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'), (_m, s) => '<b><i>' + s + '</i></b>');
-	t = t.replace(new RegExp('___(' + INLINE_SPAN + ')___', 'g'), (_m, s) => '<b><i>' + s + '</i></b>');
-	t = t.replace(new RegExp('\\*\\*_(' + INLINE_SPAN + ')_\\*\\*', 'g'), (_m, s) => '<b><i>' + s + '</i></b>');
-	t = t.replace(new RegExp('__\\*(' + INLINE_SPAN + ')\\*__', 'g'), (_m, s) => '<b><i>' + s + '</i></b>');
-	t = t.replace(new RegExp('\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'), (_m, s) => '<b>' + s + '</b>');
-	t = t.replace(new RegExp('(?<![\\w_])__(' + INLINE_SPAN + ')__(?![\\w_])', 'g'), (_m, s) => '<b>' + s + '</b>');
-	t = t.replace(new RegExp('(?<!\\*)\\*(?!\\*)(' + INLINE_SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'), (_m, s) => '<i>' + s + '</i>');
-	t = t.replace(new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')(?<!_)_(?![\\w_])', 'g'), (_m, s) => '<i>' + s + '</i>');
-	
-	t = t.replace(/___CODESPAN___(\d+)___CODESPAN___/g, (_m, idx) => '<code>' + escapeXml(codeSpans[Number(idx)]) + '</code>');
+	t = t.replace(
+		new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*\\*', 'g'),
+		(_m, s) => '<b><i>' + s + '</i></b>'
+	);
+	t = t.replace(
+		new RegExp('\\*\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'),
+		(_m, s) => '<b><i>' + s + '</i></b>'
+	);
+	t = t.replace(
+		new RegExp('___(' + INLINE_SPAN + ')___', 'g'),
+		(_m, s) => '<b><i>' + s + '</i></b>'
+	);
+	t = t.replace(
+		new RegExp('\\*\\*_(' + INLINE_SPAN + ')_\\*\\*', 'g'),
+		(_m, s) => '<b><i>' + s + '</i></b>'
+	);
+	t = t.replace(
+		new RegExp('__\\*(' + INLINE_SPAN + ')\\*__', 'g'),
+		(_m, s) => '<b><i>' + s + '</i></b>'
+	);
+	t = t.replace(
+		new RegExp('\\*\\*(' + INLINE_SPAN + ')\\*\\*', 'g'),
+		(_m, s) => '<b>' + s + '</b>'
+	);
+	t = t.replace(
+		new RegExp('(?<![\\w_])__(' + INLINE_SPAN + ')__(?![\\w_])', 'g'),
+		(_m, s) => '<b>' + s + '</b>'
+	);
+	t = t.replace(
+		new RegExp('(?<!\\*)\\*(?!\\*)(' + INLINE_SPAN + ')(?<!\\*)\\*(?!\\*)', 'g'),
+		(_m, s) => '<i>' + s + '</i>'
+	);
+	t = t.replace(
+		new RegExp('(?<![\\w_])_(?!_)(' + INLINE_SPAN + ')(?<!_)_(?![\\w_])', 'g'),
+		(_m, s) => '<i>' + s + '</i>'
+	);
+
+	t = t.replace(
+		/___CODESPAN___(\d+)___CODESPAN___/g,
+		(_m, idx) => '<code>' + escapeXml(codeSpans[Number(idx)]) + '</code>'
+	);
 	return t;
 }
 
@@ -55,8 +87,13 @@ function startsWithLowercaseLetter(str: unknown): boolean {
 }
 
 export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
-	Logger.debug('[epub-parser]', `parseMarkdownBlocks called, input length: ${(String(md || '')).length}`);
-	const lines = String(md || '').replace(/\r\n/g, '\n').split('\n');
+	Logger.debug(
+		'[epub-parser]',
+		`parseMarkdownBlocks called, input length: ${String(md || '').length}`
+	);
+	const lines = String(md || '')
+		.replace(/\r\n/g, '\n')
+		.split('\n');
 	const blocks: MarkdownBlock[] = [];
 	let i = 0;
 	const isHeading = (l: string) => /^#{1,6}\s+/.test(l);
@@ -68,12 +105,18 @@ export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
 
 	while (i < lines.length) {
 		const line = lines[i];
-		if (line.trim() === '') { i++; continue; }
+		if (line.trim() === '') {
+			i++;
+			continue;
+		}
 
 		if (isFence(line)) {
 			i++;
 			const codeLines: string[] = [];
-			while (i < lines.length && !isFence(lines[i])) { codeLines.push(lines[i]); i++; }
+			while (i < lines.length && !isFence(lines[i])) {
+				codeLines.push(lines[i]);
+				i++;
+			}
 			i++;
 			blocks.push({ type: 'code', content: codeLines.join('\n') });
 			continue;
@@ -86,25 +129,38 @@ export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
 			continue;
 		}
 
-		if (isHr(line)) { blocks.push({ type: 'hr' }); i++; continue; }
+		if (isHr(line)) {
+			blocks.push({ type: 'hr' });
+			i++;
+			continue;
+		}
 
 		if (isQuote(line)) {
 			const qLines: string[] = [];
-			while (i < lines.length && isQuote(lines[i])) { qLines.push(lines[i].replace(/^>\s?/, '')); i++; }
+			while (i < lines.length && isQuote(lines[i])) {
+				qLines.push(lines[i].replace(/^>\s?/, ''));
+				i++;
+			}
 			blocks.push({ type: 'blockquote', text: qLines.join(' ') });
 			continue;
 		}
 
 		if (isUl(line)) {
 			const items: string[] = [];
-			while (i < lines.length && isUl(lines[i])) { items.push(lines[i].replace(/^\s*[-*+]\s+/, '')); i++; }
+			while (i < lines.length && isUl(lines[i])) {
+				items.push(lines[i].replace(/^\s*[-*+]\s+/, ''));
+				i++;
+			}
 			blocks.push({ type: 'ul', items });
 			continue;
 		}
 
 		if (isOl(line)) {
 			const items: string[] = [];
-			while (i < lines.length && isOl(lines[i])) { items.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
+			while (i < lines.length && isOl(lines[i])) {
+				items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
+				i++;
+			}
 			blocks.push({ type: 'ol', items });
 			continue;
 		}
@@ -114,7 +170,14 @@ export function parseMarkdownBlocks(md: unknown): MarkdownBlock[] {
 		while (i < lines.length) {
 			const nextLine = lines[i];
 			if (nextLine.trim() === '') break;
-			if (isHeading(nextLine) || isFence(nextLine) || isQuote(nextLine) || isUl(nextLine) || isOl(nextLine) || isHr(nextLine)) {
+			if (
+				isHeading(nextLine) ||
+				isFence(nextLine) ||
+				isQuote(nextLine) ||
+				isUl(nextLine) ||
+				isOl(nextLine) ||
+				isHr(nextLine)
+			) {
 				break;
 			}
 			const currentLine = paraLines[paraLines.length - 1];
@@ -143,9 +206,19 @@ export function renderMarkdownBlocks(
 			const headingText = b.text || '';
 			if (t === null && (b.level === 1 || b.level === 2)) t = headingText;
 			if (b.level === 2) {
-				html += '<h2><span class="ch-title">' + convertInline(headingText, ignoreFormat) + '</span></h2>\n';
+				html +=
+					'<h2><span class="ch-title">' +
+					convertInline(headingText, ignoreFormat) +
+					'</span></h2>\n';
 			} else {
-				html += '<h' + (b.level || 1) + '>' + convertInline(headingText, ignoreFormat) + '</h' + (b.level || 1) + '>\n';
+				html +=
+					'<h' +
+					(b.level || 1) +
+					'>' +
+					convertInline(headingText, ignoreFormat) +
+					'</h' +
+					(b.level || 1) +
+					'>\n';
 			}
 		} else if (b.type === 'p') {
 			const pText = b.text || '';
@@ -161,7 +234,12 @@ export function renderMarkdownBlocks(
 					const group2 = dropcapMatch[2];
 					const formattedGroup1 = escapeXml(group1);
 					const formattedGroup2 = convertInline(group2, ignoreFormat);
-					html += '<p class="has-dropcap"><span class="dropcap">' + formattedGroup1 + '</span>' + formattedGroup2 + '</p>\n';
+					html +=
+						'<p class="has-dropcap"><span class="dropcap">' +
+						formattedGroup1 +
+						'</span>' +
+						formattedGroup2 +
+						'</p>\n';
 				} else {
 					html += '<p>' + convertInline(cleanText, ignoreFormat) + '</p>\n';
 				}
@@ -169,9 +247,15 @@ export function renderMarkdownBlocks(
 		} else if (b.type === 'blockquote') {
 			html += '<blockquote><p>' + convertInline(b.text || '', ignoreFormat) + '</p></blockquote>\n';
 		} else if (b.type === 'ul' && b.items) {
-			html += '<ul>\n' + b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ul>\n';
+			html +=
+				'<ul>\n' +
+				b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') +
+				'\n</ul>\n';
 		} else if (b.type === 'ol' && b.items) {
-			html += '<ol>\n' + b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') + '\n</ol>\n';
+			html +=
+				'<ol>\n' +
+				b.items.map((it: string) => '<li>' + convertInline(it, ignoreFormat) + '</li>').join('\n') +
+				'\n</ol>\n';
 		} else if (b.type === 'hr') {
 			html += '<hr/>\n';
 		} else if (b.type === 'code') {

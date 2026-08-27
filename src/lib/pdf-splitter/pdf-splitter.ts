@@ -1,24 +1,24 @@
 // src/lib/pdf-splitter/pdf-splitter.ts
 import JSZip from 'jszip';
 import { Logger } from '$lib/utils';
-import type {
-	PdfPreviewPage,
-	PdfProgressInfo,
-	ProcessPdfResult
-} from '$lib/types';
+import type { PdfPreviewPage, PdfProgressInfo, ProcessPdfResult } from '$lib/types';
 
-export type {
-	PdfPreviewPage,
-	PdfProgressInfo,
-	ProcessPdfResult
-};
+export type { PdfPreviewPage, PdfProgressInfo, ProcessPdfResult };
 
 const PDF_SCALE = 2.0;
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
 
-function applyGrayscale(ctx: CanvasRenderingContext2D, width: number, height: number, contrast: number): void {
-	Logger.debug('[pdf-splitter]', `applyGrayscale called, width: ${width}, height: ${height}, contrast: ${contrast}`);
+function applyGrayscale(
+	ctx: CanvasRenderingContext2D,
+	width: number,
+	height: number,
+	contrast: number
+): void {
+	Logger.debug(
+		'[pdf-splitter]',
+		`applyGrayscale called, width: ${width}, height: ${height}, contrast: ${contrast}`
+	);
 	const imgData = ctx.getImageData(0, 0, width, height);
 	const d = imgData.data;
 	for (let i = 0; i < d.length; i += 4) {
@@ -30,13 +30,20 @@ function applyGrayscale(ctx: CanvasRenderingContext2D, width: number, height: nu
 	ctx.putImageData(imgData, 0, 0);
 }
 
-function cropCanvas(sourceCanvas: HTMLCanvasElement, topPx: number, bottomPx: number): HTMLCanvasElement {
+function cropCanvas(
+	sourceCanvas: HTMLCanvasElement,
+	topPx: number,
+	bottomPx: number
+): HTMLCanvasElement {
 	const w = sourceCanvas.width;
 	const h = sourceCanvas.height;
 	const safeTop = Math.max(0, Math.min(topPx, h - 1));
 	const safeBottom = Math.max(0, Math.min(bottomPx, h - 1 - safeTop));
 	const newH = Math.max(1, h - safeTop - safeBottom);
-	Logger.debug('[pdf-splitter]', `cropCanvas called, source size: ${w}x${h}, cropping top: ${topPx}, bottom: ${bottomPx}, new height: ${newH}`);
+	Logger.debug(
+		'[pdf-splitter]',
+		`cropCanvas called, source size: ${w}x${h}, cropping top: ${topPx}, bottom: ${bottomPx}, new height: ${newH}`
+	);
 	const out = document.createElement('canvas');
 	out.width = w;
 	out.height = newH;
@@ -55,7 +62,10 @@ export function formatEta(seconds: number): string {
 }
 
 function pickConcurrency(fileSizeBytes: number, numPages: number): number {
-	let c = typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? navigator.hardwareConcurrency : 4;
+	let c =
+		typeof navigator !== 'undefined' && navigator.hardwareConcurrency
+			? navigator.hardwareConcurrency
+			: 4;
 	c = Math.min(c, 8);
 	if (fileSizeBytes > 300 * 1024 * 1024) c = Math.min(c, 3);
 	else if (fileSizeBytes > 150 * 1024 * 1024) c = Math.min(c, 4);
@@ -72,14 +82,20 @@ export async function loadPdfPreview(
 		Logger.error('[pdf-splitter]', 'loadPdfPreview error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 	}
-	Logger.debug('[pdf-splitter]', `loadPdfPreview called, file size: ${pdfSelectedFile.size}, preview count limit: ${selectedPreviewCount}, keepColor: ${keepColor}`);
+	Logger.debug(
+		'[pdf-splitter]',
+		`loadPdfPreview called, file size: ${pdfSelectedFile.size}, preview count limit: ${selectedPreviewCount}, keepColor: ${keepColor}`
+	);
 
 	const arrayBuffer = await pdfSelectedFile.arrayBuffer();
 	const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
 	const count = Math.min(selectedPreviewCount, doc.numPages);
-	Logger.debug('[pdf-splitter]', `loadPdfPreview: loading ${count} preview pages (total pages in doc: ${doc.numPages})`);
+	Logger.debug(
+		'[pdf-splitter]',
+		`loadPdfPreview: loading ${count} preview pages (total pages in doc: ${doc.numPages})`
+	);
 	const pages: PdfPreviewPage[] = [];
-	
+
 	for (let p = 1; p <= count; p++) {
 		Logger.debug('[pdf-splitter]', `loadPdfPreview: rendering page ${p}`);
 		const page = await doc.getPage(p);
@@ -119,7 +135,10 @@ export async function processPdfToJpg(
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 	}
-	Logger.debug('[pdf-splitter]', `processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, cropTop: ${cropTopPx}, cropBottom: ${cropBottomPx}`);
+	Logger.debug(
+		'[pdf-splitter]',
+		`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, cropTop: ${cropTopPx}, cropBottom: ${cropBottomPx}`
+	);
 
 	const arrayBuffer = await pdfSelectedFile.arrayBuffer();
 	const probeDoc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
@@ -143,7 +162,7 @@ export async function processPdfToJpg(
 			`Đang xử lý ${completed} / ${numPages} trang · ` +
 			(concurrency > 1 ? `${concurrency} luồng song song · ` : '') +
 			`${rate.toFixed(1)} trang/giây · còn lại ~${formatEta(eta)}`;
-		
+
 		if (onProgress) {
 			onProgress({ progressPercent, progressLabel, completed, numPages });
 		}
@@ -154,8 +173,10 @@ export async function processPdfToJpg(
 	async function runWorker(workerIndex: number): Promise<void> {
 		Logger.debug('[pdf-splitter]', `Worker ${workerIndex} started`);
 		const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
-		const ctxOpts: CanvasRenderingContext2DSettings = keepColor ? { alpha: false } : { alpha: false, willReadFrequently: true };
-		
+		const ctxOpts: CanvasRenderingContext2DSettings = keepColor
+			? { alpha: false }
+			: { alpha: false, willReadFrequently: true };
+
 		for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
 			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} processing page ${p}`);
 			const page = await doc.getPage(p);
@@ -177,13 +198,18 @@ export async function processPdfToJpg(
 				}
 			}
 
-			const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY));
+			const blob = await new Promise<Blob | null>((resolve) =>
+				canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
+			);
 			if (blob) {
 				zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
 			}
 			page.cleanup();
 			completed++;
 			updateProgress();
+
+			// Yield to main event loop to ensure smooth 60fps UI updates and prevent freeze
+			await new Promise((resolve) => setTimeout(resolve, 0));
 		}
 		doc.destroy();
 		Logger.debug('[pdf-splitter]', `Worker ${workerIndex} finished`);
@@ -197,14 +223,24 @@ export async function processPdfToJpg(
 	Logger.debug('[pdf-splitter]', 'All workers completed. Generating ZIP...');
 
 	if (onProgress) {
-		onProgress({ progressPercent: 95, progressLabel: 'Đang đóng gói thành tệp .ZIP...', completed, numPages });
+		onProgress({
+			progressPercent: 95,
+			progressLabel: 'Đang đóng gói thành tệp .ZIP...',
+			completed,
+			numPages
+		});
 	}
 
 	const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
 	Logger.info('[pdf-splitter]', `ZIP generated successfully, size: ${zipBlob.size}`);
-	
+
 	if (onProgress) {
-		onProgress({ progressPercent: 100, progressLabel: `Hoàn tất — ${numPages} trang đã sẵn sàng.`, completed, numPages });
+		onProgress({
+			progressPercent: 100,
+			progressLabel: `Hoàn tất — ${numPages} trang đã sẵn sàng.`,
+			completed,
+			numPages
+		});
 	}
 
 	return { zipBlob, numPages };

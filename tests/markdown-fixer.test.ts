@@ -9,12 +9,12 @@ vi.mock('jszip', () => {
 		generateAsync: vi.fn().mockResolvedValue(new Blob(['mocked-zip-output'])),
 		files: {}
 	};
-	
-	const MockJSZip = vi.fn().mockImplementation(function() {
+
+	const MockJSZip = vi.fn().mockImplementation(function () {
 		return mockInstance;
 	});
 	(MockJSZip as any).loadAsync = vi.fn().mockResolvedValue(mockInstance);
-	
+
 	return {
 		default: MockJSZip
 	};
@@ -27,10 +27,13 @@ describe('markdown-fixer tests', () => {
 
 	describe('convertBrackets', () => {
 		it('should convert bold italic, bold, italic and underline patterns', () => {
-			const input = 'Here is ***bold italic 1*** and ___bold italic 2___, also **_bold italic 3_** and __*bold italic 4*__. Additionally **bold 1**, __bold 2__, *italic 1*, _italic 2_ and <u>underline 1</u>, <ins>underline 2</ins>.';
+			const input =
+				'Here is ***bold italic 1*** and ___bold italic 2___, also **_bold italic 3_** and __*bold italic 4*__. Additionally **bold 1**, __bold 2__, *italic 1*, _italic 2_ and <u>underline 1</u>, <ins>underline 2</ins>.';
 			const { converted, count } = convertBrackets(input);
 
-			expect(converted).toBe('Here is */bold italic 1/* and */bold italic 2/*, also */bold italic 3/* and */bold italic 4/*. Additionally *bold 1*, *bold 2*, /italic 1/, /italic 2/ and _underline 1_, _underline 2_.');
+			expect(converted).toBe(
+				'Here is */bold italic 1/* and */bold italic 2/*, also */bold italic 3/* and */bold italic 4/*. Additionally *bold 1*, *bold 2*, /italic 1/, /italic 2/ and _underline 1_, _underline 2_.'
+			);
 			expect(count).toBe(10);
 		});
 
@@ -120,8 +123,11 @@ describe('markdown-fixer tests', () => {
 			expect(JSZip.loadAsync).toHaveBeenCalledWith(expect.any(ArrayBuffer));
 
 			// Verify markdown was converted and stored in outZip
-			expect(mockZipInstance.file).toHaveBeenCalledWith('readme.md', '*/bold italic/* and /italic/');
-			
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'readme.md',
+				'*/bold italic/* and /italic/'
+			);
+
 			// Verify image.png was read as blob and stored unchanged
 			expect(mockFiles['image.png'].async).toHaveBeenCalledWith('blob');
 			expect(mockZipInstance.file).toHaveBeenCalledWith('image.png', expect.any(Blob));

@@ -26,7 +26,9 @@ function isDecorationOnly(s: string): boolean {
 }
 
 export function stripDecoration(s: unknown): string {
-	return String(s || '').replace(/^[\s*_]+|[\s*_]+$/g, '').trim();
+	return String(s || '')
+		.replace(/^[\s*_]+|[\s*_]+$/g, '')
+		.trim();
 }
 
 export function makeChapterMatcher(patternRaw?: string): ChapterMatcher | null {
@@ -38,7 +40,9 @@ export function makeChapterMatcher(patternRaw?: string): ChapterMatcher | null {
 		try {
 			const flags = asRegex[2].includes('g') ? asRegex[2] : asRegex[2] + 'g';
 			re = new RegExp(asRegex[1], flags);
-		} catch { return null; }
+		} catch {
+			return null;
+		}
 		return {
 			locate(text, fromIndex) {
 				re.lastIndex = fromIndex || 0;
@@ -87,7 +91,11 @@ export function pushIfLineStart(
 	return false;
 }
 
-export function scoreHeadingCandidate(rawText: string, blockType = 'p', isFirstBlock = false): number {
+export function scoreHeadingCandidate(
+	rawText: string,
+	blockType = 'p',
+	isFirstBlock = false
+): number {
 	const plain = rawText.replace(/^[\s*_“"‘«]+|[\s*_”"’»]+$/g, '').trim();
 	if (!plain) return -99;
 	if (/^[-—–~]\s+\S+/.test(plain)) return -99;
@@ -95,7 +103,10 @@ export function scoreHeadingCandidate(rawText: string, blockType = 'p', isFirstB
 	// Reject if the first letter character in the block is lowercase (Unicode property escape)
 	const firstLetterMatch = plain.match(/\p{L}/u);
 	if (firstLetterMatch && /^\p{Ll}/u.test(firstLetterMatch[0])) {
-		Logger.debug('[epub-chapter-utils]', `scoreHeadingCandidate REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`);
+		Logger.debug(
+			'[epub-chapter-utils]',
+			`scoreHeadingCandidate REJECTED (lowercase first letter "${firstLetterMatch[0]}"): "${plain.slice(0, 40)}..."`
+		);
 		return -99;
 	}
 
@@ -144,8 +155,8 @@ export function extractChunkBlocks(
 		const b = blocks[i];
 		if (!b) continue;
 		if (b.type === 'heading' || b.type === 'p') {
-			const sliceStart = (i === startBI) ? startOff : 0;
-			const sliceEnd = (end && i === end.blockIndex) ? end.offset : b.text.length;
+			const sliceStart = i === startBI ? startOff : 0;
+			const sliceEnd = end && i === end.blockIndex ? end.offset : b.text.length;
 			const sub = b.text.slice(sliceStart, sliceEnd).trim();
 			if (sub) result.push({ type: b.type, level: b.level, text: sub });
 		} else {
@@ -156,7 +167,10 @@ export function extractChunkBlocks(
 }
 
 export function assignSequentialChapterIds(chapters: RawChapterItem[]): EpubChapterItem[] {
-	Logger.debug('[epub-parser]', `assignSequentialChapterIds called for chapters count: ${chapters.length}`);
+	Logger.debug(
+		'[epub-parser]',
+		`assignSequentialChapterIds called for chapters count: ${chapters.length}`
+	);
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
@@ -175,11 +189,19 @@ export function assignSequentialChapterIds(chapters: RawChapterItem[]): EpubChap
 		const xmlId = c.isChapter
 			? 'chap' + String(chapCount).padStart(width, '0')
 			: 'p' + String(c.firstSourcePageNum ?? 1).padStart(width, '0');
-		const res = { ...c, fileName, xmlId, chapterIndex: c.isChapter ? chapCount : null } as EpubChapterItem;
+		const res = {
+			...c,
+			fileName,
+			xmlId,
+			chapterIndex: c.isChapter ? chapCount : null
+		} as EpubChapterItem;
 		if (html !== undefined) res.html = html;
 		return res;
 	});
-	Logger.debug('[epub-parser]', `assignSequentialChapterIds finished: total chapters = ${chapCount}`);
+	Logger.debug(
+		'[epub-parser]',
+		`assignSequentialChapterIds finished: total chapters = ${chapCount}`
+	);
 	return result;
 }
 
@@ -191,21 +213,24 @@ export function analyzeChapterCandidates(
 	endPage: number,
 	heuristicThreshold = 5
 ): ChapterCandidateItem[] {
-	Logger.debug('[epub-parser]', `analyzeChapterCandidates called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}, threshold: ${heuristicThreshold}`);
+	Logger.debug(
+		'[epub-parser]',
+		`analyzeChapterCandidates called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}, threshold: ${heuristicThreshold}`
+	);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const candidates: ChapterCandidateItem[] = [];
 
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
 		const pageNum = idx + 1;
-		const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
+		const isHeuristicActive = useHeuristic && pageNum >= startPage && pageNum <= endPage;
 
 		for (let i = 0; i < f.blocks.length; i++) {
 			const b = f.blocks[i];
 			if (b.type !== 'heading' && b.type !== 'p') continue;
 
 			const score = scoreHeadingCandidate(b.text);
-			
+
 			let regexMatch = false;
 			if (matcher) {
 				const loc = matcher.locate(b.text, 0);
@@ -217,15 +242,18 @@ export function analyzeChapterCandidates(
 				}
 			}
 
-			const heuristicMatch = isHeuristicActive && !b.text.includes('\n') && score >= heuristicThreshold;
+			const heuristicMatch =
+				isHeuristicActive && !b.text.includes('\n') && score >= heuristicThreshold;
 			const isMatch = regexMatch || heuristicMatch;
-			
+
 			if (b.type === 'heading' || score > -10 || isMatch) {
 				const nextBlocks: string[] = [];
 				let count = 0;
 				for (let j = i + 1; j < f.blocks.length && count < 2; j++) {
 					if (f.blocks[j].text && f.blocks[j].text.trim()) {
-						nextBlocks.push(f.blocks[j].text.slice(0, 150) + (f.blocks[j].text.length > 150 ? '...' : ''));
+						nextBlocks.push(
+							f.blocks[j].text.slice(0, 150) + (f.blocks[j].text.length > 150 ? '...' : '')
+						);
 						count++;
 					}
 				}
@@ -245,6 +273,9 @@ export function analyzeChapterCandidates(
 			}
 		}
 	}
-	Logger.debug('[epub-parser]', `analyzeChapterCandidates finished, total candidates: ${candidates.length}`);
+	Logger.debug(
+		'[epub-parser]',
+		`analyzeChapterCandidates finished, total candidates: ${candidates.length}`
+	);
 	return candidates;
 }

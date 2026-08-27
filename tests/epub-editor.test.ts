@@ -315,10 +315,7 @@ describe('EPUB Editor unit tests', () => {
 			const base = 'OEBPS/text/chapter1.xhtml';
 			const cssList = extractLinkedCssPaths(html, base);
 
-			expect(cssList).toEqual([
-				'OEBPS/styles/base.css',
-				'OEBPS/styles/custom.css'
-			]);
+			expect(cssList).toEqual(['OEBPS/styles/base.css', 'OEBPS/styles/custom.css']);
 		});
 
 		it('should return empty list when no stylesheets are linked', () => {
@@ -429,7 +426,10 @@ describe('EPUB Editor unit tests', () => {
 		it('should return errors for invalid dirty pages', () => {
 			const dirtyPaths = new Set(['OEBPS/text/valid.xhtml', 'OEBPS/styles/main.css']);
 			const editBuffer = new Map([
-				['OEBPS/text/valid.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>Valid</p></body></html>'],
+				[
+					'OEBPS/text/valid.xhtml',
+					'<html xmlns="http://www.w3.org/1999/xhtml"><body><p>Valid</p></body></html>'
+				],
 				['OEBPS/styles/main.css', 'body { color: red; }']
 			]);
 
@@ -498,7 +498,10 @@ describe('EPUB Editor unit tests', () => {
 
 			// Zip containing OPF with uid and obfuscated font
 			const zip = new JSZip();
-			zip.file('content.opf', `<package unique-identifier="pub-id"><metadata><dc:identifier id="pub-id">${uid}</dc:identifier></metadata></package>`);
+			zip.file(
+				'content.opf',
+				`<package unique-identifier="pub-id"><metadata><dc:identifier id="pub-id">${uid}</dc:identifier></metadata></package>`
+			);
 			zip.file('fonts/font.otf', obfuscatedFont);
 
 			const dataUrl = await getAssetDataUrl(zip, 'fonts/font.otf');
@@ -537,7 +540,10 @@ describe('EPUB Editor unit tests', () => {
 
 			// Zip containing OPF with uid and obfuscated font
 			const zip = new JSZip();
-			zip.file('content.opf', `<package unique-identifier="pub-id"><metadata><dc:identifier id="pub-id">${uid}</dc:identifier></metadata></package>`);
+			zip.file(
+				'content.opf',
+				`<package unique-identifier="pub-id"><metadata><dc:identifier id="pub-id">${uid}</dc:identifier></metadata></package>`
+			);
 			zip.file('fonts/font.woff', obfuscatedFont);
 
 			const dataUrl = await getAssetDataUrl(zip, 'fonts/font.woff');

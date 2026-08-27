@@ -6,8 +6,8 @@
 
 ## 🔒 1. Quy tắc Quản lý Gói (Package Manager Rule)
 
-* **CHỈ ĐƯỢC DÙNG `pnpm`** (Tuyệt đối không dùng `npm` hoặc `yarn`).
-* Luôn tuân thủ lockfile `pnpm-lock.yaml`.
+- **CHỈ ĐƯỢC DÙNG `pnpm`** (Tuyệt đối không dùng `npm` hoặc `yarn`).
+- Luôn tuân thủ lockfile `pnpm-lock.yaml`.
 
 ```bash
 # Cài đặt package mới
@@ -19,7 +19,7 @@ pnpm add -D <package-name>
 
 ---
 
-## 🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Test-Graphify Flow)
+## 🔄 2. Chu trình Chỉnh Sửa Code Chuẩn (Edit-Check-Lint-Format-Test-Graphify Flow)
 
 Mỗi khi thực hiện bất kỳ thay đổi nào trong mã nguồn, bạn **PHẢI** thực hiện tuần tự theo quy trình sau:
 
@@ -29,14 +29,16 @@ flowchart TD
     B -->|Lỗi| A
     B -->|Pass| C[3. pnpm lint]
     C -->|Lỗi| A
-    C -->|Pass| D[4. pnpm knip]
-    D -->|Lỗi| A
-    D -->|Pass| E[5. pnpm test]
+    C -->|Pass| D[4. pnpm format:check]
+    D -->|Lỗi| E_FMT[Chạy pnpm format] --> D
+    D -->|Pass| E[5. pnpm knip]
     E -->|Lỗi| A
-    E -->|Pass| F[6. pnpm test:e2e]
+    E -->|Pass| F[6. pnpm test]
     F -->|Lỗi| A
-    F -->|Pass| G[7. Chạy /graphify]
-    G --> H[8. Thông báo Hoàn thành cho User]
+    F -->|Pass| G[7. pnpm test:e2e]
+    G -->|Lỗi| A
+    G -->|Pass| H[8. Chạy graphify]
+    H --> I[9. Thông báo Hoàn thành cho User]
 ```
 
 ---
@@ -44,74 +46,104 @@ flowchart TD
 ### Chi tiết các bước thực hiện:
 
 ### 🔹 Bước 1: Viết / Sửa code
-* Thực hiện chỉnh sửa mã nguồn hoặc bổ sung tính năng mới.
-* Tuân thủ kiến trúc mô-đun hóa và Svelte 5 Rune (`$state`, `$derived`, `$props`).
+
+- Thực hiện chỉnh sửa mã nguồn hoặc bổ sung tính năng mới.
+- Tuân thủ kiến trúc mô-đun hóa và Svelte 5 Rune (`$state`, `$derived`, `$props`).
 
 ---
 
 ### 🔹 Bước 2: Kiểm tra kiểu dữ liệu (Type Check)
+
 ```bash
 pnpm check
 ```
-* **Mục tiêu**: Đảm bảo toàn bộ TypeScript và Svelte template đạt **0 errors, 0 warnings**.
-* *Nếu có lỗi*: Sửa ngay lập tức trước khi chạy các bước tiếp theo.
+
+- **Mục tiêu**: Đảm bảo toàn bộ TypeScript và Svelte template đạt **0 errors, 0 warnings**.
+- _Nếu có lỗi_: Sửa ngay lập tức trước khi chạy các bước tiếp theo.
 
 ---
 
-### 🔹 Bước 3: Kiểm tra định dạng & cú pháp (Linting)
+### 🔹 Bước 3: Kiểm tra cú pháp & Linter (ESLint)
+
 ```bash
 pnpm lint
 ```
-* **Mục tiêu**: Đảm bảo tuân thủ tiêu chuẩn mã nguồn của ESLint.
+
+- **Mục tiêu**: Đảm bảo tuân thủ tiêu chuẩn chất lượng mã nguồn của ESLint.
 
 ---
 
-### 🔹 Bước 4: Quét mã rác & exports thừa (Dead Code Analysis)
+### 🔹 Bước 4: Chuẩn hóa Định dạng Mã nguồn (Prettier)
+
+```bash
+# Tự động format toàn bộ codebase theo chuẩn .prettierrc
+pnpm format
+
+# Kiểm tra định dạng (bước bắt buộc trong CI)
+pnpm format:check
+```
+
+- **Mục tiêu**: Đảm bảo 100% tệp tin tuân thủ cấu hình [.prettierrc](file:///.prettierrc) (Tab, Single Quote, No Trailing Comma, PrintWidth 100).
+
+---
+
+### 🔹 Bước 5: Quét mã rác & exports thừa (Dead Code Analysis)
+
 ```bash
 pnpm knip
 ```
-* **Mục tiêu**: Phát hiện các file thừa, hàm không dùng hoặc dependencies chưa sử dụng.
+
+- **Mục tiêu**: Phát hiện các file thừa, hàm không dùng hoặc dependencies chưa sử dụng.
 
 ---
 
-### 🔹 Bước 5: Chạy Bộ Kiểm Thử Tự Động (Unit & Integration Tests)
+### 🔹 Bước 6: Chạy Bộ Kiểm Thử Tự Động (Unit & Integration Tests)
+
 ```bash
 pnpm test
 ```
-* **Mục tiêu**: Chạy toàn bộ 213+ unit tests và kịch bản thực tế (pack TXT, pack ZIP markdown, rebuild TOC, optimize).
-* **Yêu cầu**: **100% tests phải PASS**. Nếu có test fail, tìm nguyên nhân và sửa code/test ngay.
+
+- **Mục tiêu**: Chạy toàn bộ 228+ unit tests và kịch bản thực tế (pack TXT, pack ZIP markdown, rebuild TOC, optimize, crypto, epub-to-txt).
+- **Yêu cầu**: **100% tests phải PASS**. Nếu có test fail, tìm nguyên nhân và sửa code/test ngay.
 
 ---
 
-### 🔹 Bước 6: Chạy Kiểm thử Giao diện Trình duyệt Thật (Playwright E2E)
+### 🔹 Bước 7: Chạy Kiểm thử Giao diện Trình duyệt Thật (Playwright E2E)
+
 ```bash
 pnpm test:e2e
 ```
-* **Mục tiêu**: Mở trình duyệt Chromium giả lập thao tác người dùng (kéo thả file, mở modal, click nút bấm, kiểm tra Live Preview).
+
+- **Mục tiêu**: Mở trình duyệt Chromium giả lập thao tác người dùng (kéo thả file, mở modal, click nút bấm, kiểm tra Live Preview).
 
 ---
 
-### 🔹 Bước 7: Cập nhật Đồ thị Tri thức Dự án (Update Graphify)
+### 🔹 Bước 8: Cập nhật Đồ thị Tri thức Dự án (Update Graphify)
+
 Sau khi toàn bộ kiểm thử và kiểm tra chất lượng đã PASS:
-* Chạy lệnh `/graphify` để cập nhật `graphify-out/GRAPH_REPORT.md` và `graph.json`, đảm bảo kiến trúc dự án luôn được đồng bộ.
+
+- Chạy lệnh `graphify . --code-only && graphify cluster-only .` để cập nhật `graphify-out/GRAPH_REPORT.md` và `graph.json`, đảm bảo kiến trúc dự án luôn được đồng bộ.
 
 ---
 
-### 🔹 Bước 8: Báo cáo kết quả cho Người Dùng (User Notification)
-* Trình bày tóm tắt rõ ràng các file đã sửa/tạo mới.
-* Báo cáo kết quả vượt qua của toàn bộ Quality Gates (`pnpm check`, `pnpm test`, `pnpm test:e2e`).
+### 🔹 Bước 9: Báo cáo kết quả cho Người Dùng (User Notification)
+
+- Trình bày tóm tắt rõ ràng các file đã sửa/tạo mới.
+- Báo cáo kết quả vượt qua của toàn bộ Quality Gates (`pnpm check`, `pnpm lint`, `pnpm format:check`, `pnpm test`, `pnpm test:e2e`).
 
 ---
 
 ## ⚡ Bảng tra cứu Lệnh Nhanh (Cheat Sheet)
 
-| Lệnh | Ý nghĩa | Khi nào dùng |
-| :--- | :--- | :--- |
-| `pnpm dev` | Khởi chạy máy chủ phát triển (localhost:5173) | Khi lập trình giao diện |
-| `pnpm check` | Kiểm tra lỗi TypeScript & Svelte Rune | Sau khi sửa code |
-| `pnpm lint` | Kiểm tra lỗi ESLint | Trước khi commit |
-| `pnpm knip` | Quét file/export rác | Trước khi commit |
-| `pnpm test` | Chạy 213+ Unit & Integration Tests | Thường xuyên trong khi code |
-| `pnpm test:watch` | Chế độ tự động test lại khi lưu file | Khi viết tính năng mới |
-| `pnpm test:e2e` | Chạy trình duyệt Playwright E2E | Trước khi release/deploy |
-| `pnpm build` | Đóng gói bản Production | Trước khi deploy |
+| Lệnh                | Ý nghĩa                                       | Khi nào dùng                |
+| :------------------ | :-------------------------------------------- | :-------------------------- |
+| `pnpm dev`          | Khởi chạy máy chủ phát triển (localhost:5173) | Khi lập trình giao diện     |
+| `pnpm check`        | Kiểm tra lỗi TypeScript & Svelte Rune         | Sau khi sửa code            |
+| `pnpm lint`         | Kiểm tra lỗi ESLint                           | Trước khi commit            |
+| `pnpm format`       | Tự động format toàn bộ codebase bằng Prettier | Trước khi commit            |
+| `pnpm format:check` | Kiểm tra tính tuân thủ định dạng Prettier     | Trong CI / Quality Gate     |
+| `pnpm knip`         | Quét file/export rác                          | Trước khi commit            |
+| `pnpm test`         | Chạy 228+ Unit & Integration Tests            | Thường xuyên trong khi code |
+| `pnpm test:watch`   | Chế độ tự động test lại khi lưu file          | Khi viết tính năng mới      |
+| `pnpm test:e2e`     | Chạy trình duyệt Playwright E2E               | Trước khi release/deploy    |
+| `pnpm build`        | Đóng gói bản Production                       | Trước khi deploy            |

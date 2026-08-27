@@ -58,12 +58,13 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 	t = t.replace(underlineRegex, 'XUNDERLINEXOPENX$1XUNDERLINEXCLOSEX');
 
 	// Restore all placeholders
-	t = t.replace(/XBOLDXOPENX/g, '<b>')
-	     .replace(/XBOLDXCLOSEX/g, '</b>')
-	     .replace(/XITALICXOPENX/g, '<i>')
-	     .replace(/XITALICXCLOSEX/g, '</i>')
-	     .replace(/XUNDERLINEXOPENX/g, '<u>')
-	     .replace(/XUNDERLINEXCLOSEX/g, '</u>');
+	t = t
+		.replace(/XBOLDXOPENX/g, '<b>')
+		.replace(/XBOLDXCLOSEX/g, '</b>')
+		.replace(/XITALICXOPENX/g, '<i>')
+		.replace(/XITALICXCLOSEX/g, '</i>')
+		.replace(/XUNDERLINEXOPENX/g, '<u>')
+		.replace(/XUNDERLINEXCLOSEX/g, '</u>');
 
 	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (_m, idx) => {
 		return customTags[Number(idx)];
@@ -76,9 +77,15 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 	return t;
 }
 
-function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?: string }> = {}): string | null {
+function isIllustrationTag(
+	tagKey: string,
+	imagesMap: Record<string, { fileName?: string }> = {}
+): string | null {
 	const lowerKey = (tagKey || '').toLowerCase();
-	if (['letter', '/letter', 'poem', '/poem', 'new', '/new', 'new:center'].includes(lowerKey) || lowerKey.startsWith('new:')) {
+	if (
+		['letter', '/letter', 'poem', '/poem', 'new', '/new', 'new:center'].includes(lowerKey) ||
+		lowerKey.startsWith('new:')
+	) {
 		return null;
 	}
 	if (imagesMap[lowerKey]) {
@@ -89,7 +96,9 @@ function isIllustrationTag(tagKey: string, imagesMap: Record<string, { fileName?
 		return imagesMap[baseKey].fileName || tagKey;
 	}
 	const hasImgExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(lowerKey);
-	const isIllustPrefix = /^(hinh|hình|img|image|anh|ảnh|pic|illust|illustration)[_\-\d]/i.test(lowerKey);
+	const isIllustPrefix = /^(hinh|hình|img|image|anh|ảnh|pic|illust|illustration)[_\-\d]/i.test(
+		lowerKey
+	);
 	if (hasImgExt || isIllustPrefix) {
 		if (hasImgExt) return tagKey;
 		return `${tagKey}.jpg`;
@@ -106,8 +115,10 @@ export function parseTxtToChapters(
 	const imagesMap = options.images || {};
 	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
 
-	const lines = String(rawText || '').replace(/\r\n/g, '\n').split('\n');
-	const footnoteIdx = lines.findIndex(l => /^\s*chú thích:?\s*$/i.test(l));
+	const lines = String(rawText || '')
+		.replace(/\r\n/g, '\n')
+		.split('\n');
+	const footnoteIdx = lines.findIndex((l) => /^\s*chú thích:?\s*$/i.test(l));
 
 	let mainLines = lines;
 	let hasFootnotes = false;
@@ -122,13 +133,14 @@ export function parseTxtToChapters(
 		for (const line of footnoteContentLines) {
 			const trimmed = line.trim();
 			if (!trimmed) continue;
-			
+
 			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
 			if (fnMatch) {
 				const n = fnMatch[1];
 				const content = fnMatch[2].trim();
 				const convertedContent = applyInlineFormatting(content, customDefinitions);
-				notesHtml += `<aside epub:type="footnote" id="fn${n}" class="note">\n` +
+				notesHtml +=
+					`<aside epub:type="footnote" id="fn${n}" class="note">\n` +
 					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
 					`</aside>\n`;
 			} else {
@@ -276,7 +288,11 @@ export function parseTxtToChapters(
 
 		let isEscaped = false;
 		let lineToProcess = origLine;
-		if (stripped.startsWith('\\') && stripped.length > 1 && ['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))) {
+		if (
+			stripped.startsWith('\\') &&
+			stripped.length > 1 &&
+			['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))
+		) {
 			isEscaped = true;
 			const backslashIdx = origLine.indexOf('\\');
 			lineToProcess = origLine.slice(0, backslashIdx) + origLine.slice(backslashIdx + 1);
@@ -296,8 +312,8 @@ export function parseTxtToChapters(
 			const isNoToc = headingMatch[2] === '!';
 			const alignChar = headingMatch[3];
 			const titleRaw = headingMatch[4].trim();
-			
-			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+
+			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
 			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
 			const titlePlain = stripHtmlTags(titleFormatted);
 
@@ -338,7 +354,7 @@ export function parseTxtToChapters(
 			ensureChapterOpen();
 			const alignChar = quoteMatch[1];
 			const quoteRaw = quoteMatch[2].trim();
-			const align = alignChar === 't' ? 'left' : (alignChar === 'p' ? 'right' : 'center');
+			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
 			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
 
 			let nextLineIdx = lineIdx + 1;
@@ -421,7 +437,10 @@ export function parseTxtToChapters(
 	}
 
 	if (chapters.length === 0) {
-		Logger.warn('[epub-parser]', 'parseTxtToChapters: No chapters created, creating fallback chapter.');
+		Logger.warn(
+			'[epub-parser]',
+			'parseTxtToChapters: No chapters created, creating fallback chapter.'
+		);
 		chapters.push({
 			title: fallbackTitle,
 			html: '',

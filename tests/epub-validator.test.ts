@@ -33,8 +33,14 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 			</package>`
 		);
 
-		zip.file('OEBPS/toc.ncx', '<ncx><navMap><navPoint id="p1"><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>');
-		zip.file('OEBPS/nav.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>');
+		zip.file(
+			'OEBPS/toc.ncx',
+			'<ncx><navMap><navPoint id="p1"><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>'
+		);
+		zip.file(
+			'OEBPS/nav.xhtml',
+			'<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>'
+		);
 		zip.file(
 			'OEBPS/text/ch1.xhtml',
 			`<html xmlns="http://www.w3.org/1999/xhtml">
@@ -73,7 +79,10 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 	it('should catch missing manifest items and spine reference errors', async () => {
 		const zip = new JSZip();
 		zip.file('mimetype', 'application/epub+zip');
-		zip.file('META-INF/container.xml', '<container><rootfiles><rootfile full-path="content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+		zip.file(
+			'META-INF/container.xml',
+			'<container><rootfiles><rootfile full-path="content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
+		);
 		zip.file(
 			'content.opf',
 			`<package unique-identifier="uid">
@@ -89,8 +98,14 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 
 		const result = await validateEpub(zip, 'generic');
 		expect(result.passed).toBe(false);
-		expect(result.issues.some((i) => i.category === 'manifest' && i.message.includes('missing_file.xhtml'))).toBe(true);
-		expect(result.issues.some((i) => i.category === 'spine' && i.message.includes('non_existent_id'))).toBe(true);
+		expect(
+			result.issues.some(
+				(i) => i.category === 'manifest' && i.message.includes('missing_file.xhtml')
+			)
+		).toBe(true);
+		expect(
+			result.issues.some((i) => i.category === 'spine' && i.message.includes('non_existent_id'))
+		).toBe(true);
 	});
 
 	it('should detect broken image references inside XHTML', async () => {
@@ -103,7 +118,9 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 
 		const result = await validateEpub(zip, 'generic');
 		expect(result.passed).toBe(false);
-		expect(result.issues.some((i) => i.category === 'images' && i.message.includes('ghost_image.png'))).toBe(true);
+		expect(
+			result.issues.some((i) => i.category === 'images' && i.message.includes('ghost_image.png'))
+		).toBe(true);
 	});
 
 	it('should warn on duplicate element IDs in XHTML', async () => {
@@ -114,7 +131,9 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 		);
 
 		const result = await validateEpub(zip, 'generic');
-		expect(result.issues.some((i) => i.message.includes('trùng lặp thuộc tính id="dup-1"'))).toBe(true);
+		expect(result.issues.some((i) => i.message.includes('trùng lặp thuộc tính id="dup-1"'))).toBe(
+			true
+		);
 	});
 
 	it('should handle OPF with multiline attributes and reordered XML attributes without breaking', async () => {
@@ -157,8 +176,14 @@ describe('EPUB Validator & Compatibility Profiles', () => {
 				</spine>
 			</package>`
 		);
-		zip.file('EPUB/nav.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>');
-		zip.file('EPUB/text/c1.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><body><p>OK</p></body></html>');
+		zip.file(
+			'EPUB/nav.xhtml',
+			'<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>'
+		);
+		zip.file(
+			'EPUB/text/c1.xhtml',
+			'<html xmlns="http://www.w3.org/1999/xhtml"><body><p>OK</p></body></html>'
+		);
 
 		const result = await validateEpub(zip, 'epub3');
 		expect(result.passed).toBe(true);

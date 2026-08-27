@@ -7,15 +7,17 @@
  * @returns Escaped XML string.
  */
 export function escapeXml(s: unknown): string {
-  if (s === null || s === undefined) return '';
-  return String(s)
-    // eslint-disable-next-line no-control-regex
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+	if (s === null || s === undefined) return '';
+	return (
+		String(s)
+			// eslint-disable-next-line no-control-regex
+			.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&apos;')
+	);
 }
 
 /**
@@ -24,13 +26,15 @@ export function escapeXml(s: unknown): string {
  * @returns Escaped attribute string.
  */
 export function escapeXmlAttribute(s: unknown): string {
-  if (s === null || s === undefined) return '';
-  return String(s)
-    // eslint-disable-next-line no-control-regex
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+	if (s === null || s === undefined) return '';
+	return (
+		String(s)
+			// eslint-disable-next-line no-control-regex
+			.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&apos;')
+	);
 }

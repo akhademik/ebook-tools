@@ -26,7 +26,9 @@ export interface PdfJsViewport {
 
 export interface PdfJsPage {
 	getViewport: (options: { scale: number }) => PdfJsViewport;
-	render: (options: { canvasContext: CanvasRenderingContext2D; viewport: PdfJsViewport }) => { promise: Promise<void> };
+	render: (options: { canvasContext: CanvasRenderingContext2D; viewport: PdfJsViewport }) => {
+		promise: Promise<void>;
+	};
 	cleanup: () => void;
 }
 

@@ -1,6 +1,13 @@
 // tests/crypto.test.ts
 import { describe, it, expect } from 'vitest';
-import { sha1, sha1Bytes, sha1Hex, sha1Async, sha1HexAsync, hashBytes } from '../src/lib/utils/crypto';
+import {
+	sha1,
+	sha1Bytes,
+	sha1Hex,
+	sha1Async,
+	sha1HexAsync,
+	hashBytes
+} from '../src/lib/utils/crypto';
 
 describe('crypto utils', () => {
 	it('should compute correct sha1 hex for known string', () => {

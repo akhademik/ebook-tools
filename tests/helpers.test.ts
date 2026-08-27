@@ -44,7 +44,14 @@ Object.defineProperty(globalThis, 'document', {
 // Dynamic import to capture the top-level window.pdfjsLib check
 await import('../src/lib/utils/pdf');
 const utilsModule = await import('../src/lib/utils');
-const { slugify, ensureZipExt, ensureEpubExt, triggerDownload, escapeXml, normalizeCharPreserveLength } = utilsModule;
+const {
+	slugify,
+	ensureZipExt,
+	ensureEpubExt,
+	triggerDownload,
+	escapeXml,
+	normalizeCharPreserveLength
+} = utilsModule;
 
 describe('utils tests', () => {
 	beforeEach(() => {
@@ -111,13 +118,13 @@ describe('utils tests', () => {
 	describe('triggerDownload', () => {
 		it('should early-exit and log error for invalid blobs', () => {
 			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-			
+
 			triggerDownload(null, 'test.zip');
 			triggerDownload('not a blob', 'test.zip');
 
 			expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
 			expect(URL.createObjectURL).not.toHaveBeenCalled();
-			
+
 			consoleErrorSpy.mockRestore();
 		});
 

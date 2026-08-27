@@ -51,9 +51,10 @@ export class MarkdownFixerState {
 			this.totalReplacements = res.totalReplacements;
 			this.processedFilesList = res.processedFilesList;
 
-			this.status = this.totalFiles > 0
-				? 'Hoàn tất — sẵn sàng tải về.'
-				: 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
+			this.status =
+				this.totalFiles > 0
+					? 'Hoàn tất — sẵn sàng tải về.'
+					: 'Không tìm thấy tệp Markdown nào trong tệp .ZIP này.';
 		} catch (err: unknown) {
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[MarkdownFixerState]', 'Error processing markdown zip', err);

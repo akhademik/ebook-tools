@@ -9,7 +9,11 @@ import { cleanHeaderFooterOcr } from '../src/lib/epub-packer/parser/epub-ocr-uti
 import { buildEpubBlob } from '../src/lib/epub-packer/epub-packer';
 import { validateEpub } from '../src/lib/epub-editor/epub-validator';
 import { analyzeOptimizationPlan, optimizeEpub } from '../src/lib/epub-editor/epub-cleaner';
-import { extractBookMetadata, updateBookMetadata, rebuildEpubToc } from '../src/lib/epub-editor/epub-book-ops';
+import {
+	extractBookMetadata,
+	updateBookMetadata,
+	rebuildEpubToc
+} from '../src/lib/epub-editor/epub-book-ops';
 import { parseZipEntries, buildPreviewHtml } from '../src/lib/epub-editor/epub-editor';
 import { convertBrackets } from '../src/lib/markdown-fixer/markdown-fixer';
 import type {
@@ -127,7 +131,9 @@ Chú thích:
 			expect(ch1).toBeDefined();
 			expect(ch1!.html).toContain('<h1 class="main-chap left">Chương 1: Khởi Đầu Hành Trình</h1>');
 			expect(ch1!.html).toContain('<h2 class="side-chap left">Phần 1: Buổi Sáng Ở Phố Cổ</h2>');
-			expect(ch1!.html).toContain('<h2 class="side-chap left no-toc">Ghi chú riêng tư (không đưa vào mục lục)</h2>');
+			expect(ch1!.html).toContain(
+				'<h2 class="side-chap left no-toc">Ghi chú riêng tư (không đưa vào mục lục)</h2>'
+			);
 			expect(ch1!.html).toContain('<div class="letter">');
 			expect(ch1!.html).toContain('<blockquote class="center">');
 			expect(ch1!.html).toContain('<b>in đậm</b>');
@@ -293,7 +299,9 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 			// Step 1: Read ZIP files
 			const rawFiles: RawFileItem[] = [];
 			const mdFileNames = Object.keys(inputZip.files).filter((n) => n.endsWith('.md'));
-			mdFileNames.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+			mdFileNames.sort((a, b) =>
+				a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+			);
 
 			for (const name of mdFileNames) {
 				const rawText = await inputZip.file(name)!.async('text');
@@ -318,8 +326,12 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 			expect(chapters.length).toBe(2);
 
 			// Step 5: Verify paragraph merging across page 1 and page 2
-			expect(chapters[0].html).toContain('Tất cả các thành viên đều mang theo những trang thiết bị');
-			expect(chapters[0].html).not.toMatch(/Tất cả các thành viên đều mang theo<\/p>\s*<p>những trang thiết bị/);
+			expect(chapters[0].html).toContain(
+				'Tất cả các thành viên đều mang theo những trang thiết bị'
+			);
+			expect(chapters[0].html).not.toMatch(
+				/Tất cả các thành viên đều mang theo<\/p>\s*<p>những trang thiết bị/
+			);
 
 			// Step 6: Build EPUB
 			const epubBlob = await buildEpubBlob(
@@ -377,8 +389,14 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 </package>`;
 
 			zip.file('OEBPS/content.opf', opf);
-			zip.file('OEBPS/nav.xhtml', '<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>');
-			zip.file('OEBPS/toc.ncx', '<ncx><navMap><navPoint id="p1"><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>');
+			zip.file(
+				'OEBPS/nav.xhtml',
+				'<html xmlns="http://www.w3.org/1999/xhtml"><nav epub:type="toc"></nav></html>'
+			);
+			zip.file(
+				'OEBPS/toc.ncx',
+				'<ncx><navMap><navPoint id="p1"><content src="text/ch1.xhtml"/></navPoint></navMap></ncx>'
+			);
 			zip.file(
 				'OEBPS/text/ch1.xhtml',
 				`<html xmlns="http://www.w3.org/1999/xhtml">
@@ -393,7 +411,10 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 				<body><h1 id="h2">Chương Hai</h1><h2 id="sub2">Tiểu mục 2.1</h2><p>Nội dung 2</p><img src="../images/pic2.jpg" alt="P2"/></body>
 				</html>`
 			);
-			zip.file('OEBPS/styles/style.css', `@font-face { font-family: 'F1'; src: url('../fonts/font1.ttf'); }\nbody { margin: 0; }`);
+			zip.file(
+				'OEBPS/styles/style.css',
+				`@font-face { font-family: 'F1'; src: url('../fonts/font1.ttf'); }\nbody { margin: 0; }`
+			);
 
 			// Binary assets
 			const sharedImageBytes = new Uint8Array(2000); // pic1 and pic2 will have identical bytes to test deduplication

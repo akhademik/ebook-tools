@@ -1,63 +1,63 @@
 @font-face {
-  font-family: "Bookerly";
-  src: url(../fonts/Bookerly.ttf);
+	font-family: 'Bookerly';
+	src: url(../fonts/Bookerly.ttf);
 }
 
 @page {
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 /* Thiết lập chiều cao chuẩn cho trang */
 html,
 body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+	height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 body {
-  font-family: "Bookerly", serif;
+	font-family: 'Bookerly', serif;
 }
 
 p {
-  display: block;
-  text-align: justify;
-  line-height: 1.4;
-  text-indent: 1.25em;
-  padding-top: 0.5em;
-  margin: 0;
+	display: block;
+	text-align: justify;
+	line-height: 1.4;
+	text-indent: 1.25em;
+	padding-top: 0.5em;
+	margin: 0;
 }
 b {
-  font-weight: bold;
+	font-weight: bold;
 }
 i {
-  font-style: italic;
+	font-style: italic;
 }
 u {
-  text-decoration: underline;
+	text-decoration: underline;
 }
 a {
-  text-decoration: none;
+	text-decoration: none;
 }
 p.has-dropcap {
-  text-indent: 0 !important;
+	text-indent: 0 !important;
 }
 
 figure.illust-box {
-  margin: 1.5em auto;
-  padding: 0;
-  text-align: center;
-  page-break-inside: avoid;
-  break-inside: avoid;
+	margin: 1.5em auto;
+	padding: 0;
+	text-align: center;
+	page-break-inside: avoid;
+	break-inside: avoid;
 }
 
 img.illust-img {
-  display: block;
-  max-width: 100%;
-  max-height: 90vh;
-  height: auto;
-  width: auto;
-  margin: 0 auto;
-  border: 0;
+	display: block;
+	max-width: 100%;
+	max-height: 90vh;
+	height: auto;
+	width: auto;
+	margin: 0 auto;
+	border: 0;
 }

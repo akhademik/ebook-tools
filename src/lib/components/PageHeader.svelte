@@ -1,10 +1,7 @@
 <script lang="ts">
 	import type { PageHeaderProps } from '$lib/types';
 
-	let {
-		title = '',
-		description = ''
-	}: PageHeaderProps = $props();
+	let { title = '', description = '' }: PageHeaderProps = $props();
 </script>
 
 <div class="mb-10 animate-fade-in">

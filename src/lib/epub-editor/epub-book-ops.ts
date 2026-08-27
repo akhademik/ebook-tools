@@ -105,7 +105,10 @@ export function extractBookMetadata(opfXml: string): BookMetadataDetails {
 	}
 
 	const getTagValue = (tagName: string): string => {
-		const regex = new RegExp(`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`, 'i');
+		const regex = new RegExp(
+			`<(?:dc:)?${tagName}\\b[^>]*>([\\s\\S]*?)<\\/(?:dc:)?${tagName}>`,
+			'i'
+		);
 		const match = regex.exec(opfXml);
 		if (!match) return '';
 		return match[1].replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').trim();
@@ -124,7 +127,10 @@ export function extractBookMetadata(opfXml: string): BookMetadataDetails {
 	const pkgMatch = /<package\b[^>]*unique-identifier\s*=\s*["']([^"']+)["']/i.exec(opfXml);
 	if (pkgMatch) {
 		const targetId = pkgMatch[1];
-		const idRegex = new RegExp(`<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${targetId}["'][^>]*>([\\s\\S]*?)<\\/(?:dc:)?identifier>`, 'i');
+		const idRegex = new RegExp(
+			`<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${targetId}["'][^>]*>([\\s\\S]*?)<\\/(?:dc:)?identifier>`,
+			'i'
+		);
 		const idMatch = idRegex.exec(opfXml);
 		if (idMatch) {
 			identifier = idMatch[1].trim();
@@ -185,7 +191,10 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 		const pkgMatch = /<package\b[^>]*unique-identifier\s*=\s*["']([^"']+)["']/i.exec(updated);
 		if (pkgMatch) {
 			const targetId = pkgMatch[1];
-			const idRegex = new RegExp(`(<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${targetId}["'][^>]*>)[\\s\\S]*?(<\\/(?:dc:)?identifier>)`, 'i');
+			const idRegex = new RegExp(
+				`(<(?:dc:)?identifier\\b[^>]*id\\s*=\\s*["']${targetId}["'][^>]*>)[\\s\\S]*?(<\\/(?:dc:)?identifier>)`,
+				'i'
+			);
 			if (idRegex.test(updated)) {
 				updated = updated.replace(idRegex, `$1${escapeXml(newMeta.identifier)}$2`);
 			} else {
@@ -265,7 +274,10 @@ export async function rebuildEpubToc(
 
 	// Parse manifest items & spine order
 	const itemRegex = /<item\b[^>]*>/gi;
-	const idToInfo = new Map<string, { href: string; resolvedPath: string; mediaType: string; properties?: string }>();
+	const idToInfo = new Map<
+		string,
+		{ href: string; resolvedPath: string; mediaType: string; properties?: string }
+	>();
 	let m: RegExpExecArray | null;
 
 	while ((m = itemRegex.exec(opfText)) !== null) {
@@ -377,7 +389,9 @@ export async function rebuildEpubToc(
 	for (let i = 0; i < tocChapters.length; i++) {
 		const ch = tocChapters[i];
 		// Calculate relative path from nav.xhtml to chapter
-		const navDir = navResolvedPath.includes('/') ? navResolvedPath.substring(0, navResolvedPath.lastIndexOf('/')) : '';
+		const navDir = navResolvedPath.includes('/')
+			? navResolvedPath.substring(0, navResolvedPath.lastIndexOf('/'))
+			: '';
 		let relHref = ch.path;
 		if (navDir && ch.path.startsWith(navDir + '/')) {
 			relHref = ch.path.slice(navDir.length + 1);
@@ -385,7 +399,11 @@ export async function rebuildEpubToc(
 			const navParts = navDir.split('/');
 			const pageParts = ch.path.split('/');
 			let common = 0;
-			while (common < navParts.length && common < pageParts.length && navParts[common] === pageParts[common]) {
+			while (
+				common < navParts.length &&
+				common < pageParts.length &&
+				navParts[common] === pageParts[common]
+			) {
 				common++;
 			}
 			const up = '../'.repeat(navParts.length - common);

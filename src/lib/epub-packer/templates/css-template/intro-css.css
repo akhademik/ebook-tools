@@ -1,508 +1,508 @@
 /* intro-1 */
 .jacket-1 {
-  text-align: left;
-  padding: 2.2em 0.7em 2.5em 1em;
-  margin: 0;
+	text-align: left;
+	padding: 2.2em 0.7em 2.5em 1em;
+	margin: 0;
 }
 .jacket-1 .title {
-  font-weight: bold;
-  font-size: 2.1em;
-  line-height: 1.15em;
-  margin: 0 0 0.5em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 2.1em;
+	line-height: 1.15em;
+	margin: 0 0 0.5em 0;
+	overflow-wrap: break-word;
 }
 .jacket-1 .original {
-  font-style: italic;
-  font-size: 0.95em;
-  color: #555555;
-  margin: 0 0 1.4em 0;
+	font-style: italic;
+	font-size: 0.95em;
+	color: #555555;
+	margin: 0 0 1.4em 0;
 }
 .jacket-1 .rule {
-  border: none;
-  border-top: 0.1em solid #000000;
-  width: 40%;
-  margin: 0 0 1.6em 0;
+	border: none;
+	border-top: 0.1em solid #000000;
+	width: 40%;
+	margin: 0 0 1.6em 0;
 }
 .jacket-1 .author {
-  font-size: 1em;
-  font-weight: bold;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: left;
-  margin: 0 0 0.3em 0;
+	font-size: 1em;
+	font-weight: bold;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-align: left;
+	margin: 0 0 0.3em 0;
 }
 .jacket-1 .translator {
-  font-size: 0.78em;
-  color: #555555;
-  text-align: left;
-  letter-spacing: 0.02em;
-  margin: 0 0 0.9em 0;
+	font-size: 0.78em;
+	color: #555555;
+	text-align: left;
+	letter-spacing: 0.02em;
+	margin: 0 0 0.9em 0;
 }
 .jacket-1 .meta {
-  font-size: 0.72em;
-  color: #444444;
-  text-align: left;
-  letter-spacing: 0.02em;
-  margin: 0.1em 0;
+	font-size: 0.72em;
+	color: #444444;
+	text-align: left;
+	letter-spacing: 0.02em;
+	margin: 0.1em 0;
 }
 
 /* intro-2 */
 .jacket-2 {
-  display: flex;
-  align-items: stretch;
-  padding: 2em 1em;
-  margin: 0;
-  min-height: 8em;
+	display: flex;
+	align-items: stretch;
+	padding: 2em 1em;
+	margin: 0;
+	min-height: 8em;
 }
 .jacket-2 .side {
-  width: 0.15em;
-  background: #000000;
-  margin-right: 0.9em;
+	width: 0.15em;
+	background: #000000;
+	margin-right: 0.9em;
 }
 .jacket-2 .divider {
-  border: none;
-  border-left: 0.08em solid #cccccc;
-  margin: 0 1em;
-  width: 0;
+	border: none;
+	border-left: 0.08em solid #cccccc;
+	margin: 0 1em;
+	width: 0;
 }
 .jacket-2 .content {
-  flex: 1;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+	flex: 1;
+	text-align: left;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 .jacket-2 .title {
-  font-weight: bold;
-  font-size: 1.5em;
-  line-height: 1.3em;
-  margin: 0 0 0.5em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.5em;
+	line-height: 1.3em;
+	margin: 0 0 0.5em 0;
+	overflow-wrap: break-word;
 }
 .jacket-2 .original {
-  font-style: italic;
-  font-size: 0.9em;
-  color: #555555;
-  margin: 0 0 1.2em 0;
+	font-style: italic;
+	font-size: 0.9em;
+	color: #555555;
+	margin: 0 0 1.2em 0;
 }
 .jacket-2 .author {
-  font-size: 0.95em;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 0 0 0.3em 0;
+	font-size: 0.95em;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	margin: 0 0 0.3em 0;
 }
 .jacket-2 .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 0.8em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 0.8em 0;
 }
 .jacket-2 .meta {
-  font-size: 0.7em;
-  color: #444444;
-  margin: 0.1em 0;
+	font-size: 0.7em;
+	color: #444444;
+	margin: 0.1em 0;
 }
 
 /* intro-3 */
 .jacket-3 {
-  text-align: center;
-  padding: 3.5em 1em;
-  margin: 0;
+	text-align: center;
+	padding: 3.5em 1em;
+	margin: 0;
 }
 .jacket-3 .diagonal {
-  border: none;
-  border-top: 0.1em solid #000000;
-  width: 55%;
-  margin: 0 auto 1.8em auto;
-  transform: rotate(-2.5deg);
+	border: none;
+	border-top: 0.1em solid #000000;
+	width: 55%;
+	margin: 0 auto 1.8em auto;
+	transform: rotate(-2.5deg);
 }
 .jacket-3 .title {
-  font-weight: bold;
-  font-size: 1.6em;
-  line-height: 1.3em;
-  transform: rotate(-1deg);
-  margin: 0 0 0.5em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.6em;
+	line-height: 1.3em;
+	transform: rotate(-1deg);
+	margin: 0 0 0.5em 0;
+	overflow-wrap: break-word;
 }
 .jacket-3 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.2em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.2em 0;
 }
 .jacket-3 .author {
-  display: inline-block;
-  font-size: 0.95em;
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transform: rotate(1deg);
-  padding: 0.3em 0.9em;
-  border: 0.06em solid #000000;
-  margin: 0 0 0.7em 0;
+	display: inline-block;
+	font-size: 0.95em;
+	font-weight: bold;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	transform: rotate(1deg);
+	padding: 0.3em 0.9em;
+	border: 0.06em solid #000000;
+	margin: 0 0 0.7em 0;
 }
 .jacket-3 .translator {
-  display: block;
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.3em 0;
+	display: block;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.3em 0;
 }
 .jacket-3 .diagonal2 {
-  border: none;
-  border-top: 0.06em solid #000000;
-  width: 32%;
-  margin: 0 auto 1.2em auto;
-  transform: rotate(2deg);
+	border: none;
+	border-top: 0.06em solid #000000;
+	width: 32%;
+	margin: 0 auto 1.2em auto;
+	transform: rotate(2deg);
 }
 .jacket-3 .meta {
-  font-size: 0.72em;
-  color: #444444;
-  margin: 0.1em 0;
+	font-size: 0.72em;
+	color: #444444;
+	margin: 0.1em 0;
 }
 
 /* intro-4 */
 .frame-outer-4 {
-  position: relative;
-  margin: 1.8em 1.5em 2.1em 1.2em;
+	position: relative;
+	margin: 1.8em 1.5em 2.1em 1.2em;
 }
 .frame-outer-4::before {
-  content: "";
-  position: absolute;
-  top: 0.35em;
-  left: 0.35em;
-  right: -0.35em;
-  bottom: -0.35em;
-  border: 0.06em solid #000000;
-  z-index: 0;
+	content: '';
+	position: absolute;
+	top: 0.35em;
+	left: 0.35em;
+	right: -0.35em;
+	bottom: -0.35em;
+	border: 0.06em solid #000000;
+	z-index: 0;
 }
 .jacket-4 {
-  position: relative;
-  z-index: 1;
-  border: 0.06em solid #000000;
-  background: #ffffff;
-  padding: 1.8em 1.2em;
-  text-align: center;
-  margin: 0;
+	position: relative;
+	z-index: 1;
+	border: 0.06em solid #000000;
+	background: #ffffff;
+	padding: 1.8em 1.2em;
+	text-align: center;
+	margin: 0;
 }
 .jacket-4 .title {
-  font-weight: bold;
-  font-size: 1.5em;
-  line-height: 1.3em;
-  margin: 0 0 0.6em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.5em;
+	line-height: 1.3em;
+	margin: 0 0 0.6em 0;
+	overflow-wrap: break-word;
 }
 .jacket-4 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.2em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.2em 0;
 }
 .jacket-4 .author {
-  font-size: 0.95em;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin: 0 0 0.4em 0;
+	font-size: 0.95em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	margin: 0 0 0.4em 0;
 }
 .jacket-4 .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.1em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.1em 0;
 }
 .jacket-4 .meta {
-  font-size: 0.72em;
-  color: #444444;
-  margin: 0.1em 0;
+	font-size: 0.72em;
+	color: #444444;
+	margin: 0.1em 0;
 }
 
 /* intro-5 */
 .jacket-5 {
-  position: relative;
-  text-align: center;
-  padding: 2.6em 1.6em;
-  margin: 1.6em 1.3em;
+	position: relative;
+	text-align: center;
+	padding: 2.6em 1.6em;
+	margin: 1.6em 1.3em;
 }
 .jacket-5 .corner {
-  position: absolute;
-  width: 1em;
-  height: 1em;
+	position: absolute;
+	width: 1em;
+	height: 1em;
 }
 .jacket-5 .corner-tl {
-  top: 0;
-  left: 0;
-  border-top: 0.1em solid #000000;
-  border-left: 0.1em solid #000000;
+	top: 0;
+	left: 0;
+	border-top: 0.1em solid #000000;
+	border-left: 0.1em solid #000000;
 }
 .jacket-5 .corner-tr {
-  top: 0;
-  right: 0;
-  border-top: 0.1em solid #000000;
-  border-right: 0.1em solid #000000;
+	top: 0;
+	right: 0;
+	border-top: 0.1em solid #000000;
+	border-right: 0.1em solid #000000;
 }
 .jacket-5 .corner-bl {
-  bottom: 0;
-  left: 0;
-  border-bottom: 0.1em solid #000000;
-  border-left: 0.1em solid #000000;
+	bottom: 0;
+	left: 0;
+	border-bottom: 0.1em solid #000000;
+	border-left: 0.1em solid #000000;
 }
 .jacket-5 .corner-br {
-  bottom: 0;
-  right: 0;
-  border-bottom: 0.1em solid #000000;
-  border-right: 0.1em solid #000000;
+	bottom: 0;
+	right: 0;
+	border-bottom: 0.1em solid #000000;
+	border-right: 0.1em solid #000000;
 }
 .jacket-5 .title {
-  font-weight: bold;
-  font-size: 1.55em;
-  line-height: 1.3em;
-  margin: 0 0 0.6em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.55em;
+	line-height: 1.3em;
+	margin: 0 0 0.6em 0;
+	overflow-wrap: break-word;
 }
 .jacket-5 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.2em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.2em 0;
 }
 .jacket-5 .author {
-  font-size: 0.95em;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin: 0 0 0.4em 0;
+	font-size: 0.95em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	margin: 0 0 0.4em 0;
 }
 .jacket-5 .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.1em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.1em 0;
 }
 .jacket-5 .meta {
-  font-size: 0.72em;
-  color: #444444;
-  margin: 0.15em 0;
+	font-size: 0.72em;
+	color: #444444;
+	margin: 0.15em 0;
 }
 
 /* intro-6 */
 .jacket-6 {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 22em;
-  padding: 2.6em 1.3em;
-  margin: 0;
-  text-align: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 22em;
+	padding: 2.6em 1.3em;
+	margin: 0;
+	text-align: center;
 }
 .jacket-6 .top .title {
-  font-weight: bold;
-  font-size: 1.75em;
-  line-height: 1.3em;
-  margin: 0 0 0.6em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.75em;
+	line-height: 1.3em;
+	margin: 0 0 0.6em 0;
+	overflow-wrap: break-word;
 }
 .jacket-6 .top .original {
-  font-style: italic;
-  font-size: 0.88em;
-  color: #555555;
-  margin: 0;
+	font-style: italic;
+	font-size: 0.88em;
+	color: #555555;
+	margin: 0;
 }
 .jacket-6 .bottom .author {
-  font-size: 0.95em;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin: 0 0 0.4em 0;
+	font-size: 0.95em;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	margin: 0 0 0.4em 0;
 }
 .jacket-6 .bottom .translator {
-  font-size: 0.72em;
-  color: #555555;
-  margin: 0 0 1em 0;
+	font-size: 0.72em;
+	color: #555555;
+	margin: 0 0 1em 0;
 }
 .jacket-6 .bottom .meta {
-  font-size: 0.68em;
-  letter-spacing: 0.05em;
-  color: #444444;
-  margin: 0.15em 0;
+	font-size: 0.68em;
+	letter-spacing: 0.05em;
+	color: #444444;
+	margin: 0.15em 0;
 }
 
 /* intro-7 */
 .jacket-7 {
-  text-align: center;
-  padding: 2.4em 1em;
-  margin: 0;
+	text-align: center;
+	padding: 2.4em 1em;
+	margin: 0;
 }
 .jacket-7 .rule-thick {
-  border: none;
-  border-top: 0.14em solid #000000;
-  margin: 0 0 0.15em 0;
+	border: none;
+	border-top: 0.14em solid #000000;
+	margin: 0 0 0.15em 0;
 }
 .jacket-7 .rule-thin {
-  border: none;
-  border-top: 0.03em solid #000000;
-  margin: 0 0 1.4em 0;
+	border: none;
+	border-top: 0.03em solid #000000;
+	margin: 0 0 1.4em 0;
 }
 .jacket-7 .title {
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 1.5em;
-  line-height: 1.25em;
-  letter-spacing: 0.02em;
-  margin: 0 0 0.5em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 1.5em;
+	line-height: 1.25em;
+	letter-spacing: 0.02em;
+	margin: 0 0 0.5em 0;
+	overflow-wrap: break-word;
 }
 .jacket-7 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.1em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.1em 0;
 }
 .jacket-7 .byline {
-  font-size: 0.85em;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin: 0 0 0.5em 0;
+	font-size: 0.85em;
+	letter-spacing: 0.15em;
+	text-transform: uppercase;
+	margin: 0 0 0.5em 0;
 }
 .jacket-7 .byline::before {
-  content: "— ";
+	content: '— ';
 }
 .jacket-7 .byline::after {
-  content: " —";
+	content: ' —';
 }
 .jacket-7 .translator {
-  font-size: 0.72em;
-  font-style: italic;
-  color: #555555;
-  margin: 0 0 1.4em 0;
+	font-size: 0.72em;
+	font-style: italic;
+	color: #555555;
+	margin: 0 0 1.4em 0;
 }
 .jacket-7 .meta {
-  font-size: 0.7em;
-  color: #444444;
-  margin: 0.9em 0 0 0;
+	font-size: 0.7em;
+	color: #444444;
+	margin: 0.9em 0 0 0;
 }
 
 /* intro-8 */
 .jacket-8 {
-  text-align: center;
-  padding: 2.6em 1.2em;
-  margin: 0;
+	text-align: center;
+	padding: 2.6em 1.2em;
+	margin: 0;
 }
 .jacket-8 .title {
-  font-weight: bold;
-  font-size: 1.6em;
-  line-height: 1.3em;
-  margin: 0 0 0.5em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.6em;
+	line-height: 1.3em;
+	margin: 0 0 0.5em 0;
+	overflow-wrap: break-word;
 }
 .jacket-8 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.3em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.3em 0;
 }
 .jacket-8 .author {
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.95em;
-  margin: 0 0 0.4em 0;
+	font-weight: bold;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-size: 0.95em;
+	margin: 0 0 0.4em 0;
 }
 .jacket-8 .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.4em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.4em 0;
 }
 .jacket-8 .tags {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 .jacket-8 .tag {
-  display: inline-block;
-  border: 0.06em solid #000000;
-  border-radius: 1em;
-  padding: 0.3em 0.9em;
-  font-size: 0.68em;
-  letter-spacing: 0.04em;
+	display: inline-block;
+	border: 0.06em solid #000000;
+	border-radius: 1em;
+	padding: 0.3em 0.9em;
+	font-size: 0.68em;
+	letter-spacing: 0.04em;
 }
 
 /* intro-9 */
 .jacket-9 {
-  border: 0.12em dashed #000000;
-  border-radius: 0.4em;
-  margin: 1.6em 1.2em;
-  padding: 2.2em 1.2em;
-  text-align: center;
+	border: 0.12em dashed #000000;
+	border-radius: 0.4em;
+	margin: 1.6em 1.2em;
+	padding: 2.2em 1.2em;
+	text-align: center;
 }
 .jacket-9 .title {
-  font-weight: bold;
-  font-size: 1.6em;
-  line-height: 1.3em;
-  margin: 0 0 0.6em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.6em;
+	line-height: 1.3em;
+	margin: 0 0 0.6em 0;
+	overflow-wrap: break-word;
 }
 .jacket-9 .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.3em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.3em 0;
 }
 .jacket-9 .author {
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-size: 0.95em;
-  margin: 0 0 0.4em 0;
+	font-weight: bold;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-size: 0.95em;
+	margin: 0 0 0.4em 0;
 }
 .jacket-9 .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.2em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.2em 0;
 }
 .jacket-9 .meta {
-  font-size: 0.72em;
-  color: #444444;
-  margin: 0.15em 0;
+	font-size: 0.72em;
+	color: #444444;
+	margin: 0.15em 0;
 }
 
 /* intro-10 */
 .jacket-10b {
-  text-align: center;
-  padding: 2.8em 1.2em;
-  margin: 0;
+	text-align: center;
+	padding: 2.8em 1.2em;
+	margin: 0;
 }
 .jacket-10b .title {
-  font-weight: bold;
-  font-size: 1.6em;
-  line-height: 1.3em;
-  margin: 0 0 1em 0;
-  overflow-wrap: break-word;
+	font-weight: bold;
+	font-size: 1.6em;
+	line-height: 1.3em;
+	margin: 0 0 1em 0;
+	overflow-wrap: break-word;
 }
 .jacket-10b .original {
-  font-style: italic;
-  font-size: 0.85em;
-  color: #555555;
-  margin: 0 0 1.3em 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: #555555;
+	margin: 0 0 1.3em 0;
 }
 .jacket-10b .diamond {
-  width: 0.5em;
-  height: 0.5em;
-  background: #000000;
-  margin: 0 auto 1.3em auto;
-  transform: rotate(45deg);
+	width: 0.5em;
+	height: 0.5em;
+	background: #000000;
+	margin: 0 auto 1.3em auto;
+	transform: rotate(45deg);
 }
 .jacket-10b .author {
-  font-weight: bold;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  font-size: 0.95em;
-  margin: 0 0 0.4em 0;
+	font-weight: bold;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-size: 0.95em;
+	margin: 0 0 0.4em 0;
 }
 .jacket-10b .translator {
-  font-size: 0.75em;
-  color: #555555;
-  margin: 0 0 1.1em 0;
+	font-size: 0.75em;
+	color: #555555;
+	margin: 0 0 1.1em 0;
 }
 .jacket-10b .meta {
-  font-size: 0.7em;
-  color: #444444;
-  margin: 0.15em 0;
+	font-size: 0.7em;
+	color: #444444;
+	margin: 0.15em 0;
 }

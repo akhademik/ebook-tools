@@ -1,11 +1,6 @@
 // src/lib/epub-packer/epub-state.svelte.ts
 import { buildEpubBlob, EPUB_CSS } from './epub-packer';
-import type {
-	EpubFontsConfig,
-	EpubJacketConfig,
-	CoverBlobItem,
-	OrnamentsConfig
-} from '$lib/types';
+import type { EpubFontsConfig, EpubJacketConfig, CoverBlobItem, OrnamentsConfig } from '$lib/types';
 import { Logger } from '$lib/utils';
 import { findFont } from './templates/fonts';
 import {
@@ -51,7 +46,10 @@ export class EpubState {
 	}
 
 	async processEpub(): Promise<void> {
-		Logger.debug('[EpubState]', `processEpub invoked, chapters count: ${this.source.epubChapters.length}, fileType: ${this.source.fileType}`);
+		Logger.debug(
+			'[EpubState]',
+			`processEpub invoked, chapters count: ${this.source.epubChapters.length}, fileType: ${this.source.fileType}`
+		);
 		if (this.source.epubChapters.length === 0) {
 			Logger.warn('[EpubState]', 'processEpub aborted: epubChapters is empty');
 			this.status = 'Không có chương nào để đóng gói. Vui lòng chọn tệp hợp lệ.';

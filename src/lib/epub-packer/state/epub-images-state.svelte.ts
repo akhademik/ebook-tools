@@ -43,10 +43,14 @@ export class EpubImagesState {
 	getImageMimeType(fileName?: string): string {
 		const ext = (fileName || '').split('.').pop()?.toLowerCase();
 		switch (ext) {
-			case 'png': return 'image/png';
-			case 'webp': return 'image/webp';
-			case 'gif': return 'image/gif';
-			case 'svg': return 'image/svg+xml';
+			case 'png':
+				return 'image/png';
+			case 'webp':
+				return 'image/webp';
+			case 'gif':
+				return 'image/gif';
+			case 'svg':
+				return 'image/svg+xml';
 			case 'jpg':
 			case 'jpeg':
 			default:
@@ -56,14 +60,18 @@ export class EpubImagesState {
 
 	async handleIllustrationFiles(filesInput: FileList | File[] | File | null): Promise<void> {
 		if (!filesInput) return;
-		const filesList: File[] = filesInput instanceof FileList || Array.isArray(filesInput)
-			? Array.from(filesInput)
-			: [filesInput];
+		const filesList: File[] =
+			filesInput instanceof FileList || Array.isArray(filesInput)
+				? Array.from(filesInput)
+				: [filesInput];
 
 		for (const file of filesList) {
 			if (/\.zip$/i.test(file.name)) {
 				if (file.size > MAX_IMAGES_ZIP_FILE_SIZE) {
-					Logger.warn('[EpubImagesState]', `Images zip exceeds limit: ${file.name} (${file.size} bytes)`);
+					Logger.warn(
+						'[EpubImagesState]',
+						`Images zip exceeds limit: ${file.name} (${file.size} bytes)`
+					);
 					continue;
 				}
 				try {
@@ -77,9 +85,17 @@ export class EpubImagesState {
 							const mimeType = this.getImageMimeType(fileName);
 
 							const existingIdx = this.illustrationFiles.findIndex(
-								f => f.fileName.toLowerCase() === fileName.toLowerCase() || (f.name && f.name.toLowerCase() === baseName.toLowerCase())
+								(f) =>
+									f.fileName.toLowerCase() === fileName.toLowerCase() ||
+									(f.name && f.name.toLowerCase() === baseName.toLowerCase())
 							);
-							const item: IllustrationImageItem = { name: baseName, fileName, mimeType, blob, size: blob.size };
+							const item: IllustrationImageItem = {
+								name: baseName,
+								fileName,
+								mimeType,
+								blob,
+								size: blob.size
+							};
 							if (existingIdx !== -1) {
 								this.illustrationFiles[existingIdx] = item;
 							} else {
@@ -92,7 +108,10 @@ export class EpubImagesState {
 				}
 			} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
 				if (file.size > MAX_IMAGE_FILE_SIZE) {
-					Logger.warn('[EpubImagesState]', `Image file exceeds limit: ${file.name} (${file.size} bytes)`);
+					Logger.warn(
+						'[EpubImagesState]',
+						`Image file exceeds limit: ${file.name} (${file.size} bytes)`
+					);
 					continue;
 				}
 				const fileName = file.name;
@@ -100,9 +119,17 @@ export class EpubImagesState {
 				const mimeType = file.type || this.getImageMimeType(fileName);
 
 				const existingIdx = this.illustrationFiles.findIndex(
-					f => f.fileName.toLowerCase() === fileName.toLowerCase() || (f.name && f.name.toLowerCase() === baseName.toLowerCase())
+					(f) =>
+						f.fileName.toLowerCase() === fileName.toLowerCase() ||
+						(f.name && f.name.toLowerCase() === baseName.toLowerCase())
 				);
-				const item: IllustrationImageItem = { name: baseName, fileName, mimeType, blob: file, size: file.size };
+				const item: IllustrationImageItem = {
+					name: baseName,
+					fileName,
+					mimeType,
+					blob: file,
+					size: file.size
+				};
 				if (existingIdx !== -1) {
 					this.illustrationFiles[existingIdx] = item;
 				} else {
@@ -332,20 +359,30 @@ export class EpubImagesState {
 				if (ctx) {
 					ctx.drawImage(
 						img,
-						safeLeft, safeTop, croppedW, croppedH,
-						0, 0, canvas.width, canvas.height
+						safeLeft,
+						safeTop,
+						croppedW,
+						croppedH,
+						0,
+						0,
+						canvas.width,
+						canvas.height
 					);
 				}
-				canvas.toBlob((blob) => {
-					if (blob) {
-						const coverBlob = blob as CoverBlobItem;
-						coverBlob.width = canvas.width;
-						coverBlob.height = canvas.height;
-						resolve(coverBlob);
-					} else {
-						resolve(null);
-					}
-				}, 'image/jpeg', 0.82);
+				canvas.toBlob(
+					(blob) => {
+						if (blob) {
+							const coverBlob = blob as CoverBlobItem;
+							coverBlob.width = canvas.width;
+							coverBlob.height = canvas.height;
+							resolve(coverBlob);
+						} else {
+							resolve(null);
+						}
+					},
+					'image/jpeg',
+					0.82
+				);
 			};
 			img.onerror = (err) => reject(new Error('Lỗi tải ảnh bìa: ' + err));
 			img.src = this.coverOriginalUrl!;

@@ -208,14 +208,19 @@ describe('image background removal and ornament optimization', () => {
 
 		it('should fall back to canvas algorithm if ML fails', async () => {
 			const { removeBackground } = await import('@imgly/background-removal');
-			vi.mocked(removeBackground).mockRejectedValueOnce(new Error('Network error or WebAssembly unsupported'));
+			vi.mocked(removeBackground).mockRejectedValueOnce(
+				new Error('Network error or WebAssembly unsupported')
+			);
 
 			const fakeBlob = new Blob(['test image data'], { type: 'image/png' });
 			const onProgress = vi.fn();
 
 			const result = await removeOrnamentBackground(fakeBlob as any, onProgress);
 			expect(result).toBeDefined();
-			expect(onProgress).toHaveBeenCalledWith(expect.stringContaining('fallback'), expect.any(Number));
+			expect(onProgress).toHaveBeenCalledWith(
+				expect.stringContaining('fallback'),
+				expect.any(Number)
+			);
 		});
 
 		it('should execute full processOrnamentImage pipeline', async () => {
@@ -247,7 +252,9 @@ describe('image background removal and ornament optimization', () => {
 			expect(state.chapterOrnamentFile).toBeNull();
 			expect(state.chapterOrnamentBlob).toBeNull();
 			expect(state.chapterOrnamentPreviewUrl).toBeNull();
-			expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/dummy-url');
+			expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith(
+				'blob:http://localhost/dummy-url'
+			);
 		});
 
 		it('should handle simultaneous chapter and subchapter ornament processing without crosstalk', async () => {
@@ -281,5 +288,3 @@ describe('image background removal and ornament optimization', () => {
 		});
 	});
 });
-
-

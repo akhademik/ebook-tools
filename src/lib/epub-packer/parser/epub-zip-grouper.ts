@@ -41,7 +41,10 @@ export function findMarkersForZip(
 			const score = scoreHeadingCandidate(firstTextBlock.text, firstTextBlock.type, true);
 			const hasNL = firstTextBlock.text.includes('\n');
 			const isFirstBlockChapter = !hasNL && score >= heuristicThreshold;
-			Logger.debug('[epub-zip-grouper]', `firstTextBlock: "${firstTextBlock.text.slice(0, 60)}...", score: ${score}, hasNL: ${hasNL}, isFirstBlockChapter: ${isFirstBlockChapter}`);
+			Logger.debug(
+				'[epub-zip-grouper]',
+				`firstTextBlock: "${firstTextBlock.text.slice(0, 60)}...", score: ${score}, hasNL: ${hasNL}, isFirstBlockChapter: ${isFirstBlockChapter}`
+			);
 			if (!isFirstBlockChapter) {
 				return [];
 			}
@@ -55,7 +58,10 @@ export function findMarkersForZip(
 			if (!b.text || !b.text.trim()) continue;
 
 			const score = scoreHeadingCandidate(b.text, b.type, idx === firstTextBlockIdx);
-			Logger.debug('[epub-zip-grouper]', `block ${idx}: "${b.text.slice(0, 60)}...", score: ${score}, threshold: ${heuristicThreshold}`);
+			Logger.debug(
+				'[epub-zip-grouper]',
+				`block ${idx}: "${b.text.slice(0, 60)}...", score: ${score}, threshold: ${heuristicThreshold}`
+			);
 			if (!b.text.includes('\n') && score >= heuristicThreshold) {
 				Logger.debug('[epub-zip-grouper]', `MATCHED block ${idx} as chapter!`);
 				return [{ blockIndex: idx, offset: 0, type: 'chapter' }];
@@ -100,7 +106,10 @@ export function groupChaptersZip(
 	heuristicThreshold = 5,
 	options: RenderMarkdownBlocksOptions = {}
 ): RawChapterItem[] {
-	Logger.debug('[epub-parser]', `groupChaptersZip called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`);
+	Logger.debug(
+		'[epub-parser]',
+		`groupChaptersZip called, files count: ${rawFilesList.length}, pattern: ${patternRaw}, useHeuristic: ${useHeuristic}`
+	);
 	const matcher = useHeuristic ? null : makeChapterMatcher(patternRaw);
 	const groups: RawChapterItem[] = [];
 	let current: RawChapterItem | null = null;
@@ -109,7 +118,7 @@ export function groupChaptersZip(
 	for (let idx = 0; idx < rawFilesList.length; idx++) {
 		const f = rawFilesList[idx];
 		const pageNum = idx + 1;
-		const isHeuristicActive = useHeuristic && (pageNum >= startPage && pageNum <= endPage);
+		const isHeuristicActive = useHeuristic && pageNum >= startPage && pageNum <= endPage;
 		const cuts = findMarkersForZip(f.blocks, matcher, isHeuristicActive, heuristicThreshold);
 
 		if (cuts.length === 0) {
@@ -165,7 +174,10 @@ export function groupChaptersZip(
 			current = {
 				title: chunkTitle,
 				html: chunkHtml,
-				sources: [f.path + (cuts.length > 1 || leadingBlocks.length > 0 ? ' (mốc 1/' + cuts.length + ')' : '')],
+				sources: [
+					f.path +
+						(cuts.length > 1 || leadingBlocks.length > 0 ? ' (mốc 1/' + cuts.length + ')' : '')
+				],
 				isChapter: true,
 				firstSourcePageNum: pageNum
 			};
@@ -173,6 +185,9 @@ export function groupChaptersZip(
 			seenMarker = true;
 		}
 	}
-	Logger.debug('[epub-parser]', `groupChaptersZip finished, total groups created: ${groups.length}`);
+	Logger.debug(
+		'[epub-parser]',
+		`groupChaptersZip finished, total groups created: ${groups.length}`
+	);
 	return groups;
 }

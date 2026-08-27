@@ -17,10 +17,10 @@ export class PdfSplitterState {
 
 	status = $state<string>('');
 	isError = $state<boolean>(false);
-	
+
 	loadingPreview = $state<boolean>(false);
 	processing = $state<boolean>(false);
-	
+
 	progressPercent = $state<number>(0);
 	progressLabel = $state<string>('');
 
@@ -48,7 +48,7 @@ export class PdfSplitterState {
 		this.pdfSelectedFile = file;
 		this.bookName = slugify(file.name);
 		this.pdfZipBlob = null;
-		
+
 		this.previewPages = [];
 		this.currentPreviewIndex = 0;
 		this.cropTopPx = 0;
@@ -62,7 +62,11 @@ export class PdfSplitterState {
 		this.isError = false;
 
 		try {
-			this.previewPages = await loadPdfPreview(this.pdfSelectedFile, this.selectedPreviewCount, this.keepColor);
+			this.previewPages = await loadPdfPreview(
+				this.pdfSelectedFile,
+				this.selectedPreviewCount,
+				this.keepColor
+			);
 			this.currentPreviewIndex = 0;
 		} catch (err: unknown) {
 			const errorMsg = err instanceof Error ? err.message : String(err);
@@ -76,7 +80,8 @@ export class PdfSplitterState {
 
 	prevPreviewPage(): void {
 		if (this.previewPages.length === 0) return;
-		this.currentPreviewIndex = (this.currentPreviewIndex - 1 + this.previewPages.length) % this.previewPages.length;
+		this.currentPreviewIndex =
+			(this.currentPreviewIndex - 1 + this.previewPages.length) % this.previewPages.length;
 	}
 
 	nextPreviewPage(): void {

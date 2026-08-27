@@ -18,14 +18,32 @@ vi.mock('jszip', () => {
 	};
 });
 
-vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({ default: '/* base.css */' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({ default: '/* center-page.css */ .center-page { display: table; } .center-page-content { display: table-cell; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({ default: '/* headings.css */ .main-chap { font-size: 1.5em; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({ default: '/* quotes.css */ .letter { margin: 1em; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({ default: '/* breaks.css */ .scene-break { text-align: center; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({ default: '/* notes.css */ .noteref { vertical-align: super; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/ornaments.css?raw', () => ({ default: '/* ornaments.css */ .chapter-ornament { text-align: center; } .subchapter-ornament { text-align: center; }' }));
-vi.mock('../src/lib/epub-packer/templates/css-template/cover.css?raw', () => ({ default: '/* cover.css */ .cover-wrapper { margin: 0; }' }));
+vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({
+	default: '/* base.css */'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({
+	default:
+		'/* center-page.css */ .center-page { display: table; } .center-page-content { display: table-cell; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({
+	default: '/* headings.css */ .main-chap { font-size: 1.5em; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({
+	default: '/* quotes.css */ .letter { margin: 1em; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({
+	default: '/* breaks.css */ .scene-break { text-align: center; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({
+	default: '/* notes.css */ .noteref { vertical-align: super; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/ornaments.css?raw', () => ({
+	default:
+		'/* ornaments.css */ .chapter-ornament { text-align: center; } .subchapter-ornament { text-align: center; }'
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/cover.css?raw', () => ({
+	default: '/* cover.css */ .cover-wrapper { margin: 0; }'
+}));
 
 import {
 	buildChapterXhtml,
@@ -47,7 +65,10 @@ describe('epub-packer tests', () => {
 
 	describe('buildChapterXhtml', () => {
 		it('should wrap title and body in standard EPUB XHTML structure', () => {
-			const html = buildChapterXhtml({ language: 'vi' }, { title: 'Chương 1', html: '<p>Nội dung</p>' });
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{ title: 'Chương 1', html: '<p>Nội dung</p>' }
+			);
 			expect(html).toContain('<title>Chương 1</title>');
 			expect(html).toContain('<p>Nội dung</p>');
 			expect(html).toContain('http://www.w3.org/1999/xhtml');
@@ -84,7 +105,9 @@ describe('epub-packer tests', () => {
 					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>Mỗi giây là một năm</p>'
 				}
 			);
-			expect(html).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">M</span>ỗi giây là một năm</p>');
+			expect(html).toContain(
+				'<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">M</span>ỗi giây là một năm</p>'
+			);
 		});
 
 		it('should include starting quotes/entities/inline tags correctly in the dropcap', () => {
@@ -96,7 +119,9 @@ describe('epub-packer tests', () => {
 					html: '<h1 class="main-chap center">18 PHÚT</h1>\n<p>“Mỗi giây là một năm”</p>'
 				}
 			);
-			expect(htmlQuotes).toContain('<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">“M</span>ỗi giây là một năm”</p>');
+			expect(htmlQuotes).toContain(
+				'<h1 class="main-chap center">18 PHÚT</h1>\n<p class="has-dropcap"><span class="dropcap">“M</span>ỗi giây là một năm”</p>'
+			);
 
 			const htmlItalic = buildChapterXhtml(
 				{ language: 'vi' },
@@ -106,7 +131,9 @@ describe('epub-packer tests', () => {
 					html: '<h1>18 PHÚT</h1>\n<p><i>M</i>ỗi giây là một năm</p>'
 				}
 			);
-			expect(htmlItalic).toContain('<h1>18 PHÚT</h1>\n<p class="has-dropcap"><i><span class="dropcap">M</span></i>ỗi giây là một năm</p>');
+			expect(htmlItalic).toContain(
+				'<h1>18 PHÚT</h1>\n<p class="has-dropcap"><i><span class="dropcap">M</span></i>ỗi giây là một năm</p>'
+			);
 
 			const htmlEntity = buildChapterXhtml(
 				{ language: 'vi' },
@@ -116,7 +143,9 @@ describe('epub-packer tests', () => {
 					html: '<h2>18 PHÚT</h2>\n<p>&ldquo;Mỗi giây là một năm&rdquo;</p>'
 				}
 			);
-			expect(htmlEntity).toContain('<h2>18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>');
+			expect(htmlEntity).toContain(
+				'<h2>18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>'
+			);
 		});
 
 		it('should add has-dropcap class to paragraphs containing a dropcap span', () => {
@@ -128,7 +157,9 @@ describe('epub-packer tests', () => {
 					html: '<p><span class="dropcap">N</span>ội dung</p>'
 				}
 			);
-			expect(htmlExplicit).toContain('<p class="has-dropcap"><span class="dropcap">N</span>ội dung</p>');
+			expect(htmlExplicit).toContain(
+				'<p class="has-dropcap"><span class="dropcap">N</span>ội dung</p>'
+			);
 		});
 
 		it('should not add dropcap to special pages like jacket or cover', () => {
@@ -161,10 +192,16 @@ describe('epub-packer tests', () => {
 				ornaments
 			);
 
-			expect(html).toContain('<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="main-chap center">CUỐN I</h1>');
-			expect(html).toContain('<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">1</h2>');
+			expect(html).toContain(
+				'<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="main-chap center">CUỐN I</h1>'
+			);
+			expect(html).toContain(
+				'<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">1</h2>'
+			);
 			expect(html).toContain('<h1 class="break-main-chap">PHẦN I</h1>');
-			expect(html).not.toContain('<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="break-main-chap">PHẦN I</h1>');
+			expect(html).not.toContain(
+				'<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="break-main-chap">PHẦN I</h1>'
+			);
 		});
 	});
 
@@ -178,9 +215,7 @@ describe('epub-packer tests', () => {
 
 	describe('buildTocNcx', () => {
 		it('should generate valid NCX Table of Contents', () => {
-			const chapters = [
-				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
-			];
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
 			const xml = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
 			expect(xml).toContain('<docTitle><text>My Book</text></docTitle>');
 			expect(xml).toContain('<navLabel><text>Chương 1</text></navLabel>');
@@ -190,10 +225,17 @@ describe('epub-packer tests', () => {
 
 	describe('buildContentOpf', () => {
 		it('should generate valid OPF Package Document metadata', () => {
-			const chapters = [
-				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
-			];
-			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi', publisher: 'My Publisher' }, chapters);
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
+			const xml = buildContentOpf(
+				{
+					title: 'My Book',
+					author: 'My Author',
+					identifier: 'uuid-1234',
+					language: 'vi',
+					publisher: 'My Publisher'
+				},
+				chapters
+			);
 			expect(xml).toContain('<dc:title>My Book</dc:title>');
 			expect(xml).toContain('<dc:creator id="creator">My Author</dc:creator>');
 			expect(xml).toContain('<dc:publisher>My Publisher</dc:publisher>');
@@ -202,21 +244,24 @@ describe('epub-packer tests', () => {
 		});
 
 		it('should include fonts in manifest if activeFonts is specified', () => {
-			const chapters = [
-				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
-			];
-			const xml = buildContentOpf({ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' }, chapters, false, ['Akashi', 'Polliwog']);
-			expect(xml).toContain('<item id="font-utm_akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>');
-			expect(xml).toContain('<item id="font-polliwog" href="fonts/Polliwog.otf" media-type="application/vnd.ms-opentype"/>');
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
+			const xml = buildContentOpf(
+				{ title: 'My Book', author: 'My Author', identifier: 'uuid-1234', language: 'vi' },
+				chapters,
+				false,
+				['Akashi', 'Polliwog']
+			);
+			expect(xml).toContain(
+				'<item id="font-utm_akashi" href="fonts/UTM_Akashi.ttf" media-type="application/vnd.ms-opentype"/>'
+			);
+			expect(xml).toContain(
+				'<item id="font-polliwog" href="fonts/Polliwog.otf" media-type="application/vnd.ms-opentype"/>'
+			);
 		});
 
 		it('should escape XML attributes properly in manifest items and package tag', () => {
-			const chapters = [
-				{ xmlId: 'chap&"1"', title: 'Chương 1', fileName: 'chap_&_01' }
-			];
-			const images = [
-				{ fileName: 'cover & art "1".jpg', mimeType: 'image/jpeg' }
-			];
+			const chapters = [{ xmlId: 'chap&"1"', title: 'Chương 1', fileName: 'chap_&_01' }];
+			const images = [{ fileName: 'cover & art "1".jpg', mimeType: 'image/jpeg' }];
 			const xml = buildContentOpf(
 				{ title: 'Test Book', author: 'Author', identifier: '123', language: 'vi"&' },
 				chapters,
@@ -234,9 +279,7 @@ describe('epub-packer tests', () => {
 
 	describe('buildNavXhtml', () => {
 		it('should generate valid EPUB 3 Navigation document', () => {
-			const chapters = [
-				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }
-			];
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
 			const html = buildNavXhtml({ language: 'vi' }, chapters);
 			expect(html).toContain('<h1>Mục lục</h1>');
 			expect(html).toContain('<a href="text/chap_01.xhtml">Chương 1</a>');
@@ -254,7 +297,9 @@ describe('epub-packer tests', () => {
 
 		it('should not merge paragraphs ending with sentence punctuation or starting with uppercase', () => {
 			// Ends with sentence punctuation
-			let merged = mergeBrokenParagraphs('<p>Đây là câu hoàn chỉnh.</p>\n<p>sau đó là phần tiếp theo.</p>');
+			let merged = mergeBrokenParagraphs(
+				'<p>Đây là câu hoàn chỉnh.</p>\n<p>sau đó là phần tiếp theo.</p>'
+			);
 			expect(merged).toBe('<p>Đây là câu hoàn chỉnh.</p>\n<p>sau đó là phần tiếp theo.</p>');
 
 			// Starts with uppercase
@@ -269,17 +314,29 @@ describe('epub-packer tests', () => {
 		it('should safely merge paragraphs split across merged pages without trailing punctuation', () => {
 			const input = `<p>Ông nhìn quanh bãi biển và bắt gặp Lesley đang đứng cạnh một người phụ nữ Mã Lai ở đường mép thủy triều. Người phụ nữ Mã Lai</p>\n\n<p>đang đào cát bằng một cây que, cạnh bà là một chiếc xô.</p>`;
 			const merged = mergeBrokenParagraphs(input);
-			expect(merged).toBe('<p>Ông nhìn quanh bãi biển và bắt gặp Lesley đang đứng cạnh một người phụ nữ Mã Lai ở đường mép thủy triều. Người phụ nữ Mã Lai đang đào cát bằng một cây que, cạnh bà là một chiếc xô.</p>');
+			expect(merged).toBe(
+				'<p>Ông nhìn quanh bãi biển và bắt gặp Lesley đang đứng cạnh một người phụ nữ Mã Lai ở đường mép thủy triều. Người phụ nữ Mã Lai đang đào cát bằng một cây que, cạnh bà là một chiếc xô.</p>'
+			);
 
 			const userExcerpt = `<p>“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được</p>\n\n  <p>nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”</p>`;
 			const userMerged = mergeBrokenParagraphs(userExcerpt);
-			expect(userMerged).toBe('<p>“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”</p>');
+			expect(userMerged).toBe(
+				'<p>“Một nhà cách mạng”, Robert nói. “Hy vọng ông ta không gây rắc rối nào nơi đây.” Ông gõ ống tẩu vào thành đê rồi bỏ vào túi. “Tốt hơn cả là chúng ta nên vào lại, em yêu ạ”, ông nói. “Charles chắc chắn sẽ có bài diễn văn lê thê, anh cần một ly rượu lớn để chịu đựng được nó.” Ông lắc đầu. “Ba mươi năm hôn nhân. Em nghĩ người nào trong số họ xứng đáng nhận huy chương hơn?”</p>'
+			);
 		});
 
 		it('should not merge paragraphs if paragraph 1 ends with quotes or closing brackets', () => {
-			expect(mergeBrokenParagraphs('<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>')).toBe('<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>');
-			expect(mergeBrokenParagraphs('<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>')).toBe('<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>');
-			expect(mergeBrokenParagraphs('<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>')).toBe('<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>');
+			expect(mergeBrokenParagraphs('<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>')).toBe(
+				'<p>Ông nói: "Tôi đi đây."</p>\n<p>và ông bước đi.</p>'
+			);
+			expect(
+				mergeBrokenParagraphs(
+					'<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>'
+				)
+			).toBe('<p>Một ngày đẹp trời (như mọi ngày)</p>\n<p>chúng tôi cùng nhau đi dạo.</p>');
+			expect(mergeBrokenParagraphs('<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>')).toBe(
+				'<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>'
+			);
 		});
 	});
 
@@ -291,7 +348,7 @@ describe('epub-packer tests', () => {
 			await expect(buildEpubBlob({}, [], '')).rejects.toThrow('Không có chương nào để đóng gói.');
 
 			expect(consoleErrorSpy).toHaveBeenCalled();
-			
+
 			consoleErrorSpy.mockRestore();
 			consoleLogSpy.mockRestore();
 		});
@@ -305,7 +362,9 @@ describe('epub-packer tests', () => {
 			const blob = await buildEpubBlob({}, chapters, 'body { color: black; }');
 
 			expect(blob).toBeDefined();
-			expect(mockZipInstance.file).toHaveBeenCalledWith('mimetype', 'application/epub+zip', { compression: 'STORE' });
+			expect(mockZipInstance.file).toHaveBeenCalledWith('mimetype', 'application/epub+zip', {
+				compression: 'STORE'
+			});
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('META-INF');
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('OEBPS');
 
@@ -388,13 +447,23 @@ describe('epub-packer tests', () => {
 				distributor: 'NXB Ebook'
 			};
 
-			const blob = await buildEpubBlob({ title: 'Book Title', author: 'Author Name' }, chapters, 'body {}', false, jacket);
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title', author: 'Author Name' },
+				chapters,
+				'body {}',
+				false,
+				jacket
+			);
 			expect(blob).toBeDefined();
 
 			// Verify JSZip calls
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('OEBPS');
 			// Since we mocked folder/file, check that they were called
-			expect(mockZipInstance.file).toHaveBeenCalledWith('mimetype', 'application/epub+zip', expect.any(Object));
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'mimetype',
+				'application/epub+zip',
+				expect.any(Object)
+			);
 			consoleLogSpy.mockRestore();
 		});
 
@@ -418,17 +487,34 @@ describe('epub-packer tests', () => {
 			expect(blob).toBeDefined();
 
 			// Check that cover is added to manifest in content.opf
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="cover-image"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('properties="cover-image"'));
-			
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('id="cover-image"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('properties="cover-image"')
+			);
+
 			// Check that cover image itself is written to zip with STORE compression
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', expect.anything(), { compression: 'STORE' });
-			
+			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.jpg', expect.anything(), {
+				compression: 'STORE'
+			});
+
 			// Check that cover.xhtml contains the SVG wrapper and dimensions
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('<svg'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('viewBox="0 0 1000 1400"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('cover.xhtml', expect.stringContaining('xlink:href="../images/cover.jpg"'));
-			
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'cover.xhtml',
+				expect.stringContaining('<svg')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'cover.xhtml',
+				expect.stringContaining('viewBox="0 0 1000 1400"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'cover.xhtml',
+				expect.stringContaining('xlink:href="../images/cover.jpg"')
+			);
+
 			consoleLogSpy.mockRestore();
 		});
 
@@ -442,12 +528,20 @@ describe('epub-packer tests', () => {
 				h1Font: 'Polliwog',
 				h2Font: 'Charlotte',
 				blobs: {
-					'Akashi': new Blob(['akashi-binary']),
-					'Polliwog': new Blob(['polliwog-binary'])
+					Akashi: new Blob(['akashi-binary']),
+					Polliwog: new Blob(['polliwog-binary'])
 				}
 			};
 
-			const blob = await buildEpubBlob({ title: 'Book Title' }, chapters, 'body {}', false, null, null, fonts);
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title' },
+				chapters,
+				'body {}',
+				false,
+				null,
+				null,
+				fonts
+			);
 			expect(blob).toBeDefined();
 
 			// Verify fonts folder calls
@@ -473,7 +567,10 @@ describe('epub-packer tests', () => {
 			expect(blob).toBeDefined();
 
 			// Verify Bookerly is declared in the content.opf manifest
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="fonts/Bookerly.ttf"'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('href="fonts/Bookerly.ttf"')
+			);
 			consoleLogSpy.mockRestore();
 		});
 
@@ -577,8 +674,20 @@ describe('epub-packer tests', () => {
 			];
 			const mockBlob = new Blob(['mock-image-data']);
 			const illustrations = [
-				{ id: 'img-hinh-1', name: 'hinh-1', fileName: 'hinh-1.jpg', mimeType: 'image/jpeg', blob: mockBlob },
-				{ id: 'img-hinh-2', name: 'hinh-2', fileName: 'hinh-2.png', mimeType: 'image/png', blob: mockBlob }
+				{
+					id: 'img-hinh-1',
+					name: 'hinh-1',
+					fileName: 'hinh-1.jpg',
+					mimeType: 'image/jpeg',
+					blob: mockBlob
+				},
+				{
+					id: 'img-hinh-2',
+					name: 'hinh-2',
+					fileName: 'hinh-2.png',
+					mimeType: 'image/png',
+					blob: mockBlob
+				}
 			];
 
 			const blob = await buildEpubBlob(
@@ -594,12 +703,28 @@ describe('epub-packer tests', () => {
 			);
 
 			expect(blob).toBeDefined();
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-1"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-1.jpg"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('id="img-hinh-2"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('content.opf', expect.stringContaining('href="images/hinh-2.png"'));
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything(), { compression: 'STORE' });
-			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything(), { compression: 'STORE' });
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('id="img-hinh-1"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('href="images/hinh-1.jpg"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('id="img-hinh-2"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'content.opf',
+				expect.stringContaining('href="images/hinh-2.png"')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-1.jpg', expect.anything(), {
+				compression: 'STORE'
+			});
+			expect(mockZipInstance.file).toHaveBeenCalledWith('hinh-2.png', expect.anything(), {
+				compression: 'STORE'
+			});
 			consoleLogSpy.mockRestore();
 		});
 
@@ -625,7 +750,10 @@ describe('epub-packer tests', () => {
 			);
 
 			expect(blob).toBeDefined();
-			expect(mockZipInstance.file).toHaveBeenCalledWith('style.css', expect.stringContaining('.chapter-ornament'));
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining('.chapter-ornament')
+			);
 			consoleLogSpy.mockRestore();
 		});
 
@@ -634,7 +762,13 @@ describe('epub-packer tests', () => {
 				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung thường</p>' }
 			];
 			const centerChapters = [
-				{ xmlId: 'chap1', title: 'Tập 1', fileName: 'chap_01', html: '<section class="center-page"><div class="center-page-content"><p>Giới thiệu</p></div></section>', features: { hasCenterPage: true } }
+				{
+					xmlId: 'chap1',
+					title: 'Tập 1',
+					fileName: 'chap_01',
+					html: '<section class="center-page"><div class="center-page-content"><p>Giới thiệu</p></div></section>',
+					features: { hasCenterPage: true }
+				}
 			];
 
 			const normalCss = getDynamicCss(normalChapters);

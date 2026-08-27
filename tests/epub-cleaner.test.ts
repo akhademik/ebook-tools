@@ -67,7 +67,10 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 		async function createSampleEpubZip(): Promise<JSZip> {
 			const zip = new JSZip();
 			zip.file('mimetype', 'application/epub+zip');
-			zip.file('META-INF/container.xml', '<container><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>');
+			zip.file(
+				'META-INF/container.xml',
+				'<container><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
+			);
 
 			// OPF
 			zip.file(
@@ -175,11 +178,15 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			// Add duplicate image
 			zip.file('OEBPS/images/dup_used.jpg', new Uint8Array(4000)); // identical byte array
 
-			const plan = await (await import('../src/lib/epub-editor/epub-cleaner')).analyzeOptimizationPlan(zip);
+			const plan = await (
+				await import('../src/lib/epub-editor/epub-cleaner')
+			).analyzeOptimizationPlan(zip);
 			expect(plan.duplicateResources.length).toBeGreaterThan(0);
 			expect(plan.savingsBreakdown.duplicateResources).toBe(4000);
 
-			const report = await (await import('../src/lib/epub-editor/epub-cleaner')).optimizeEpub(zip, {
+			const report = await (
+				await import('../src/lib/epub-editor/epub-cleaner')
+			).optimizeEpub(zip, {
 				deduplicateResources: true,
 				cleanOpfManifest: true
 			});

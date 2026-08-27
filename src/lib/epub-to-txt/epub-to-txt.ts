@@ -167,8 +167,14 @@ export function htmlToCleanText(htmlContent: string): string {
 	content = content.replace(/<hr\s*\/?>/gi, '\n\n---\n\n');
 
 	// Replace block elements with double newlines
-	content = content.replace(/<\/(p|div|section|article|blockquote|h[1-6]|li|tr|header|footer)>/gi, '\n\n');
-	content = content.replace(/<(p|div|section|article|blockquote|h[1-6]|li|tr|header|footer)\b[^>]*>/gi, '\n');
+	content = content.replace(
+		/<\/(p|div|section|article|blockquote|h[1-6]|li|tr|header|footer)>/gi,
+		'\n\n'
+	);
+	content = content.replace(
+		/<(p|div|section|article|blockquote|h[1-6]|li|tr|header|footer)\b[^>]*>/gi,
+		'\n'
+	);
 
 	// Strip remaining HTML/XML tags
 	content = content.replace(/<[^>]+>/g, ' ');
@@ -265,7 +271,9 @@ export async function extractEpubToTxt(
 				chapterPaths.push(p);
 			}
 		}
-		chapterPaths.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+		chapterPaths.sort((a, b) =>
+			a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+		);
 	}
 
 	options?.onProgress?.(`Đang trích xuất nội dung từ ${chapterPaths.length} chương...`, 40);
@@ -294,19 +302,23 @@ export async function extractEpubToTxt(
 	const charCount = finalText.length;
 	const wordCount = finalText ? finalText.split(/\s+/).filter(Boolean).length : 0;
 
-	const baseFileName = (metadata.title || originalName)
-		.toLowerCase()
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/^-+|-+$/g, '') || 'ebook';
+	const baseFileName =
+		(metadata.title || originalName)
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '') || 'ebook';
 
 	const outFileName = `${baseFileName}.txt`;
 	const txtBlob = new Blob([finalText], { type: 'text/plain;charset=utf-8' });
 
 	options?.onProgress?.('Hoàn tất trích xuất!', 100);
 
-	Logger.info('[EpubToTxt]', `Extracted ${chapterPaths.length} chapters, ${wordCount} words, ${charCount} chars`);
+	Logger.info(
+		'[EpubToTxt]',
+		`Extracted ${chapterPaths.length} chapters, ${wordCount} words, ${charCount} chars`
+	);
 
 	return {
 		text: finalText,

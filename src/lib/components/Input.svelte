@@ -21,6 +21,6 @@
 	{min}
 	{max}
 	{oninput}
-	bind:value={value}
+	bind:value
 	class="w-full bg-panel-2 border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color transition-colors"
 />
