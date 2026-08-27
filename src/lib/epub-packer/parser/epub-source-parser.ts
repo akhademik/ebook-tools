@@ -1,7 +1,7 @@
 // src/lib/epub-packer/parser/epub-source-parser.ts
 import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper';
 import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper';
-import { parseTxtToChapters } from './txt-parser';
+import { parseTxtToChapters, parseTxtToChaptersAsync } from './txt-parser';
 import type {
 	MarkdownBlock,
 	ChapterMatcher,
@@ -92,4 +92,4 @@ export function groupChapters(
 	}
 }
 
-export { parseTxtToChapters };
+export { parseTxtToChapters, parseTxtToChaptersAsync };

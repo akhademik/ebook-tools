@@ -9,8 +9,8 @@ const PDF_SCALE = 2.0;
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
 
-function applyGrayscale(
-	ctx: CanvasRenderingContext2D,
+export function applyGrayscale(
+	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 	width: number,
 	height: number,
 	contrast: number
@@ -30,11 +30,11 @@ function applyGrayscale(
 	ctx.putImageData(imgData, 0, 0);
 }
 
-function cropCanvas(
-	sourceCanvas: HTMLCanvasElement,
+export function cropCanvas<T extends HTMLCanvasElement | OffscreenCanvas>(
+	sourceCanvas: T,
 	topPx: number,
 	bottomPx: number
-): HTMLCanvasElement {
+): T {
 	const w = sourceCanvas.width;
 	const h = sourceCanvas.height;
 	const safeTop = Math.max(0, Math.min(topPx, h - 1));
@@ -44,6 +44,16 @@ function cropCanvas(
 		'[pdf-splitter]',
 		`cropCanvas called, source size: ${w}x${h}, cropping top: ${topPx}, bottom: ${bottomPx}, new height: ${newH}`
 	);
+
+	if (typeof OffscreenCanvas !== 'undefined' && sourceCanvas instanceof OffscreenCanvas) {
+		const out = new OffscreenCanvas(w, newH);
+		const octx = out.getContext('2d');
+		if (octx) {
+			octx.drawImage(sourceCanvas, 0, safeTop, w, newH, 0, 0, w, newH);
+		}
+		return out as T;
+	}
+
 	const out = document.createElement('canvas');
 	out.width = w;
 	out.height = newH;
@@ -51,7 +61,7 @@ function cropCanvas(
 	if (octx) {
 		octx.drawImage(sourceCanvas, 0, safeTop, w, newH, 0, 0, w, newH);
 	}
-	return out;
+	return out as T;
 }
 
 export function formatEta(seconds: number): string {

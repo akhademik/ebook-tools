@@ -309,5 +309,29 @@ describe('pdf-splitter tests', () => {
 
 			(globalThis as any).navigator.hardwareConcurrency = originalVal;
 		});
+
+		it('should test applyGrayscale and cropCanvas pure helper functions', async () => {
+			const { applyGrayscale, cropCanvas } = await import('../src/lib/pdf-splitter/pdf-splitter');
+			const mockCtx = {
+				getImageData: vi.fn().mockReturnValue({
+					data: new Uint8Array([100, 150, 200, 255])
+				}),
+				putImageData: vi.fn(),
+				drawImage: vi.fn()
+			};
+
+			applyGrayscale(mockCtx as any, 1, 1, 1.08);
+			expect(mockCtx.getImageData).toHaveBeenCalledWith(0, 0, 1, 1);
+			expect(mockCtx.putImageData).toHaveBeenCalled();
+
+			const fakeCanvas = {
+				width: 200,
+				height: 300,
+				getContext: vi.fn().mockReturnValue(mockCtx)
+			} as any;
+
+			const cropped = cropCanvas(fakeCanvas, 20, 30);
+			expect(cropped).toBeDefined();
+		});
 	});
 });

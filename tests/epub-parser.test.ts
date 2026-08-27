@@ -1296,5 +1296,15 @@ Chú thích:
 				'<figure class="illust-box">\n  <img class="illust-img" src="../images/minh-hoa-2.png" alt="minh-hoa-2.png" />\n</figure>'
 			);
 		});
+
+		it('should parse TXT asynchronously with parseTxtToChaptersAsync', async () => {
+			const { parseTxtToChaptersAsync } =
+				await import('../src/lib/epub-packer/parser/epub-source-parser');
+			const txt = `@@ Chương 1\nNội dung chương 1.\n@@ Chương 2\nNội dung chương 2.`;
+			const chapters = await parseTxtToChaptersAsync(txt);
+			expect(chapters).toHaveLength(2);
+			expect(chapters[0].title).toBe('Chương 1');
+			expect(chapters[1].title).toBe('Chương 2');
+		});
 	});
 });

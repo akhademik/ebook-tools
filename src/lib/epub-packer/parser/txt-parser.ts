@@ -106,6 +106,87 @@ function isIllustrationTag(
 	return null;
 }
 
+let txtWorkerInstance: Worker | null = null;
+
+function getTxtParserWorker(): Worker | null {
+	if (typeof window === 'undefined' || typeof Worker === 'undefined') {
+		return null;
+	}
+	if (!txtWorkerInstance) {
+		try {
+			txtWorkerInstance = new Worker(new URL('./txt-parser.worker.ts', import.meta.url), {
+				type: 'module'
+			});
+		} catch (err) {
+			Logger.warn(
+				'[txt-parser]',
+				'Failed to instantiate TxtParser worker, using direct execution:',
+				err
+			);
+			return null;
+		}
+	}
+	return txtWorkerInstance;
+}
+
+/**
+ * Asynchronously parse TXT into chapters using a background Web Worker when available.
+ */
+export async function parseTxtToChaptersAsync(
+	rawText: string,
+	options: ParseTxtOptions = {},
+	fallbackTitle = 'Chương 1'
+): Promise<RawChapterItem[]> {
+	// For small inputs (<50KB), execute synchronously to avoid worker spawn latency
+	if (rawText.length < 50_000) {
+		return parseTxtToChapters(rawText, options, fallbackTitle);
+	}
+
+	const worker = getTxtParserWorker();
+	if (worker) {
+		return new Promise((resolve) => {
+			const requestId = `parse-txt-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+			const handleMessage = (
+				e: MessageEvent<{
+					id: string;
+					type: string;
+					chapters?: RawChapterItem[];
+					warnings?: string[];
+					error?: string;
+				}>
+			) => {
+				if (e.data.id !== requestId) return;
+				if (e.data.type === 'success' && e.data.chapters) {
+					worker.removeEventListener('message', handleMessage);
+					if (options.warnings && e.data.warnings) {
+						options.warnings.push(...e.data.warnings);
+					}
+					resolve(e.data.chapters);
+				} else if (e.data.type === 'error') {
+					worker.removeEventListener('message', handleMessage);
+					Logger.warn(
+						'[txt-parser]',
+						'Worker parsing error, falling back to direct:',
+						e.data.error
+					);
+					resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+				}
+			};
+
+			worker.addEventListener('message', handleMessage);
+			worker.postMessage({
+				id: requestId,
+				txtText: rawText,
+				options,
+				fallbackTitle
+			});
+		});
+	}
+
+	return parseTxtToChapters(rawText, options, fallbackTitle);
+}
+
 export function parseTxtToChapters(
 	rawText: string,
 	options: ParseTxtOptions = {},

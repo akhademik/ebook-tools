@@ -269,8 +269,13 @@ export class EpubEditorState {
 		if (!this.zip) return null;
 		try {
 			this.cleanReport = null;
-			const analysis = await analyzeEpub(this.zip, this.editBuffer);
+			this.statusMessage = 'Đang quét tài nguyên trùng lặp & không sử dụng...';
+			const analysis = await analyzeEpub(this.zip, this.editBuffer, (current, total, filename) => {
+				const shortName = filename.split('/').pop() || filename;
+				this.statusMessage = `Đang quét tài nguyên (${current}/${total}): ${shortName}`;
+			});
 			this.cleanAnalysis = analysis;
+			this.statusMessage = `Phân tích hoàn tất: có thể tiết kiệm ${formatByteSize(analysis.estimatedSavingsBytes)}`;
 			return analysis;
 		} catch (err) {
 			Logger.error('[EpubEditorState]', 'Failed to analyze EPUB for cleanup', err);
@@ -281,7 +286,16 @@ export class EpubEditorState {
 	async runCleanup(options?: EpubCleanOptions): Promise<EpubCleanReport | null> {
 		if (!this.zip) return null;
 		try {
-			const report = await cleanEpub(this.zip, options, this.editBuffer);
+			this.statusMessage = 'Đang thực hiện dọn dẹp & tối ưu hóa EPUB...';
+			const report = await cleanEpub(
+				this.zip,
+				options,
+				this.editBuffer,
+				(current, total, filename) => {
+					const shortName = filename.split('/').pop() || filename;
+					this.statusMessage = `Đang khử trùng lặp (${current}/${total}): ${shortName}`;
+				}
+			);
 			this.cleanReport = report;
 			this.cleanAnalysis = null;
 

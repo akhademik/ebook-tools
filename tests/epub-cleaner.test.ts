@@ -178,11 +178,15 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			// Add duplicate image
 			zip.file('OEBPS/images/dup_used.jpg', new Uint8Array(4000)); // identical byte array
 
+			const progressReports: Array<{ current: number; total: number; filename: string }> = [];
 			const plan = await (
 				await import('../src/lib/epub-editor/epub-cleaner')
-			).analyzeOptimizationPlan(zip);
+			).analyzeOptimizationPlan(zip, undefined, (current, total, filename) => {
+				progressReports.push({ current, total, filename });
+			});
 			expect(plan.duplicateResources.length).toBeGreaterThan(0);
 			expect(plan.savingsBreakdown.duplicateResources).toBe(4000);
+			expect(progressReports.length).toBeGreaterThan(0);
 
 			const report = await (
 				await import('../src/lib/epub-editor/epub-cleaner')
@@ -193,6 +197,24 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 
 			expect(report.deduplicatedResources).toContain('OEBPS/images/dup_used.jpg');
 			expect(zip.file('OEBPS/images/dup_used.jpg')).toBeNull();
+		});
+
+		it('should test computeDuplicateResources directly for edge cases', async () => {
+			const { computeDuplicateResources } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector.worker');
+			const dummyBytes = new Uint8Array([1, 2, 3, 4]);
+			const diffBytes = new Uint8Array([5, 6, 7, 8]);
+			const items = [
+				{ path: 'img1.png', bytes: dummyBytes },
+				{ path: 'img2.png', bytes: new Uint8Array([1, 2, 3, 4]) },
+				{ path: 'img3.png', bytes: diffBytes }
+			];
+
+			const duplicates = await computeDuplicateResources(items);
+			expect(duplicates).toHaveLength(1);
+			expect(duplicates[0].originalPath).toBe('img1.png');
+			expect(duplicates[0].duplicatePath).toBe('img2.png');
+			expect(duplicates[0].byteSize).toBe(4);
 		});
 	});
 });

@@ -17,7 +17,8 @@ import { scanDuplicateResources } from './duplicate-detector';
  */
 export async function analyzeOptimizationPlan(
 	zip: JSZip,
-	editBuffer?: Map<string, string>
+	editBuffer?: Map<string, string>,
+	onProgress?: (current: number, total: number, filename: string) => void
 ): Promise<EpubOptimizationPlan> {
 	const allResources: EpubResourceUsage[] = [];
 	const missingReferences: EpubMissingReference[] = [];
@@ -190,7 +191,7 @@ export async function analyzeOptimizationPlan(
 	}
 
 	// Check duplicates
-	const duplicateResources = await scanDuplicateResources(zip, editBuffer);
+	const duplicateResources = await scanDuplicateResources(zip, editBuffer, onProgress);
 
 	const unusedImages = allResources.filter((r) => r.category === 'image' && !r.isUsed);
 	const unusedFonts = allResources.filter((r) => r.category === 'font' && !r.isUsed);
@@ -232,9 +233,10 @@ export async function analyzeOptimizationPlan(
  */
 export async function analyzeEpub(
 	zip: JSZip,
-	editBuffer?: Map<string, string>
+	editBuffer?: Map<string, string>,
+	onProgress?: (current: number, total: number, filename: string) => void
 ): Promise<EpubAnalysisResult> {
-	const plan = await analyzeOptimizationPlan(zip, editBuffer);
+	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress);
 	return {
 		totalFiles: plan.totalFiles,
 		totalBytes: plan.totalBytes,
@@ -261,9 +263,10 @@ export async function cleanEpub(
 		cleanOpfManifest: true,
 		deduplicateResources: true
 	},
-	editBuffer?: Map<string, string>
+	editBuffer?: Map<string, string>,
+	onProgress?: (current: number, total: number, filename: string) => void
 ): Promise<EpubCleanReport> {
-	const plan = await analyzeOptimizationPlan(zip, editBuffer);
+	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress);
 
 	const removedImages: string[] = [];
 	const removedFonts: string[] = [];

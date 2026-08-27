@@ -12,7 +12,7 @@ import {
 	groupChapters,
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
-	parseTxtToChapters
+	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
 import { slugify, Logger } from '$lib/utils';
 import { MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE } from '$lib/constants';
@@ -117,7 +117,7 @@ export class EpubSourceState {
 		this.parseIsError = false;
 	}
 
-	applyTxtGrouping(): void {
+	async applyTxtGrouping(): Promise<void> {
 		Logger.debug(
 			'[EpubSourceState]',
 			'applyTxtGrouping called, rawTxtText length:',
@@ -134,7 +134,7 @@ export class EpubSourceState {
 		}
 
 		const warnings: string[] = [];
-		const chapters = parseTxtToChapters(
+		const chapters = await parseTxtToChaptersAsync(
 			this.rawTxtText,
 			{
 				customDefinitions: this.customDefinitions,
@@ -230,7 +230,7 @@ export class EpubSourceState {
 					text.length
 				);
 				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
-				this.applyTxtGrouping();
+				await this.applyTxtGrouping();
 			} catch (err: unknown) {
 				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubSourceState]', 'Error reading TXT file', err);
