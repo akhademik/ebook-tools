@@ -137,6 +137,10 @@ export async function parseTxtToChaptersAsync(
 	options: ParseTxtOptions = {},
 	fallbackTitle = 'Chương 1'
 ): Promise<RawChapterItem[]> {
+	if (options.signal?.aborted) {
+		throw new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError');
+	}
+
 	// For small inputs (<50KB), execute synchronously to avoid worker spawn latency
 	if (rawText.length < 50_000) {
 		return parseTxtToChapters(rawText, options, fallbackTitle);
@@ -144,8 +148,20 @@ export async function parseTxtToChaptersAsync(
 
 	const worker = getTxtParserWorker();
 	if (worker) {
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const requestId = `parse-txt-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+			const cleanup = () => {
+				worker.removeEventListener('message', handleMessage);
+				if (options.signal) {
+					options.signal.removeEventListener('abort', handleAbort);
+				}
+			};
+
+			const handleAbort = () => {
+				cleanup();
+				reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
+			};
 
 			const handleMessage = (
 				e: MessageEvent<{
@@ -157,14 +173,20 @@ export async function parseTxtToChaptersAsync(
 				}>
 			) => {
 				if (e.data.id !== requestId) return;
+				if (options.signal?.aborted) {
+					cleanup();
+					reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
+					return;
+				}
+
 				if (e.data.type === 'success' && e.data.chapters) {
-					worker.removeEventListener('message', handleMessage);
+					cleanup();
 					if (options.warnings && e.data.warnings) {
 						options.warnings.push(...e.data.warnings);
 					}
 					resolve(e.data.chapters);
 				} else if (e.data.type === 'error') {
-					worker.removeEventListener('message', handleMessage);
+					cleanup();
 					Logger.warn(
 						'[txt-parser]',
 						'Worker parsing error, falling back to direct:',
@@ -173,6 +195,14 @@ export async function parseTxtToChaptersAsync(
 					resolve(parseTxtToChapters(rawText, options, fallbackTitle));
 				}
 			};
+
+			if (options.signal) {
+				if (options.signal.aborted) {
+					reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
+					return;
+				}
+				options.signal.addEventListener('abort', handleAbort, { once: true });
+			}
 
 			worker.addEventListener('message', handleMessage);
 			worker.postMessage({

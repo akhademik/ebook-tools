@@ -333,5 +333,12 @@ describe('pdf-splitter tests', () => {
 			const cropped = cropCanvas(fakeCanvas, 20, 30);
 			expect(cropped).toBeDefined();
 		});
+
+		it('should abort processPdfToJpg when signal is aborted', async () => {
+			const ac = new AbortController();
+			ac.abort();
+
+			await expect(processPdfToJpg(fakeFile, true, 0, 0, undefined, ac.signal)).rejects.toThrow();
+		});
 	});
 });

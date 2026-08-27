@@ -72,6 +72,15 @@ export class EpubEditorState {
 	// Object URL tracker for memory leak prevention
 	private currentObjectUrls: string[] = [];
 	private previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	private cleanerAbortController: AbortController | null = null;
+
+	cancelCleanupTask(): void {
+		if (this.cleanerAbortController) {
+			this.cleanerAbortController.abort();
+			this.cleanerAbortController = null;
+			this.statusMessage = 'Đã hủy tác vụ dọn dẹp.';
+		}
+	}
 
 	async loadEpubFile(file: File): Promise<void> {
 		this.reset();
@@ -267,24 +276,45 @@ export class EpubEditorState {
 
 	async analyzeForClean(): Promise<EpubAnalysisResult | null> {
 		if (!this.zip) return null;
+		this.cancelCleanupTask();
+		const ac = new AbortController();
+		this.cleanerAbortController = ac;
+
 		try {
 			this.cleanReport = null;
 			this.statusMessage = 'Đang quét tài nguyên trùng lặp & không sử dụng...';
-			const analysis = await analyzeEpub(this.zip, this.editBuffer, (current, total, filename) => {
-				const shortName = filename.split('/').pop() || filename;
-				this.statusMessage = `Đang quét tài nguyên (${current}/${total}): ${shortName}`;
-			});
+			const analysis = await analyzeEpub(
+				this.zip,
+				this.editBuffer,
+				(current, total, filename) => {
+					const shortName = filename.split('/').pop() || filename;
+					this.statusMessage = `Đang quét tài nguyên (${current}/${total}): ${shortName}`;
+				},
+				ac.signal
+			);
 			this.cleanAnalysis = analysis;
 			this.statusMessage = `Phân tích hoàn tất: có thể tiết kiệm ${formatByteSize(analysis.estimatedSavingsBytes)}`;
 			return analysis;
-		} catch (err) {
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.statusMessage = 'Đã hủy phân tích dọn dẹp.';
+				return null;
+			}
 			Logger.error('[EpubEditorState]', 'Failed to analyze EPUB for cleanup', err);
 			return null;
+		} finally {
+			if (this.cleanerAbortController === ac) {
+				this.cleanerAbortController = null;
+			}
 		}
 	}
 
 	async runCleanup(options?: EpubCleanOptions): Promise<EpubCleanReport | null> {
 		if (!this.zip) return null;
+		this.cancelCleanupTask();
+		const ac = new AbortController();
+		this.cleanerAbortController = ac;
+
 		try {
 			this.statusMessage = 'Đang thực hiện dọn dẹp & tối ưu hóa EPUB...';
 			const report = await cleanEpub(
@@ -294,7 +324,8 @@ export class EpubEditorState {
 				(current, total, filename) => {
 					const shortName = filename.split('/').pop() || filename;
 					this.statusMessage = `Đang khử trùng lặp (${current}/${total}): ${shortName}`;
-				}
+				},
+				ac.signal
 			);
 			this.cleanReport = report;
 			this.cleanAnalysis = null;
@@ -315,9 +346,17 @@ export class EpubEditorState {
 
 			this.statusMessage = `Đã dọn dẹp ${report.savedBytes > 0 ? formatByteSize(report.savedBytes) : 'tài nguyên'}`;
 			return report;
-		} catch (err) {
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.statusMessage = 'Đã hủy dọn dẹp.';
+				return null;
+			}
 			Logger.error('[EpubEditorState]', 'Failed to run EPUB cleanup', err);
 			return null;
+		} finally {
+			if (this.cleanerAbortController === ac) {
+				this.cleanerAbortController = null;
+			}
 		}
 	}
 

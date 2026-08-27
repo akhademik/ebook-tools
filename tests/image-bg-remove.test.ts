@@ -286,5 +286,13 @@ describe('image background removal and ornament optimization', () => {
 			expect(state.chapterOrnamentError).toContain('Dung lượng');
 			expect(state.chapterOrnamentStatus).toBe('Lỗi tệp quá lớn');
 		});
+
+		it('should cancel ornament processing when AbortSignal is triggered', async () => {
+			const dummyFile = new File(['content'], 'ornament.png', { type: 'image/png' });
+			const ac = new AbortController();
+			ac.abort();
+
+			await expect(processOrnamentImage(dummyFile, { signal: ac.signal })).rejects.toThrow();
+		});
 	});
 });

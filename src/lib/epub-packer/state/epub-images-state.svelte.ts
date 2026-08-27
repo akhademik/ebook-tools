@@ -151,8 +151,30 @@ export class EpubImagesState {
 		this.onIllustrationsChanged?.();
 	}
 
+	private chapterOrnamentAbortController: AbortController | null = null;
+	private subchapterOrnamentAbortController: AbortController | null = null;
+
+	cancelChapterOrnamentProcessing(): void {
+		if (this.chapterOrnamentAbortController) {
+			this.chapterOrnamentAbortController.abort();
+			this.chapterOrnamentAbortController = null;
+			this.chapterOrnamentIsProcessing = false;
+			this.chapterOrnamentStatus = 'Đã hủy xử lý';
+		}
+	}
+
+	cancelSubchapterOrnamentProcessing(): void {
+		if (this.subchapterOrnamentAbortController) {
+			this.subchapterOrnamentAbortController.abort();
+			this.subchapterOrnamentAbortController = null;
+			this.subchapterOrnamentIsProcessing = false;
+			this.subchapterOrnamentStatus = 'Đã hủy xử lý';
+		}
+	}
+
 	async handleChapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
+		this.cancelChapterOrnamentProcessing();
 		if (file.size > MAX_IMAGE_FILE_SIZE) {
 			this.chapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
 			this.chapterOrnamentStatus = 'Lỗi tệp quá lớn';
@@ -168,25 +190,37 @@ export class EpubImagesState {
 			this.chapterOrnamentPreviewUrl = null;
 		}
 
+		const ac = new AbortController();
+		this.chapterOrnamentAbortController = ac;
+
 		try {
 			const result = await processOrnamentImage(file, {
 				onProgress: (statusText) => {
 					this.chapterOrnamentStatus = statusText;
-				}
+				},
+				signal: ac.signal
 			});
 			this.chapterOrnamentBlob = result.blob;
 			this.chapterOrnamentPreviewUrl = result.previewUrl;
 			this.chapterOrnamentStatus = 'Đã hoàn tất tối ưu';
-		} catch (err) {
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.chapterOrnamentStatus = 'Đã hủy xử lý';
+				return;
+			}
 			Logger.error('[EpubImagesState]', 'Error processing chapter ornament', err);
 			this.chapterOrnamentError = err instanceof Error ? err.message : String(err);
 			this.chapterOrnamentStatus = 'Lỗi xử lý ảnh';
 		} finally {
 			this.chapterOrnamentIsProcessing = false;
+			if (this.chapterOrnamentAbortController === ac) {
+				this.chapterOrnamentAbortController = null;
+			}
 		}
 	}
 
 	removeChapterOrnamentFile(): void {
+		this.cancelChapterOrnamentProcessing();
 		if (this.chapterOrnamentPreviewUrl) {
 			URL.revokeObjectURL(this.chapterOrnamentPreviewUrl);
 		}
@@ -200,6 +234,7 @@ export class EpubImagesState {
 
 	async handleSubchapterOrnamentFile(file: File | null): Promise<void> {
 		if (!file) return;
+		this.cancelSubchapterOrnamentProcessing();
 		if (file.size > MAX_IMAGE_FILE_SIZE) {
 			this.subchapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
 			this.subchapterOrnamentStatus = 'Lỗi tệp quá lớn';
@@ -215,25 +250,37 @@ export class EpubImagesState {
 			this.subchapterOrnamentPreviewUrl = null;
 		}
 
+		const ac = new AbortController();
+		this.subchapterOrnamentAbortController = ac;
+
 		try {
 			const result = await processOrnamentImage(file, {
 				onProgress: (statusText) => {
 					this.subchapterOrnamentStatus = statusText;
-				}
+				},
+				signal: ac.signal
 			});
 			this.subchapterOrnamentBlob = result.blob;
 			this.subchapterOrnamentPreviewUrl = result.previewUrl;
 			this.subchapterOrnamentStatus = 'Đã hoàn tất tối ưu';
-		} catch (err) {
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.subchapterOrnamentStatus = 'Đã hủy xử lý';
+				return;
+			}
 			Logger.error('[EpubImagesState]', 'Error processing subchapter ornament', err);
 			this.subchapterOrnamentError = err instanceof Error ? err.message : String(err);
 			this.subchapterOrnamentStatus = 'Lỗi xử lý ảnh';
 		} finally {
 			this.subchapterOrnamentIsProcessing = false;
+			if (this.subchapterOrnamentAbortController === ac) {
+				this.subchapterOrnamentAbortController = null;
+			}
 		}
 	}
 
 	removeSubchapterOrnamentFile(): void {
+		this.cancelSubchapterOrnamentProcessing();
 		if (this.subchapterOrnamentPreviewUrl) {
 			URL.revokeObjectURL(this.subchapterOrnamentPreviewUrl);
 		}

@@ -39,8 +39,13 @@ function getDuplicateWorker(): Worker | null {
 export async function scanDuplicateResources(
 	zip: JSZip,
 	editBuffer?: Map<string, string>,
-	onProgress?: (current: number, total: number, filename: string) => void
+	onProgress?: (current: number, total: number, filename: string) => void,
+	signal?: AbortSignal
 ): Promise<DuplicateResourceItem[]> {
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
+	}
+
 	const filePaths = Object.keys(zip.files).filter((p) => !zip.files[p].dir);
 	const targetPaths = filePaths.filter((p) => {
 		const ext = p.substring(p.lastIndexOf('.')).toLowerCase();
@@ -65,6 +70,9 @@ export async function scanDuplicateResources(
 
 	const scanItems: ScanItemInput[] = [];
 	for (const path of targetPaths) {
+		if (signal?.aborted) {
+			throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
+		}
 		let bytes: Uint8Array;
 		if (editBuffer && editBuffer.has(path)) {
 			const text = editBuffer.get(path) || '';
@@ -79,21 +87,39 @@ export async function scanDuplicateResources(
 
 	const worker = getDuplicateWorker();
 	if (worker) {
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const requestId = `scan-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+			const cleanup = () => {
+				worker.removeEventListener('message', handleMessage);
+				if (signal) {
+					signal.removeEventListener('abort', handleAbort);
+				}
+			};
+
+			const handleAbort = () => {
+				cleanup();
+				reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
+			};
 
 			const handleMessage = (e: MessageEvent<DuplicateDetectorWorkerResponse>) => {
 				if (e.data.id !== requestId) return;
+
+				if (signal?.aborted) {
+					cleanup();
+					reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
+					return;
+				}
 
 				if (e.data.type === 'progress') {
 					if (onProgress) {
 						onProgress(e.data.current, e.data.total, e.data.filename);
 					}
 				} else if (e.data.type === 'success') {
-					worker.removeEventListener('message', handleMessage);
+					cleanup();
 					resolve(e.data.duplicates);
 				} else if (e.data.type === 'error') {
-					worker.removeEventListener('message', handleMessage);
+					cleanup();
 					Logger.warn(
 						'[duplicate-detector]',
 						'Worker encountered error, falling back to direct computation:',
@@ -102,6 +128,14 @@ export async function scanDuplicateResources(
 					resolve(computeDuplicateResources(scanItems, onProgress));
 				}
 			};
+
+			if (signal) {
+				if (signal.aborted) {
+					reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
+					return;
+				}
+				signal.addEventListener('abort', handleAbort, { once: true });
+			}
 
 			worker.addEventListener('message', handleMessage);
 

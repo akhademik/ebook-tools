@@ -199,4 +199,5 @@ export interface ParseTxtOptions {
 	customDefinitions?: CustomDefinition[];
 	images?: Record<string, { fileName?: string }>;
 	warnings?: string[];
+	signal?: AbortSignal;
 }

@@ -1306,5 +1306,14 @@ Chú thích:
 			expect(chapters[0].title).toBe('Chương 1');
 			expect(chapters[1].title).toBe('Chương 2');
 		});
+
+		it('should abort parseTxtToChaptersAsync when signal is aborted', async () => {
+			const { parseTxtToChaptersAsync } =
+				await import('../src/lib/epub-packer/parser/epub-source-parser');
+			const txt = `@@ Chương 1\nNội dung chương 1.`;
+			const ac = new AbortController();
+			ac.abort();
+			await expect(parseTxtToChaptersAsync(txt, { signal: ac.signal })).rejects.toThrow();
+		});
 	});
 });

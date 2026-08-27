@@ -216,5 +216,18 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			expect(duplicates[0].duplicatePath).toBe('img2.png');
 			expect(duplicates[0].byteSize).toBe(4);
 		});
+
+		it('should abort duplicate scan when AbortSignal is triggered', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file('OEBPS/images/img1.png', new Uint8Array([1, 2, 3]));
+			zip.file('OEBPS/images/img2.png', new Uint8Array([1, 2, 3]));
+
+			const ac = new AbortController();
+			ac.abort();
+
+			const { analyzeOptimizationPlan } = await import('../src/lib/epub-editor/epub-cleaner');
+			await expect(analyzeOptimizationPlan(zip, undefined, undefined, ac.signal)).rejects.toThrow();
+		});
 	});
 });

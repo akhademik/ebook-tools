@@ -138,8 +138,12 @@ export async function processPdfToJpg(
 	keepColor: boolean,
 	cropTopPx: number,
 	cropBottomPx: number,
-	onProgress?: (info: PdfProgressInfo) => void
+	onProgress?: (info: PdfProgressInfo) => void,
+	signal?: AbortSignal
 ): Promise<ProcessPdfResult> {
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError');
+	}
 	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
@@ -188,6 +192,10 @@ export async function processPdfToJpg(
 			: { alpha: false, willReadFrequently: true };
 
 		for (let p = workerIndex + 1; p <= numPages; p += concurrency) {
+			if (signal?.aborted) {
+				doc.destroy();
+				throw new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError');
+			}
 			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} processing page ${p}`);
 			const page = await doc.getPage(p);
 			const viewport = page.getViewport({ scale: PDF_SCALE });

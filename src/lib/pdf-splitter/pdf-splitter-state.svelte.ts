@@ -102,8 +102,23 @@ export class PdfSplitterState {
 		this.cropBottomPx = 0;
 	}
 
+	private pdfAbortController: AbortController | null = null;
+
+	cancelProcessTask(): void {
+		if (this.pdfAbortController) {
+			this.pdfAbortController.abort();
+			this.pdfAbortController = null;
+			this.status = 'Đã hủy quá trình xử lý PDF.';
+			this.processing = false;
+		}
+	}
+
 	async processPdf(): Promise<void> {
 		if (!this.pdfSelectedFile) return;
+		this.cancelProcessTask();
+		const ac = new AbortController();
+		this.pdfAbortController = ac;
+
 		this.processing = true;
 		this.pdfZipBlob = null;
 		this.status = 'Đang bắt đầu xử lý tệp PDF...';
@@ -116,20 +131,27 @@ export class PdfSplitterState {
 				this.keepColor,
 				this.cropTopPx,
 				this.cropBottomPx,
-				(p) => {
-					this.progressPercent = p.progressPercent;
-					this.progressLabel = p.progressLabel;
-				}
+				(info) => {
+					this.progressPercent = info.progressPercent;
+					this.status = info.progressLabel;
+				},
+				ac.signal
 			);
 			this.pdfZipBlob = res.zipBlob;
-			this.status = `Hoàn tất — ${res.numPages} trang đã sẵn sàng.`;
 		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.status = 'Đã hủy xử lý PDF.';
+				return;
+			}
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[PdfSplitterState]', 'Failed to process PDF', err);
-			this.status = 'Có lỗi khi xử lý: ' + errorMsg;
+			this.status = 'Lỗi xử lý PDF: ' + errorMsg;
 			this.isError = true;
 		} finally {
 			this.processing = false;
+			if (this.pdfAbortController === ac) {
+				this.pdfAbortController = null;
+			}
 		}
 	}
 

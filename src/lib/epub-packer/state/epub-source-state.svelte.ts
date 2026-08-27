@@ -54,6 +54,15 @@ export class EpubSourceState {
 	parseIsError = $state<boolean>(false);
 
 	deps: EpubSourceStateDependencies;
+	private parseAbortController: AbortController | null = null;
+
+	cancelParseTask(): void {
+		if (this.parseAbortController) {
+			this.parseAbortController.abort();
+			this.parseAbortController = null;
+			this.parseStatus = 'Đang hủy đọc file...';
+		}
+	}
 
 	constructor(deps: EpubSourceStateDependencies) {
 		this.deps = deps;
@@ -125,6 +134,10 @@ export class EpubSourceState {
 		);
 		if (!this.rawTxtText) return;
 
+		this.cancelParseTask();
+		const ac = new AbortController();
+		this.parseAbortController = ac;
+
 		const fallbackTitle = this.deps.getTitle().trim() || 'Chương 1';
 		const illustrations = this.deps.getIllustrationFiles ? this.deps.getIllustrationFiles() : [];
 		const imagesMap: Record<string, { fileName?: string }> = {};
@@ -134,48 +147,61 @@ export class EpubSourceState {
 		}
 
 		const warnings: string[] = [];
-		const chapters = await parseTxtToChaptersAsync(
-			this.rawTxtText,
-			{
-				customDefinitions: this.customDefinitions,
-				images: imagesMap,
-				warnings
-			},
-			fallbackTitle
-		);
-		this.epubChapters = assignSequentialChapterIds(chapters);
+		try {
+			const chapters = await parseTxtToChaptersAsync(
+				this.rawTxtText,
+				{
+					customDefinitions: this.customDefinitions,
+					images: imagesMap,
+					warnings,
+					signal: ac.signal
+				},
+				fallbackTitle
+			);
+			this.epubChapters = assignSequentialChapterIds(chapters);
 
-		// Resolve footnote backlinks
-		const footnoteMap: Record<string, string> = {};
-		for (const chap of this.epubChapters) {
-			if (chap.fileName !== 'notes' && chap.html) {
-				const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
-				for (const match of matches) {
-					footnoteMap[match[1]] = chap.fileName;
+			// Resolve footnote backlinks
+			const footnoteMap: Record<string, string> = {};
+			for (const chap of this.epubChapters) {
+				if (chap.fileName !== 'notes' && chap.html) {
+					const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
+					for (const match of matches) {
+						footnoteMap[match[1]] = chap.fileName;
+					}
 				}
 			}
-		}
 
-		// Replace placeholders in notes chapter
-		const notesChap = this.epubChapters.find((c) => c.fileName === 'notes');
-		if (notesChap && notesChap.html) {
-			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
-				return footnoteMap[n] || 'chap_01';
-			});
-		}
+			// Replace placeholders in notes chapter
+			const notesChap = this.epubChapters.find((c) => c.fileName === 'notes');
+			if (notesChap && notesChap.html) {
+				notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
+					return footnoteMap[n] || 'chap_01';
+				});
+			}
 
-		this.cleanedLinesReport = [];
-		if (warnings.length > 0) {
-			this.parseStatus = `${warnings.join(' | ')} (Tìm thấy ${this.epubChapters.length} chương)`;
-		} else {
-			this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
+			this.cleanedLinesReport = [];
+			if (warnings.length > 0) {
+				this.parseStatus = `${warnings.join(' | ')} (Tìm thấy ${this.epubChapters.length} chương)`;
+			} else {
+				this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
+			}
+			this.parseIsError = false;
+			Logger.info(
+				'[EpubSourceState]',
+				'applyTxtGrouping completed, chapters count:',
+				this.epubChapters.length
+			);
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') {
+				this.parseStatus = 'Đã hủy xử lý file TXT.';
+				return;
+			}
+			throw err;
+		} finally {
+			if (this.parseAbortController === ac) {
+				this.parseAbortController = null;
+			}
 		}
-		this.parseIsError = false;
-		Logger.info(
-			'[EpubSourceState]',
-			'applyTxtGrouping completed, chapters count:',
-			this.epubChapters.length
-		);
 	}
 
 	async handleFile(file: File | null): Promise<void> {

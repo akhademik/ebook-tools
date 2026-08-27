@@ -8,6 +8,7 @@ export interface OrnamentProcessOptions {
 	padding?: number;
 	alphaThreshold?: number;
 	onProgress?: (statusText: string, percent: number) => void;
+	signal?: AbortSignal;
 }
 
 export interface OrnamentProcessResult {
@@ -456,7 +457,18 @@ export async function processOrnamentImage(
 	imageSource: Blob | File,
 	options: OrnamentProcessOptions = {}
 ): Promise<OrnamentProcessResult> {
-	const { maxWidth = 800, maxHeight = 400, padding = 4, alphaThreshold = 10, onProgress } = options;
+	const {
+		maxWidth = 800,
+		maxHeight = 400,
+		padding = 4,
+		alphaThreshold = 10,
+		onProgress,
+		signal
+	} = options;
+
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError');
+	}
 
 	const worker = getOrCreateWorker();
 
@@ -464,10 +476,39 @@ export async function processOrnamentImage(
 		return new Promise<OrnamentProcessResult>((resolve, reject) => {
 			const jobId = `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
+			const cleanup = () => {
+				pendingJobs.delete(jobId);
+				if (signal) {
+					signal.removeEventListener('abort', handleAbort);
+				}
+			};
+
+			const handleAbort = () => {
+				cleanup();
+				reject(new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError'));
+			};
+
+			if (signal) {
+				if (signal.aborted) {
+					reject(new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError'));
+					return;
+				}
+				signal.addEventListener('abort', handleAbort, { once: true });
+			}
+
 			pendingJobs.set(jobId, {
-				onProgress,
-				resolve,
-				reject
+				onProgress: (status, pct) => {
+					if (signal?.aborted) return;
+					onProgress?.(status, pct);
+				},
+				resolve: (res) => {
+					cleanup();
+					resolve(res);
+				},
+				reject: (err) => {
+					cleanup();
+					reject(err);
+				}
 			});
 
 			const req: WorkerRequest = {
