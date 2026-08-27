@@ -176,6 +176,12 @@ export function htmlToCleanText(htmlContent: string): string {
 		'\n'
 	);
 
+	// Strip inline styling tags cleanly without adding artificial spaces
+	content = content.replace(
+		/<\/?(?:span|b|i|u|em|strong|small|big|sub|sup|abbr|cite|mark|font|a)[^>]*>/gi,
+		''
+	);
+
 	// Strip remaining HTML/XML tags
 	content = content.replace(/<[^>]+>/g, ' ');
 

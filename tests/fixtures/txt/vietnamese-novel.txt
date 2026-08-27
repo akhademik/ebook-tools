@@ -1,0 +1,52 @@
+[new]
+LỜI NÓI ĐẦU
+Quyển sách này được biên soạn nhằm mục đích kiểm thử hệ thống chuyển đổi và xử lý sách điện tử Ebook Tools.
+Tất cả các định dạng đặc thù của tiếng Việt và ký tự đặc biệt đều được đưa vào để đảm bảo tính toàn vẹn dữ liệu.
+[/new]
+
+[new:center]
+@ TẬP MỘT: KHỞI NGUYÊN
+"Vạn sự khởi đầu nan, gian nan không nản chí."
+— Tục ngữ Việt Nam
+[/new]
+
+@@t Chương 1: Bước Chân Đầu Tiên Vào Rừng Thẳm
+[c] Buổi sớm mùa hạ, sương mai còn đọng trên những tán lá thông xanh ngắt. Nguyễn Văn A cùng đoàn thám hiểm bắt đầu cuộc hành trình khám phá dãy Hoàng Liên Sơn.
+
+@t Tiết 1: Chuẩn Bị Hành Trang
+Đoàn thám hiểm gồm năm người với đầy đủ trang thiết bị: *la bàn*, /bản đồ địa hình/, và _dây leo núi chuyên dụng_.
+Mọi người đều háo hức trước những thử thách phía trước.
+
+[letter]
+Thưa giáo sư,
+Chúng tôi đã đến trạm dừng chân số 1 an toàn. Mọi tín hiệu liên lạc đều ổn định.
+Kính thư,
+Đội trưởng A
+[/letter]
+
+@!t Ghi Chú Kỹ Thuật Nội Bộ
+Phần này chứa thông số tọa độ GPS bí mật và không được xuất hiện trong mục lục chính của sách.
+
+###
+
+Đoạn văn tiếp theo sau dấu phân cảnh hoa thị lớn.
+~ "Nếu không có dũng khí bước đi, bạn sẽ không bao giờ biết được vẻ đẹp ở bên kia ngọn núi."
+> Nhà thám hiểm ẩn danh
+
+[hinh-1]
+
+{1} Tọa độ trạm dừng chân được xác lập theo hệ quy chiếu VN-2000.
+
+@@p Chương 2: Đêm Trăng Bên Dòng Suối Lạnh
+Nội dung chương 2 với tiêu đề căn lề phải.
+Ánh trăng vằng vặc soi bóng cây rừng xuống dòng suối trong vắt.
+
+[poem]
+Rừng khuya thanh vắng bóng trăng soi
+Tiếng suối róc rách lượn lưng đồi
+Gió thoảng hương ngàn bay xa mãi
+Lữ khách dừng chân ngắm đất trời.
+[/poem]
+
+Chú thích:
+{1} Trích nhật ký thám hiểm Hoàng Liên Sơn, 2026.
