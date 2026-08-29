@@ -1297,6 +1297,36 @@ Chú thích:
 			);
 		});
 
+		it('should support quotes (~) and authors (>) inside [letter] and [poem] while ignoring headings (@@, @)', () => {
+			const txt = `@@ Chương Thử Nghiệm
+[letter]
+@@ Tiêu đề bị ignore
+@ Tiêu đề con bị ignore
+~ Lời nhắn trong thư
+> Người gửi A
+Dòng văn bản bình thường trong thư.
+[/letter]
+[poem]
+~t Câu thơ trích dẫn căn trái
+> Tác giả thơ
+Đoạn thơ tiếp theo.
+[/poem]`;
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<div class="letter">');
+			expect(chapters[0].html).toContain('<p>@@ Tiêu đề bị ignore</p>');
+			expect(chapters[0].html).toContain('<p>@ Tiêu đề con bị ignore</p>');
+			expect(chapters[0].html).toContain(
+				'  <blockquote class="center"><p>Lời nhắn trong thư</p><footer>Người gửi A</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain('<p>Dòng văn bản bình thường trong thư.</p>');
+			expect(chapters[0].html).toContain('<div class="poem">');
+			expect(chapters[0].html).toContain(
+				'  <blockquote class="left"><p>Câu thơ trích dẫn căn trái</p><footer>Tác giả thơ</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain('<p>Đoạn thơ tiếp theo.</p>');
+		});
+
 		it('should parse TXT asynchronously with parseTxtToChaptersAsync', async () => {
 			const { parseTxtToChaptersAsync } =
 				await import('../src/lib/epub-packer/parser/epub-source-parser');

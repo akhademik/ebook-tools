@@ -223,15 +223,6 @@
 			<div class="mt-5 animate-fade-in">
 				<div class="flex items-center justify-between gap-2 mb-2">
 					<p class="font-mono text-xs text-text-mute">{state.progressLabel}</p>
-					{#if state.processing}
-						<button
-							type="button"
-							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 p-0"
-							onclick={() => state.cancelProcessTask()}
-						>
-							Dừng lại
-						</button>
-					{/if}
 				</div>
 				<div class="h-2 bg-panel-2 rounded-full overflow-hidden">
 					<div

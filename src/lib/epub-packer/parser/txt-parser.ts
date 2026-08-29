@@ -378,6 +378,49 @@ export function parseTxtToChapters(
 				}
 			}
 
+			const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
+			if (quoteMatch) {
+				ensureChapterOpen();
+				const alignChar = quoteMatch[1];
+				const quoteRaw = quoteMatch[2].trim();
+				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
+				const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
+
+				let nextLineIdx = lineIdx + 1;
+				let nextStripped = '';
+				while (nextLineIdx < preprocessedLines.length) {
+					if (preprocessedLines[nextLineIdx].trim() !== '') {
+						nextStripped = preprocessedLines[nextLineIdx].trim();
+						break;
+					}
+					nextLineIdx++;
+				}
+
+				const authorMatch = nextStripped.match(/^>\s*(.+)$/);
+				if (authorMatch) {
+					const authorRaw = authorMatch[1].trim();
+					const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+					currentChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
+					lineIdx = nextLineIdx + 1;
+				} else {
+					currentChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
+					lineIdx++;
+				}
+				continue;
+			}
+
+			const standaloneAuthorMatch = stripped.match(/^>\s*(.+)$/);
+			if (standaloneAuthorMatch) {
+				ensureChapterOpen();
+				const authorFormatted = applyInlineFormatting(
+					standaloneAuthorMatch[1].trim(),
+					customDefinitions
+				);
+				currentChapter.html += `  <blockquote class="center"><footer>${authorFormatted}</footer></blockquote>\n`;
+				lineIdx++;
+				continue;
+			}
+
 			ensureChapterOpen();
 			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
 			currentChapter.html += `  <p>${formatted}</p>\n`;
