@@ -1087,6 +1087,19 @@ Dòng trên chỉ có [chữ] đơn độc nên không phải dropcap.`;
 			);
 		});
 
+		it('should parse !D prefix to prevent dropcap in subsequent processing', () => {
+			const txt = `@@ Chương 1
+!D This is normal text without dropcap.
+This is another paragraph.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain(
+				'<p class="no-dropcap">This is normal text without dropcap.</p>'
+			);
+			expect(chapters[0].html).toContain('<p>This is another paragraph.</p>');
+		});
+
 		it('should correctly ignore page55.md continuation and merge into page54.md', () => {
 			const p54 = `Alexander Đại đế là đúc tiền ở khắp mọi nơi ông đi qua, những đồng xu tetradrachm này có thể được xem là đồng tiền toàn cầu đầu tiên trên thế giới. Chẳng hạn, hầu như chắc chắn là Judas đã được trả bằng tiền xu tetradrachm để phản bội Chúa Jesus: ba mươi đồng xu – khoảng mười sáu ounce – tức là tương đương khoảng 120 ngày công.
 

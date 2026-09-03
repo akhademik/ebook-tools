@@ -1,4 +1,4 @@
-# Graph Report - .  (2026-08-29)
+# Graph Report - .  (2026-09-03)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
@@ -9,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `088ec37e`
+- Built from commit: `3f6a3cc7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -43,7 +43,7 @@
 - prettier-plugin-svelte
 - svelte-check
 - @sveltejs/adapter-cloudflare
-- @sveltejs/kit
+- @eslint/js
 - @sveltejs/vite-plugin-svelte
 - @tailwindcss/vite
 - @types/node
@@ -146,7 +146,7 @@ Nodes (11): applyInlineFormatting(), escapeRegExp(), getClosingTag(), getTxtPars
 
 ### Community 16 - "devDependencies"
 Cohesion: 0.15
-Nodes (13): eslint, @eslint/js, globals, devDependencies, eslint, @eslint/js, globals, prettier (+5 more)
+Nodes (13): eslint, globals, devDependencies, eslint, globals, prettier, svelte, @sveltejs/kit (+5 more)
 
 ### Community 17 - "entry"
 Cohesion: 0.22

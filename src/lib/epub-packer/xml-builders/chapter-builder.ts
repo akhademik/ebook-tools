@@ -136,10 +136,13 @@ export function buildChapterXhtml(
 			});
 		}
 
-		// Automatically add dropcap to the first paragraph immediately following h1 or h2
+		// Automatically add dropcap to the first paragraph immediately following h1 or h2 (unless it has no-dropcap class)
 		content = content.replace(
 			/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
 			(match, p1, p2, p3, p4) => {
+				if (/\bno-dropcap\b/i.test(p2)) {
+					return match;
+				}
 				let updatedP2: string;
 				if (p2.includes('class=')) {
 					updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
@@ -172,12 +175,25 @@ export function buildChapterXhtml(
 		);
 	}
 
-	// Clean up internal marker classes (e.g. no-toc) from heading tags in final XHTML
+	// Clean up internal marker classes (e.g. no-toc from headings, no-dropcap from p) from final XHTML
 	content = content.replace(/(<h[12]\b[^>]*>)/gi, (match) => {
 		return match
 			.replace(/class=["']([^"']*)["']/gi, (_cMatch, classNames) => {
 				const cleaned = classNames
 					.replace(/\bno-toc\b/g, '')
+					.trim()
+					.replace(/\s+/g, ' ');
+				return cleaned ? `class="${cleaned}"` : '';
+			})
+			.replace(/\s{2,}/g, ' ')
+			.replace(/\s+>/g, '>');
+	});
+
+	content = content.replace(/(<p\b[^>]*>)/gi, (match) => {
+		return match
+			.replace(/class=["']([^"']*)["']/gi, (_cMatch, classNames) => {
+				const cleaned = classNames
+					.replace(/\bno-dropcap\b/g, '')
 					.trim()
 					.replace(/\s+/g, ' ');
 				return cleaned ? `class="${cleaned}"` : '';

@@ -508,17 +508,6 @@
       "id": "test_workflow_summary"
     },
     {
-      "label": "logger.ts",
-      "file_type": "code",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 1,
-      "norm_label": "logger.ts",
-      "id": "src_lib_utils_logger",
-      "community_name": "Logger"
-    },
-    {
       "label": "vietnamese-book.md",
       "_origin": "ast",
       "community": 21,
@@ -1417,10 +1406,10 @@
       "source_file": "package.json",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 16,
+      "community": 29,
       "norm_label": "@eslint/js",
       "id": "package_devdependencies_eslint_js",
-      "community_name": "devDependencies"
+      "community_name": "@eslint/js"
     },
     {
       "label": "@eslint/js",
@@ -1428,10 +1417,10 @@
       "source_file": "package.json",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 16,
+      "community": 29,
       "norm_label": "@eslint/js",
       "id": "eslint_js",
-      "community_name": "devDependencies"
+      "community_name": "@eslint/js"
     },
     {
       "label": "@playwright/test",
@@ -1483,10 +1472,10 @@
       "source_file": "package.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 29,
+      "community": 16,
       "norm_label": "@sveltejs/kit",
       "id": "package_devdependencies_sveltejs_kit",
-      "community_name": "@sveltejs/kit"
+      "community_name": "devDependencies"
     },
     {
       "label": "@sveltejs/kit",
@@ -1494,10 +1483,10 @@
       "source_file": "package.json",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 29,
+      "community": 16,
       "norm_label": "@sveltejs/kit",
       "id": "sveltejs_kit",
-      "community_name": "@sveltejs/kit"
+      "community_name": "devDependencies"
     },
     {
       "label": "@sveltejs/vite-plugin-svelte",
@@ -7314,6 +7303,17 @@
       "community_name": "Logger"
     },
     {
+      "label": "logger.ts",
+      "file_type": "code",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "logger.ts",
+      "id": "src_lib_utils_logger",
+      "community_name": "Logger"
+    },
+    {
       "label": "LogLevel",
       "file_type": "code",
       "source_file": "src/lib/utils/logger.ts",
@@ -8980,155 +8980,6 @@
       "weight": 1.0,
       "source": "test_workflow_ebook_tools_full_regression_testing_instruction",
       "target": "test_workflow_9_epub_txt_user_flow"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/download.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_download",
-      "target": "src_lib_utils_logger"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/image-bg-remove-ml.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_image_bg_remove_ml",
-      "target": "src_lib_utils_logger"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/index.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_index",
-      "target": "src_lib_utils_logger"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L5",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_detectdefaultdebug"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_formatandlog"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L81",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_isdebug"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L33",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_isdebugenabled"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L60",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_logger"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L3",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_loglevel"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L77",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_logger",
-      "target": "src_lib_utils_logger_setdebug"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/pdf.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_pdf",
-      "target": "src_lib_utils_logger"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/lib/utils/text.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "src_lib_utils_text",
-      "target": "src_lib_utils_logger"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/logger.test.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "_origin": "ast",
-      "confidence_score": 1.0,
-      "source": "tests_logger_test",
-      "target": "src_lib_utils_logger"
     },
     {
       "relation": "contains",
@@ -22551,7 +22402,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.ts",
-      "source_location": "L200",
+      "source_location": "L216",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_epub_packer_xml_builders_chapter_builder_buildchapterxhtml",
@@ -26205,6 +26056,18 @@
       "target": "src_lib_utils_download_triggerdownload"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/download.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_download",
+      "target": "src_lib_utils_logger"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -26451,6 +26314,18 @@
       "confidence_score": 1.0,
       "source": "src_lib_utils_image_bg_remove_ml",
       "target": "src_lib_utils_image_bg_remove_worker_workerresponse"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/image-bg-remove-ml.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_image_bg_remove_ml",
+      "target": "src_lib_utils_logger"
     },
     {
       "relation": "imports",
@@ -26894,6 +26769,18 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/utils/index.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_index",
+      "target": "src_lib_utils_logger"
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/index.ts",
       "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
@@ -26945,6 +26832,119 @@
       "confidence_score": 1.0,
       "source": "src_routes_epub_packer_page",
       "target": "src_lib_utils_index"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_detectdefaultdebug"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_formatandlog"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_isdebug"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_isdebugenabled"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_logger"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_loglevel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_logger",
+      "target": "src_lib_utils_logger_setdebug"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/pdf.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_pdf",
+      "target": "src_lib_utils_logger"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/utils/text.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "src_lib_utils_text",
+      "target": "src_lib_utils_logger"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/logger.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "confidence_score": 1.0,
+      "source": "tests_logger_test",
+      "target": "src_lib_utils_logger"
     },
     {
       "relation": "references",
@@ -27808,5 +27808,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "088ec37efbeab6956c904d8209997d4737819ff5"
+  "built_at_commit": "3f6a3cc72f840a57e07488934a8dbbc415c93515"
 }

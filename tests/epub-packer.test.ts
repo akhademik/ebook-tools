@@ -110,6 +110,23 @@ describe('epub-packer tests', () => {
 			);
 		});
 
+		it('should not add dropcap when paragraph has no-dropcap class and strip the class in output', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap center">Chương 1</h1>\n<p class="no-dropcap">This should remain plain paragraph.</p>'
+				}
+			);
+			expect(html).toContain(
+				'<h1 class="main-chap center">Chương 1</h1>\n<p>This should remain plain paragraph.</p>'
+			);
+			expect(html).not.toContain('class="dropcap"');
+			expect(html).not.toContain('has-dropcap');
+			expect(html).not.toContain('no-dropcap');
+		});
+
 		it('should include starting quotes/entities/inline tags correctly in the dropcap', () => {
 			const htmlQuotes = buildChapterXhtml(
 				{ language: 'vi' },

@@ -292,12 +292,31 @@
 								</td>
 								<td class="py-3 px-3">
 									<code
-										>&lt;p&gt;&lt;span class="dropcap"&gt;c&lt;/span&gt;nội dung...&lt;/p&gt;</code
+										>&lt;p class="has-dropcap"&gt;&lt;span class="dropcap"&gt;c&lt;/span&gt;nội
+										dung...&lt;/p&gt;</code
 									><br />
 									<span class="text-[11px] text-text-mute"
 										>Dropcap (chữ phóng to đầu đoạn). Chỉ nhận diện khi đứng đầu dòng, bên trong [ ]
 										là đúng 1 ký tự và có ít nhất 1 khoảng trắng theo sau dấu ]. Khoảng trắng này sẽ
 										tự động được loại bỏ khi xuất bản.</span
+									>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap">
+									<code
+										class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+										>!D Nội dung...</code
+									>
+								</td>
+								<td class="py-3 px-3">
+									<code>&lt;p&gt;Nội dung...&lt;/p&gt;</code><br />
+									<span class="text-[11px] text-text-mute"
+										>Tắt tự động Dropcap (chữ phóng to đầu đoạn) cho đoạn văn ngay sau tiêu đề (<code
+											>@@</code
+										>
+										hoặc <code>@</code>). Cú pháp <code>!D </code> bắt buộc phải đứng ở đầu đoạn và theo
+										sau là ít nhất một khoảng trắng.</span
 									>
 								</td>
 							</tr>
