@@ -47,7 +47,7 @@ Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `
   - `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 trang XHTML độc lập.
   - `[letter] ... [/letter]`, `[poem] ... [/poem]`: Khối định dạng thư từ, bài thơ có căn lề và thụt đầu dòng riêng biệt.
   - `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote và tên tác giả.
-  - Dropcap chữ cái đầu chương `[c]`, tắt tự động dropcap đầu đoạn sau tiêu đề bằng `!D Nội dung`, ảnh minh họa theo thẻ `[hinh-1]`, ngắt phân cảnh lớn `###` / nhỏ `##`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_`.
+  - Dropcap chữ cái đầu chương `[c]`, tắt tự động dropcap đầu đoạn sau tiêu đề bằng `!D Nội dung`, ảnh minh họa theo thẻ `[hinh-1]`, ngắt phân cảnh lớn `###` (• • •), ngắt phân cảnh nhỏ `##` (*), ngắt phân cảnh trống `#`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_`.
   - Chú thích chân trang tự động: `{n}` trong nội dung liên kết tự động tới khối `Chú thích:` / `{n} Nội dung chú thích` ở cuối sách dạng pop-up footnote EPUB 3 (`<aside epub:type="footnote">`).
 - **Xử lý bìa & Tùy biến Jacket (Trang lót sách)**:
   - Hỗ trợ tải ảnh bìa trực tiếp hoặc trích xuất từ trang đầu tiên của file PDF bìa.

@@ -109,6 +109,10 @@ export function buildChapterXhtml(
 		/<p>\s*##\s*<\/p>/g,
 		'<p class="scene-break-small" role="separator">*</p>'
 	);
+	content = content.replace(
+		/<p>\s*#\s*<\/p>/g,
+		'<p class="scene-break-small" role="separator"></p>'
+	);
 
 	const isSpecialPage = chapter.fileName === 'jacket' || chapter.fileName === 'cover';
 	if (!isSpecialPage) {

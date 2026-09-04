@@ -226,6 +226,8 @@ export function renderMarkdownBlocks(
 				html += '<p class="scene-break-big" role="separator">• • •</p>\n';
 			} else if (pText.trim() === '##') {
 				html += '<p class="scene-break-small" role="separator">*</p>\n';
+			} else if (pText.trim() === '#') {
+				html += '<p class="scene-break-small" role="separator"></p>\n';
 			} else {
 				const cleanText = pText.replace(/\n+/g, ' ').trim();
 				const dropcapMatch = cleanText.match(/^\[([^\]\n])\]\s+(.+)$/);

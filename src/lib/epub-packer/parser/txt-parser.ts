@@ -596,6 +596,13 @@ export function parseTxtToChapters(
 			continue;
 		}
 
+		if (stripped === '#') {
+			ensureChapterOpen();
+			currentChapter.html += `<p class="scene-break-small" role="separator"></p>\n`;
+			lineIdx++;
+			continue;
+		}
+
 		const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
 		if (illustMatch) {
 			const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);

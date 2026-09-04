@@ -780,6 +780,20 @@ Nội dung phần 2.`;
 			expect(chapters[0].html).toContain('<p class="scene-break-small" role="separator">*</p>');
 		});
 
+		it('should render page break scene-break-small class without star when encountering # delimiter', () => {
+			const txt = `@@ Chương 1
+Nội dung phần 1.
+
+#
+
+Nội dung phần 2.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain('<p class="scene-break-small" role="separator"></p>');
+		});
+
 		it('should create a fallback chapter if text starts immediately without delimiter', () => {
 			const txt = `Lời mở đầu không có tiêu đề.
 Tiếp tục lời mở đầu.`;

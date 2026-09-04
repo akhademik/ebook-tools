@@ -181,7 +181,22 @@
 								<td class="py-3 px-3">
 									<code>&lt;p class="scene-break-small" role="separator"&gt;*&lt;/p&gt;</code><br />
 									<span class="text-[11px] text-text-mute"
-										>Dấu ngắt cảnh nhỏ (phải đứng riêng một dòng).</span
+										>Dấu ngắt cảnh nhỏ có dấu sao (phải đứng riêng một dòng).</span
+									>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap"
+									><code
+										class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+										>#</code
+									></td
+								>
+								<td class="py-3 px-3">
+									<code>&lt;p class="scene-break-small" role="separator"&gt;&lt;/p&gt;</code><br />
+									<span class="text-[11px] text-text-mute"
+										>Dấu ngắt cảnh nhỏ không có hoa thị / khoảng cách trống (phải đứng riêng một
+										dòng).</span
 									>
 								</td>
 							</tr>
