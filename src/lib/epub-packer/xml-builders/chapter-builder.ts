@@ -129,6 +129,11 @@ export function buildChapterXhtml(
 		if (ornaments?.subchapterOrnament?.fileName) {
 			const imgPath = `../images/${ornaments.subchapterOrnament.fileName}`;
 			content = content.replace(/(<h2\b[^>]*>[\s\S]*?<\/h2>)/gi, (match) => {
+				const classMatch = match.match(/class=["']([^"']*)["']/i);
+				const classes = classMatch ? classMatch[1].split(/\s+/) : [];
+				if (classes.includes('no-toc')) {
+					return match;
+				}
 				return (
 					`<div class="subchapter-ornament">\n    <img src="${imgPath}" alt=""/>\n  </div>\n  ` +
 					match
