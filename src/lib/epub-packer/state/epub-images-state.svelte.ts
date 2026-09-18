@@ -63,11 +63,14 @@ export class EpubImagesState {
 
 	async handleIllustrationFiles(filesInput: FileList | File[] | File | null): Promise<void> {
 		if (!filesInput) return;
-		const isFileList = typeof FileList !== 'undefined' && filesInput instanceof FileList;
-		const filesList: File[] =
-			isFileList || Array.isArray(filesInput)
-				? Array.from(filesInput as Iterable<File>)
-				: [filesInput];
+		let filesList: File[];
+		if (Array.isArray(filesInput)) {
+			filesList = filesInput;
+		} else if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(filesInput)) {
+			filesList = Array.from(filesInput as Iterable<File>);
+		} else {
+			filesList = [filesInput as File];
+		}
 
 		this.illustrationIsProcessing = true;
 		this.illustrationError = null;
