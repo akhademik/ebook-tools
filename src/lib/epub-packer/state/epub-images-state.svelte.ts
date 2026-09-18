@@ -1,7 +1,7 @@
 import JSZip from 'jszip';
 import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
 import { MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE } from '$lib/constants';
-import { Logger, processOrnamentImage } from '$lib/utils';
+import { Logger, processOrnamentImage, renderPdfPageToBlob } from '$lib/utils';
 
 export class EpubImagesState {
 	// Cover Image States
@@ -36,6 +36,9 @@ export class EpubImagesState {
 
 	// Illustration Images States
 	illustrationFiles = $state<IllustrationImageItem[]>([]);
+	illustrationStatus = $state<string>('');
+	illustrationIsProcessing = $state<boolean>(false);
+	illustrationError = $state<string | null>(null);
 
 	// Callback for when illustrations change (e.g. to re-trigger TXT grouping)
 	onIllustrationsChanged?: () => void;
@@ -60,82 +63,167 @@ export class EpubImagesState {
 
 	async handleIllustrationFiles(filesInput: FileList | File[] | File | null): Promise<void> {
 		if (!filesInput) return;
+		const isFileList = typeof FileList !== 'undefined' && filesInput instanceof FileList;
 		const filesList: File[] =
-			filesInput instanceof FileList || Array.isArray(filesInput)
-				? Array.from(filesInput)
+			isFileList || Array.isArray(filesInput)
+				? Array.from(filesInput as Iterable<File>)
 				: [filesInput];
 
-		for (const file of filesList) {
-			if (/\.zip$/i.test(file.name)) {
-				if (file.size > MAX_IMAGES_ZIP_FILE_SIZE) {
-					Logger.warn(
-						'[EpubImagesState]',
-						`Images zip exceeds limit: ${file.name} (${file.size} bytes)`
-					);
-					continue;
-				}
-				try {
-					const zip = await JSZip.loadAsync(file);
-					for (const name of Object.keys(zip.files)) {
-						if (!zip.files[name].dir && /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
-							const blob = await zip.files[name].async('blob');
-							if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
-							const fileName = name.split('/').pop() || name;
-							const baseName = fileName.replace(/\.[^.]+$/, '');
-							const mimeType = this.getImageMimeType(fileName);
+		this.illustrationIsProcessing = true;
+		this.illustrationError = null;
+		this.illustrationStatus = 'Đang nạp ảnh minh họa...';
 
-							const existingIdx = this.illustrationFiles.findIndex(
-								(f) =>
-									f.fileName.toLowerCase() === fileName.toLowerCase() ||
-									(f.name && f.name.toLowerCase() === baseName.toLowerCase())
-							);
-							const item: IllustrationImageItem = {
-								name: baseName,
-								fileName,
-								mimeType,
-								blob,
-								size: blob.size
-							};
-							if (existingIdx !== -1) {
-								this.illustrationFiles[existingIdx] = item;
-							} else {
-								this.illustrationFiles.push(item);
+		try {
+			for (const file of filesList) {
+				if (/\.zip$/i.test(file.name)) {
+					if (file.size > MAX_IMAGES_ZIP_FILE_SIZE) {
+						Logger.warn(
+							'[EpubImagesState]',
+							`Images zip exceeds limit: ${file.name} (${file.size} bytes)`
+						);
+						continue;
+					}
+					try {
+						const zipData =
+							typeof file.arrayBuffer === 'function' ? await file.arrayBuffer() : file;
+						const zip = await JSZip.loadAsync(zipData);
+						for (const name of Object.keys(zip.files)) {
+							if (zip.files[name].dir) continue;
+
+							if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
+								const blob = await zip.files[name].async('blob');
+								if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
+								const rawFileName = name.split('/').pop() || name;
+								const baseName = rawFileName.replace(/\.[^.]+$/, '');
+								const mimeType = this.getImageMimeType(rawFileName);
+
+								const existingIdx = this.illustrationFiles.findIndex(
+									(f) =>
+										f.fileName.toLowerCase() === rawFileName.toLowerCase() ||
+										(f.name && f.name.toLowerCase() === baseName.toLowerCase())
+								);
+								const item: IllustrationImageItem = {
+									name: baseName,
+									fileName: rawFileName,
+									mimeType,
+									blob,
+									size: blob.size
+								};
+								if (existingIdx !== -1) {
+									this.illustrationFiles[existingIdx] = item;
+								} else {
+									this.illustrationFiles.push(item);
+								}
+							} else if (/\.pdf$/i.test(name)) {
+								try {
+									this.illustrationStatus = `Đang xử lý PDF: ${name}...`;
+									const ab = await zip.files[name].async('arraybuffer');
+									const blob = await renderPdfPageToBlob(ab, 1, 2.0, 0.9);
+									if (!blob) continue;
+									const rawFileName = name.split('/').pop() || name;
+									const baseName = rawFileName.replace(/\.pdf$/i, '');
+									const outputFileName = `${baseName}.jpg`;
+
+									const existingIdx = this.illustrationFiles.findIndex(
+										(f) =>
+											f.fileName.toLowerCase() === outputFileName.toLowerCase() ||
+											(f.name && f.name.toLowerCase() === baseName.toLowerCase())
+									);
+									const item: IllustrationImageItem = {
+										name: baseName,
+										fileName: outputFileName,
+										mimeType: 'image/jpeg',
+										blob,
+										size: blob.size
+									};
+									if (existingIdx !== -1) {
+										this.illustrationFiles[existingIdx] = item;
+									} else {
+										this.illustrationFiles.push(item);
+									}
+								} catch (pdfErr) {
+									Logger.error(
+										'[EpubImagesState]',
+										`Error extracting PDF ${name} inside zip:`,
+										pdfErr
+									);
+								}
 							}
 						}
+					} catch (err) {
+						Logger.error('[EpubImagesState]', 'Error extracting images zip', err);
 					}
-				} catch (err) {
-					Logger.error('[EpubImagesState]', 'Error extracting images zip', err);
-				}
-			} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
-				if (file.size > MAX_IMAGE_FILE_SIZE) {
-					Logger.warn(
-						'[EpubImagesState]',
-						`Image file exceeds limit: ${file.name} (${file.size} bytes)`
-					);
-					continue;
-				}
-				const fileName = file.name;
-				const baseName = fileName.replace(/\.[^.]+$/, '');
-				const mimeType = file.type || this.getImageMimeType(fileName);
+				} else if (/\.pdf$/i.test(file.name)) {
+					if (file.size > MAX_PDF_FILE_SIZE) {
+						Logger.warn(
+							'[EpubImagesState]',
+							`PDF illustration exceeds limit: ${file.name} (${file.size} bytes)`
+						);
+						continue;
+					}
+					try {
+						this.illustrationStatus = `Đang chuyển đổi PDF: ${file.name}...`;
+						const ab = await file.arrayBuffer();
+						const blob = await renderPdfPageToBlob(ab, 1, 2.0, 0.9);
+						if (!blob) continue;
+						const baseName = file.name.replace(/\.pdf$/i, '');
+						const outputFileName = `${baseName}.jpg`;
 
-				const existingIdx = this.illustrationFiles.findIndex(
-					(f) =>
-						f.fileName.toLowerCase() === fileName.toLowerCase() ||
-						(f.name && f.name.toLowerCase() === baseName.toLowerCase())
-				);
-				const item: IllustrationImageItem = {
-					name: baseName,
-					fileName,
-					mimeType,
-					blob: file,
-					size: file.size
-				};
-				if (existingIdx !== -1) {
-					this.illustrationFiles[existingIdx] = item;
-				} else {
-					this.illustrationFiles.push(item);
+						const existingIdx = this.illustrationFiles.findIndex(
+							(f) =>
+								f.fileName.toLowerCase() === outputFileName.toLowerCase() ||
+								(f.name && f.name.toLowerCase() === baseName.toLowerCase())
+						);
+						const item: IllustrationImageItem = {
+							name: baseName,
+							fileName: outputFileName,
+							mimeType: 'image/jpeg',
+							blob,
+							size: blob.size
+						};
+						if (existingIdx !== -1) {
+							this.illustrationFiles[existingIdx] = item;
+						} else {
+							this.illustrationFiles.push(item);
+						}
+					} catch (pdfErr: unknown) {
+						Logger.error('[EpubImagesState]', `Error processing PDF file ${file.name}:`, pdfErr);
+						this.illustrationError = pdfErr instanceof Error ? pdfErr.message : String(pdfErr);
+					}
+				} else if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(file.name)) {
+					if (file.size > MAX_IMAGE_FILE_SIZE) {
+						Logger.warn(
+							'[EpubImagesState]',
+							`Image file exceeds limit: ${file.name} (${file.size} bytes)`
+						);
+						continue;
+					}
+					const fileName = file.name;
+					const baseName = fileName.replace(/\.[^.]+$/, '');
+					const mimeType = file.type || this.getImageMimeType(fileName);
+
+					const existingIdx = this.illustrationFiles.findIndex(
+						(f) =>
+							f.fileName.toLowerCase() === fileName.toLowerCase() ||
+							(f.name && f.name.toLowerCase() === baseName.toLowerCase())
+					);
+					const item: IllustrationImageItem = {
+						name: baseName,
+						fileName,
+						mimeType,
+						blob: file,
+						size: file.size
+					};
+					if (existingIdx !== -1) {
+						this.illustrationFiles[existingIdx] = item;
+					} else {
+						this.illustrationFiles.push(item);
+					}
 				}
 			}
+		} finally {
+			this.illustrationIsProcessing = false;
+			this.illustrationStatus = '';
 		}
 
 		this.onIllustrationsChanged?.();

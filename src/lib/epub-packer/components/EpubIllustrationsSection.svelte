@@ -26,22 +26,39 @@
 	</div>
 
 	<p class="text-xs text-text-mute mb-4">
-		Hỗ trợ tải lên 1 hoặc nhiều ảnh (<code>.jpg, .png, .webp, .gif, .svg</code>) hoặc 1 tệp nén
-		<code>.zip</code>
-		chứa các ảnh. Tên file ảnh cần trùng với tên thẻ trong file TXT (Ví dụ: cú pháp
+		Hỗ trợ tải lên 1 hoặc nhiều ảnh (<code>.jpg, .png, .webp, .gif, .svg</code>), tệp
+		<code>.pdf</code>
+		hoặc tệp nén <code>.zip</code> chứa các ảnh / tệp PDF. Tên file ảnh/PDF cần trùng với tên thẻ
+		trong file TXT (Ví dụ: cú pháp
 		<code>[hinh-1]</code>
-		sẽ tự liên kết với file <code>hinh-1.jpg</code> / <code>hinh-1.png</code>).
+		sẽ tự liên kết với file <code>hinh-1.jpg</code> / <code>hinh-1.png</code> /
+		<code>hinh-1.pdf</code>).
 	</p>
 
 	<DropZone
-		accept=".png,.jpg,.jpeg,.webp,.gif,.svg,.zip"
+		accept=".png,.jpg,.jpeg,.webp,.gif,.svg,.zip,.pdf"
 		multiple={true}
 		onSelectMultiple={(files) => epubState.images.handleIllustrationFiles(files)}
 		onSelect={(file) => epubState.images.handleIllustrationFiles(file)}
-		title="Chọn ảnh minh họa hoặc file ZIP ảnh"
-		subtitle="Kéo thả nhiều ảnh hoặc tệp .zip tại đây"
+		title="Chọn ảnh minh họa, file PDF hoặc file ZIP"
+		subtitle="Kéo thả nhiều ảnh, file PDF hoặc tệp .zip tại đây"
 		selectedCount={epubState.images.illustrationFiles.length}
 	/>
+
+	{#if epubState.images.illustrationIsProcessing}
+		<div class="mt-3 flex items-center gap-2 text-xs text-accent-color font-mono animate-pulse">
+			<div
+				class="w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
+			></div>
+			<span>{epubState.images.illustrationStatus || 'Đang xử lý ảnh minh họa...'}</span>
+		</div>
+	{/if}
+
+	{#if epubState.images.illustrationError}
+		<div class="mt-3 text-xs text-red-500 font-mono">
+			⚠️ {epubState.images.illustrationError}
+		</div>
+	{/if}
 
 	{#if epubState.images.illustrationFiles.length > 0}
 		<div

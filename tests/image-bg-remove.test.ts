@@ -46,6 +46,26 @@ describe('image background removal and ornament optimization', () => {
 		globalThis.URL.createObjectURL = vi.fn().mockReturnValue('blob:http://localhost/dummy-url');
 		globalThis.URL.revokeObjectURL = vi.fn();
 
+		// Mock PDF.js
+		const mockPage = {
+			getViewport: vi.fn().mockReturnValue({ width: 20, height: 20 }),
+			render: vi.fn().mockReturnValue({ promise: Promise.resolve() }),
+			cleanup: vi.fn()
+		};
+		const mockDoc = {
+			numPages: 1,
+			getPage: vi.fn().mockResolvedValue(mockPage),
+			destroy: vi.fn()
+		};
+		(globalThis as any).window = {
+			pdfjsLib: {
+				getDocument: vi.fn().mockReturnValue({
+					promise: Promise.resolve(mockDoc)
+				}),
+				GlobalWorkerOptions: { workerSrc: '' }
+			}
+		};
+
 		// Mock document
 		(globalThis as any).document = {
 			createElement: (tag: string) => {
@@ -293,6 +313,50 @@ describe('image background removal and ornament optimization', () => {
 			ac.abort();
 
 			await expect(processOrnamentImage(dummyFile, { signal: ac.signal })).rejects.toThrow();
+		});
+
+		it('should handle standard image illustrations', async () => {
+			const state = new EpubImagesState();
+			const file = new File(['image-bytes'], 'hinh-1.jpg', { type: 'image/jpeg' });
+
+			await state.handleIllustrationFiles(file);
+
+			expect(state.illustrationFiles).toHaveLength(1);
+			expect(state.illustrationFiles[0].name).toBe('hinh-1');
+			expect(state.illustrationFiles[0].fileName).toBe('hinh-1.jpg');
+			expect(state.illustrationFiles[0].mimeType).toBe('image/jpeg');
+		});
+
+		it('should handle single-page PDF illustration and convert to JPG illustration item', async () => {
+			const state = new EpubImagesState();
+			const pdfFile = new File([new ArrayBuffer(50)], 'hinh-2.pdf', { type: 'application/pdf' });
+
+			await state.handleIllustrationFiles(pdfFile);
+
+			expect(state.illustrationFiles).toHaveLength(1);
+			expect(state.illustrationFiles[0].name).toBe('hinh-2');
+			expect(state.illustrationFiles[0].fileName).toBe('hinh-2.jpg');
+			expect(state.illustrationFiles[0].mimeType).toBe('image/jpeg');
+			expect(state.illustrationFiles[0].blob).toBeDefined();
+		});
+
+		it('should handle ZIP containing multiple PDF illustrations and images', async () => {
+			const JSZip = (await import('jszip')).default;
+			const zip = new JSZip();
+			zip.file('hinh-a.jpg', 'img1-raw-content');
+			zip.file('hinh-b.pdf', new Uint8Array(50));
+
+			const zipBlob = await zip.generateAsync({ type: 'blob' });
+			const zipFile = new File([zipBlob], 'illustrations.zip', { type: 'application/zip' });
+
+			const state = new EpubImagesState();
+			await state.handleIllustrationFiles(zipFile);
+
+			expect(state.illustrationFiles).toHaveLength(2);
+			const names = state.illustrationFiles.map((f) => f.name).sort();
+			expect(names).toEqual(['hinh-a', 'hinh-b']);
+			const fileNames = state.illustrationFiles.map((f) => f.fileName).sort();
+			expect(fileNames).toEqual(['hinh-a.jpg', 'hinh-b.jpg']);
 		});
 	});
 });

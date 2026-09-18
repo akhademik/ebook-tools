@@ -16,3 +16,43 @@ export function initPdfWorker(): void {
 if (typeof window !== 'undefined') {
 	initPdfWorker();
 }
+
+/**
+ * Render a single page of PDF data (ArrayBuffer or Uint8Array) to an image Blob.
+ */
+export async function renderPdfPageToBlob(
+	pdfData: ArrayBuffer | Uint8Array,
+	pageNum = 1,
+	scale = 2.0,
+	quality = 0.9
+): Promise<Blob | null> {
+	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
+	if (!globalPdfjs) {
+		Logger.error('[pdf-utils]', 'pdfjsLib is missing');
+		throw new Error('Thư viện PDF.js chưa sẵn sàng.');
+	}
+
+	const doc = await globalPdfjs.getDocument({ data: pdfData }).promise;
+	try {
+		const targetPage = Math.min(Math.max(1, pageNum), doc.numPages);
+		const page = await doc.getPage(targetPage);
+		try {
+			const viewport = page.getViewport({ scale });
+			const canvas = document.createElement('canvas');
+			canvas.width = viewport.width;
+			canvas.height = viewport.height;
+			const ctx = canvas.getContext('2d');
+			if (!ctx) {
+				throw new Error('Không thể khởi tạo Canvas 2D context.');
+			}
+			await page.render({ canvasContext: ctx, viewport }).promise;
+			return await new Promise<Blob | null>((resolve) =>
+				canvas.toBlob(resolve, 'image/jpeg', quality)
+			);
+		} finally {
+			page.cleanup();
+		}
+	} finally {
+		doc.destroy();
+	}
+}
