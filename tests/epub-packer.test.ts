@@ -359,6 +359,25 @@ describe('epub-packer tests', () => {
 				'<p>Kết quả như sau:</p>\n<p>chúng tôi thắng cuộc.</p>'
 			);
 		});
+
+		it('should not merge paragraphs inside special block tags like poem, letter, center-page, blockquote', () => {
+			// Poem
+			const poemHtml = `<div class="poem">\n<p>Đây là câu thơ thứ nhất</p>\n<p>câu thơ thứ hai viết thường</p>\n</div>`;
+			expect(mergeBrokenParagraphs(poemHtml)).toBe(poemHtml);
+
+			// Letter
+			const letterHtml = `<div class="letter">\n<p>Hà Nội ngày tháng năm</p>\n<p>gửi người phương xa</p>\n</div>`;
+			expect(mergeBrokenParagraphs(letterHtml)).toBe(letterHtml);
+
+			// Center page
+			const centerPageHtml = `<section class="center-page">\n<div class="center-page-content">\n<p>Lời nói đầu</p>\n<p>dành tặng bạn</p>\n</div>\n</section>`;
+			expect(mergeBrokenParagraphs(centerPageHtml)).toBe(centerPageHtml);
+
+			// Mixed prose and poem
+			const mixedHtml = `<p>Đoạn văn xuôi trước</p>\n<div class="poem">\n<p>Dòng thơ 1</p>\n<p>dòng thơ 2</p>\n</div>\n<p>Đoạn văn dở</p>\n<p>tiếp tục đoạn văn dở.</p>`;
+			const expectedMixed = `<p>Đoạn văn xuôi trước</p>\n<div class="poem">\n<p>Dòng thơ 1</p>\n<p>dòng thơ 2</p>\n</div>\n<p>Đoạn văn dở tiếp tục đoạn văn dở.</p>`;
+			expect(mergeBrokenParagraphs(mixedHtml)).toBe(expectedMixed);
+		});
 	});
 
 	describe('buildEpubBlob', () => {

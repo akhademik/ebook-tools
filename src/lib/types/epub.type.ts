@@ -14,6 +14,7 @@ export interface EpubChapterFeatures {
 	hasQuotes?: boolean;
 	hasBreaks?: boolean;
 	hasNotes?: boolean;
+	preserveParagraphs?: boolean;
 }
 
 export interface EpubChapterItem {

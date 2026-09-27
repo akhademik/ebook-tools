@@ -442,7 +442,8 @@ export function parseTxtToChapters(
 				sources: ['Tệp TXT'],
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
-				hasCustomTitle: false
+				hasCustomTitle: false,
+				features: { preserveParagraphs: true }
 			};
 			chapters.push(currentChapter);
 			lineIdx++;
@@ -459,7 +460,7 @@ export function parseTxtToChapters(
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
 				hasCustomTitle: false,
-				features: { hasCenterPage: true }
+				features: { hasCenterPage: true, preserveParagraphs: true }
 			};
 			chapters.push(currentChapter);
 			lineIdx++;

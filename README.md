@@ -146,3 +146,30 @@ pnpm test:e2e
 
 - **100% Client-Side**: Toàn bộ quá trình đọc, giải nén, bóc tách AI, chỉnh sửa và đóng gói tệp PDF, EPUB, TXT diễn ra hoàn toàn trong bộ nhớ trình duyệt máy tính của bạn.
 - **An toàn dữ liệu**: Tệp được xử lý trực tiếp trên thiết bị của bạn và tuyệt đối không tải lên bất kỳ máy chủ bên ngoài nào.
+
+---
+
+## Trạng thái hệ thống
+
+- Cập nhật lần cuối: 2026-09-27 08:48
+- Đã hoàn thành:
+  - Bảo vệ các khối đặc biệt (`[poem]`, `[letter]`, `[new]`, `[new:center]`, `blockquote`, `aside`) không bị áp dụng logic gộp dòng (`mergeBrokenParagraphs`).
+  - Hỗ trợ cờ `preserveParagraphs` trên `EpubChapterFeatures` cho các chương tạo bởi `[new]` / `[new:center]`.
+  - Bộ kiểm thử 254 test cases bao phủ đầy đủ các ca nối đoạn và cô lập khối đặc biệt.
+- Đang dở: Không
+- Biết trước còn thiếu / nợ kỹ thuật: Không
+
+---
+
+## Changelog
+
+### 2026-09-27
+
+- Thêm/sửa: Bảo vệ các khối `poem`, `letter`, `center-page`, `[new]`, `blockquote`, `aside` khỏi logic `mergeBrokenParagraphs` khi đóng gói TXT sang EPUB.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (254/254 pass) | knip ✅
+- File chính bị ảnh hưởng:
+  - `src/lib/types/epub.type.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/parser/epub-chapter-utils.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `tests/epub-packer.test.ts`

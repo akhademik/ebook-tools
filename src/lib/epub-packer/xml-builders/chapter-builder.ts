@@ -6,6 +6,17 @@ export function mergeBrokenParagraphs(html: string): string {
 	Logger.debug('[EpubPacker]', `mergeBrokenParagraphs called, html length: ${html.length}`);
 	if (!html) return html;
 
+	// Protect special block containers: poem, letter, center-page, blockquote, aside (footnotes)
+	const PROTECTED_BLOCKS_REGEX =
+		/<(div|section)\b[^>]*\bclass=["'][^"']*\b(?:poem|letter|center-page)\b[^"']*["'][^>]*>[\s\S]*?<\/\1>|<(blockquote|aside)\b[^>]*>[\s\S]*?<\/\2>/gi;
+
+	const protectedBlocks: string[] = [];
+	const processedHtml = html.replace(PROTECTED_BLOCKS_REGEX, (match) => {
+		const idx = protectedBlocks.length;
+		protectedBlocks.push(match);
+		return `___PROTECTED_BLOCK_${idx}___`;
+	});
+
 	// Sentence ending indicators: . ? ! … : ; ) ] } ” " ' » ›
 	const SENTENCE_END_REGEX = /[.!?:;…()\]}"'”’»›]$/u;
 	// Unicode lowercase letter
@@ -20,9 +31,9 @@ export function mergeBrokenParagraphs(html: string): string {
 	let lastIdx = 0;
 	let match: RegExpExecArray | null;
 
-	while ((match = P_REGEX.exec(html)) !== null) {
+	while ((match = P_REGEX.exec(processedHtml)) !== null) {
 		if (match.index > lastIdx) {
-			tokens.push({ type: 'other', raw: html.slice(lastIdx, match.index) });
+			tokens.push({ type: 'other', raw: processedHtml.slice(lastIdx, match.index) });
 		}
 		tokens.push({
 			type: 'p',
@@ -32,8 +43,8 @@ export function mergeBrokenParagraphs(html: string): string {
 		});
 		lastIdx = match.index + match[0].length;
 	}
-	if (lastIdx < html.length) {
-		tokens.push({ type: 'other', raw: html.slice(lastIdx) });
+	if (lastIdx < processedHtml.length) {
+		tokens.push({ type: 'other', raw: processedHtml.slice(lastIdx) });
 	}
 
 	// Iterate tokens and merge adjacent <p> elements if only whitespace separates them
@@ -82,9 +93,15 @@ export function mergeBrokenParagraphs(html: string): string {
 		i++;
 	}
 
-	const result = tokens
+	let result = tokens
 		.map((t) => (t.type === 'p' ? `<p${t.attrs}>${t.content}</p>` : t.raw))
 		.join('');
+
+	// Restore protected blocks
+	for (let idx = 0; idx < protectedBlocks.length; idx++) {
+		result = result.replace(`___PROTECTED_BLOCK_${idx}___`, () => protectedBlocks[idx]);
+	}
+
 	Logger.debug('[EpubPacker]', `mergeBrokenParagraphs finished, result length: ${result.length}`);
 	return result;
 }
@@ -100,7 +117,8 @@ export function buildChapterXhtml(
 		'[EpubPacker]',
 		`buildChapterXhtml called for: ${chapter.title}, preserveParagraphs: ${preserveParagraphs}`
 	);
-	let content = preserveParagraphs ? chapter.html || '' : mergeBrokenParagraphs(chapter.html || '');
+	const shouldPreserve = preserveParagraphs || !!chapter.features?.preserveParagraphs;
+	let content = shouldPreserve ? chapter.html || '' : mergeBrokenParagraphs(chapter.html || '');
 	content = content.replace(
 		/<p>\s*###\s*<\/p>/g,
 		'<p class="scene-break-big" role="separator">• • •</p>'

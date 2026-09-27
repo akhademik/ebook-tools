@@ -174,7 +174,11 @@ export function assignSequentialChapterIds(chapters: RawChapterItem[]): EpubChap
 	let chapCount = 0;
 	const width = Math.max(2, String(chapters.length).length);
 	const result = chapters.map((c) => {
-		const html = c.html ? mergeBrokenParagraphs(c.html) : c.html;
+		const html = c.html
+			? c.features?.preserveParagraphs
+				? c.html
+				: mergeBrokenParagraphs(c.html)
+			: c.html;
 		if (c.fileName === 'notes' || c.isNotes) {
 			const res = { ...c, fileName: 'notes', xmlId: 'notes' } as EpubChapterItem;
 			if (html !== undefined) res.html = html;
