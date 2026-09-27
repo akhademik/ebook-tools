@@ -151,11 +151,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-09-27 08:48
+- Cập nhật lần cuối: 2026-09-27 18:55
 - Đã hoàn thành:
-  - Bảo vệ các khối đặc biệt (`[poem]`, `[letter]`, `[new]`, `[new:center]`, `blockquote`, `aside`) không bị áp dụng logic gộp dòng (`mergeBrokenParagraphs`).
-  - Hỗ trợ cờ `preserveParagraphs` trên `EpubChapterFeatures` cho các chương tạo bởi `[new]` / `[new:center]`.
-  - Bộ kiểm thử 254 test cases bao phủ đầy đủ các ca nối đoạn và cô lập khối đặc biệt.
+  - Cập nhật toàn diện công cụ **EPUB to TXT** thành **Reverse Engine** hai chiều chuẩn xác 100%:
+    - Nhận diện `<h1>` & `<h2>` (kể cả định dạng EPUB thông thường không class và có class căn lề/TOC): `@@`, `@@t`, `@@p`, `@`, `@t`, `@p`, `@!`, `@!t`, `@!p`.
+    - Chuyển đổi định dạng inline từ thẻ chuẩn (`<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<ins>`) lẫn `<span>` có inline CSS style &rarr; `*bold*`, `/italic/`, `_underline_`.
+    - Nhận diện khối trích dẫn `<blockquote>`, `<div class="quote|blockquote|epigraph">` & tác giả `<footer>`, `<cite>`, `<p class="author">` &rarr; `~` và `>`.
+    - Nhận diện khối thẻ ảnh `<figure class="illust-box">`, `<figure>`, `<p class="image">` & `<img class="illust-img">` &rarr; `[hinh-1]`.
+    - Khôi phục đầy đủ các loại ngắt phân cảnh từ EPUB ngoài (`• • •`, `***`, `* * *`, `---`, `*`, `<hr/>`, `<p class="separator">`) &rarr; `###`, `##`, `#`.
+    - Khôi phục khối đặc biệt `[poem]`, `[letter]`, `[new:center]`, `[new]`, `!D`.
+    - Trích xuất toàn bộ chú thích chân trang `<aside epub:type="footnote">` & thẻ liên kết `{n}` về khối `Chú thích:` ở cuối tài liệu TXT.
+  - Bộ kiểm thử mở rộng 262 test cases bao phủ đầy đủ các ca đảo ngược và bảo toàn cấu trúc Round-Trip lẫn EPUB thông thường.
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
@@ -164,6 +170,15 @@ pnpm test:e2e
 ## Changelog
 
 ### 2026-09-27
+
+- Thêm/sửa: Nâng cấp Reverse Engine **EPUB to TXT** mở rộng hỗ trợ cho các tệp EPUB thông thường (nhận diện mọi `<h1>` &rarr; `@@`, `<h2>` &rarr; `@`, `<b>`/`<strong>` &rarr; `*bold*`, `<i>`/`<em>` &rarr; `/italic/`, tự động phát hiện mọi biến thể ngắt phân cảnh `***`, `* * *`, `• • •`, `---`, `*`, `hr` &rarr; `###`, `##`, `#`).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (262/262 pass) | knip ✅ | graphify ✅
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `tests/epub-to-txt.test.ts`
+  - `README.md`
+
+### 2026-09-27 (Trước đó)
 
 - Thêm/sửa: Bảo vệ các khối `poem`, `letter`, `center-page`, `[new]`, `blockquote`, `aside` khỏi logic `mergeBrokenParagraphs` khi đóng gói TXT sang EPUB.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (254/254 pass) | knip ✅
