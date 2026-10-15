@@ -6,9 +6,9 @@ export function mergeBrokenParagraphs(html: string): string {
 	Logger.debug('[EpubPacker]', `mergeBrokenParagraphs called, html length: ${html.length}`);
 	if (!html) return html;
 
-	// Protect special block containers: poem, letter, center-page, blockquote, aside (footnotes)
+	// Protect special block containers: poem, letter, letter-box, center-page, blockquote, aside (footnotes)
 	const PROTECTED_BLOCKS_REGEX =
-		/<(div|section)\b[^>]*\bclass=["'][^"']*\b(?:poem|letter|center-page)\b[^"']*["'][^>]*>[\s\S]*?<\/\1>|<(blockquote|aside)\b[^>]*>[\s\S]*?<\/\2>/gi;
+		/<(div|section)\b[^>]*\bclass=["'][^"']*\b(?:poem|letter|letter-box|center-page)\b[^"']*["'][^>]*>[\s\S]*?<\/\1>|<(blockquote|aside)\b[^>]*>[\s\S]*?<\/\2>/gi;
 
 	const protectedBlocks: string[] = [];
 	const processedHtml = html.replace(PROTECTED_BLOCKS_REGEX, (match) => {

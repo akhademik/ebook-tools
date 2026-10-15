@@ -85,7 +85,17 @@ function isIllustrationTag(
 ): string | null {
 	const lowerKey = (tagKey || '').toLowerCase();
 	if (
-		['letter', '/letter', 'poem', '/poem', 'new', '/new', 'new:center'].includes(lowerKey) ||
+		[
+			'letter',
+			'/letter',
+			'letter-box',
+			'/letter-box',
+			'poem',
+			'/poem',
+			'new',
+			'/new',
+			'new:center'
+		].includes(lowerKey) ||
 		lowerKey.startsWith('new:')
 	) {
 		return null;
@@ -374,12 +384,31 @@ export function parseTxtToChapters(
 	};
 
 	let currentBlock: string | null = null;
+	let isInsideLetterBox = false;
 	let isInsideNewBlock = false;
 	let isInsideNewCenterBlock = false;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {
 		const origLine = preprocessedLines[lineIdx];
 		const stripped = origLine.trim();
+
+		// Handle letter-box closing tag
+		if (stripped === '[/letter-box]') {
+			if (currentBlock) {
+				if (currentChapter) {
+					currentChapter.html += `</div>\n`;
+				}
+				currentBlock = null;
+			}
+			if (isInsideLetterBox) {
+				if (currentChapter) {
+					currentChapter.html += `</div>\n`;
+				}
+				isInsideLetterBox = false;
+			}
+			lineIdx++;
+			continue;
+		}
 
 		if (currentBlock) {
 			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/);
@@ -506,6 +535,14 @@ export function parseTxtToChapters(
 			}
 			isInsideNewBlock = false;
 			currentChapter = null;
+			lineIdx++;
+			continue;
+		}
+
+		if (stripped === '[letter-box]') {
+			isInsideLetterBox = true;
+			ensureChapterOpen();
+			currentChapter.html += `<div class="letter-box">\n`;
 			lineIdx++;
 			continue;
 		}
@@ -668,6 +705,13 @@ export function parseTxtToChapters(
 
 	if (currentBlock) {
 		Logger.warn('[epub-parser]', 'thiếu mã đóng block');
+		if (currentChapter) {
+			currentChapter.html += `</div>\n`;
+		}
+	}
+
+	if (isInsideLetterBox) {
+		Logger.warn('[epub-parser]', 'thiếu mã đóng letter-box');
 		if (currentChapter) {
 			currentChapter.html += `</div>\n`;
 		}

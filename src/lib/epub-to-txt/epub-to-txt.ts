@@ -298,6 +298,55 @@ function extractIllustrationTag(html: string): string | null {
 	return null;
 }
 
+function replaceNestedDiv(
+	html: string,
+	targetClass: string,
+	replacer: (inner: string) => string
+): string {
+	const openRegex = new RegExp(
+		`<div\\b[^>]*\\bclass=["'][^"']*\\b${targetClass}\\b[^"']*["'][^>]*>`,
+		'gi'
+	);
+	let match: RegExpExecArray | null;
+	let out = '';
+	let lastIndex = 0;
+	while ((match = openRegex.exec(html)) !== null) {
+		const startIndex = match.index;
+		const openTagEnd = openRegex.lastIndex;
+		out += html.slice(lastIndex, startIndex);
+
+		// Find balanced matching </div>
+		let depth = 1;
+		const tagRegex = /<\/?div\b[^>]*>/gi;
+		tagRegex.lastIndex = openTagEnd;
+		let innerEnd = -1;
+		let nextMatch: RegExpExecArray | null;
+		while ((nextMatch = tagRegex.exec(html)) !== null) {
+			if (nextMatch[0].startsWith('</')) {
+				depth--;
+				if (depth === 0) {
+					innerEnd = nextMatch.index;
+					lastIndex = tagRegex.lastIndex;
+					openRegex.lastIndex = lastIndex;
+					break;
+				}
+			} else {
+				depth++;
+			}
+		}
+
+		if (innerEnd !== -1) {
+			const inner = html.slice(openTagEnd, innerEnd);
+			out += replacer(inner);
+		} else {
+			out += match[0];
+			lastIndex = openTagEnd;
+		}
+	}
+	out += html.slice(lastIndex);
+	return out;
+}
+
 /**
  * Reverse Engine: Converts an XHTML/HTML chapter document back into raw TXT format
  * with full detection of conventions (headings @@/@/@!, blockquotes ~, figures [img],
@@ -335,7 +384,14 @@ export function htmlToCleanText(htmlContent: string): string {
 		}
 	);
 
-	// 3. Handle [poem] block: <div class="poem">
+	// 3. Handle [letter-box] block: <div class="letter-box">
+	// Note: letter-box acts as a wrapper, containing quotes, headings, paragraphs, or letter blocks
+	content = replaceNestedDiv(content, 'letter-box', (inner) => {
+		const cleanedInner = htmlToCleanText(inner);
+		return `\n\n[letter-box]\n${cleanedInner}\n[/letter-box]\n\n`;
+	});
+
+	// 4. Handle [poem] block: <div class="poem">
 	content = content.replace(
 		/<div\b[^>]*\bclass=["'][^"']*\bpoem\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
 		(_m, inner) => {
@@ -354,9 +410,9 @@ export function htmlToCleanText(htmlContent: string): string {
 		}
 	);
 
-	// 4. Handle [letter] block: <div class="letter">
+	// 5. Handle [letter] block: <div class="letter"> (excluding letter-box)
 	content = content.replace(
-		/<div\b[^>]*\bclass=["'][^"']*\bletter\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
+		/<div\b[^>]*\bclass=["'][^"']*(?<![\w-])letter(?![\w-])[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
 		(_m, inner) => {
 			const pMatches = inner.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi);
 			const lines: string[] = [];

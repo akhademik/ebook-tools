@@ -49,8 +49,8 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 	sanitized = sanitized.replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, '');
 	// Remove fractions like 1/2, 3/4
 	sanitized = sanitized.replace(/\b\d+\/\d+\b/g, '');
-	// Remove known tag constructs like [/poem], [/letter], [/new]
-	sanitized = sanitized.replace(/\[\/(?:poem|letter|new)\]/gi, '');
+	// Remove known tag constructs like [/poem], [/letter], [/letter-box], [/new]
+	sanitized = sanitized.replace(/\[\/(?:poem|letter|letter-box|new)\]/gi, '');
 
 	// 1. Check bold: First remove all valid completed bold pairs: *(non-space ... non-space)*
 	const boldPairRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
@@ -138,25 +138,45 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 			continue;
 		}
 
-		// Check for opening tags: [poem], [letter], [new], [new:center]
-		const openBlockMatch = stripped.match(/^\[(poem|letter)\]$/i);
+		// Check for opening tags: [poem], [letter], [letter-box], [new], [new:center]
+		const openBlockMatch = stripped.match(/^\[(poem|letter|letter-box)\]$/i);
 		const openNewMatch = stripped.match(/^\[(new|new:center)\]$/i);
 
-		// Check for closing tags: [/poem], [/letter], [/new]
-		const closeBlockMatch = stripped.match(/^\[\/(poem|letter)\]$/i);
+		// Check for closing tags: [/poem], [/letter], [/letter-box], [/new]
+		const closeBlockMatch = stripped.match(/^\[\/(poem|letter|letter-box)\]$/i);
 		const closeNewMatch = stripped.match(/^\[\/new\]$/i);
 
 		if (openBlockMatch) {
 			const tag = openBlockMatch[1].toLowerCase();
-			// If already inside an open block of the same or another type, report unclosed previous block
 			const currentTop = blockStack[blockStack.length - 1];
-			if (currentTop && (currentTop.tag === 'poem' || currentTop.tag === 'letter')) {
-				errors.push({
-					lineNum,
-					lineContent: rawLine,
-					tag: `[${tag}]`,
-					message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi thẻ [${currentTop.tag}] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/${currentTop.closeTag}].`
-				});
+
+			if (tag === 'letter-box') {
+				// letter-box cannot be opened inside another poem or letter or letter-box
+				if (currentTop && (currentTop.tag === 'poem' || currentTop.tag === 'letter')) {
+					errors.push({
+						lineNum,
+						lineContent: rawLine,
+						tag: `[${tag}]`,
+						message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi thẻ [${currentTop.tag}] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/${currentTop.closeTag}].`
+					});
+				} else if (currentTop && currentTop.tag === 'letter-box') {
+					errors.push({
+						lineNum,
+						lineContent: rawLine,
+						tag: `[${tag}]`,
+						message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi khối [letter-box] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/letter-box].`
+					});
+				}
+			} else {
+				// poem or letter: can be opened directly or inside letter-box/new, but cannot be opened inside poem or letter
+				if (currentTop && (currentTop.tag === 'poem' || currentTop.tag === 'letter')) {
+					errors.push({
+						lineNum,
+						lineContent: rawLine,
+						tag: `[${tag}]`,
+						message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi thẻ [${currentTop.tag}] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/${currentTop.closeTag}].`
+					});
+				}
 			}
 
 			blockStack.push({
@@ -171,13 +191,20 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		if (openNewMatch) {
 			const tag = openNewMatch[1].toLowerCase();
 			const currentTop = blockStack[blockStack.length - 1];
-			// If already inside an open block of poem/letter, that is a syntax violation
+			// If already inside an open block of poem/letter/letter-box, that is a syntax violation
 			if (currentTop && (currentTop.tag === 'poem' || currentTop.tag === 'letter')) {
 				errors.push({
 					lineNum,
 					lineContent: rawLine,
 					tag: `[${tag}]`,
 					message: `Dòng ${lineNum}: Mở trang mới [${tag}] bên trong thẻ [${currentTop.tag}] (mở tại dòng ${currentTop.lineNum}) chưa đóng.`
+				});
+			} else if (currentTop && currentTop.tag === 'letter-box') {
+				errors.push({
+					lineNum,
+					lineContent: rawLine,
+					tag: `[${tag}]`,
+					message: `Dòng ${lineNum}: Mở trang mới [${tag}] bên trong khối [letter-box] (mở tại dòng ${currentTop.lineNum}) chưa đóng. Vui lòng đặt [${tag}] làm wrapper bên ngoài [letter-box].`
 				});
 			} else if (currentTop && (currentTop.tag === 'new' || currentTop.tag === 'new:center')) {
 				errors.push({

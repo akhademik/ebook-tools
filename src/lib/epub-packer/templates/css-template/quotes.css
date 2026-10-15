@@ -42,6 +42,26 @@ blockquote footer {
 	text-align: center;
 }
 
+/* ===== KHỐI HỘP VIỀN (LETTER-BOX) ===== */
+.letter-box {
+	box-sizing: border-box;
+	border: 3px solid #444444;
+	padding: 1.2em 1.4em;
+	margin: 1.5em 0.8em;
+	line-height: 1.6;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+.letter-box p {
+	text-indent: 0;
+	margin: 0 0 0.8em 0;
+}
+
+.letter-box p:last-child {
+	margin-bottom: 0;
+}
+
 /* ===== CĂN LỀ TRÍCH DẪN (ALIGNMENT) ===== */
 .center,
 .poem,

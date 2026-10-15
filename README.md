@@ -45,7 +45,7 @@ Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `
   - `@ Tiêu đề` (`@t`, `@p`): Tiêu đề phụ / chương nhỏ trong file, hiển thị trong mục lục.
   - `@! Tiêu đề` (`@!t`, `@!p`): Tiêu đề phụ, không đưa vào mục lục.
   - `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 trang XHTML độc lập.
-  - `[letter] ... [/letter]`, `[poem] ... [/poem]`: Khối định dạng thư từ, bài thơ có căn lề và thụt đầu dòng riêng biệt.
+  - `[letter] ... [/letter]`, `[letter-box] ... [/letter-box]`, `[poem] ... [/poem]`: Khối định dạng thư từ, hộp viền bọc nội dung (không nối dòng, hỗ trợ lồng thẻ), bài thơ có căn lề và thụt đầu dòng riêng biệt.
   - `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote và tên tác giả.
   - Dropcap chữ cái đầu chương `[c]`, tắt tự động dropcap đầu đoạn sau tiêu đề bằng `!D Nội dung`, ảnh minh họa theo thẻ `[hinh-1]`, ngắt phân cảnh lớn `###` (• • •), ngắt phân cảnh nhỏ `##` (*), ngắt phân cảnh trống `#`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_`.
   - Chú thích chân trang tự động: `{n}` trong nội dung liên kết tự động tới khối `Chú thích:` / `{n} Nội dung chú thích` ở cuối sách dạng pop-up footnote EPUB 3 (`<aside epub:type="footnote">`).
@@ -151,20 +151,19 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-15 10:15
+- Cập nhật lần cuối: 2026-10-15 21:35
 - Đã hoàn thành:
-  - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`):
-    - Chuỗi thông báo trạng thái nạp tệp TXT trong UI thực tế là `Đã xử lý file .TXT thành công (n chương).`.
-    - Cập nhật locator regex trong các test E2E từ `/Đã xử file .TXT thành công/i` sang `/Đã xử lý file \.TXT thành công/i`, giúp các test case E2E download inspection và workflow chạy pass 100%.
-  - Bổ sung cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`:
-    - Tự động quét kiểm tra toàn bộ các khối thẻ cấu trúc: `[poem]` $\leftrightarrow$ `[/poem]`, `[letter]` $\leftrightarrow$ `[/letter]`, `[new]` / `[new:center]` $\leftrightarrow$ `[/new]`.
-    - Bắt lỗi chính xác theo số dòng (1-indexed): thẻ mở không có thẻ đóng tương ứng trước khi kết thúc tệp, thẻ đóng cô lập/thừa không có thẻ mở trước đó, lồng thẻ sai quy cách.
-    - Kiểm tra chú thích chân trang `{n}`: phát hiện lỗi mở dấu `{...` nhưng thiếu dấu ngoặc nhọn đóng `}` trên dòng.
-    - Cảnh báo định dạng inline bị rớt dấu: phát hiện dấu in đậm `*`, in nghiêng `/`, gạch chân `_` dính sát chữ mà thiếu dấu đóng/mở tương ứng, tự động bỏ qua các dấu đứng độc lập như `ab / cd`, `day la * binh thuong` để tránh false flag.
-    - Hỗ trợ khối chú thích nhiều dòng (**Multi-line Footnote Block**): toàn bộ các dòng (đoạn thơ, trích dẫn...) nằm sau `{n}` và trước khi xuất hiện `{m}` tiếp theo đều được gom trọn vẹn vào bên trong thẻ `<aside id="fn{n}">`, đảm bảo pop-up footnote trên máy đọc sách hiển thị đầy đủ 100%.
-    - Tách riêng thông báo trạng thái chương và danh sách cảnh báo gọn gàng trên UI.
-    - Cơ chế **Fail-Fast**: Khi phát hiện lỗi cú pháp, parser lập tức dừng quy trình đọc/đóng gói, không sinh chương giả lập hay ép đóng thẻ tùy tiện, đồng thời hiển thị thông báo lỗi trực quan (Alert box màu đỏ kèm số dòng và tên thẻ) ngay trên giao diện cho người dùng sửa tệp TXT.
-    - Bộ kiểm thử mở rộng đạt 272/272 test cases bao phủ các ca kiểm tra cú pháp hợp lệ và không hợp lệ.
+  - Hỗ trợ cặp thẻ bao khối mới **`[letter-box]` $\leftrightarrow$ `[/letter-box]`**:
+    - Tạo wrapper hộp có đường viền bo quanh (`<div class="letter-box">`) với CSS chuyên dụng (`quotes.css`), thụt lề chuẩn và ngắt trang linh hoạt (`box-decoration-break: clone`).
+    - Hoạt động như một wrapper đa năng: cho phép lồng các thẻ tiêu đề (`@@t`, `@p`), trích dẫn (`~ quote`, `> author`), khối thư (`[letter] ... [/letter]`), chú thích chân trang (`{n}`) và định dạng inline.
+    - Miễn nhiễm với cơ chế ghép nối đoạn tự động (`mergeBrokenParagraphs`), giữ nguyên 100% cấu trúc dòng của người dùng.
+    - Cập nhật hệ thống kiểm định **TXT Syntax Pre-flight Validator**: bắt lỗi thẻ `[letter-box]` chưa đóng, cấm mở `[new]` bên trong `[letter-box]`, cho phép `[new]` hoặc `[new:center]` bọc bên ngoài `[letter-box]`.
+    - Loại trừ `letter-box` khỏi nhận diện thẻ ảnh minh họa `isIllustrationTag`.
+    - Hỗ trợ cơ chế dịch ngược **EPUB to TXT** (`htmlToCleanText` & `replaceNestedDiv`), nhận diện chính xác thẻ `<div>` lồng nhau.
+    - Bổ sung hướng dẫn cú pháp vào bảng tra cứu `EpubSyntaxModal.svelte`.
+    - Bộ kiểm thử mở rộng đạt 276/276 unit tests pass và 12/12 Playwright E2E tests pass.
+  - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`).
+  - Cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`.
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật:
   - `knip` (oxc-parser) gặp lỗi cấp phát bộ nhớ ảo 6 GiB ArrayBuffer trên môi trường Linux có giới hạn virtual memory (`vm.overcommit_memory=0`).
@@ -172,6 +171,21 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-15 (letter-box wrapper)
+
+- Thêm/sửa: Bổ sung cặp thẻ hộp viền `[letter-box]` ... `[/letter-box]` (`<div class="letter-box">`) khi đóng gói EPUB từ tệp TXT và chuyển đổi ngược EPUB sang TXT. Định nghĩa CSS viền 3px, padding và margin chuẩn. Bảo vệ khối hộp khỏi thuật toán gộp đoạn vỡ dòng `mergeBrokenParagraphs`. Cập nhật validator kiểm tra lỗi mở thẻ và quy tắc cấp bậc bọc thẻ (yêu cầu `[new]` bọc ngoài `[letter-box]`). Cập nhật hướng dẫn cú pháp trên UI Modal.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (276/276 pass) | test e2e ✅ (12/12 pass) | graphify ✅ (859 nodes, 1979 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-to-txt.test.ts`
+  - `README.md`
 
 ### 2026-10-15
 

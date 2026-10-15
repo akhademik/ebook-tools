@@ -288,6 +288,31 @@
 								<td class="py-3 px-3 whitespace-nowrap">
 									<code
 										class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
+										>[letter-box]...[/letter-box]</code
+									>
+								</td>
+								<td class="py-3 px-3">
+									<code>&lt;div class="letter-box"&gt;...&lt;/div&gt;</code><br />
+									<span class="text-[11px] text-text-mute block mt-1">
+										<strong>Khối hộp có viền bo quanh (Border Wrapper):</strong> Đóng khung nội dung với
+										viền 3px, padding và thụt lề chuẩn.
+									</span>
+									<span class="text-[11px] text-text-mute block mt-0.5">
+										• <strong>Không nối dòng OCR:</strong> Giữ nguyên từng đoạn/dòng đúng như người
+										dùng nhập, không bị ghép tự động.<br />
+										• <strong>Cho phép lồng cú pháp:</strong> Hỗ trợ trích dẫn (<code>~ quote</code
+										>, <code>&gt; author</code>), tiêu đề (<code>@@t</code>, <code>@p</code>), khối
+										thư con (<code>[letter]</code>) và định dạng inline.<br />
+										• <strong>Quy tắc chia trang:</strong> Có thể đặt trong <code>[new]</code> hoặc
+										<code>[new:center]</code>; không được mở <code>[new]</code> bên trong
+										<code>[letter-box]</code>.
+									</span>
+								</td>
+							</tr>
+							<tr>
+								<td class="py-3 px-3 whitespace-nowrap">
+									<code
+										class="bg-brand-bg px-1.5 py-0.5 rounded border border-border-color text-accent-color"
 										>[poem]...[/poem]</code
 									>
 								</td>

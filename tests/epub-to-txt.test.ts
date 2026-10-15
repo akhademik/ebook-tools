@@ -175,8 +175,14 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 			);
 		});
 
-		it('should convert poem, letter, and center-page containers', () => {
+		it('should convert poem, letter, letter-box, and center-page containers', () => {
 			const html = `
+				<div class="letter-box">
+					<p>Nội dung trong hộp viền</p>
+					<div class="letter">
+						<p>Thư lồng trong hộp</p>
+					</div>
+				</div>
 				<div class="poem">
 					<p>Sông Mã xa rồi Tây Tiến ơi</p>
 					<p>Nhớ về rừng núi nhớ chơi vơi</p>
@@ -192,6 +198,9 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 				</section>
 			`;
 			const text = htmlToCleanText(html);
+			expect(text).toContain(
+				'[letter-box]\nNội dung trong hộp viền\n\n[letter]\nThư lồng trong hộp\n[/letter]\n[/letter-box]'
+			);
 			expect(text).toContain(
 				'[poem]\nSông Mã xa rồi Tây Tiến ơi\nNhớ về rừng núi nhớ chơi vơi\n[/poem]'
 			);

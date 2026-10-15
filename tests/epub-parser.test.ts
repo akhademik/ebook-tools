@@ -1518,5 +1518,73 @@ Chú thích:
 			expect(fn2Content).not.toContain('id="fn3"');
 			expect(fn2Content).not.toContain('Theo hệ đo lường cổ');
 		});
+
+		describe('[letter-box] wrapper tests', () => {
+			it('should parse [letter-box] as a wrapper containing paragraphs, quotes and nested letter block', () => {
+				const txt = `@@ Chương 1
+[letter-box]
+noi dung 1
+~ Trích dẫn bên trong hộp
+> Tác giả
+@! Tiêu đề nhỏ
+[letter]
+Thư lồng trong hộp
+[/letter]
+noi dung 2
+[/letter-box]`;
+
+				const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+				expect(chapters).toHaveLength(1);
+				const html = chapters[0].html;
+
+				expect(html).toContain('<div class="letter-box">');
+				expect(html).toContain('<p>noi dung 1</p>');
+				expect(html).toContain(
+					'<blockquote class="center"><p>Trích dẫn bên trong hộp</p><footer>Tác giả</footer></blockquote>'
+				);
+				expect(html).toContain('<h2 class="side-chap center no-toc">Tiêu đề nhỏ</h2>');
+				expect(html).toContain('<div class="letter">');
+				expect(html).toContain('<p>Thư lồng trong hộp</p>');
+				expect(html).toContain('</div>');
+				expect(html).toContain('<p>noi dung 2</p>');
+				expect(html).toContain('</div>');
+			});
+
+			it('should validate [letter-box] open/close and detect unclosed tag', () => {
+				const txt = `@@ Chương 1\n[letter-box]\nNội dung chưa đóng thẻ`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(false);
+				expect(validation.errors).toHaveLength(1);
+				expect(validation.errors[0].message).toContain(
+					'Thẻ [letter-box] đã mở nhưng chưa có thẻ đóng [/letter-box]'
+				);
+			});
+
+			it('should reject opening [new] inside [letter-box]', () => {
+				const txt = `@@ Chương 1\n[letter-box]\n[new]\nTrang mới\n[/new]\n[/letter-box]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(false);
+				expect(validation.errors[0].message).toContain(
+					'Mở trang mới [new] bên trong khối [letter-box]'
+				);
+			});
+
+			it('should allow [letter-box] inside [new] or [new:center]', () => {
+				const txt = `[new:center]
+[letter-box]
+Khối hộp trong trang độc lập
+[/letter-box]
+[/new]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+
+				const chapters = parseTxtToChapters(txt, {}, 'Trang');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain('class="center-page"');
+				expect(chapters[0].html).toContain('<div class="letter-box">');
+				expect(chapters[0].html).toContain('<p>Khối hộp trong trang độc lập</p>');
+			});
+		});
 	});
 });
