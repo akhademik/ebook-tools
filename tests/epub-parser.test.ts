@@ -9,7 +9,8 @@ import {
 	convertTxtInline,
 	parseTxtToChapters,
 	renderMarkdownBlocks,
-	assignSequentialChapterIds
+	assignSequentialChapterIds,
+	validateTxtSyntax
 } from '../src/lib/epub-packer/parser/epub-source-parser';
 
 describe('epub-parser tests', () => {
@@ -703,7 +704,11 @@ Nội dung chương 1.`;
 			const txt = `[new:center]
 @ Trang Đơn
 Nội dung chưa đóng thẻ.`;
-			const chapters = parseTxtToChapters(txt, { warnings }, 'Default Title');
+			const chapters = parseTxtToChapters(
+				txt,
+				{ warnings, validateSyntax: false },
+				'Default Title'
+			);
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].html).toContain(
 				'<section class="center-page">\n  <div class="center-page-content">\n'
@@ -958,7 +963,7 @@ Con về /rợp bướm/ vàng bay
 			const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 			const txt = `[letter]
 Thư chưa đóng.`;
-			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			const chapters = parseTxtToChapters(txt, { validateSyntax: false }, 'Mặc định');
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].html).toContain('<div class="letter">\n  <p>Thư chưa đóng.</p>\n</div>');
 			expect(consoleWarnSpy).toHaveBeenCalled();
@@ -1371,6 +1376,71 @@ Dòng văn bản bình thường trong thư.
 			const ac = new AbortController();
 			ac.abort();
 			await expect(parseTxtToChaptersAsync(txt, { signal: ac.signal })).rejects.toThrow();
+		});
+
+		it('should validate and report unclosed [poem] with exact line number', () => {
+			const txt = `@@ Chương 1\nNội dung mở đầu.\n[poem]\nMột dòng thơ.\nKhông có thẻ đóng.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors).toHaveLength(1);
+			expect(validation.errors[0].lineNum).toBe(3);
+			expect(validation.errors[0].tag).toBe('[poem]');
+			expect(validation.errors[0].message).toContain(
+				'Dòng 3: Thẻ [poem] đã mở nhưng chưa có thẻ đóng [/poem]'
+			);
+
+			expect(() => parseTxtToChapters(txt)).toThrow(
+				'Dòng 3: Thẻ [poem] đã mở nhưng chưa có thẻ đóng [/poem]'
+			);
+		});
+
+		it('should validate and report unclosed [letter] with exact line number', () => {
+			const txt = `@@ Chương 1\n[letter]\nThư không có thẻ đóng.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors).toHaveLength(1);
+			expect(validation.errors[0].lineNum).toBe(2);
+			expect(validation.errors[0].tag).toBe('[letter]');
+			expect(validation.errors[0].message).toContain(
+				'Dòng 2: Thẻ [letter] đã mở nhưng chưa có thẻ đóng [/letter]'
+			);
+		});
+
+		it('should validate and report unclosed [new] or [new:center]', () => {
+			const txt = `[new:center]\nNội dung trang đơn.\n@@ Chương kế`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors).toHaveLength(1);
+			expect(validation.errors[0].lineNum).toBe(1);
+			expect(validation.errors[0].message).toContain(
+				'Dòng 1: Thẻ [new:center] đã mở nhưng chưa có thẻ đóng [/new]'
+			);
+		});
+
+		it('should validate and report orphan closing tags', () => {
+			const txt = `@@ Chương 1\n[/poem]\nNội dung sau.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors).toHaveLength(1);
+			expect(validation.errors[0].lineNum).toBe(2);
+			expect(validation.errors[0].message).toContain(
+				'Dòng 2: Thấy thẻ đóng [/poem] nhưng không có thẻ mở [poem]'
+			);
+		});
+
+		it('should validate and report mismatched or overlapping blocks', () => {
+			const txt = `[poem]\nThơ dòng 1\n[letter]\nThư lồng nhau\n[/poem]\n[/letter]`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors.some((e) => e.lineNum === 3)).toBe(true);
+		});
+
+		it('should pass validation when all tags are properly matched and closed', () => {
+			const txt = `@@ Chương 1\n[poem]\nDòng thơ 1\n[/poem]\n[letter]\nThư gửi\n[/letter]\n[new]\nTrang đơn\n[/new]`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true);
+			expect(validation.errors).toHaveLength(0);
+			expect(() => parseTxtToChapters(txt)).not.toThrow();
 		});
 	});
 });

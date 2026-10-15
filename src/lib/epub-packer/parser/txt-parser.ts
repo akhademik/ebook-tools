@@ -1,8 +1,10 @@
 // src/lib/epub-packer/parser/txt-parser.ts
 import { Logger, escapeXml } from '$lib/utils';
 import type { CustomDefinition, ParseTxtOptions, RawChapterItem } from '$lib/types';
+import { validateTxtSyntax } from './txt-syntax-validator';
 
 export type { ParseTxtOptions, RawChapterItem };
+export { validateTxtSyntax };
 
 function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -193,12 +195,12 @@ export async function parseTxtToChaptersAsync(
 					resolve(e.data.chapters);
 				} else if (e.data.type === 'error') {
 					cleanup();
-					Logger.warn(
-						'[txt-parser]',
-						'Worker parsing error, falling back to direct:',
-						e.data.error
-					);
-					resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+					Logger.warn('[txt-parser]', 'Worker parsing error:', e.data.error);
+					try {
+						resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+					} catch (directErr) {
+						reject(directErr);
+					}
 				}
 			};
 
@@ -240,7 +242,8 @@ export async function parseTxtToChaptersAsync(
 			const serializableOptions: ParseTxtOptions = {
 				customDefinitions: rawDefs,
 				images: rawImages,
-				warnings: []
+				warnings: [],
+				validateSyntax: options.validateSyntax
 			};
 
 			try {
@@ -270,7 +273,16 @@ export function parseTxtToChapters(
 	options: ParseTxtOptions = {},
 	fallbackTitle = 'Chương 1'
 ): RawChapterItem[] {
+	if (options.validateSyntax !== false) {
+		const validation = validateTxtSyntax(rawText);
+		if (!validation.isValid) {
+			const firstError = validation.errors[0];
+			throw new Error(firstError.message);
+		}
+	}
+
 	const customDefinitions = options.customDefinitions || [];
+
 	const imagesMap = options.images || {};
 	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
 

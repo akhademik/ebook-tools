@@ -1,7 +1,7 @@
 // src/lib/epub-packer/parser/epub-source-parser.ts
 import { findMarkersForZip, groupChaptersZip } from './epub-zip-grouper';
 import { findMarkersForSingle, groupChaptersSingle } from './epub-single-grouper';
-import { parseTxtToChapters, parseTxtToChaptersAsync } from './txt-parser';
+import { parseTxtToChapters, parseTxtToChaptersAsync, validateTxtSyntax } from './txt-parser';
 import type {
 	MarkdownBlock,
 	ChapterMatcher,
@@ -23,8 +23,12 @@ export type {
 	ChapterMatcher,
 	RawFileItem,
 	ParseTxtOptions,
-	RawChapterItem
+	RawChapterItem,
+	TxtSyntaxError,
+	TxtSyntaxValidationResult
 } from '$lib/types';
+
+export { parseTxtToChapters, parseTxtToChaptersAsync, validateTxtSyntax };
 
 export {
 	parseMarkdownBlocks,
@@ -91,5 +95,3 @@ export function groupChapters(
 		);
 	}
 }
-
-export { parseTxtToChapters, parseTxtToChaptersAsync };

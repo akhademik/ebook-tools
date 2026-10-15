@@ -286,22 +286,28 @@
 	{/if}
 
 	{#if epubState.source.parseStatus}
-		<div
-			class="font-mono text-sm mt-3 flex items-center justify-between gap-2 {epubState.source
-				.parseIsError
-				? 'text-red-500'
-				: 'text-text-mute'}"
-		>
-			<span>{epubState.source.parseStatus}</span>
-			{#if epubState.source.parseStatus.includes('Đang') || epubState.source.parseStatus.includes('xếp hàng')}
-				<button
-					type="button"
-					class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
-					onclick={() => epubState.source.cancelParseTask()}
-				>
-					Hủy
-				</button>
-			{/if}
-		</div>
+		{#if epubState.source.parseIsError}
+			<div
+				class="font-mono text-xs mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-start gap-2.5 animate-fade-in"
+			>
+				<span class="text-sm shrink-0 leading-none">⚠️</span>
+				<div class="flex-1 break-words leading-relaxed font-medium">
+					{epubState.source.parseStatus}
+				</div>
+			</div>
+		{:else}
+			<div class="font-mono text-sm mt-3 flex items-center justify-between gap-2 text-text-mute">
+				<span>{epubState.source.parseStatus}</span>
+				{#if epubState.source.parseStatus.includes('Đang') || epubState.source.parseStatus.includes('xếp hàng')}
+					<button
+						type="button"
+						class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
+						onclick={() => epubState.source.cancelParseTask()}
+					>
+						Hủy
+					</button>
+				{/if}
+			</div>
+		{/if}
 	{/if}
 </div>

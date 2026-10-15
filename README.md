@@ -151,23 +151,34 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-09-27 18:55
+- Cập nhật lần cuối: 2026-10-15 09:23
 - Đã hoàn thành:
-  - Cập nhật toàn diện công cụ **EPUB to TXT** thành **Reverse Engine** hai chiều chuẩn xác 100%:
-    - Nhận diện `<h1>` & `<h2>` (kể cả định dạng EPUB thông thường không class và có class căn lề/TOC): `@@`, `@@t`, `@@p`, `@`, `@t`, `@p`, `@!`, `@!t`, `@!p`.
-    - Chuyển đổi định dạng inline từ thẻ chuẩn (`<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<ins>`) lẫn `<span>` có inline CSS style &rarr; `*bold*`, `/italic/`, `_underline_`.
-    - Nhận diện khối trích dẫn `<blockquote>`, `<div class="quote|blockquote|epigraph">` & tác giả `<footer>`, `<cite>`, `<p class="author">` &rarr; `~` và `>`.
-    - Nhận diện khối thẻ ảnh `<figure class="illust-box">`, `<figure>`, `<p class="image">` & `<img class="illust-img">` &rarr; `[hinh-1]`.
-    - Khôi phục đầy đủ các loại ngắt phân cảnh từ EPUB ngoài (`• • •`, `***`, `* * *`, `---`, `*`, `<hr/>`, `<p class="separator">`) &rarr; `###`, `##`, `#`.
-    - Khôi phục khối đặc biệt `[poem]`, `[letter]`, `[new:center]`, `[new]`, `!D`.
-    - Trích xuất toàn bộ chú thích chân trang `<aside epub:type="footnote">` & thẻ liên kết `{n}` về khối `Chú thích:` ở cuối tài liệu TXT.
-  - Bộ kiểm thử mở rộng 262 test cases bao phủ đầy đủ các ca đảo ngược và bảo toàn cấu trúc Round-Trip lẫn EPUB thông thường.
+  - Bổ sung cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`:
+    - Tự động quét kiểm tra toàn bộ các khối thẻ cấu trúc: `[poem]` $\leftrightarrow$ `[/poem]`, `[letter]` $\leftrightarrow$ `[/letter]`, `[new]` / `[new:center]` $\leftrightarrow$ `[/new]`.
+    - Bắt lỗi chính xác theo số dòng (1-indexed): thẻ mở không có thẻ đóng tương ứng trước khi kết thúc tệp, thẻ đóng cô lập/thừa không có thẻ mở trước đó, lồng thẻ sai quy cách.
+    - Cơ chế **Fail-Fast**: Khi phát hiện lỗi cú pháp, parser lập tức dừng quy trình đọc/đóng gói, không sinh chương giả lập hay ép đóng thẻ tùy tiện, đồng thời hiển thị thông báo lỗi trực quan (Alert box màu đỏ kèm số dòng và tên thẻ) ngay trên giao diện cho người dùng sửa tệp TXT.
+    - Bộ kiểm thử mở rộng đạt 268/268 test cases bao phủ các ca kiểm tra cú pháp hợp lệ và không hợp lệ.
 - Đang dở: Không
-- Biết trước còn thiếu / nợ kỹ thuật: Không
+- Biết trước còn thiếu / nợ kỹ thuật:
+  - `knip` (oxc-parser) gặp lỗi cấp phát bộ nhớ ảo 6 GiB ArrayBuffer trên môi trường Linux có giới hạn virtual memory (`vm.overcommit_memory=0`).
 
 ---
 
 ## Changelog
+
+### 2026-10-15
+
+- Thêm/sửa: Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Cải tiến giao diện hiển thị banner cảnh báo lỗi.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (268/268 pass) | graphify ✅ (845 nodes, 1968 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/epub.type.ts`
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/parser/epub-source-parser.ts`
+  - `src/lib/epub-packer/state/epub-source-state.svelte.ts`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `tests/epub-parser.test.ts`
+  - `README.md`
 
 ### 2026-09-27
 

@@ -201,4 +201,17 @@ export interface ParseTxtOptions {
 	images?: Record<string, { fileName?: string }>;
 	warnings?: string[];
 	signal?: AbortSignal;
+	validateSyntax?: boolean;
+}
+
+export interface TxtSyntaxError {
+	lineNum: number;
+	lineContent: string;
+	message: string;
+	tag?: string;
+}
+
+export interface TxtSyntaxValidationResult {
+	isValid: boolean;
+	errors: TxtSyntaxError[];
 }

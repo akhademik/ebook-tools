@@ -196,7 +196,11 @@ export class EpubSourceState {
 				this.parseStatus = 'Đã hủy xử lý file TXT.';
 				return;
 			}
-			throw err;
+			const errorMsg = err instanceof Error ? err.message : String(err);
+			Logger.error('[EpubSourceState]', 'Lỗi khi xử lý file TXT:', err);
+			this.epubChapters = [];
+			this.parseStatus = errorMsg;
+			this.parseIsError = true;
 		} finally {
 			if (this.parseAbortController === ac) {
 				this.parseAbortController = null;
