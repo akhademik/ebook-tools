@@ -151,8 +151,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-15 09:52
+- Cập nhật lần cuối: 2026-10-15 10:15
 - Đã hoàn thành:
+  - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`):
+    - Chuỗi thông báo trạng thái nạp tệp TXT trong UI thực tế là `Đã xử lý file .TXT thành công (n chương).`.
+    - Cập nhật locator regex trong các test E2E từ `/Đã xử file .TXT thành công/i` sang `/Đã xử lý file \.TXT thành công/i`, giúp các test case E2E download inspection và workflow chạy pass 100%.
   - Bổ sung cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`:
     - Tự động quét kiểm tra toàn bộ các khối thẻ cấu trúc: `[poem]` $\leftrightarrow$ `[/poem]`, `[letter]` $\leftrightarrow$ `[/letter]`, `[new]` / `[new:center]` $\leftrightarrow$ `[/new]`.
     - Bắt lỗi chính xác theo số dòng (1-indexed): thẻ mở không có thẻ đóng tương ứng trước khi kết thúc tệp, thẻ đóng cô lập/thừa không có thẻ mở trước đó, lồng thẻ sai quy cách.
@@ -172,8 +175,8 @@ pnpm test:e2e
 
 ### 2026-10-15
 
-- Thêm/sửa: Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Mở rộng kiểm tra lỗi chú thích `{n}` thiếu ngoặc nhọn đóng và cảnh báo rút gọn rớt cặp định dạng inline (`*`, `/`, `_`), loại bỏ false flag cho các ký tự độc lập. Hỗ trợ khối chú thích footnote nhiều dòng (Multi-line Footnote Block) gom trọn vẹn vào thẻ `<aside>`. Tách riêng khu vực hiển thị cảnh báo trên UI.
-- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (272/272 pass) | graphify ✅ (850 nodes, 1977 edges)
+- Thêm/sửa: Sửa lỗi kiểm thử E2E Playwright trên CI/CD (`epub-download-inspection.spec.ts` & `epub-workflow.spec.ts`), khớp chính xác thông báo kết quả đọc file `Đã xử lý file .TXT thành công`. Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Mở rộng kiểm tra lỗi chú thích `{n}` thiếu ngoặc nhọn đóng và cảnh báo rút gọn rớt cặp định dạng inline (`*`, `/`, `_`), loại bỏ false flag cho các ký tự độc lập. Hỗ trợ khối chú thích footnote nhiều dòng (Multi-line Footnote Block) gom trọn vẹn vào thẻ `<aside>`. Tách riêng khu vực hiển thị cảnh báo trên UI.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (272/272 pass) | test e2e ✅ (12/12 pass) | graphify ✅ (847 nodes, 1936 edges)
 - File chính bị ảnh hưởng:
   - `src/lib/types/epub.type.ts`
   - `src/lib/epub-packer/parser/txt-syntax-validator.ts`

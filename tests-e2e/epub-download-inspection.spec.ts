@@ -82,7 +82,7 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 		await fileInput.setInputFiles(fixtureNovelPath);
 
 		// 2. Wait for parsing to finish
-		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({
+		await expect(page.getByText(/Đã xử lý file \.TXT thành công/i).first()).toBeVisible({
 			timeout: 25000
 		});
 

@@ -105,7 +105,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters recognized and parsed
-		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({
+		await expect(page.getByText(/Đã xử lý file \.TXT thành công/i).first()).toBeVisible({
 			timeout: 25000
 		});
 
@@ -140,7 +140,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fileInput.setInputFiles(fixtureTxtPath);
 
 		// 2. Verify chapters parsed
-		await expect(page.getByText(/Đã xử file .TXT thành công/i).first()).toBeVisible({
+		await expect(page.getByText(/Đã xử lý file \.TXT thành công/i).first()).toBeVisible({
 			timeout: 25000
 		});
 
