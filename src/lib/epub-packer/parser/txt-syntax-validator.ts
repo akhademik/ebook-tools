@@ -1,5 +1,5 @@
 // src/lib/epub-packer/parser/txt-syntax-validator.ts
-import type { TxtSyntaxError, TxtSyntaxValidationResult } from '$lib/types';
+import type { TxtSyntaxError, TxtSyntaxWarning, TxtSyntaxValidationResult } from '$lib/types';
 
 interface OpenBlockInfo {
 	tag: string;
@@ -9,11 +9,109 @@ interface OpenBlockInfo {
 }
 
 /**
- * Validates TXT content for syntax errors, focusing on unclosed, mismatched, or orphaned tags.
- * Throws early or returns errors list if unclosed tags like [poem], [letter], [new] are found.
+ * Checks a line for unclosed footnote syntax like `{123` or `{abc` without matching `}`.
+ */
+function checkFootnoteSyntax(line: string, lineNum: number, errors: TxtSyntaxError[]): void {
+	// Match { followed by text up to end of line or next space/char without closing }
+	const unclosedMatches = line.matchAll(/\{([^{}\n]*)(?:$|(?=\{))/g);
+	for (const m of unclosedMatches) {
+		const inner = m[1];
+		// If line contains closing brace for this opening brace, it's matched
+		// We verify if this specific `{` has a matching `}` afterwards in the string
+		const matchIndex = m.index ?? 0;
+		const restOfLine = line.slice(matchIndex);
+		if (!restOfLine.includes('}')) {
+			errors.push({
+				lineNum,
+				lineContent: line,
+				tag: '{...}',
+				message: `Dòng ${lineNum}: Dấu chú thích '{${inner.trim()}' mở nhưng thiếu dấu ngoặc nhọn đóng '}'.`
+			});
+		}
+	}
+}
+
+/**
+ * Checks a line for unclosed inline formatting markers like *bold*, /italic/, _underline_.
+ * Only checks markers that are attached to text (not surrounded by whitespace like 'ab / cd' or 'day la * binh thuong').
+ * An opening marker is attached on the right to non-whitespace, or a closing marker is attached on the left to non-whitespace.
+ */
+function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSyntaxWarning[]): void {
+	const trimmed = line.trim();
+	// Ignore scene breaks: *, **, ***, • • •, #, ##, ###
+	if (/^(\*{1,5}|#{1,3}|•(\s*•)+|-{3,})$/.test(trimmed)) {
+		return;
+	}
+
+	// Remove URLs (http://, https://, file://) before checking slashes
+	let sanitized = line.replace(/https?:\/\/[^\s]+/gi, '');
+	// Remove dates like 15/10/2026 or 1/2/2025
+	sanitized = sanitized.replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, '');
+	// Remove fractions like 1/2, 3/4
+	sanitized = sanitized.replace(/\b\d+\/\d+\b/g, '');
+	// Remove known tag constructs like [/poem], [/letter], [/new]
+	sanitized = sanitized.replace(/\[\/(?:poem|letter|new)\]/gi, '');
+
+	// 1. Check bold: First remove all valid completed bold pairs: *(non-space ... non-space)*
+	const boldPairRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
+	const textWithoutValidBolds = sanitized.replace(boldPairRegex, '');
+	// In the remainder, find asterisks that touch text: either '*text' or 'text*' (not isolated ' * ' or ' *')
+	const lingeringBoldMarker = /(?<!\\)(?:(?<=\S)\*(?!\d)|(?<!\d)\*(?=\S))/g;
+	const lingeringStars = textWithoutValidBolds.match(lingeringBoldMarker);
+	if (lingeringStars && lingeringStars.length > 0) {
+		warnings.push({
+			lineNum,
+			lineContent: line,
+			tag: '*',
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '*'`
+		});
+	}
+
+	// 2. Check underline: First remove all valid completed underline pairs: _(non-space ... non-space)_
+	// Ignore identifiers or illustration names like hinh_1, img_01
+	let underlineSanitized = sanitized.replace(/[\p{L}\p{N}]+_[\p{L}\p{N}]+/gu, '');
+	const underlinePairRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
+	underlineSanitized = underlineSanitized.replace(underlinePairRegex, '');
+	const lingeringUnderlineMarker = /(?<!\\)(?:(?<=\S)_(?![\p{L}\p{N}])|(?<![\p{L}\p{N}])_(?=\S))/gu;
+	const lingeringUnderlines = underlineSanitized.match(lingeringUnderlineMarker);
+	if (lingeringUnderlines && lingeringUnderlines.length > 0) {
+		warnings.push({
+			lineNum,
+			lineContent: line,
+			tag: '_',
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '_'`
+		});
+	}
+
+	// 3. Check italic: First remove all valid completed italic pairs: /(non-space ... non-space)/
+	const italicPairRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
+	const textWithoutValidItalics = sanitized.replace(italicPairRegex, (_match, content) => {
+		const cTrim = content.trim();
+		if (/^\d+$/.test(cTrim)) return _match;
+		if (cTrim.length <= 2 && /^\d+$/.test(cTrim.replace(/[^0-9]/g, ''))) return _match;
+		return '';
+	});
+	// In the remainder, find slashes that touch text: '/text' or 'text/' (not surrounded by space like ' a / b ')
+	const lingeringItalicMarker = /(?<!\\)(?:(?<=\S)\/(?!\d)|(?<!\d)\/(?=\S))/g;
+	const lingeringSlashes = textWithoutValidItalics.match(lingeringItalicMarker);
+	if (lingeringSlashes && lingeringSlashes.length > 0) {
+		warnings.push({
+			lineNum,
+			lineContent: line,
+			tag: '/',
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '/'`
+		});
+	}
+}
+
+/**
+ * Validates TXT content for syntax errors and warnings.
+ * - Errors (Fail-Fast): unclosed block tags ([poem], [letter], [new]), unclosed footnotes ({n})
+ * - Warnings: unclosed/odd inline formatting markers (*, /, _)
  */
 export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 	const errors: TxtSyntaxError[] = [];
+	const warnings: TxtSyntaxWarning[] = [];
 	const lines = String(rawText || '')
 		.replace(/\r\n/g, '\n')
 		.split('\n');
@@ -150,6 +248,12 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 			}
 			continue;
 		}
+
+		// Check for unclosed footnote syntax: {n
+		checkFootnoteSyntax(rawLine, lineNum, errors);
+
+		// Check for unclosed inline formatting markers: *, /, _
+		checkInlineFormatting(rawLine, lineNum, warnings);
 	}
 
 	// At end of file, check for any unclosed tags remaining in the stack
@@ -163,11 +267,13 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		});
 	}
 
-	// Sort errors by line number ascending
+	// Sort errors and warnings by line number ascending
 	errors.sort((a, b) => a.lineNum - b.lineNum);
+	warnings.sort((a, b) => a.lineNum - b.lineNum);
 
 	return {
 		isValid: errors.length === 0,
-		errors
+		errors,
+		warnings
 	};
 }

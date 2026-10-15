@@ -52,6 +52,7 @@ export class EpubSourceState {
 
 	parseStatus = $state<string>('');
 	parseIsError = $state<boolean>(false);
+	parseWarnings = $state<string[]>([]);
 
 	deps: EpubSourceStateDependencies;
 	private parseAbortController: AbortController | null = null;
@@ -180,11 +181,8 @@ export class EpubSourceState {
 			}
 
 			this.cleanedLinesReport = [];
-			if (warnings.length > 0) {
-				this.parseStatus = `${warnings.join(' | ')} (Tìm thấy ${this.epubChapters.length} chương)`;
-			} else {
-				this.parseStatus = `Đã xử file .TXT thành công — Tìm thấy ${this.epubChapters.length} chương. Nhấn "Đóng gói EPUB" để xuất file.`;
-			}
+			this.parseWarnings = warnings;
+			this.parseStatus = `Đã xử lý file .TXT thành công (${this.epubChapters.length} chương).`;
 			this.parseIsError = false;
 			Logger.info(
 				'[EpubSourceState]',
@@ -199,6 +197,7 @@ export class EpubSourceState {
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubSourceState]', 'Lỗi khi xử lý file TXT:', err);
 			this.epubChapters = [];
+			this.parseWarnings = [];
 			this.parseStatus = errorMsg;
 			this.parseIsError = true;
 		} finally {
@@ -222,22 +221,26 @@ export class EpubSourceState {
 			Logger.warn('[EpubSourceState]', 'Invalid file type selected', file.name);
 			this.parseStatus = 'Vui lòng chọn một tệp .ZIP hoặc .TXT hợp lệ.';
 			this.parseIsError = true;
+			this.parseWarnings = [];
 			return;
 		}
 
 		if (isTxt && file.size > MAX_TXT_FILE_SIZE) {
 			this.parseStatus = 'Dung lượng tệp .TXT vượt quá giới hạn cho phép (tối đa 50MB).';
 			this.parseIsError = true;
+			this.parseWarnings = [];
 			return;
 		}
 
 		if (isZip && file.size > MAX_ZIP_FILE_SIZE) {
 			this.parseStatus = 'Dung lượng tệp .ZIP vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.parseIsError = true;
+			this.parseWarnings = [];
 			return;
 		}
 
 		this.parseIsError = false;
+		this.parseWarnings = [];
 		this.epubFileSelected = file;
 		this.epubChapters = [];
 		this.epubRawFiles = [];

@@ -310,4 +310,20 @@
 			</div>
 		{/if}
 	{/if}
+
+	{#if epubState.source.parseWarnings.length > 0}
+		<div
+			class="font-mono text-xs mt-3.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex flex-col gap-1.5 animate-fade-in"
+		>
+			<div class="flex items-center gap-2 font-semibold">
+				<span class="text-sm leading-none">⚠️</span>
+				<span>Cảnh báo định dạng ({epubState.source.parseWarnings.length}):</span>
+			</div>
+			<div class="pl-6 flex flex-col gap-1 max-h-36 overflow-y-auto">
+				{#each epubState.source.parseWarnings as warn, wIdx (wIdx)}
+					<div class="leading-relaxed">{warn}</div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 </div>

@@ -1442,5 +1442,51 @@ Dòng văn bản bình thường trong thư.
 			expect(validation.errors).toHaveLength(0);
 			expect(() => parseTxtToChapters(txt)).not.toThrow();
 		});
+
+		it('should report error for unclosed footnote {n without closing brace', () => {
+			const txt = `@@ Chương 1\nĐoạn văn có chú thích {1 chưa đóng ngoặc nhọn.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(false);
+			expect(validation.errors).toHaveLength(1);
+			expect(validation.errors[0].lineNum).toBe(2);
+			expect(validation.errors[0].message).toContain(
+				"Dòng 2: Dấu chú thích '{1 chưa đóng ngoặc nhọn.' mở nhưng thiếu dấu ngoặc nhọn đóng '}'."
+			);
+			expect(() => parseTxtToChapters(txt)).toThrow(
+				"Dòng 2: Dấu chú thích '{1 chưa đóng ngoặc nhọn.' mở nhưng thiếu dấu ngoặc nhọn đóng '}'."
+			);
+		});
+
+		it('should report warnings for odd/unclosed inline formatting markers (*, /, _)', () => {
+			const txt = `@@ Chương 1\nĐoạn văn này có *in đậm chưa đóng\nĐoạn văn này có /in nghiêng chưa đóng\nĐoạn văn này có _gạch chân chưa đóng`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true); // Inline unclosed are warnings, not blocking errors
+			expect(validation.warnings).toBeDefined();
+			expect(validation.warnings?.length).toBe(3);
+			expect(validation.warnings?.[0].lineNum).toBe(2);
+			expect(validation.warnings?.[0].message).toBe("Dòng 2: Có khả năng thiếu dấu '*'");
+			expect(validation.warnings?.[1].lineNum).toBe(3);
+			expect(validation.warnings?.[1].message).toBe("Dòng 3: Có khả năng thiếu dấu '/'");
+			expect(validation.warnings?.[2].lineNum).toBe(4);
+			expect(validation.warnings?.[2].message).toBe("Dòng 4: Có khả năng thiếu dấu '_'");
+
+			const warnings: string[] = [];
+			parseTxtToChapters(txt, { warnings });
+			expect(warnings.length).toBe(3);
+		});
+
+		it('should ignore URLs and dates when checking italic slashes', () => {
+			const txt = `@@ Chương 1\nXem tại https://example.com/book và ngày 15/10/2026 hoặc tỷ lệ 1/2.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true);
+			expect(validation.warnings).toHaveLength(0);
+		});
+
+		it('should ignore isolated markers surrounded by whitespace (avoid false flags like ab / cd or day la * binh thuong)', () => {
+			const txt = `@@ Chương 1\nĐây là ab / cd bình thường.\nĐây là dấu * bình thường không dính chữ.\nĐây là dấu _ bình thường.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true);
+			expect(validation.warnings).toHaveLength(0);
+		});
 	});
 });

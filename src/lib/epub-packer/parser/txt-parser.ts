@@ -279,6 +279,11 @@ export function parseTxtToChapters(
 			const firstError = validation.errors[0];
 			throw new Error(firstError.message);
 		}
+		if (options.warnings && validation.warnings && validation.warnings.length > 0) {
+			for (const w of validation.warnings) {
+				options.warnings.push(w.message);
+			}
+		}
 	}
 
 	const customDefinitions = options.customDefinitions || [];

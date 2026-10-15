@@ -25,6 +25,7 @@ export type {
 	ParseTxtOptions,
 	RawChapterItem,
 	TxtSyntaxError,
+	TxtSyntaxWarning,
 	TxtSyntaxValidationResult
 } from '$lib/types';
 

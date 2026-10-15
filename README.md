@@ -151,13 +151,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-15 09:23
+- Cập nhật lần cuối: 2026-10-15 09:40
 - Đã hoàn thành:
   - Bổ sung cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`:
     - Tự động quét kiểm tra toàn bộ các khối thẻ cấu trúc: `[poem]` $\leftrightarrow$ `[/poem]`, `[letter]` $\leftrightarrow$ `[/letter]`, `[new]` / `[new:center]` $\leftrightarrow$ `[/new]`.
     - Bắt lỗi chính xác theo số dòng (1-indexed): thẻ mở không có thẻ đóng tương ứng trước khi kết thúc tệp, thẻ đóng cô lập/thừa không có thẻ mở trước đó, lồng thẻ sai quy cách.
+    - Kiểm tra chú thích chân trang `{n}`: phát hiện lỗi mở dấu `{...` nhưng thiếu dấu ngoặc nhọn đóng `}` trên dòng.
+    - Cảnh báo định dạng inline bị rớt dấu: phát hiện dấu in đậm `*`, in nghiêng `/`, gạch chân `_` dính sát chữ mà thiếu dấu đóng/mở tương ứng, tự động bỏ qua các dấu đứng độc lập như `ab / cd`, `day la * binh thuong` để tránh false flag.
+    - Tách riêng thông báo trạng thái chương và danh sách cảnh báo gọn gàng trên UI.
     - Cơ chế **Fail-Fast**: Khi phát hiện lỗi cú pháp, parser lập tức dừng quy trình đọc/đóng gói, không sinh chương giả lập hay ép đóng thẻ tùy tiện, đồng thời hiển thị thông báo lỗi trực quan (Alert box màu đỏ kèm số dòng và tên thẻ) ngay trên giao diện cho người dùng sửa tệp TXT.
-    - Bộ kiểm thử mở rộng đạt 268/268 test cases bao phủ các ca kiểm tra cú pháp hợp lệ và không hợp lệ.
+    - Bộ kiểm thử mở rộng đạt 272/272 test cases bao phủ các ca kiểm tra cú pháp hợp lệ và không hợp lệ.
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật:
   - `knip` (oxc-parser) gặp lỗi cấp phát bộ nhớ ảo 6 GiB ArrayBuffer trên môi trường Linux có giới hạn virtual memory (`vm.overcommit_memory=0`).
@@ -168,8 +171,8 @@ pnpm test:e2e
 
 ### 2026-10-15
 
-- Thêm/sửa: Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Cải tiến giao diện hiển thị banner cảnh báo lỗi.
-- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (268/268 pass) | graphify ✅ (845 nodes, 1968 edges)
+- Thêm/sửa: Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Mở rộng kiểm tra lỗi chú thích `{n}` thiếu ngoặc nhọn đóng và cảnh báo rút gọn rớt cặp định dạng inline (`*`, `/`, `_`), loại bỏ false flag cho các ký tự độc lập. Tách riêng khu vực hiển thị cảnh báo trên UI.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (272/272 pass) | graphify ✅ (850 nodes, 1977 edges)
 - File chính bị ảnh hưởng:
   - `src/lib/types/epub.type.ts`
   - `src/lib/epub-packer/parser/txt-syntax-validator.ts`

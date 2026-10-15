@@ -211,7 +211,15 @@ export interface TxtSyntaxError {
 	tag?: string;
 }
 
+export interface TxtSyntaxWarning {
+	lineNum: number;
+	lineContent: string;
+	message: string;
+	tag?: string;
+}
+
 export interface TxtSyntaxValidationResult {
 	isValid: boolean;
 	errors: TxtSyntaxError[];
+	warnings?: TxtSyntaxWarning[];
 }
