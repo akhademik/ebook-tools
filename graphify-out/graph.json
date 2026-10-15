@@ -4872,7 +4872,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27",
       "source_file": "README.md",
-      "source_location": "L183"
+      "source_location": "L186"
     },
     {
       "id": "readme_2026_09_27_tr\u01b0\u1edbc_\u0111\u00f3",
@@ -4884,7 +4884,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27 (truoc \u0111o)",
       "source_file": "README.md",
-      "source_location": "L192"
+      "source_location": "L195"
     },
     {
       "id": "readme_2026_10_15",
@@ -4896,7 +4896,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-15",
       "source_file": "README.md",
-      "source_location": "L171"
+      "source_location": "L172"
     },
     {
       "id": "readme_2_\u0111\u00f3ng_g\u00f3i_epub_epub_packer",
@@ -4968,7 +4968,7 @@
       "node_kind": "heading",
       "norm_label": "changelog",
       "source_file": "README.md",
-      "source_location": "L169"
+      "source_location": "L170"
     },
     {
       "id": "readme_c\u00e1c_c\u00f4ng_c\u1ee5_ch\u00ednh",
@@ -11789,7 +11789,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/parser/txt-parser.ts",
-      "source_location": "L317",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -11801,7 +11801,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/parser/txt-parser.ts",
-      "source_location": "L389",
+      "source_location": "L402",
       "weight": 1.0
     },
     {
@@ -11813,7 +11813,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/parser/txt-parser.ts",
-      "source_location": "L392",
+      "source_location": "L405",
       "weight": 1.0
     },
     {
@@ -11825,7 +11825,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/parser/txt-parser.ts",
-      "source_location": "L538",
+      "source_location": "L551",
       "weight": 1.0
     },
     {
@@ -27033,7 +27033,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L171",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -27044,7 +27044,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L183",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -27055,7 +27055,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L192",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -27165,7 +27165,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L169",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -33007,10 +33007,10 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L194",
+      "source_location": "L197",
       "weight": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2238069a73a6ed837986c81ac9c782f1fa6ea3f4"
+  "built_at_commit": "7c8e543573b459ebc5d7bf6aa4920a1057fe67df"
 }

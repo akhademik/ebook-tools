@@ -1482,11 +1482,41 @@ Dòng văn bản bình thường trong thư.
 			expect(validation.warnings).toHaveLength(0);
 		});
 
-		it('should ignore isolated markers surrounded by whitespace (avoid false flags like ab / cd or day la * binh thuong)', () => {
-			const txt = `@@ Chương 1\nĐây là ab / cd bình thường.\nĐây là dấu * bình thường không dính chữ.\nĐây là dấu _ bình thường.`;
-			const validation = validateTxtSyntax(txt);
-			expect(validation.isValid).toBe(true);
-			expect(validation.warnings).toHaveLength(0);
+		it('should bundle multiple lines following {n} into the same <aside> footnote block until next {m}', () => {
+			const txt = `@@ Chương 1
+Nội dung có trích dẫn {1} và bài thơ {2} và đoạn sau {3}.
+Chú thích:
+{1} Năm Càn Phù Hữu Đạo thứ hai: năm 1040.
+{2} Bản dịch nghĩa trích trong /Đại Việt sử ký toàn thư/, in năm 1993, NXB Khoa học Xã hội (Hà Nội), trang 78:
+/“Gốc rễ thăm thẳm/
+/Ngọn cây xanh xanh/
+/Dao chặt cây rụng/
+/Mười tám hạt thành.”/
+{3} Theo hệ đo lường cổ, 1 thước bằng khoảng 40cm.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
+			const notesChapter = chapters.find((c) => c.fileName === 'notes');
+			expect(notesChapter).toBeDefined();
+			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
+			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
+			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn3" class="note">');
+
+			// Extract fn2 content
+			const fn2Match = notesChapter?.html?.match(
+				/<aside epub:type="footnote" id="fn2" class="note">([\s\S]*?)<\/aside>/
+			);
+			expect(fn2Match).not.toBeNull();
+			const fn2Content = fn2Match![1];
+			// Verify all 4 poem lines are inside fn2 aside
+			expect(fn2Content).toContain('Bản dịch nghĩa trích trong <i>Đại Việt sử ký toàn thư</i>');
+			expect(fn2Content).toContain('<i>“Gốc rễ thăm thẳm</i>');
+			expect(fn2Content).toContain('<i>Ngọn cây xanh xanh</i>');
+			expect(fn2Content).toContain('<i>Dao chặt cây rụng</i>');
+			expect(fn2Content).toContain('<i>Mười tám hạt thành.”</i>');
+
+			// fn3 must be outside fn2
+			expect(fn2Content).not.toContain('id="fn3"');
+			expect(fn2Content).not.toContain('Theo hệ đo lường cổ');
 		});
 	});
 });

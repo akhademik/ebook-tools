@@ -306,23 +306,36 @@ export function parseTxtToChapters(
 
 		notesHtml += `<h1 class="main-chap center">Chú thích:</h1>\n`;
 		const footnoteContentLines = lines.slice(footnoteIdx + 1);
+		let currentNoteOpen = false;
+
 		for (const line of footnoteContentLines) {
 			const trimmed = line.trim();
 			if (!trimmed) continue;
 
 			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
 			if (fnMatch) {
+				if (currentNoteOpen) {
+					notesHtml += `</aside>\n`;
+				}
 				const n = fnMatch[1];
 				const content = fnMatch[2].trim();
 				const convertedContent = applyInlineFormatting(content, customDefinitions);
 				notesHtml +=
 					`<aside epub:type="footnote" id="fn${n}" class="note">\n` +
-					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n` +
-					`</aside>\n`;
+					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n`;
+				currentNoteOpen = true;
 			} else {
 				const converted = applyInlineFormatting(trimmed, customDefinitions);
-				notesHtml += `<p>${converted}</p>\n`;
+				if (currentNoteOpen) {
+					notesHtml += `  <p>${converted}</p>\n`;
+				} else {
+					notesHtml += `<p>${converted}</p>\n`;
+				}
 			}
+		}
+
+		if (currentNoteOpen) {
+			notesHtml += `</aside>\n`;
 		}
 	}
 
