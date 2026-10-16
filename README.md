@@ -185,14 +185,29 @@ pnpm test:e2e
     - Bổ sung hướng dẫn cú pháp vào bảng tra cứu `EpubSyntaxModal.svelte`.
     - Bộ kiểm thử mở rộng đạt 300/300 unit tests pass và 12/12 Playwright E2E tests pass.
   - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`).
-  - Cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`.
+  - Khắc phục triệt để lỗi CI/CD Prettier format trên GitHub Actions: chuẩn hóa sinh metadata font (`scripts/generate-fonts-meta.js` dùng tab và newline chuẩn `.prettierrc`).
+  - Nâng cấp [AI_WORKFLOW.md](AI_WORKFLOW.md) chốt chặn kiểm tra bắt buộc trước khi commit/push: yêu cầu chạy `pnpm format:check`, `pnpm check`, `pnpm lint`, `pnpm test`, `pnpm knip`, `pnpm build`, và `pnpm test:e2e` đồng bộ hoàn toàn với GitHub Actions `ci.yml`.
+  - Khắc phục triệt để lỗi `knip` (`oxc-parser` cấp phát 6 GiB buffer) bằng `KNIP_DISABLE_RAW_TRANSFER=1`, đưa `pnpm knip` về trạng thái pass 100% không còn nợ kỹ thuật.
 - Đang dở: Không
-- Biết trước còn thiếu / nợ kỹ thuật:
-  - `knip` (oxc-parser) gặp lỗi cấp phát bộ nhớ ảo 6 GiB ArrayBuffer trên môi trường Linux có giới hạn virtual memory (`vm.overcommit_memory=0`).
+- Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (CI/CD Pipeline Hardening & Knip Resolution)
+
+- Thêm/sửa: Chuẩn hóa toàn bộ quy trình xác thực CI/CD và giải quyết nợ kỹ thuật:
+  - Khắc phục lỗi GitHub Actions `Code formatting check (Prettier)`: chỉnh sửa `scripts/generate-fonts-meta.js` xuất định dạng `src/assets/fonts-metadata.json` bằng tab (`\t`) và ký tự ngắt dòng cuối tệp (`\n`) đúng chuẩn `.prettierrc`.
+  - Xử lý triệt để lỗi `knip` (do `oxc-parser` cố gắng cấp phát 6 GiB ArrayBuffer trên Linux): cấu hình script `"knip": "KNIP_DISABLE_RAW_TRANSFER=1 knip"` trong `package.json`, knip quét thành công 100% không phát hiện file rác / dead code.
+  - Cập nhật [AI_WORKFLOW.md](AI_WORKFLOW.md) mục 2: thiết lập Chu trình kiểm tra cục bộ và Pipeline Chốt Chặn CI/CD bắt buộc 100% pass trước khi commit/push (bao gồm `pnpm format:check`, `pnpm build`, `pnpm test:e2e`).
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (300/300 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (887 nodes, 2024 edges)
+- File chính bị ảnh hưởng:
+  - `scripts/generate-fonts-meta.js`
+  - `src/assets/fonts-metadata.json`
+  - `package.json`
+  - `AI_WORKFLOW.md`
+  - `README.md`
 
 ### 2026-10-16 (Web Worker Lifecycle Hardening & Listener Leak Prevention)
 

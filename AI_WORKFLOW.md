@@ -47,50 +47,78 @@ Chỉ sau khi xác nhận (hoặc người dùng đồng ý) mới bắt đầu 
 
 ---
 
-## 2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code
+## 2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code & Trước khi Commit
 
 > **Package manager: chỉ dùng `pnpm`.** Tuyệt đối không dùng `npm`/`yarn`/`npx` dưới bất kỳ hình thức nào. Chạy binary chưa cài thì dùng `pnpm dlx ...`.
 
-Sau khi AI edit xong 1 tác vụ (dù nhỏ), **PHẢI** chạy tuần tự, dừng lại và sửa nếu bước nào fail trước khi qua bước kế:
+### 2.1 Chu trình kiểm tra cục bộ khi sửa code (Local Dev Loop)
+
+Sau khi AI edit xong 1 tác vụ, chạy tuần tự để phát hiện sớm lỗi:
 
 ```bash
-# 1. Format
-pnpm format          # prettier --write . (hoặc `pnpm biome format --write .` nếu dùng Biome)
+# 1. Format code
+pnpm format
 
-# 2. Lint
-pnpm lint            # eslint . (hoặc `pnpm biome lint .` nếu dùng Biome)
+# 2. Type check & Lint
+pnpm check
+pnpm lint
 
-# 3. Type check
-pnpm check           # svelte-check --tsconfig ./tsconfig.json
+# 3. Test nhanh
+pnpm test:smoke      # hoặc pnpm test
+```
 
-# 4. Test
-pnpm test
+### 2.2 Pipeline Chốt Chặn CI/CD (BẮT BUỘC 100% PASS TRƯỚC KHI COMMIT HOẶC PUSH)
 
-# 5. Phát hiện code thừa / export không dùng / dependency chết
-pnpm dlx knip         # hoặc `pnpm knip` nếu đã có trong devDependencies + script
+Để đảm bảo GitHub Actions CI/CD (`.github/workflows/ci.yml`) **tuyệt đối không bao giờ fail**, trước khi commit/push, AI **PHẢI** chạy trọn vẹn chuỗi lệnh sau theo đúng thứ tự:
 
-# 6. Phân tích cấu trúc / dependency graph
+```bash
+# 1. Format toàn bộ & Kiểm tra định dạng (Chống trôi style)
+pnpm format
+pnpm format:check    # BẮT BUỘC: Thoát mã 0, không có bất kỳ warning nào!
+
+# 2. Kiểm tra Type & Linting
+pnpm check           # SvelteKit sync & TypeScript strict mode (0 error, 0 warning)
+pnpm lint            # ESLint
+
+# 3. Chạy toàn bộ Unit & Regression Tests
+pnpm test            # Đảm bảo 100% test suites đều pass
+
+# 4. Quét Dead Code & Dependencies
+pnpm knip            # Knip scan không phát hiện export thừa / rác
+
+# 5. Build Production Bundle (Bắt buộc để kiểm tra Vite & prebuild scripts)
+pnpm build           # Kiểm tra đóng gói production thành công
+
+# 6. Kiểm tra lại Format sau Build
+pnpm format:check    # Đảm bảo các script tự sinh file (như generate-fonts-meta.js) không làm lệch format
+
+# 7. E2E Browser Tests
+pnpm test:e2e        # Đảm bảo tất cả Playwright E2E browser tests pass
+
+# 8. Phân tích cấu trúc & Dependency Graph
 /graphiphy
 ```
 
-> Ghi chú: `/graphiphy` là công cụ đã được cài sẵn cho AI (không phải lệnh shell trong project), gọi trực tiếp như một lệnh/tool có sẵn, không cần cài đặt hay kiểm tra lại.
+> **Lưu ý cốt lõi:**
 >
-> Thứ tự **format trước, lint sau** vì format có thể tự sửa style khiến lint chạy trên code đã chuẩn hoá, tránh báo lỗi style thừa.
+> - Mọi script tự sinh/cập nhật file tự động (ví dụ `scripts/generate-fonts-meta.js`) **PHẢI** tuân thủ cấu hình của `.prettierrc` (sử dụng tabs `\t`, trailing newline `\n`). Tuyệt đối không để script sinh file gây bẩn git working tree hoặc làm fail `pnpm format:check` sau khi chạy `pnpm build`.
+> - Nếu `pnpm format:check` báo cảnh báo ở bất kỳ file nào → PHẢI format lại và tìm hiểu nguyên nhân tại sao file đó bị format sai trước khi commit.
 
 **Quy tắc xử lý lỗi:**
 
-- Nếu `format` thay đổi file → coi là bình thường, không cần giải thích, nhưng phải review lại diff trước khi chạy tiếp để chắc không đổi logic.
+- Nếu `format:check` fail → chạy `pnpm format`, kiểm tra nguyên nhân file bị lệch style, và chạy lại `pnpm format:check`.
 - Nếu `lint` fail → tự sửa theo rule, không dùng `--fix` mù quáng nếu ảnh hưởng logic.
 - Nếu `check` (type) fail → ưu tiên sửa type gốc trong `src/lib/types/`, không ép `as any`/`as unknown as X` để né lỗi.
 - Nếu `test` fail → xác định do code mới sai hay test cũ outdated, sửa đúng nguồn gốc, không xoá test để "cho qua".
 - Nếu `knip` báo file/export thừa → cân nhắc xoá thật, hoặc nếu vẫn cần (public API, dùng động...) thì thêm annotation loại trừ trong `knip.json` kèm lý do.
+- Nếu `build` fail → kiểm tra lại import, SSR safety, dynamic imports, cấu hình vite và adapter.
 - Nếu `/graphiphy` phát hiện vòng lặp import, node quá to (god node), hoặc file cô lập bất thường → phải xử lý (tách nhỏ, phá vòng lặp) trước khi coi task là "xong".
 
-Không được báo cáo "hoàn thành" với người dùng nếu 1 trong 6 bước trên còn fail mà chưa giải thích rõ lý do.
+Không được báo cáo "hoàn thành" hoặc offer commit/push nếu bất kỳ bước nào trong pipeline trên còn fail.
 
 ---
 
-## 2.1 Quy tắc chỉnh sửa file (bắt buộc)
+### 2.3 Quy tắc chỉnh sửa file (bắt buộc)
 
 - **KHÔNG** dùng `cat > file`, `cat <<EOF`, `node -e "..."`, hay các lệnh shell khác để tạo/ghi đè nội dung file. Các cách này thường khiến hệ thống yêu cầu xác nhận nhiều lần và làm chậm/khó theo dõi diff.
 - **PHẢI** dùng công cụ edit file chuyên dụng có sẵn (edit/str_replace/patch theo tool của AI đang dùng) để:

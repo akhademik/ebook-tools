@@ -22,7 +22,7 @@
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
-		"knip": "knip"
+		"knip": "KNIP_DISABLE_RAW_TRANSFER=1 knip"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

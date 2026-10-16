@@ -39,7 +39,7 @@ for (const file of files) {
 
 // Đảm bảo thư mục tồn tại và xuất JSON
 fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
-fs.writeFileSync(OUTPUT_FILE, JSON.stringify(metadata, null, 2), 'utf-8');
+fs.writeFileSync(OUTPUT_FILE, JSON.stringify(metadata, null, '\t') + '\n', 'utf-8');
 
 console.log(`\n======================================================`);
 console.log(`✅ Đã xuất metadata cho ${Object.keys(metadata).length} font vào: ${OUTPUT_FILE}`);
