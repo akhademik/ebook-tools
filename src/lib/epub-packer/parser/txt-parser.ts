@@ -433,6 +433,24 @@ export function parseTxtToChapters(
 				continue;
 			}
 
+			// In letter or poem, allow @@! or @! heading styles with no-toc
+			const blockHeadingMatch = stripped.match(/^(@{1,2})!(t|p)?\s+(.+)$/);
+			if (blockHeadingMatch) {
+				const atCount = blockHeadingMatch[1].length;
+				const alignChar = blockHeadingMatch[2];
+				const titleRaw = blockHeadingMatch[3].trim();
+				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
+				const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
+				const activeChapter = ensureChapterOpen();
+				if (atCount === 2) {
+					activeChapter.html += `  <h1 class="main-chap ${align} no-toc">${titleFormatted}</h1>\n`;
+				} else {
+					activeChapter.html += `  <h2 class="side-chap ${align} no-toc">${titleFormatted}</h2>\n`;
+				}
+				lineIdx++;
+				continue;
+			}
+
 			const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
 			if (illustMatch) {
 				const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
@@ -534,6 +552,14 @@ export function parseTxtToChapters(
 		}
 
 		if (/^\[\/(new|new:center)\]$/i.test(stripped)) {
+			if (currentChapter && !currentChapter.hasCustomTitle) {
+				const pageNum = currentChapter.firstSourcePageNum || chapters.length;
+				const warnMsg = `Trang ${pageNum}: Khối [new] không chứa tiêu đề (@@ hoặc @). Trang nhận tiêu đề mặc định là '${currentChapter.title}'.`;
+				Logger.warn('[epub-parser]', warnMsg);
+				if (options.warnings) {
+					options.warnings.push(warnMsg);
+				}
+			}
 			if (isInsideNewCenterBlock) {
 				if (currentChapter) {
 					currentChapter.html += '  </div>\n</section>\n';

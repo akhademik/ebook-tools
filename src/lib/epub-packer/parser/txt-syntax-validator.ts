@@ -294,18 +294,39 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		// Check for unclosed inline formatting markers: *, /, _
 		checkInlineFormatting(rawLine, lineNum, warnings);
 
-		// Check for page-breaking @@ (not @@!) inside [letter-box] without outer [new] wrapper
-		if (/^@@(?!!)/i.test(stripped)) {
-			const activeLetterBox = blockStack.find((b) => b.tag === 'letter-box');
-			if (activeLetterBox) {
-				const hasNewWrapper = blockStack.some((b) => b.tag === 'new' || b.tag === 'new:center');
-				if (!hasNewWrapper) {
+		// Check for heading syntax
+		const headingSyntaxMatch = stripped.match(/^(@{1,2})(!)?(t|p)?\s+(.+)$/);
+		if (headingSyntaxMatch) {
+			const atCount = headingSyntaxMatch[1].length;
+			const isNoToc = headingSyntaxMatch[2] === '!';
+			const isInsideLetterOrPoem = blockStack.some((b) => b.tag === 'letter' || b.tag === 'poem');
+
+			if (isInsideLetterOrPoem) {
+				const activeLetterOrPoem = blockStack.findLast(
+					(b) => b.tag === 'letter' || b.tag === 'poem'
+				)!;
+				if (!isNoToc) {
+					// User rule: only @@! or @! are allowed in letter or poem
 					errors.push({
 						lineNum,
 						lineContent: rawLine,
-						tag: '@@',
-						message: `Dòng ${lineNum}: Tiêu đề phân chương '@@' nằm bên trong khối [letter-box] (mở tại dòng ${activeLetterBox.lineNum}) sẽ làm vỡ cấu trúc XHTML. Vui lòng đóng [/letter-box] trước khi mở chương mới, hoặc bọc ngoài bằng [new].`
+						tag: headingSyntaxMatch[1],
+						message: `Dòng ${lineNum}: Trong khối [${activeLetterOrPoem.tag}] (mở tại dòng ${activeLetterOrPoem.lineNum}), chỉ cho phép dùng '${headingSyntaxMatch[1]}!' để lấy kiểu dáng tiêu đề không tạo mục lục. Tiêu đề '${headingSyntaxMatch[1]}' không hợp lệ bên trong khối này.`
 					});
+				}
+			} else if (atCount === 2 && !isNoToc) {
+				// Not inside letter or poem: check @@ (not @@!) inside [letter-box] without outer [new] wrapper
+				const activeLetterBox = blockStack.find((b) => b.tag === 'letter-box');
+				if (activeLetterBox) {
+					const hasNewWrapper = blockStack.some((b) => b.tag === 'new' || b.tag === 'new:center');
+					if (!hasNewWrapper) {
+						errors.push({
+							lineNum,
+							lineContent: rawLine,
+							tag: '@@',
+							message: `Dòng ${lineNum}: Tiêu đề phân chương '@@' nằm bên trong khối [letter-box] (mở tại dòng ${activeLetterBox.lineNum}) sẽ làm vỡ cấu trúc XHTML. Vui lòng đóng [/letter-box] trước khi mở chương mới, hoặc bọc ngoài bằng [new].`
+						});
+					}
 				}
 			}
 		}

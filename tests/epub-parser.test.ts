@@ -1329,11 +1329,11 @@ Chú thích:
 			);
 		});
 
-		it('should support quotes (~) and authors (>) inside [letter] and [poem] while ignoring headings (@@, @)', () => {
+		it('should support quotes (~) and authors (>) as well as @@! and @! inside [letter] and [poem]', () => {
 			const txt = `@@ Chương Thử Nghiệm
 [letter]
-@@ Tiêu đề bị ignore
-@ Tiêu đề con bị ignore
+@@! Tiêu đề trong thư
+@! Tiêu đề con trong thư
 ~ Lời nhắn trong thư
 > Người gửi A
 Dòng văn bản bình thường trong thư.
@@ -1346,8 +1346,12 @@ Dòng văn bản bình thường trong thư.
 			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
 			expect(chapters).toHaveLength(1);
 			expect(chapters[0].html).toContain('<div class="letter">');
-			expect(chapters[0].html).toContain('<p>@@ Tiêu đề bị ignore</p>');
-			expect(chapters[0].html).toContain('<p>@ Tiêu đề con bị ignore</p>');
+			expect(chapters[0].html).toContain(
+				'  <h1 class="main-chap center no-toc">Tiêu đề trong thư</h1>'
+			);
+			expect(chapters[0].html).toContain(
+				'  <h2 class="side-chap center no-toc">Tiêu đề con trong thư</h2>'
+			);
 			expect(chapters[0].html).toContain(
 				'  <blockquote class="center"><p>Lời nhắn trong thư</p><footer>Người gửi A</footer></blockquote>'
 			);
@@ -1810,6 +1814,63 @@ Nội dung trang giữa
 				expect(() => parseTxtToChapters(txt, {}, 'Tên Sách')).toThrow(
 					'Thẻ đóng [/new:center] chỉ được dùng để đóng khối [new:center]'
 				);
+			});
+
+			it('should allow @@! and @! inside [letter] and [poem] without chapter split and with no-toc', () => {
+				const txt = `@@ Chương 1
+[letter-box]
+[letter]
+@@! Tiêu Đề Thư H1
+@! Tiêu Đề Thư H2
+Nội dung bức thư
+[/letter]
+[/letter-box]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain(
+					'<h1 class="main-chap center no-toc">Tiêu Đề Thư H1</h1>'
+				);
+				expect(chapters[0].html).toContain(
+					'<h2 class="side-chap center no-toc">Tiêu Đề Thư H2</h2>'
+				);
+			});
+
+			it('should reject @@ and @ inside [letter] or [poem] because only @@! or @! are allowed', () => {
+				const txtWithChapter = `@@ Chương 1
+[letter]
+@@ Tiêu đề chương sai
+[/letter]`;
+				const val1 = validateTxtSyntax(txtWithChapter);
+				expect(val1.isValid).toBe(false);
+				expect(val1.errors[0].message).toContain('Trong khối [letter]');
+				expect(val1.errors[0].message).toContain("chỉ cho phép dùng '@@!'");
+
+				const txtWithSideChap = `@@ Chương 1
+[poem]
+@ Tiêu đề phụ sai
+[/poem]`;
+				const val2 = validateTxtSyntax(txtWithSideChap);
+				expect(val2.isValid).toBe(false);
+				expect(val2.errors[0].message).toContain('Trong khối [poem]');
+				expect(val2.errors[0].message).toContain("chỉ cho phép dùng '@!'");
+			});
+
+			it('should warn when [new] block does not contain any heading and receives default title', () => {
+				const txt = `[new]
+Trang lời đề tặng không có tiêu đề
+[/new]
+@@ Chương 1
+Nội dung chương 1`;
+				const warnings: string[] = [];
+				const chapters = parseTxtToChapters(txt, { warnings }, 'Tên Sách');
+				expect(chapters).toHaveLength(2);
+				expect(chapters[0].title).toBe('Giới Thiệu');
+				expect(chapters[0].hasCustomTitle).toBe(false);
+				expect(warnings.some((w) => w.includes('Khối [new] không chứa tiêu đề'))).toBe(true);
 			});
 		});
 	});

@@ -269,10 +269,11 @@ export async function processPdfToJpg(
 					worker.addEventListener('messageerror', handleErr);
 
 					try {
+						const workerBuf = arrayBuffer.slice(0);
 						worker.postMessage(
 							{
 								id: requestId,
-								pdfBytes: arrayBuffer.slice(0),
+								pdfBytes: workerBuf,
 								startPage: w + 1,
 								endPage: numPages,
 								step: concurrency,
@@ -280,7 +281,7 @@ export async function processPdfToJpg(
 								cropTopPx,
 								cropBottomPx
 							},
-							[arrayBuffer.slice(0)]
+							[workerBuf]
 						);
 					} catch (postErr) {
 						cleanup();

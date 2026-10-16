@@ -291,7 +291,7 @@
 				class="font-mono text-xs mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-start gap-2.5 animate-fade-in"
 			>
 				<span class="text-sm shrink-0 leading-none">⚠️</span>
-				<div class="flex-1 break-words leading-relaxed font-medium">
+				<div class="flex-1 break-words whitespace-pre-line leading-relaxed font-medium">
 					{epubState.source.parseStatus}
 				</div>
 			</div>

@@ -188,12 +188,40 @@ pnpm test:e2e
   - Khắc phục triệt để lỗi CI/CD Prettier format trên GitHub Actions: chuẩn hóa sinh metadata font (`scripts/generate-fonts-meta.js` dùng tab và newline chuẩn `.prettierrc`).
   - Nâng cấp [AI_WORKFLOW.md](AI_WORKFLOW.md) chốt chặn kiểm tra bắt buộc trước khi commit/push: yêu cầu chạy `pnpm format:check`, `pnpm check`, `pnpm lint`, `pnpm test`, `pnpm knip`, `pnpm build`, và `pnpm test:e2e` đồng bộ hoàn toàn với GitHub Actions `ci.yml`.
   - Khắc phục triệt để lỗi `knip` (`oxc-parser` cấp phát 6 GiB buffer) bằng `KNIP_DISABLE_RAW_TRANSFER=1`, đưa `pnpm knip` về trạng thái pass 100% không còn nợ kỹ thuật.
+  - Hoàn tất khắc phục 6 điểm từ bản đánh giá lại `review.md`:
+    - Thêm `whitespace-pre-line` hiển thị danh sách lỗi gộp trên `EpubSourceSection.svelte`.
+    - Chuẩn hóa cú pháp trong khối `[letter]` và `[poem]`: chỉ cho phép `@@!` và `@!`, chặn `@@` và `@` không hợp lệ.
+    - Loại trừ hoa văn chương `chapter-ornament` cho thẻ `h1.no-toc` (`@@!`), chống lặp 2 hoa văn trong 1 chương.
+    - Tối ưu hóa bộ nhớ `pdf-splitter.ts` với Zero-Copy ArrayBuffer Transfer.
+    - Dùng cờ `hasCustomTitle: false` trong `nav-builder` và cảnh báo khi khối `[new]` thiếu tiêu đề.
+  - Bộ kiểm thử mở rộng đạt 303/303 unit tests pass và 12/12 Playwright E2E tests pass 100%.
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (Review Refinements: UI Error Wrap, Letter/Poem Headings, Ornament Fix & PDF Zero-Copy)
+
+- Thêm/sửa: Hoàn tất 6 cải tiến chất lượng và hiệu năng từ `review.md`:
+  - `EpubSourceSection.svelte`: Bổ sung class `whitespace-pre-line` vào khung báo lỗi, giúp danh sách lỗi cú pháp hiển thị xuống dòng trực quan.
+  - `txt-syntax-validator.ts` & `txt-parser.ts`: Giới hạn cú pháp tiêu đề bên trong khối `[letter]` và `[poem]` chỉ cho phép `@@!` và `@!` (áp dụng `h1`/`h2` kèm class `no-toc`), ném lỗi cú pháp rõ ràng nếu người dùng dùng `@@` hoặc `@`.
+  - `chapter-builder.ts`: Bổ sung điều kiện kiểm tra `no-toc` cho thẻ `<h1>` trước khi chèn `chapter-ornament`, loại bỏ tình trạng chèn lặp hoa văn khi xuất hiện `@@!`.
+  - `pdf-splitter.ts`: Sửa lỗi nhân đôi bộ nhớ worker khi truyền ArrayBuffer, áp dụng cơ chế Zero-Copy Transfer (`workerBuf` dùng chung cho payload và transferList).
+  - `txt-parser.ts` & `nav-builder.ts`: Dùng cờ `hasCustomTitle: false` trên chương và phát sinh warning khi khối `[new]` thiếu tiêu đề.
+  - Bổ sung 3 unit tests mới cho `txt-parser` và 1 unit test cho `chapter-builder` (nâng tổng số tests lên 303/303 pass).
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (303/303 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (888 nodes, 2024 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `src/lib/epub-packer/xml-builders/nav-builder.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
 
 ### 2026-10-16 (CI/CD Pipeline Hardening & Knip Resolution)
 

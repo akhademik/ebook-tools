@@ -240,7 +240,7 @@ describe('epub-packer tests', () => {
 			expect(html).not.toContain('class="dropcap"');
 		});
 
-		it('should inject chapter and subchapter ornaments and ignore break-main-chap and no-toc h2', () => {
+		it('should inject chapter and subchapter ornaments and ignore break-main-chap and no-toc h1/h2', () => {
 			const ornaments = {
 				chapterOrnament: { fileName: 'pre-chap.png', mimeType: 'image/png' },
 				subchapterOrnament: { fileName: 'pre-small-chap.png', mimeType: 'image/png' }
@@ -251,7 +251,7 @@ describe('epub-packer tests', () => {
 				{
 					title: 'Chương 1',
 					fileName: 'chap_01',
-					html: '<h1 class="main-chap center">CUỐN I</h1>\n<h2 class="side-chap center">1</h2>\n<h2 class="side-chap center no-toc">2</h2>\n<h1 class="break-main-chap">PHẦN I</h1>'
+					html: '<h1 class="main-chap center">CUỐN I</h1>\n<h1 class="main-chap center no-toc">H1 KHÔNG TOC</h1>\n<h2 class="side-chap center">1</h2>\n<h2 class="side-chap center no-toc">2</h2>\n<h1 class="break-main-chap">PHẦN I</h1>'
 				},
 				false,
 				'',
@@ -260,6 +260,10 @@ describe('epub-packer tests', () => {
 
 			expect(html).toContain(
 				'<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="main-chap center">CUỐN I</h1>'
+			);
+			expect(html).toContain('<h1 class="main-chap center">H1 KHÔNG TOC</h1>');
+			expect(html).not.toContain(
+				'<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="main-chap center">H1 KHÔNG TOC</h1>'
 			);
 			expect(html).toContain(
 				'<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">1</h2>'

@@ -139,7 +139,7 @@ export function buildChapterXhtml(
 			content = content.replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/gi, (match) => {
 				const classMatch = match.match(/class=["']([^"']*)["']/i);
 				const classes = classMatch ? classMatch[1].split(/\s+/) : [];
-				if (classes.includes('break-main-chap')) {
+				if (classes.includes('break-main-chap') || classes.includes('no-toc')) {
 					return match;
 				}
 				return (
