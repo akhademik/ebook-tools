@@ -212,6 +212,22 @@ describe('epub-packer tests', () => {
 			expect(html).toContain('<p>Cuốn sách này dành cho gia đình.</p>');
 		});
 
+		it('should preserve manual dropcap [c] inside center-page chapters while ignoring automatic dropcaps', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Giới Thiệu',
+					fileName: 'chap_01',
+					features: { hasCenterPage: true, preserveParagraphs: true },
+					html: '<section class="center-page">\n<div class="center-page-content">\n<h2 class="side-chap center">Kính Tặng</h2>\n<p class="has-dropcap"><span class="dropcap">K</span>ính tặng cha mẹ.</p>\n<p>Đoạn văn tiếp theo không dropcap.</p>\n</div>\n</section>'
+				}
+			);
+			expect(html).toContain(
+				'<p class="has-dropcap"><span class="dropcap">K</span>ính tặng cha mẹ.</p>'
+			);
+			expect(html).toContain('<p>Đoạn văn tiếp theo không dropcap.</p>');
+		});
+
 		it('should not add dropcap to special pages like jacket or cover', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },
@@ -405,6 +421,10 @@ describe('epub-packer tests', () => {
 			// Center page
 			const centerPageHtml = `<section class="center-page">\n<div class="center-page-content">\n<p>Lời nói đầu</p>\n<p>dành tặng bạn</p>\n</div>\n</section>`;
 			expect(mergeBrokenParagraphs(centerPageHtml)).toBe(centerPageHtml);
+
+			// Letter-box
+			const letterBoxHtml = `<div class="letter-box">\n<p>Dòng trong hộp 1</p>\n<p>dòng trong hộp 2 viết thường</p>\n</div>`;
+			expect(mergeBrokenParagraphs(letterBoxHtml)).toBe(letterBoxHtml);
 
 			// Mixed prose and poem
 			const mixedHtml = `<p>Đoạn văn xuôi trước</p>\n<div class="poem">\n<p>Dòng thơ 1</p>\n<p>dòng thơ 2</p>\n</div>\n<p>Đoạn văn dở</p>\n<p>tiếp tục đoạn văn dở.</p>`;
@@ -738,6 +758,30 @@ describe('epub-packer tests', () => {
 				{ title: 'Tiêu đề H1', url: 'text/chap_01.xhtml' },
 				{ title: 'Mục H2.1 Có TOC', url: 'text/chap_01.xhtml#h2-1' }
 			]);
+		});
+
+		it('should deduplicate TOC when chapter has "Giới Thiệu" title or first heading matches chapter title', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'Giới Thiệu',
+					html: '<h2 id="heading-2-1" class="side-chap center">Lời Nói Đầu</h2>'
+				},
+				{
+					fileName: 'chap_02',
+					title: 'Chương 1',
+					html: '<h2 id="heading-2-2" class="side-chap center">Chương 1</h2>\n<h2 id="heading-2-3" class="side-chap center">Phần 1</h2>'
+				}
+			];
+			const nav = buildNavXhtml({ language: 'vi' }, chapters);
+			expect(nav).toContain('<a href="text/chap_01.xhtml">Lời Nói Đầu</a>');
+			expect(nav).not.toContain('>Giới Thiệu<');
+			expect(nav).toContain('<a href="text/chap_02.xhtml">Chương 1</a>');
+			expect(nav).toContain('<a href="text/chap_02.xhtml#heading-2-3">Phần 1</a>');
+
+			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
+			expect(ncx).toContain('<text>Lời Nói Đầu</text>');
+			expect(ncx).not.toContain('<text>Giới Thiệu</text>');
 		});
 
 		it('should add illustrations to manifest in content.opf and package images to zip', async () => {

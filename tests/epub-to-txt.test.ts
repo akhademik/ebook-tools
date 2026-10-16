@@ -80,6 +80,18 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 			expect(text).toContain('@@ Chương Chung Không Class Hệ Thống');
 		});
 
+		it('should detect h1 with no-toc and convert to @@! / @@!t / @@!p', () => {
+			const html = `
+				<h1 class="main-chap center no-toc">Tiêu Đề Lớn Không Mục Lục</h1>
+				<h1 class="main-chap left no-toc">Tiêu Đề Trái Ẩn TOC</h1>
+				<h1 class="main-chap right no-toc">Tiêu Đề Phải Ẩn TOC</h1>
+			`;
+			const text = htmlToCleanText(html);
+			expect(text).toContain('@@! Tiêu Đề Lớn Không Mục Lục');
+			expect(text).toContain('@@!t Tiêu Đề Trái Ẩn TOC');
+			expect(text).toContain('@@!p Tiêu Đề Phải Ẩn TOC');
+		});
+
 		it('should detect h2 with classes and convert to @ / @t / @p and @! / @!t / @!p for no-toc', () => {
 			const html = `
 				<h2 id="heading-2-2" class="side-chap center">THÁNH NHÂN ĐÃI KẺ KHÙ KHỜ...</h2>

@@ -1,7 +1,7 @@
 # Graph Report - ebook-tools  (2026-10-16)
 
 ## Corpus Check
-- 142 files · ~92,804 words
+- 142 files · ~93,533 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 48 file(s) not represented in the graph (top: .otf 18, .ttf 15, .css 10)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `df0b646d`
+- Built from commit: `b88d3490`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

@@ -151,7 +151,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 11:55
+- Cập nhật lần cuối: 2026-10-16 12:15
 - Đã hoàn thành:
   - Cải tiến tính năng biên tập theo yêu cầu đánh giá (Vấn đề 2, 3, 4, 5, 7):
     - **Vấn đề 2 & 5 (Placeholder 'Giới Thiệu' & TOC gộp)**: Khối `[new]` và `[new:center]` mặc định nhận tiêu đề `Giới Thiệu` thay vì trùng tên sách; khi có `@@` hoặc `@` bên trong thì ưu tiên tuyệt đối tiêu đề đó và tự động khử trùng lặp mục lục TOC trong `nav-builder`.
@@ -173,7 +173,7 @@ pnpm test:e2e
     - Loại trừ `letter-box` khỏi nhận diện thẻ ảnh minh họa `isIllustrationTag`.
     - Hỗ trợ cơ chế dịch ngược **EPUB to TXT** (`htmlToCleanText` & `replaceNestedDiv`), nhận diện chính xác thẻ `<div>` lồng nhau.
     - Bổ sung hướng dẫn cú pháp vào bảng tra cứu `EpubSyntaxModal.svelte`.
-    - Bộ kiểm thử mở rộng đạt 290/290 unit tests pass và 12/12 Playwright E2E tests pass.
+    - Bộ kiểm thử mở rộng đạt 296/296 unit tests pass và 12/12 Playwright E2E tests pass.
   - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`).
   - Cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`.
 - Đang dở: Không
@@ -183,6 +183,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-16 (CI/CD Verification & Expanded Test Coverage)
+
+- Thêm/sửa: Kiểm tra toàn diện chu trình CI/CD và bổ sung các ca kiểm thử còn thiếu:
+  - Đồng bộ cơ chế đảo ngược EPUB to TXT (`htmlToCleanText`) nhận diện thẻ `<h1 ... no-toc>` chuyển đổi thành `@@!`, `@@!t`, `@@!p`.
+  - Bổ sung unit tests cho định dạng căn lề tiêu đề `@@!t` và `@@!p` không ngắt trang và không sinh TOC.
+  - Bổ sung unit test xác thực định dạng inline trong tiêu đề của khối `[new:center]`.
+  - Bổ sung unit test kiểm tra bảo toàn dropcap thủ công `[c]` trong khối `hasCenterPage` (trang đề tặng).
+  - Bổ sung unit test kiểm tra bảo vệ khối `[letter-box]` trong thuật toán ghép nối đoạn `mergeBrokenParagraphs`.
+  - Bổ sung unit test kiểm tra khử trùng lặp mục lục TOC khi tiêu đề là 'Giới Thiệu' hoặc trùng tiêu đề chương.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (296/296 pass) | test e2e ✅ (12/12 pass) | build production ✅ | knip: nợ kỹ thuật oxc-parser | graphify ✅ (863 nodes, 1991 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `tests/epub-to-txt.test.ts`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
 
 ### 2026-10-16 (Refinements: TOC, Center Page, Dropcap & @@!)
 

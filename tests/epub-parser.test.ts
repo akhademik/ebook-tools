@@ -1752,6 +1752,42 @@ Nội dung trong hộp
 					'<div class="letter-box">\n<h1 class="main-chap center no-toc">Tiêu Đề H1 Trong Hộp</h1>'
 				);
 			});
+
+			it('should support @@!t and @@!p for left and right aligned h1 without TOC and page split', () => {
+				const txt = `@@ Chương 1
+@@!t Tiêu Đề Trái Không TOC
+Nội dung 1
+@@!p Tiêu Đề Phải Không TOC
+Nội dung 2`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain(
+					'<h1 class="main-chap left no-toc">Tiêu Đề Trái Không TOC</h1>'
+				);
+				expect(chapters[0].html).toContain(
+					'<h1 class="main-chap right no-toc">Tiêu Đề Phải Không TOC</h1>'
+				);
+			});
+
+			it('should support formatted heading inside [new:center] and strip tags for chapter title', () => {
+				const txt = `[new:center]
+@ *Lời Tựa Đặc Biệt*
+Nội dung trang giữa
+[/new:center]`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].title).toBe('Lời Tựa Đặc Biệt');
+				expect(chapters[0].html).toContain(
+					'<h2 class="side-chap center"><b>Lời Tựa Đặc Biệt</b></h2>'
+				);
+			});
+
+			it('should throw syntax error when parseTxtToChapters is called with invalid [/new:center] closing [new]', () => {
+				const txt = `[new]\nTrang thường\n[/new:center]`;
+				expect(() => parseTxtToChapters(txt, {}, 'Tên Sách')).toThrow(
+					'Thẻ đóng [/new:center] chỉ được dùng để đóng khối [new:center]'
+				);
+			});
 		});
 	});
 });

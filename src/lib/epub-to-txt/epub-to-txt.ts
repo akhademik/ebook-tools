@@ -555,9 +555,22 @@ export function htmlToCleanText(htmlContent: string): string {
 
 	// 7. Handle Headings: <h1> and <h2> in general EPUB
 	content = content.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, (_m, attrs, inner) => {
+		const notoc = isNoToc(attrs);
 		const isLeft = isLeftAligned(attrs);
 		const isRight = isRightAligned(attrs);
-		const prefix = isLeft ? '@@t' : isRight ? '@@p' : '@@';
+
+		const prefix = notoc
+			? isLeft
+				? '@@!t'
+				: isRight
+					? '@@!p'
+					: '@@!'
+			: isLeft
+				? '@@t'
+				: isRight
+					? '@@p'
+					: '@@';
+
 		const title = processLineContent(inner);
 		return `\n\n${prefix} ${title}\n\n`;
 	});

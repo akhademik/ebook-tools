@@ -2802,7 +2802,7 @@
       "file_type": "code",
       "norm_label": "extractepubtotxt()",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L690"
+      "source_location": "L703"
     },
     {
       "id": "src_lib_epub_to_txt_epub_to_txt_extractfootnotesfromhtml",
@@ -2814,7 +2814,7 @@
       "file_type": "code",
       "norm_label": "extractfootnotesfromhtml()",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L663"
+      "source_location": "L676"
     },
     {
       "id": "src_lib_epub_to_txt_epub_to_txt_extractillustrationtag",
@@ -12629,7 +12629,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L713",
+      "source_location": "L726",
       "weight": 1.0
     },
     {
@@ -12641,7 +12641,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L724",
+      "source_location": "L737",
       "weight": 1.0
     },
     {
@@ -12653,7 +12653,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L764",
+      "source_location": "L777",
       "weight": 1.0
     },
     {
@@ -12665,7 +12665,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L806",
+      "source_location": "L819",
       "weight": 1.0
     },
     {
@@ -12677,7 +12677,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L824",
+      "source_location": "L837",
       "weight": 1.0
     },
     {
@@ -12689,7 +12689,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L860",
+      "source_location": "L873",
       "weight": 1.0
     },
     {
@@ -12701,7 +12701,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L677",
+      "source_location": "L690",
       "weight": 1.0
     },
     {
@@ -12785,7 +12785,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L566",
+      "source_location": "L558",
       "weight": 1.0
     },
     {
@@ -12797,7 +12797,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L652",
+      "source_location": "L665",
       "weight": 1.0
     },
     {
@@ -12809,7 +12809,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L657",
+      "source_location": "L670",
       "weight": 1.0
     },
     {
@@ -29379,18 +29379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L663",
-      "weight": 1.0
-    },
-    {
-      "source": "src_lib_epub_to_txt_epub_to_txt",
-      "target": "src_lib_epub_to_txt_epub_to_txt_extractepubtotxt",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
-      "source_location": "L690",
+      "source_location": "L676",
       "weight": 1.0
     },
     {
@@ -29402,6 +29391,17 @@
       "confidence_score": 1.0,
       "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
       "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_lib_epub_to_txt_epub_to_txt",
+      "target": "src_lib_epub_to_txt_epub_to_txt_extractepubtotxt",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/epub-to-txt/epub-to-txt.ts",
+      "source_location": "L703",
       "weight": 1.0
     },
     {
@@ -33331,5 +33331,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "df0b646dc9c6a5767156aa8b9c7511fc394b4990"
+  "built_at_commit": "b88d3490c767df44371e3c1ddb5a551ae4134c97"
 }
