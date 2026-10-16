@@ -23,7 +23,7 @@ const formatTranslator = (t?: string): string => {
 export const JACKET_TEMPLATES: JacketTemplate[] = [
 	{
 		id: 1,
-		name: 'Mẫu 1 - Bất đối xứng',
+		name: 'Mẫu 1',
 		get css() {
 			return getJacketCss(1);
 		},
@@ -45,7 +45,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 2,
-		name: 'Mẫu 2 - Cột dọc',
+		name: 'Mẫu 2',
 		get css() {
 			return getJacketCss(2);
 		},
@@ -68,7 +68,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 3,
-		name: 'Mẫu 3 - Đường chéo',
+		name: 'Mẫu 3',
 		get css() {
 			return getJacketCss(3);
 		},
@@ -89,7 +89,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 4,
-		name: 'Mẫu 4 - Khung lệch',
+		name: 'Mẫu 4',
 		get css() {
 			return getJacketCss(4);
 		},
@@ -110,7 +110,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 5,
-		name: 'Mẫu 5 - Ngoặc góc',
+		name: 'Mẫu 5',
 		get css() {
 			return getJacketCss(5);
 		},
@@ -133,7 +133,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 6,
-		name: 'Mẫu 6 - Hai cực',
+		name: 'Mẫu 6',
 		get css() {
 			return getJacketCss(6);
 		},
@@ -156,7 +156,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 7,
-		name: 'Mẫu 7 - Báo chí',
+		name: 'Mẫu 7',
 		get css() {
 			return getJacketCss(7);
 		},
@@ -179,7 +179,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 8,
-		name: 'Mẫu 8 - Nhãn dán',
+		name: 'Mẫu 8',
 		get css() {
 			return getJacketCss(8);
 		},
@@ -204,7 +204,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 9,
-		name: 'Mẫu 9 - Viền chấm',
+		name: 'Mẫu 9',
 		get css() {
 			return getJacketCss(9);
 		},
@@ -223,7 +223,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 	},
 	{
 		id: 10,
-		name: 'Mẫu 10 - Đối xứng tỏa tâm',
+		name: 'Mẫu 10',
 		get css() {
 			return getJacketCss(10);
 		},

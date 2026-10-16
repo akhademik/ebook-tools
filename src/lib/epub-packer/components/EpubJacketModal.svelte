@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { JACKET_TEMPLATES } from '$lib/epub-packer/templates/jacket-templates';
+	import { AVAILABLE_FONTS, findFont } from '$lib/epub-packer/templates/fonts';
 	import type { EpubState } from '../epub-state.svelte';
 
 	interface Props {
@@ -31,6 +32,10 @@
 		epubState.jacket.jacketTemplateId = JACKET_TEMPLATES[currentPreviewTemplateIdx].id;
 		show = false;
 	}
+
+	const activeFont = $derived(
+		epubState.fonts.jacketFont !== 'default' ? findFont(epubState.fonts.jacketFont) : null
+	);
 </script>
 
 {#if show}
@@ -44,11 +49,11 @@
 	>
 		<!-- Modal box -->
 		<div
-			class="bg-panel-1 border border-border-color w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up"
+			class="bg-panel border border-border-color w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-slide-up"
 		>
 			<!-- Header -->
 			<div class="p-4 border-b border-border-color flex justify-between items-center bg-panel-2">
-				<span class="font-mono text-sm font-bold text-text-color">Xem trước</span>
+				<span class="font-mono text-sm font-bold text-text-color">Xem trước trang giới thiệu</span>
 				<button
 					type="button"
 					class="text-text-mute hover:text-text-color transition-colors font-mono text-xs font-bold cursor-pointer"
@@ -58,18 +63,41 @@
 				</button>
 			</div>
 
-			<!-- Body -->
-			<div class="p-6 flex flex-col items-center overflow-y-auto flex-1 gap-4 bg-brand-bg">
+			<!-- Toolbar: Template & Font Selector -->
+			<div
+				class="px-5 py-3 border-b border-border-color bg-panel-2 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0"
+			>
 				<span class="font-mono text-xs text-text-mute uppercase tracking-wider font-semibold">
-					Mẫu {currentPreviewTemplateIdx + 1}/{JACKET_TEMPLATES.length}: {JACKET_TEMPLATES[
-						currentPreviewTemplateIdx
-					].name}
+					{JACKET_TEMPLATES[currentPreviewTemplateIdx].name} ({currentPreviewTemplateIdx +
+						1}/{JACKET_TEMPLATES.length})
 				</span>
 
+				<div class="flex items-center gap-2">
+					<label
+						for="jacket-modal-font-select"
+						class="font-mono text-xs text-text-mute uppercase font-semibold whitespace-nowrap"
+					>
+						Phông chữ:
+					</label>
+					<select
+						id="jacket-modal-font-select"
+						bind:value={epubState.fonts.jacketFont}
+						class="bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-1.5 px-3 font-sans text-xs focus:outline-none transition-colors cursor-pointer"
+					>
+						<option value="default">Mặc định</option>
+						{#each AVAILABLE_FONTS as font (font.id)}
+							<option value={font.id}>{font.name}</option>
+						{/each}
+					</select>
+				</div>
+			</div>
+
+			<!-- Body -->
+			<div class="p-6 flex flex-col items-center overflow-y-auto flex-1 gap-4 bg-brand-bg">
 				<div class="preview-wrap">
 					{#if epubState.fonts.jacketFont !== 'default'}
 						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-						{@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2 { font-family: "${epubState.fonts.jacketFont}" !important; }</style>`}
+						{@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2, .preview-wrap * { font-family: "${epubState.fonts.jacketFont}", "${activeFont?.cssFamily || ''}", "${activeFont?.name || ''}", sans-serif !important; }</style>`}
 					{/if}
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 					{@html JACKET_TEMPLATES[currentPreviewTemplateIdx].render(
@@ -121,6 +149,7 @@
 		background: #ffffff;
 		margin: 1.5em auto;
 		width: 380px;
+		max-width: 100%;
 		height: 540px;
 		border: 1px solid #cccccc;
 		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);

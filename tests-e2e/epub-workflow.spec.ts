@@ -109,16 +109,41 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			timeout: 25000
 		});
 
-		// 3. Open Jacket Modal
-		const jacketBtn = page.getByRole('button', { name: /Tùy chỉnh trang lót|Trang lót/i }).first();
-		if (await jacketBtn.isVisible()) {
-			await jacketBtn.click();
-			const modalTitle = page.locator('text=Tùy chỉnh trang lót');
+		// 3. Open Jacket Modal & test font selection
+		const jacketPreviewBtn = page.getByRole('button', { name: /Xem trước/i }).first();
+		if (await jacketPreviewBtn.isVisible()) {
+			await jacketPreviewBtn.click();
+			const modalTitle = page.locator('text=Xem trước trang giới thiệu');
 			await expect(modalTitle).toBeVisible();
 
-			// Close modal
-			const closeBtn = page.getByRole('button', { name: /Đóng|Xong|✕/i }).first();
+			// Select font inside modal
+			const fontSelect = page.locator('#jacket-modal-font-select');
+			await expect(fontSelect).toBeVisible();
+			await fontSelect.selectOption('Bookerly');
+
+			// Verify preview wrap is visible with dynamic style
+			const previewWrap = page.locator('.preview-wrap');
+			await expect(previewWrap).toBeVisible();
+
+			// Select template and close modal
+			const selectBtn = page.getByRole('button', { name: 'Chọn mẫu này' });
+			await selectBtn.click();
+			await expect(modalTitle).not.toBeVisible();
+
+			// Verify font select is no longer in main section
+			await expect(page.locator('#jacket-font-select')).toHaveCount(0);
+
+			// Verify template name and font badge in main section
+			await expect(page.getByText('Mẫu 1').first()).toBeVisible();
+			await expect(page.getByText('(Bookerly)')).toBeVisible();
+
+			// Re-open preview modal to verify font selection persisted
+			await jacketPreviewBtn.click();
+			await expect(modalTitle).toBeVisible();
+			await expect(page.locator('#jacket-modal-font-select')).toHaveValue('Bookerly');
+			const closeBtn = page.getByRole('dialog').getByRole('button', { name: 'Đóng' });
 			await closeBtn.click();
+			await expect(modalTitle).not.toBeVisible();
 		}
 
 		// 4. Verify Pack button is enabled

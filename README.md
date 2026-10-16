@@ -151,8 +151,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 16:45
+- Cập nhật lần cuối: 2026-10-16 17:35
 - Đã hoàn thành:
+  - **Tối ưu hóa UI Trang giới thiệu (Jacket Template Naming & Font Selection)**:
+    - Đơn giản hóa toàn bộ tên 10 mẫu trang lót trong `jacket-templates.ts` chỉ còn thuần túy `Mẫu 1`, `Mẫu 2`, ..., `Mẫu 10` (loại bỏ hoàn toàn các hậu tố mô tả như 'Bất đối xứng', 'Cột dọc'...).
+    - Di dời input lựa chọn phông chữ trang giới thiệu (`#jacket-font-select`) khỏi trang chính `EpubMetadataSection.svelte`, chỉ đặt lựa chọn phông chữ bên trong Preview Modal (`EpubJacketModal.svelte`) kèm huy hiệu phông chữ hiển thị tinh tế trên giao diện chính khi đã chọn.
+    - Cập nhật kịch bản kiểm thử tự động Playwright E2E xác thực quy trình chọn font trong modal, xác nhận loại bỏ input thừa trên trang chính và bảo toàn trạng thái lựa chọn font.
+    - Toàn bộ **311/311 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Khắc phục triệt để Race Condition khi hủy tác vụ Worker & Bổ sung Full Fallback cho Image Background Removal**:
     - `txt-parser.ts` & `duplicate-detector.ts`: Quản lý các tác vụ worker đang chạy theo `requestId` thông qua Map trung tâm. Khi một tác vụ bị hủy qua `AbortSignal`, chỉ hủy tác vụ đó và chỉ terminate worker khi không còn tác vụ nào khác (`pendingJobs.size === 0`), giải quyết triệt để nguy cơ làm treo Promise của các tác vụ chạy song song.
     - `image-bg-remove-ml.ts`: Tự động phục hồi sang xử lý trên luồng chính (`processOrnamentOnMainThread`) khi `worker.postMessage` ném lỗi thay vì reject Promise.
@@ -201,14 +206,43 @@ pnpm test:e2e
     - Khắc phục triệt để lỗi buffer detachment khi Worker fallback trong EPUB Cleaner (`duplicate-detector.ts`): chuyển sang cơ chế Lazy Fallback Loader nạp lại byte tươi nguyên từ ZIP thay vì dùng buffer detached.
     - Chuẩn hóa kiểm thử Web Worker Concurrency và Fallback trong `tests/epub-cleaner.test.ts` với `AsyncDuplicateWorkerMock` và mock `window`.
     - Hoàn thiện cơ chế tự phục hồi xử lý ảnh ML: bao phủ sự cố `worker.onerror`, `worker.onmessageerror` và response lỗi với `cleanupWorkerAndFallbackPending`, tự động hủy các tác vụ đã bị abort.
+  - Hoàn tất tính năng xem trước Jacket: Tích hợp dropdown phông chữ trực tiếp vào Modal xem trước trang giới thiệu (`EpubJacketModal.svelte`), phản chiếu tức thì (real-time font reflection) lên khung preview và đồng bộ 2 chiều với cấu hình Jacket Font.
   - Bộ kiểm thử mở rộng đạt 311/311 unit tests pass và 12/12 Playwright E2E tests pass 100%.
-- Cập nhật lần cuối: 2026-10-16 17:08
+- Cập nhật lần cuối: 2026-10-16 17:22
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (Jacket Template Name Simplification & Dedicated Modal Font Selection)
+
+- Thêm/sửa: Chuẩn hóa tên mẫu trang giới thiệu và tinh gọn khu vực metadata:
+  - `jacket-templates.ts`: Đổi tên toàn bộ 10 mẫu trang giới thiệu sách thành thuần túy `Mẫu 1`, `Mẫu 2`, `Mẫu 3`, ..., `Mẫu 10`, loại bỏ toàn bộ các tên phụ không cần thiết.
+  - `EpubMetadataSection.svelte`: Loại bỏ trường input chọn phông chữ trang giới thiệu (`#jacket-font-select`), chuyển hoàn toàn tính năng chọn font vào bên trong Modal xem trước (`EpubJacketModal.svelte`). Hiển thị huy hiệu phông chữ gọn gàng bên cạnh tên mẫu đang chọn.
+  - `EpubJacketModal.svelte`: Tinh chỉnh nhãn hiển thị mẫu trên thanh công cụ thành `{template.name} ({idx + 1}/{total})` (ví dụ `Mẫu 1 (1/10)`), tránh lặp lại từ 'Mẫu'.
+  - `tests-e2e/epub-workflow.spec.ts`: Cập nhật kịch bản Playwright E2E kiểm chứng input font đã được gỡ bỏ khỏi trang chính, kiểm tra font chọn trong preview modal được phản chiếu và lưu trữ chính xác.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (311/311 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (914 nodes, 2078 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/jacket-templates.ts`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubJacketModal.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
+
+### 2026-10-16 (Jacket Preview Modal Real-Time Font Selection)
+
+- Thêm/sửa: Bổ sung dropdown phông chữ trực tiếp trong Modal xem trước trang giới thiệu sách (Jacket Preview Modal):
+  - `EpubJacketModal.svelte`: Bổ sung toolbar hiển thị tên mẫu trang giới thiệu và dropdown chọn phông chữ (`AVAILABLE_FONTS`), liên kết trực tiếp hai chiều với `epubState.fonts.jacketFont`.
+  - Phản chiếu trực tiếp (Real-time reflection): cập nhật selector CSS động `.preview-wrap, .preview-wrap *` áp dụng ngay lập tức font chữ đã chọn lên toàn bộ tiêu đề, tác giả, dịch giả và thông tin xuất bản trong khung xem trước mà không cần đóng modal.
+  - Đồng bộ tự động với `EpubMetadataSection.svelte` trên giao diện chính khi người dùng đổi font trong modal hoặc xác nhận chọn mẫu.
+  - `tests-e2e/epub-workflow.spec.ts`: Cập nhật kịch bản Playwright E2E kiểm chứng mở modal xem trước, thay đổi phông chữ sang `Bookerly`, xác nhận preview phản chiếu và đồng bộ thành công sang section chính.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (311/311 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (913 nodes, 2078 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/components/EpubJacketModal.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-10-16 (Worker Detached Buffer Fallback, Concurrency Testing & ML Self-Healing)
 

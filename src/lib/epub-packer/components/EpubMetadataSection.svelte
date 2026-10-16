@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Input from '$lib/components/Input.svelte';
-	import { AVAILABLE_FONTS } from '$lib/epub-packer/templates/fonts';
 	import { JACKET_TEMPLATES } from '$lib/epub-packer/templates/jacket-templates';
 	import type { EpubState } from '../epub-state.svelte';
 
@@ -51,23 +50,6 @@
 				placeholder="NXB Văn hóa Thông tin"
 			/>
 		</div>
-		<div>
-			<label
-				for="jacket-font-select"
-				class="font-mono text-xs text-text-mute uppercase mb-2.5 block font-semibold"
-				>Phông chữ trang giới thiệu (Jacket Font)</label
-			>
-			<select
-				id="jacket-font-select"
-				bind:value={epubState.fonts.jacketFont}
-				class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-2.5 px-3.5 font-sans text-sm focus:outline-none transition-colors h-11.5"
-			>
-				<option value="default">Mặc định</option>
-				{#each AVAILABLE_FONTS as font (font.id)}
-					<option value={font.id}>{font.name}</option>
-				{/each}
-			</select>
-		</div>
 	</div>
 
 	<div
@@ -80,6 +62,9 @@
 			{#if selectedTemplateName}
 				<p class="text-xs text-text-mute font-mono mt-1">
 					Mẫu đang chọn: <span class="text-accent-color font-semibold">{selectedTemplateName}</span>
+					{#if epubState.fonts.jacketFont !== 'default'}
+						<span class="text-text-mute">({epubState.fonts.jacketFont})</span>
+					{/if}
 				</p>
 			{/if}
 		</div>
