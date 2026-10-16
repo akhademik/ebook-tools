@@ -338,7 +338,9 @@ describe('pdf-splitter tests', () => {
 			const ac = new AbortController();
 			ac.abort();
 
-			await expect(processPdfToJpg(fakeFile, true, 0, 0, undefined, ac.signal)).rejects.toThrow();
+			await expect(processPdfToJpg(fakeFile, true, 0, 0, undefined, ac.signal)).rejects.toThrow(
+				'Tác vụ xử lý PDF đã bị hủy'
+			);
 		});
 	});
 });

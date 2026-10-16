@@ -1378,6 +1378,29 @@ Dòng văn bản bình thường trong thư.
 			await expect(parseTxtToChaptersAsync(txt, { signal: ac.signal })).rejects.toThrow();
 		});
 
+		it('should parse large text (>50KB) asynchronously via parseTxtToChaptersAsync with worker/fallback', async () => {
+			const { parseTxtToChaptersAsync } =
+				await import('../src/lib/epub-packer/parser/epub-source-parser');
+			const largeTxt =
+				`@@ Chương 1\n` +
+				'Đoạn văn bản mẫu kiểm tra độ dài lớn hơn 50KB để kích hoạt luồng worker. '.repeat(1000);
+			expect(largeTxt.length).toBeGreaterThan(50_000);
+			const chapters = await parseTxtToChaptersAsync(largeTxt);
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].title).toBe('Chương 1');
+		});
+
+		it('should reject immediately if signal is already aborted before starting large parse', async () => {
+			const { parseTxtToChaptersAsync } =
+				await import('../src/lib/epub-packer/parser/epub-source-parser');
+			const largeTxt = `@@ Chương 1\n` + 'Nội dung kiểm tra abort signal. '.repeat(2000);
+			const ac = new AbortController();
+			ac.abort();
+			await expect(parseTxtToChaptersAsync(largeTxt, { signal: ac.signal })).rejects.toThrow(
+				'Tác vụ đọc TXT đã bị hủy'
+			);
+		});
+
 		it('should validate and report unclosed [poem] with exact line number', () => {
 			const txt = `@@ Chương 1\nNội dung mở đầu.\n[poem]\nMột dòng thơ.\nKhông có thẻ đóng.`;
 			const validation = validateTxtSyntax(txt);

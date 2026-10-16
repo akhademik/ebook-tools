@@ -31,7 +31,8 @@ export function findMarkersForSingle(
 		const heuristicCuts: ChapterCutPoint[] = [];
 		let firstTextBlockIdx = -1;
 		for (let i = 0; i < blocks.length; i++) {
-			if (blocks[i].text && blocks[i].text.trim()) {
+			const b = blocks[i];
+			if (b?.text && b.text.trim()) {
 				firstTextBlockIdx = i;
 				break;
 			}

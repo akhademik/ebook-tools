@@ -92,6 +92,8 @@ export async function scanDuplicateResources(
 
 			const cleanup = () => {
 				worker.removeEventListener('message', handleMessage);
+				worker.removeEventListener('error', handleWorkerError);
+				worker.removeEventListener('messageerror', handleWorkerError);
 				if (signal) {
 					signal.removeEventListener('abort', handleAbort);
 				}
@@ -106,6 +108,26 @@ export async function scanDuplicateResources(
 				}
 				workerInstance = null;
 				reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
+			};
+
+			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
+				cleanup();
+				Logger.warn(
+					'[duplicate-detector]',
+					'Worker event error, falling back to direct computation:',
+					err
+				);
+				try {
+					worker.terminate();
+				} catch {
+					// ignore
+				}
+				workerInstance = null;
+				try {
+					resolve(computeDuplicateResources(scanItems, onProgress));
+				} catch (fallbackErr) {
+					reject(fallbackErr);
+				}
 			};
 
 			const handleMessage = (e: MessageEvent<DuplicateDetectorWorkerResponse>) => {
@@ -131,7 +153,11 @@ export async function scanDuplicateResources(
 						'Worker encountered error, falling back to direct computation:',
 						e.data.error
 					);
-					resolve(computeDuplicateResources(scanItems, onProgress));
+					try {
+						resolve(computeDuplicateResources(scanItems, onProgress));
+					} catch (fallbackErr) {
+						reject(fallbackErr);
+					}
 				}
 			};
 
@@ -144,6 +170,8 @@ export async function scanDuplicateResources(
 			}
 
 			worker.addEventListener('message', handleMessage);
+			worker.addEventListener('error', handleWorkerError);
+			worker.addEventListener('messageerror', handleWorkerError);
 
 			const request: DuplicateDetectorWorkerRequest = {
 				id: requestId,
@@ -159,7 +187,21 @@ export async function scanDuplicateResources(
 				worker.postMessage(request, transferables);
 			} catch {
 				// Fallback without transfer if browser doesn't permit detached buffer
-				worker.postMessage(request);
+				try {
+					worker.postMessage(request);
+				} catch (postErr) {
+					cleanup();
+					Logger.warn(
+						'[duplicate-detector]',
+						'Failed to postMessage to worker, executing direct computation:',
+						postErr
+					);
+					try {
+						resolve(computeDuplicateResources(scanItems, onProgress));
+					} catch (directErr) {
+						reject(directErr);
+					}
+				}
 			}
 		});
 	}

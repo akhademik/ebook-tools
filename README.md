@@ -121,7 +121,7 @@ pnpm build
 
 ## 🧪 Quy chuẩn Kiểm thử & Chất lượng Mã nguồn (Quality Gates)
 
-Dự án tuân thủ quy trình kiểm thử và chất lượng nghiêm ngặt theo [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md):
+Dự án tuân thủ quy trình kiểm thử và chất lượng nghiêm ngặt theo [AI_WORKFLOW.md](AI_WORKFLOW.md):
 
 ```bash
 # 1. Kiểm tra kiểu dữ liệu TypeScript & Svelte Rune (0 errors, 0 warnings)
@@ -151,8 +151,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 12:15
+- Cập nhật lần cuối: 2026-10-16 15:25
 - Đã hoàn thành:
+  - **Chuẩn hóa toàn diện vòng đời Web Worker & Chống rò rỉ listener (Worker Lifecycle & Leak Prevention)**:
+    - Rà soát và hoàn thiện cơ chế đăng ký và gỡ listener trên 4 modules Web Worker: [`txt-parser.ts`](src/lib/epub-packer/parser/txt-parser.ts), [`duplicate-detector.ts`](src/lib/epub-editor/cleaner/duplicate-detector.ts), [`pdf-splitter.ts`](src/lib/pdf-splitter/pdf-splitter.ts) và [`image-bg-remove-ml.ts`](src/lib/utils/image-bg-remove-ml.ts).
+    - Bổ sung listener `error` và `messageerror`, đảm bảo `cleanup()` gỡ sạch 100% listener khỏi worker và `AbortSignal`, ngăn chặn triệt để nguy cơ treo Promise khi worker crash hoặc gặp sự cố tuần tự hóa dữ liệu.
+    - Bọc an toàn `postMessage` trong try-catch với cơ chế fallback tự động sang tính toán trực tiếp trên luồng chính.
+    - Mở rộng bộ kiểm thử đạt **300/300 unit tests pass 100%**.
+  - **Nâng cấp TypeScript lên Strict Mode toàn diện (`strict: true`)**:
+    - Xử lý triệt để 47 lỗi strict type & nullability trên toàn bộ codebase: `epub-chapter-utils.ts`, `epub-single-grouper.ts`, `epub-zip-grouper.ts`, `txt-parser.ts`, `chapter-builder.ts`, `pdf-splitter.ts`, và `+layout.svelte`.
+    - Chuẩn hóa hàm `ensureChapterOpen` trả về `RawChapterItem` để đảm bảo an toàn kiểu dữ liệu và loại bỏ hoàn toàn các lỗi `possibly 'null'`.
+    - Kích hoạt `"strict": true` trong `tsconfig.json`. `pnpm check` (`svelte-check`) đạt 0 errors, 0 warnings.
+  - Chuẩn hóa hệ thống tài liệu quy trình & giao diện: Khởi tạo [AI_WORKFLOW.md](AI_WORKFLOW.md) và [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), tích hợp toàn bộ ma trận kiểm thử và cheat sheet từ `DEVELOPMENT_WORKFLOW.md` vào `AI_WORKFLOW.md`, tinh gọn tài liệu dự án.
   - Cải tiến tính năng biên tập theo yêu cầu đánh giá (Vấn đề 2, 3, 4, 5, 7):
     - **Vấn đề 2 & 5 (Placeholder 'Giới Thiệu' & TOC gộp)**: Khối `[new]` và `[new:center]` mặc định nhận tiêu đề `Giới Thiệu` thay vì trùng tên sách; khi có `@@` hoặc `@` bên trong thì ưu tiên tuyệt đối tiêu đề đó và tự động khử trùng lặp mục lục TOC trong `nav-builder`.
     - **Vấn đề 3 (Bí danh đóng `[/new:center]`)**: Thêm hỗ trợ thẻ đóng `[/new:center]` dành riêng cho khối `[new:center]`; chặn dùng `[/new:center]` cho khối `[new]` thường; cho phép `[/new]` đóng được cả hai.
@@ -173,7 +183,7 @@ pnpm test:e2e
     - Loại trừ `letter-box` khỏi nhận diện thẻ ảnh minh họa `isIllustrationTag`.
     - Hỗ trợ cơ chế dịch ngược **EPUB to TXT** (`htmlToCleanText` & `replaceNestedDiv`), nhận diện chính xác thẻ `<div>` lồng nhau.
     - Bổ sung hướng dẫn cú pháp vào bảng tra cứu `EpubSyntaxModal.svelte`.
-    - Bộ kiểm thử mở rộng đạt 296/296 unit tests pass và 12/12 Playwright E2E tests pass.
+    - Bộ kiểm thử mở rộng đạt 300/300 unit tests pass và 12/12 Playwright E2E tests pass.
   - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`).
   - Cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`.
 - Đang dở: Không
@@ -183,6 +193,64 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-16 (Web Worker Lifecycle Hardening & Listener Leak Prevention)
+
+- Thêm/sửa: Chuẩn hóa toàn diện vòng đời Web Worker theo khuyến nghị trong `review.md`:
+  - `txt-parser.ts`: Gỡ triệt để các listener `error` và `messageerror` trong `cleanup()`, bọc lời gọi fallback trực tiếp trong try-catch và bắt lỗi `postMessage`.
+  - `duplicate-detector.ts`: Bổ sung listener `error` và `messageerror` trên worker, đảm bảo `cleanup()` dọn dẹp sạch listener `message`/`error`/`abort`, chống treo Promise khi worker gặp lỗi, xử lý fallback an toàn khi `postMessage` thất bại.
+  - `pdf-splitter.ts`: Bổ sung listener `error` và `messageerror`, đảm bảo `cleanup()` gỡ listener `abort` khỏi `signal`, bọc `postMessage` với try-catch và cleanup an toàn.
+  - `image-bg-remove-ml.ts`: Bọc `worker.postMessage` trong try-catch kèm cleanup khi xảy ra lỗi truyền dữ liệu.
+  - Viết bổ sung 4 unit tests kiểm tra chạy worker bất đồng bộ, xử lý AbortSignal và thu hồi listener trong `tests/epub-parser.test.ts`, `tests/epub-cleaner.test.ts` và `tests/pdf-splitter.test.ts`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (300/300 pass) | knip: nợ kỹ thuật oxc-parser | graphify ✅ (884 nodes, 2020 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-editor/cleaner/duplicate-detector.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/utils/image-bg-remove-ml.ts`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-cleaner.test.ts`
+  - `tests/pdf-splitter.test.ts`
+  - `review.md`
+  - `README.md`
+
+### 2026-10-16 (TypeScript Strict Mode Full Compliance)
+
+- Thêm/sửa: Nâng cấp toàn diện TypeScript lên `strict: true` theo khuyến nghị trong `review.md`:
+  - Rà soát và xử lý triệt để 47 lỗi strict mode và nullability trên toàn bộ codebase.
+  - Sửa lỗi xử lý `b.text` undefined trong `extractChunkBlocks` và `analyzeChapterCandidates` ([epub-chapter-utils.ts](src/lib/epub-packer/parser/epub-chapter-utils.ts)).
+  - Bổ sung type guard cho khối text đầu tiên trong `epub-single-grouper.ts` và `epub-zip-grouper.ts`.
+  - Chuẩn hóa hàm `ensureChapterOpen` trả về `RawChapterItem` để đảm bảo an toàn kiểu dữ liệu và chống nullability xuyên suốt parser ([txt-parser.ts](src/lib/epub-packer/parser/txt-parser.ts)).
+  - Bổ sung type chú thích explicit cho regex replace callbacks trong `chapter-builder.ts`.
+  - Khắc phục type narrowing cho `globalPdfjs` trong closure bất đồng bộ của `pdf-splitter.ts`.
+  - Cập nhật render an toàn `children?.()` trong `+layout.svelte`.
+  - Kích hoạt `"strict": true` trong `tsconfig.json`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (296/296 pass) | knip: nợ kỹ thuật oxc-parser | graphify ✅ (883 nodes, 2013 edges)
+- File chính bị ảnh hưởng:
+  - `tsconfig.json`
+  - `src/lib/epub-packer/parser/epub-chapter-utils.ts`
+  - `src/lib/epub-packer/parser/epub-single-grouper.ts`
+  - `src/lib/epub-packer/parser/epub-zip-grouper.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/routes/+layout.svelte`
+  - `review.md`
+  - `README.md`
+
+### 2026-10-16 (Workflow & Documentation Consolidation)
+
+- Thêm/sửa: Chuẩn hóa hệ thống tài liệu quy trình và giao diện:
+  - Khởi tạo [AI_WORKFLOW.md](AI_WORKFLOW.md) kết hợp đầy đủ quy trình AI Coding Agent, quy tắc Svelte 5 Rune, pipeline 6 bước và tích hợp toàn bộ kiến trúc 4 tầng kiểm thử, Ma trận "Sửa gì - Chạy test gì" cùng Cheat Sheet từ `DEVELOPMENT_WORKFLOW.md`.
+  - Khởi tạo [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) chuẩn hóa bảng màu Solarized, typography, tokens và quy chuẩn component UI.
+  - Xóa file `DEVELOPMENT_WORKFLOW.md` sau khi gộp nội dung để tinh gọn kho lưu trữ.
+  - Cập nhật liên kết tài liệu trong [README.md](README.md).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (296/296 pass) | knip: nợ kỹ thuật oxc-parser | graphify ✅ (881 nodes, 2011 edges)
+- File chính bị ảnh hưởng:
+  - `AI_WORKFLOW.md`
+  - `DESIGN_SYSTEM.md`
+  - `DEVELOPMENT_WORKFLOW.md` (deleted)
+  - `README.md`
 
 ### 2026-10-16 (CI/CD Verification & Expanded Test Coverage)
 

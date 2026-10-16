@@ -179,9 +179,12 @@ export function buildChapterXhtml(
 					}
 					let updatedP2: string;
 					if (p2.includes('class=')) {
-						updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
-							return `class="${classNames} has-dropcap"`;
-						});
+						updatedP2 = p2.replace(
+							/class=["']([^"']*)["']/i,
+							(_cMatch: string, classNames: string) => {
+								return `class="${classNames} has-dropcap"`;
+							}
+						);
 					} else {
 						updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
 					}
@@ -199,9 +202,12 @@ export function buildChapterXhtml(
 				}
 				let updatedPAttrs: string;
 				if (pAttrs.includes('class=')) {
-					updatedPAttrs = pAttrs.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
-						return `class="${classNames} has-dropcap"`;
-					});
+					updatedPAttrs = pAttrs.replace(
+						/class=["']([^"']*)["']/i,
+						(_cMatch: string, classNames: string) => {
+							return `class="${classNames} has-dropcap"`;
+						}
+					);
 				} else {
 					updatedPAttrs = pAttrs + ' class="has-dropcap"';
 				}
@@ -213,7 +219,7 @@ export function buildChapterXhtml(
 	// Clean up internal marker classes (e.g. no-toc from headings, no-dropcap from p) from final XHTML
 	content = content.replace(/(<h[12]\b[^>]*>)/gi, (match) => {
 		return match
-			.replace(/class=["']([^"']*)["']/gi, (_cMatch, classNames) => {
+			.replace(/class=["']([^"']*)["']/gi, (_cMatch: string, classNames: string) => {
 				const cleaned = classNames
 					.replace(/\bno-toc\b/g, '')
 					.trim()
@@ -226,7 +232,7 @@ export function buildChapterXhtml(
 
 	content = content.replace(/(<p\b[^>]*>)/gi, (match) => {
 		return match
-			.replace(/class=["']([^"']*)["']/gi, (_cMatch, classNames) => {
+			.replace(/class=["']([^"']*)["']/gi, (_cMatch: string, classNames: string) => {
 				const cleaned = classNames
 					.replace(/\bno-dropcap\b/g, '')
 					.trim()

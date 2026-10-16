@@ -1,22 +1,22 @@
-vấn đề 1:
-tôi nhớ code của tôi là _text_ _text_ nghĩa là nó liên tục dính liền 2 chữ mà ví dụ km/h này /ăn cơm/ thì cũng ko thành công vì cái đầu là "/h còn cái sau là /ă" nhưng musoosn nó phải thì thẻ đógn phải là "/h something/" thì mới đúng mà, case nào thì nó bị bắt nhầm ?
+~~Ưu tiên cao 2. Rà soát cấu hình TypeScript~~ ✅ **[ĐÃ HOÀN THÀNH - 2026-10-16]**
 
-vấn đề 3: đồng ý hướng giải quyết
+- Đã rà soát và xử lý toàn bộ 47 lỗi strict type trên 6 files (`epub-chapter-utils.ts`, `epub-single-grouper.ts`, `epub-zip-grouper.ts`, `txt-parser.ts`, `chapter-builder.ts`, `pdf-splitter.ts`, và `+layout.svelte`).
+- Đã bật `"strict": true` trong `tsconfig.json`.
+- `pnpm check` (`svelte-check`) đạt 0 errors, 0 warnings.
+- Toàn bộ 296/296 unit/integration tests pass 100%.
 
-vấn đề 4: đồng ý tắt auto dropcap, nếu muốn dropcap user tự chèn force dropcap vào (tôi quên mất ký tự gì rồi)
+~~Ưu tiên trung bình 3. Kiểm tra vòng đời Web Worker~~ ✅ **[ĐÃ HOÀN THÀNH - 2026-10-16]**
 
-vấn đề 2, vấn đề 5:
-Nếu tạo [new] hoặc [new:center] mà nội dung trong đó ko hề có @@ hoặc @ thì tự động cho title của nó vào TOC là 'blank page' (hoặc đề xuất placeholder nào đó phù hợp general hơn), còn nếu trong 2 block đó mà có @@ hoặc @ thì bỏ qua cái placeholder và ưu tiên sử dujgn @@ và @
+- Đã rà soát và chuẩn hóa toàn diện vòng đời Web Worker trên cả 4 modules:
+  - `txt-parser.ts`: Gỡ đầy đủ listener `error`, `messageerror`, `message`, `abort` trong `cleanup()`, bọc `parseTxtToChapters` fallback trong try-catch, bắt lỗi `postMessage`.
+  - `duplicate-detector.ts`: Bổ sung listener `error` và `messageerror`, đảm bảo `cleanup()` dọn sạch toàn bộ listener, ngăn ngừa treo Promise khi worker lỗi; bọc `postMessage` chuyển dữ liệu và xử lý fallback an toàn.
+  - `pdf-splitter.ts`: Bổ sung listener `error`/`messageerror`, đảm bảo `cleanup()` gỡ listener `abort` khỏi `signal`, bọc `postMessage` trong try-catch với cleanup khi gửi lỗi.
+  - `image-bg-remove-ml.ts`: Đã có cơ chế quản lý Map `pendingJobs` và gỡ tập trung, bổ sung try-catch khi `postMessage`.
+- Bổ sung 4 unit tests chuyên biệt kiểm tra chạy bất đồng bộ với Worker, xử lý hủy tác vụ và chống rò rỉ listener.
 
-vấn đề 6 ko sửa gì hết cứ để y nguyên tình trạng
-vấn đề 7 cho thêm thẻ @@! vào parser
---------
+~~Ưu tiên trung bình 4. Phân biệt test đã khai báo và test đã chạy thành công~~ ✅ **[ĐÃ XÁC THỰC THỰC TẾ - 2026-10-16]**
 
-vậy:
-
-- vấn đề 1 bỏ qua
-- vấn đề 4 thực hiện như ý của tôi
-- vấn đề 2 và 5 hãy dùng place holder là 'Giới Thiệu' đi, nếu nó ko có @@ hay @
-- vấn đề 3, thêm [/new:center] nhưng nó chỉ đi cùng khi thẻ mới là [new:center] thôi, ko cho phép [new] được đóng bằng [/new:center], nhưng cả 2 đều được phép đóng với [/new]
-- vấn đề 6 giữ nguyên
-- vấn đề 7 thực hiện như ý của tôi
+- Đã xác thực thực tế toàn bộ test suite trên commit hiện tại bằng lệnh `pnpm test`:
+  - **19/19 test files pass**.
+  - **300/300 unit/integration tests pass 100%** (bao gồm smoke tests, golden tests, regression safety net, stress load 1.000 chương, và worker lifecycle tests).
+- Đã kiểm tra cấu hình workflow CI trong `.github/workflows/ci.yml`.

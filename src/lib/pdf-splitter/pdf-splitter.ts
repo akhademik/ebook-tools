@@ -149,6 +149,7 @@ export async function processPdfToJpg(
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
 	}
+	const pdfjs = globalPdfjs;
 	Logger.debug(
 		'[pdf-splitter]',
 		`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, cropTop: ${cropTopPx}, cropBottom: ${cropBottomPx}`
@@ -206,7 +207,30 @@ export async function processPdfToJpg(
 
 					const cleanup = () => {
 						worker.removeEventListener('message', handleMsg);
-						worker.terminate();
+						worker.removeEventListener('error', handleErr);
+						worker.removeEventListener('messageerror', handleErr);
+						if (signal) {
+							signal.removeEventListener('abort', handleAbort);
+						}
+						try {
+							worker.terminate();
+						} catch {
+							// ignore
+						}
+					};
+
+					const handleAbort = () => {
+						cleanup();
+						reject(new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError'));
+					};
+
+					const handleErr = (err: ErrorEvent | MessageEvent) => {
+						cleanup();
+						const msg =
+							err && typeof err === 'object' && 'message' in err && typeof err.message === 'string'
+								? err.message
+								: 'Web Worker gặp sự cố khi xử lý PDF';
+						reject(new Error(msg));
 					};
 
 					const handleMsg = (e: MessageEvent) => {
@@ -232,30 +256,38 @@ export async function processPdfToJpg(
 					};
 
 					if (signal) {
-						signal.addEventListener(
-							'abort',
-							() => {
-								cleanup();
-								reject(new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError'));
-							},
-							{ once: true }
-						);
+						if (signal.aborted) {
+							cleanup();
+							reject(new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError'));
+							return;
+						}
+						signal.addEventListener('abort', handleAbort, { once: true });
 					}
 
 					worker.addEventListener('message', handleMsg);
-					worker.postMessage(
-						{
-							id: requestId,
-							pdfBytes: arrayBuffer.slice(0),
-							startPage: w + 1,
-							endPage: numPages,
-							step: concurrency,
-							keepColor,
-							cropTopPx,
-							cropBottomPx
-						},
-						[arrayBuffer.slice(0)]
-					);
+					worker.addEventListener('error', handleErr);
+					worker.addEventListener('messageerror', handleErr);
+
+					try {
+						worker.postMessage(
+							{
+								id: requestId,
+								pdfBytes: arrayBuffer.slice(0),
+								startPage: w + 1,
+								endPage: numPages,
+								step: concurrency,
+								keepColor,
+								cropTopPx,
+								cropBottomPx
+							},
+							[arrayBuffer.slice(0)]
+						);
+					} catch (postErr) {
+						cleanup();
+						reject(
+							postErr instanceof Error ? postErr : new Error('Không thể gửi dữ liệu tới Web Worker')
+						);
+					}
 				});
 
 				workerPromises.push(p);
@@ -275,7 +307,7 @@ export async function processPdfToJpg(
 	if (!usedWorker) {
 		async function runWorker(workerIndex: number): Promise<void> {
 			Logger.debug('[pdf-splitter]', `Worker ${workerIndex} started`);
-			const doc = await globalPdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
+			const doc = await pdfjs.getDocument({ data: arrayBuffer.slice(0) }).promise;
 			const ctxOpts: CanvasRenderingContext2DSettings = keepColor
 				? { alpha: false }
 				: { alpha: false, willReadFrequently: true };

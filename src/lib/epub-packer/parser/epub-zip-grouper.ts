@@ -30,14 +30,15 @@ export function findMarkersForZip(
 		let firstTextBlock: MarkdownBlock | null = null;
 		let firstTextBlockIdx = -1;
 		for (let idx = 0; idx < blocks.length; idx++) {
-			if (blocks[idx].text && blocks[idx].text.trim()) {
-				firstTextBlock = blocks[idx];
+			const b = blocks[idx];
+			if (b?.text && b.text.trim()) {
+				firstTextBlock = b;
 				firstTextBlockIdx = idx;
 				break;
 			}
 		}
 		// 2. If the first text block is NOT a valid chapter candidate, ignore this file entirely
-		if (firstTextBlock) {
+		if (firstTextBlock && firstTextBlock.text) {
 			const score = scoreHeadingCandidate(firstTextBlock.text, firstTextBlock.type, true);
 			const hasNL = firstTextBlock.text.includes('\n');
 			const isFirstBlockChapter = !hasNL && score >= heuristicThreshold;

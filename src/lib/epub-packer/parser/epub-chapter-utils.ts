@@ -155,9 +155,10 @@ export function extractChunkBlocks(
 		const b = blocks[i];
 		if (!b) continue;
 		if (b.type === 'heading' || b.type === 'p') {
+			const bText = b.text ?? '';
 			const sliceStart = i === startBI ? startOff : 0;
-			const sliceEnd = end && i === end.blockIndex ? end.offset : b.text.length;
-			const sub = b.text.slice(sliceStart, sliceEnd).trim();
+			const sliceEnd = end && i === end.blockIndex ? end.offset : bText.length;
+			const sub = bText.slice(sliceStart, sliceEnd).trim();
 			if (sub) result.push({ type: b.type, level: b.level, text: sub });
 		} else {
 			result.push(b);
@@ -231,33 +232,33 @@ export function analyzeChapterCandidates(
 
 		for (let i = 0; i < f.blocks.length; i++) {
 			const b = f.blocks[i];
-			if (b.type !== 'heading' && b.type !== 'p') continue;
+			if (!b || (b.type !== 'heading' && b.type !== 'p') || !b.text) continue;
+			const bText = b.text;
 
-			const score = scoreHeadingCandidate(b.text);
+			const score = scoreHeadingCandidate(bText);
 
 			let regexMatch = false;
 			if (matcher) {
-				const loc = matcher.locate(b.text, 0);
+				const loc = matcher.locate(bText, 0);
 				if (loc) {
-					const lastNewline = b.text.lastIndexOf('\n', loc.index - 1);
+					const lastNewline = bText.lastIndexOf('\n', loc.index - 1);
 					const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
-					const prefix = b.text.slice(lineStart, loc.index);
+					const prefix = bText.slice(lineStart, loc.index);
 					if (isDecorationOnly(prefix)) regexMatch = true;
 				}
 			}
 
 			const heuristicMatch =
-				isHeuristicActive && !b.text.includes('\n') && score >= heuristicThreshold;
+				isHeuristicActive && !bText.includes('\n') && score >= heuristicThreshold;
 			const isMatch = regexMatch || heuristicMatch;
 
 			if (b.type === 'heading' || score > -10 || isMatch) {
 				const nextBlocks: string[] = [];
 				let count = 0;
 				for (let j = i + 1; j < f.blocks.length && count < 2; j++) {
-					if (f.blocks[j].text && f.blocks[j].text.trim()) {
-						nextBlocks.push(
-							f.blocks[j].text.slice(0, 150) + (f.blocks[j].text.length > 150 ? '...' : '')
-						);
+					const nextB = f.blocks[j];
+					if (nextB?.text && nextB.text.trim()) {
+						nextBlocks.push(nextB.text.slice(0, 150) + (nextB.text.length > 150 ? '...' : ''));
 						count++;
 					}
 				}
@@ -266,7 +267,7 @@ export function analyzeChapterCandidates(
 					pageNum,
 					fileName: f.baseName,
 					blockIndex: i,
-					text: b.text,
+					text: bText,
 					type: b.type,
 					score: score,
 					regexMatch,

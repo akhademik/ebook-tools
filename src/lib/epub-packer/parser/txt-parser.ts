@@ -165,6 +165,8 @@ export async function parseTxtToChaptersAsync(
 
 			const cleanup = () => {
 				worker.removeEventListener('message', handleMessage);
+				worker.removeEventListener('error', handleWorkerError);
+				worker.removeEventListener('messageerror', handleWorkerError);
 				if (options.signal) {
 					options.signal.removeEventListener('abort', handleAbort);
 				}
@@ -179,6 +181,22 @@ export async function parseTxtToChaptersAsync(
 				}
 				txtWorkerInstance = null;
 				reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
+			};
+
+			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
+				cleanup();
+				Logger.warn('[txt-parser]', 'Worker event error, falling back to direct parse:', err);
+				try {
+					worker.terminate();
+				} catch {
+					// ignore
+				}
+				txtWorkerInstance = null;
+				try {
+					resolve(parseTxtToChapters(rawText, options, fallbackTitle));
+				} catch (directErr) {
+					reject(directErr);
+				}
 			};
 
 			const handleMessage = (
@@ -214,18 +232,6 @@ export async function parseTxtToChaptersAsync(
 				}
 			};
 
-			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
-				cleanup();
-				Logger.warn('[txt-parser]', 'Worker event error, falling back to direct parse:', err);
-				try {
-					worker.terminate();
-				} catch {
-					// ignore
-				}
-				txtWorkerInstance = null;
-				resolve(parseTxtToChapters(rawText, options, fallbackTitle));
-			};
-
 			if (options.signal) {
 				if (options.signal.aborted) {
 					reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
@@ -235,8 +241,8 @@ export async function parseTxtToChaptersAsync(
 			}
 
 			worker.addEventListener('message', handleMessage);
-			worker.addEventListener('error', handleWorkerError, { once: true });
-			worker.addEventListener('messageerror', handleWorkerError, { once: true });
+			worker.addEventListener('error', handleWorkerError);
+			worker.addEventListener('messageerror', handleWorkerError);
 
 			// Sanitize options to avoid DataCloneError: DOMException / AbortSignal or Proxies cannot be cloned
 			const rawDefs = options.customDefinitions
@@ -369,7 +375,7 @@ export function parseTxtToChapters(
 	const chapters: RawChapterItem[] = [];
 	let currentChapter: RawChapterItem | null = null;
 
-	const ensureChapterOpen = (): void => {
+	const ensureChapterOpen = (): RawChapterItem => {
 		if (!currentChapter) {
 			currentChapter = {
 				title: `${fallbackTitle}`,
@@ -381,6 +387,7 @@ export function parseTxtToChapters(
 			};
 			chapters.push(currentChapter);
 		}
+		return currentChapter;
 	};
 
 	let currentBlock: string | null = null;
@@ -430,8 +437,8 @@ export function parseTxtToChapters(
 			if (illustMatch) {
 				const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
 				if (finalFileName) {
-					ensureChapterOpen();
-					currentChapter.html += `  <figure class="illust-box">\n    <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n  </figure>\n`;
+					const activeChapter = ensureChapterOpen();
+					activeChapter.html += `  <figure class="illust-box">\n    <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n  </figure>\n`;
 					lineIdx++;
 					continue;
 				}
@@ -439,7 +446,7 @@ export function parseTxtToChapters(
 
 			const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
 			if (quoteMatch) {
-				ensureChapterOpen();
+				const activeChapter = ensureChapterOpen();
 				const alignChar = quoteMatch[1];
 				const quoteRaw = quoteMatch[2].trim();
 				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
@@ -459,10 +466,10 @@ export function parseTxtToChapters(
 				if (authorMatch) {
 					const authorRaw = authorMatch[1].trim();
 					const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
-					currentChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
+					activeChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
 					lineIdx = nextLineIdx + 1;
 				} else {
-					currentChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
+					activeChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
 					lineIdx++;
 				}
 				continue;
@@ -470,19 +477,19 @@ export function parseTxtToChapters(
 
 			const standaloneAuthorMatch = stripped.match(/^>\s*(.+)$/);
 			if (standaloneAuthorMatch) {
-				ensureChapterOpen();
+				const activeChapter = ensureChapterOpen();
 				const authorFormatted = applyInlineFormatting(
 					standaloneAuthorMatch[1].trim(),
 					customDefinitions
 				);
-				currentChapter.html += `  <blockquote class="center"><footer>${authorFormatted}</footer></blockquote>\n`;
+				activeChapter.html += `  <blockquote class="center"><footer>${authorFormatted}</footer></blockquote>\n`;
 				lineIdx++;
 				continue;
 			}
 
-			ensureChapterOpen();
+			const activeChapter = ensureChapterOpen();
 			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
-			currentChapter.html += `  <p>${formatted}</p>\n`;
+			activeChapter.html += `  <p>${formatted}</p>\n`;
 			lineIdx++;
 			continue;
 		}
@@ -541,8 +548,8 @@ export function parseTxtToChapters(
 
 		if (/^\[letter-box\]$/i.test(stripped)) {
 			isInsideLetterBox = true;
-			ensureChapterOpen();
-			currentChapter.html += `<div class="letter-box">\n`;
+			const activeChapter = ensureChapterOpen();
+			activeChapter.html += `<div class="letter-box">\n`;
 			lineIdx++;
 			continue;
 		}
@@ -550,8 +557,8 @@ export function parseTxtToChapters(
 		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/i);
 		if (openBlockMatch) {
 			currentBlock = openBlockMatch[1].toLowerCase();
-			ensureChapterOpen();
-			currentChapter.html += `<div class="${currentBlock}">\n`;
+			const activeChapter = ensureChapterOpen();
+			activeChapter.html += `<div class="${currentBlock}">\n`;
 			lineIdx++;
 			continue;
 		}
@@ -569,9 +576,9 @@ export function parseTxtToChapters(
 		}
 
 		if (isEscaped) {
-			ensureChapterOpen();
+			const activeChapter = ensureChapterOpen();
 			const formatted = applyInlineFormatting(lineToProcess.trim(), customDefinitions);
-			currentChapter.html += `<p>${formatted}</p>\n`;
+			activeChapter.html += `<p>${formatted}</p>\n`;
 			lineIdx++;
 			continue;
 		}
@@ -592,14 +599,14 @@ export function parseTxtToChapters(
 			if (atCount === 2) {
 				if (isNoToc) {
 					// @@! applies h1 main-chap style but does NOT cut a new chapter page and is excluded from TOC
-					ensureChapterOpen();
-					currentChapter.html += `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`;
+					const activeChapter = ensureChapterOpen();
+					activeChapter.html += `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`;
 				} else if (isInsideNewBlock) {
-					ensureChapterOpen();
-					currentChapter.html += `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`;
-					if (!currentChapter.hasCustomTitle) {
-						currentChapter.title = titlePlain || `Chương ${chapters.length}`;
-						currentChapter.hasCustomTitle = true;
+					const activeChapter = ensureChapterOpen();
+					activeChapter.html += `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`;
+					if (!activeChapter.hasCustomTitle) {
+						activeChapter.title = titlePlain || `Chương ${chapters.length}`;
+						activeChapter.hasCustomTitle = true;
 					}
 				} else {
 					currentChapter = {
@@ -613,11 +620,11 @@ export function parseTxtToChapters(
 					chapters.push(currentChapter);
 				}
 			} else {
-				ensureChapterOpen();
-				currentChapter.html += `<h2 class="side-chap ${align}${tocClass}">${titleFormatted}</h2>\n`;
-				if (!currentChapter.hasCustomTitle && isInsideNewBlock) {
-					currentChapter.title = titlePlain || `Chương ${chapters.length}`;
-					currentChapter.hasCustomTitle = true;
+				const activeChapter = ensureChapterOpen();
+				activeChapter.html += `<h2 class="side-chap ${align}${tocClass}">${titleFormatted}</h2>\n`;
+				if (!activeChapter.hasCustomTitle && isInsideNewBlock) {
+					activeChapter.title = titlePlain || `Chương ${chapters.length}`;
+					activeChapter.hasCustomTitle = true;
 				}
 			}
 			lineIdx++;
@@ -626,7 +633,7 @@ export function parseTxtToChapters(
 
 		const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
 		if (quoteMatch) {
-			ensureChapterOpen();
+			const activeChapter = ensureChapterOpen();
 			const alignChar = quoteMatch[1];
 			const quoteRaw = quoteMatch[2].trim();
 			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
@@ -646,32 +653,32 @@ export function parseTxtToChapters(
 			if (authorMatch) {
 				const authorRaw = authorMatch[1].trim();
 				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
-				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
+				activeChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
 				lineIdx = nextLineIdx + 1;
 			} else {
-				currentChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
+				activeChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
 				lineIdx++;
 			}
 			continue;
 		}
 
 		if (stripped === '###') {
-			ensureChapterOpen();
-			currentChapter.html += `<p class="scene-break-big" role="separator">• • •</p>\n`;
+			const activeChapter = ensureChapterOpen();
+			activeChapter.html += `<p class="scene-break-big" role="separator">• • •</p>\n`;
 			lineIdx++;
 			continue;
 		}
 
 		if (stripped === '##') {
-			ensureChapterOpen();
-			currentChapter.html += `<p class="scene-break-small" role="separator">*</p>\n`;
+			const activeChapter = ensureChapterOpen();
+			activeChapter.html += `<p class="scene-break-small" role="separator">*</p>\n`;
 			lineIdx++;
 			continue;
 		}
 
 		if (stripped === '#') {
-			ensureChapterOpen();
-			currentChapter.html += `<p class="scene-break-small" role="separator"></p>\n`;
+			const activeChapter = ensureChapterOpen();
+			activeChapter.html += `<p class="scene-break-small" role="separator"></p>\n`;
 			lineIdx++;
 			continue;
 		}
@@ -680,18 +687,18 @@ export function parseTxtToChapters(
 		if (illustMatch) {
 			const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
 			if (finalFileName) {
-				ensureChapterOpen();
-				currentChapter.html += `<figure class="illust-box">\n  <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n</figure>\n`;
+				const activeChapter = ensureChapterOpen();
+				activeChapter.html += `<figure class="illust-box">\n  <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n</figure>\n`;
 				lineIdx++;
 				continue;
 			}
 		}
 
-		ensureChapterOpen();
+		const activeChapter = ensureChapterOpen();
 		if (stripped.startsWith('!D ')) {
 			const textWithoutPrefix = origLine.replace(/^(\s*)!D\s+/, '$1');
 			const formatted = applyInlineFormatting(textWithoutPrefix.trim(), customDefinitions);
-			currentChapter.html += `<p class="no-dropcap">${formatted}</p>\n`;
+			activeChapter.html += `<p class="no-dropcap">${formatted}</p>\n`;
 		} else {
 			const dropcapMatch = stripped.match(/^\[([^\]\n])\]\s+(.+)$/);
 			if (dropcapMatch) {
@@ -699,10 +706,10 @@ export function parseTxtToChapters(
 				const group2 = dropcapMatch[2];
 				const formattedGroup1 = escapeXml(group1);
 				const formattedGroup2 = applyInlineFormatting(group2, customDefinitions);
-				currentChapter.html += `<p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
+				activeChapter.html += `<p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
 			} else {
 				const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
-				currentChapter.html += `<p>${formatted}</p>\n`;
+				activeChapter.html += `<p>${formatted}</p>\n`;
 			}
 		}
 		lineIdx++;

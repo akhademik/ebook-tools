@@ -229,5 +229,41 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			const { analyzeOptimizationPlan } = await import('../src/lib/epub-editor/epub-cleaner');
 			await expect(analyzeOptimizationPlan(zip, undefined, undefined, ac.signal)).rejects.toThrow();
 		});
+
+		it('should run scanDuplicateResources directly and report progress', async () => {
+			const { scanDuplicateResources } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector');
+			const zip = new JSZip();
+			zip.file('OEBPS/images/img1.png', new Uint8Array([10, 20, 30]));
+			zip.file('OEBPS/images/img2.png', new Uint8Array([10, 20, 30]));
+			zip.file('OEBPS/images/img3.png', new Uint8Array([40, 50, 60]));
+
+			const progressCalls: { current: number; total: number; file: string }[] = [];
+			const duplicates = await scanDuplicateResources(
+				zip,
+				undefined,
+				(current, total, filename) => {
+					progressCalls.push({ current, total, file: filename });
+				}
+			);
+
+			expect(duplicates).toHaveLength(1);
+			expect(duplicates[0].originalPath).toBe('OEBPS/images/img1.png');
+			expect(duplicates[0].duplicatePath).toBe('OEBPS/images/img2.png');
+			expect(progressCalls.length).toBeGreaterThan(0);
+		});
+
+		it('should reject scanDuplicateResources immediately if signal is already aborted', async () => {
+			const { scanDuplicateResources } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector');
+			const zip = new JSZip();
+			zip.file('OEBPS/images/img1.png', new Uint8Array([1, 2, 3]));
+			const ac = new AbortController();
+			ac.abort();
+
+			await expect(scanDuplicateResources(zip, undefined, undefined, ac.signal)).rejects.toThrow(
+				'Tác vụ quét tài nguyên đã bị hủy'
+			);
+		});
 	});
 });

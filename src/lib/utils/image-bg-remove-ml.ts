@@ -520,7 +520,14 @@ export async function processOrnamentImage(
 				alphaThreshold
 			};
 
-			worker.postMessage(req);
+			try {
+				worker.postMessage(req);
+			} catch (postErr) {
+				cleanup();
+				reject(
+					postErr instanceof Error ? postErr : new Error('Không thể gửi dữ liệu tới Web Worker')
+				);
+			}
 		});
 	}
 
