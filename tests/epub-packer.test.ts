@@ -197,6 +197,21 @@ describe('epub-packer tests', () => {
 			);
 		});
 
+		it('should not automatically add dropcap to center-page chapters (e.g. dedication)', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Giới Thiệu',
+					fileName: 'chap_01',
+					features: { hasCenterPage: true, preserveParagraphs: true },
+					html: '<section class="center-page">\n<div class="center-page-content">\n<h2 class="side-chap center">Kính Tặng</h2>\n<p>Cuốn sách này dành cho gia đình.</p>\n</div>\n</section>'
+				}
+			);
+			expect(html).not.toContain('class="dropcap"');
+			expect(html).not.toContain('has-dropcap');
+			expect(html).toContain('<p>Cuốn sách này dành cho gia đình.</p>');
+		});
+
 		it('should not add dropcap to special pages like jacket or cover', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },

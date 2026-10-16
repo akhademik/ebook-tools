@@ -1673,5 +1673,61 @@ Chú thích:
 				}
 			});
 		});
+
+		describe('Remaining Review Improvements: [/new:center], Giới Thiệu placeholder, @@! no-toc', () => {
+			it('should allow [/new:center] to close [new:center]', () => {
+				const txt = `[new:center]\nNội dung trang căn giữa\n[/new:center]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+
+				const chapters = parseTxtToChapters(txt, {}, 'MyBook');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].title).toBe('Giới Thiệu');
+				expect(chapters[0].html).toContain('class="center-page"');
+			});
+
+			it('should reject [/new:center] when trying to close standard [new] block', () => {
+				const txt = `[new]\nNội dung trang thường\n[/new:center]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(false);
+				expect(validation.errors).toHaveLength(1);
+				expect(validation.errors[0].message).toContain(
+					'Thẻ đóng [/new:center] chỉ được dùng để đóng khối [new:center]'
+				);
+			});
+
+			it('should allow standard [/new] to close both [new] and [new:center]', () => {
+				const txt1 = `[new]\nTrang thường\n[/new]`;
+				const txt2 = `[new:center]\nTrang giữa\n[/new]`;
+				expect(validateTxtSyntax(txt1).isValid).toBe(true);
+				expect(validateTxtSyntax(txt2).isValid).toBe(true);
+			});
+
+			it('should use "Giới Thiệu" placeholder for [new] and [new:center] if no @@ or @ is present', () => {
+				const txt = `[new:center]\nLời đề tặng\n[/new:center]\n[new]\nTrang trắng ảnh\n[/new]`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters[0].title).toBe('Giới Thiệu');
+				expect(chapters[1].title).toBe('Giới Thiệu');
+			});
+
+			it('should override "Giới Thiệu" placeholder if @@ or @ exists inside [new] / [new:center]', () => {
+				const txt = `[new:center]\n@ Lời Đề Tặng Riêng\nKính tặng mẹ\n[/new:center]\n[new]\n@@ Lời Mở Đầu Tác Giả\nNội dung\n[/new]`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters[0].title).toBe('Lời Đề Tặng Riêng');
+				expect(chapters[1].title).toBe('Lời Mở Đầu Tác Giả');
+			});
+
+			it('should support @@! as chapter cut with class "no-toc"', () => {
+				const txt = `@@! Lời Nói Đầu\nNội dung không đưa vào mục lục\n@@ Chương 1\nNội dung chương 1`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(2);
+				expect(chapters[0].title).toBe('Lời Nói Đầu');
+				expect(chapters[0].html).toContain('<h1 class="main-chap center no-toc">Lời Nói Đầu</h1>');
+				expect(chapters[1].title).toBe('Chương 1');
+				expect(chapters[1].html).toContain('<h1 class="main-chap center">Chương 1</h1>');
+				expect(chapters[1].html).not.toContain('no-toc');
+			});
+		});
 	});
 });

@@ -94,22 +94,44 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 					});
 				}
 			} else {
-				nodes.push({
-					id: `navPoint-${nodeCounter++}`,
-					title: c.title,
-					href: basePath,
-					level: 1,
-					children: []
-				});
-				for (const h of headings) {
-					const anchor = h.id ? `#${h.id}` : '';
+				// No H1 in page, but has H2 headings (e.g. inside [new] or [new:center])
+				// If first heading title is identical to c.title or c.title is 'Giới Thiệu', use heading directly to avoid duplicate TOC
+				const isDefaultIntro = c.title === 'Giới Thiệu';
+				const firstMatches =
+					headings.length > 0 &&
+					headings[0].title.trim().toLowerCase() === c.title.trim().toLowerCase();
+
+				if (firstMatches || isDefaultIntro) {
+					// Use headings directly without prepending redundant c.title
+					for (let i = 0; i < headings.length; i++) {
+						const h = headings[i];
+						const anchor = i === 0 ? '' : h.id ? `#${h.id}` : '';
+						nodes.push({
+							id: `navPoint-${nodeCounter++}`,
+							title: h.title,
+							href: basePath + anchor,
+							level: 1,
+							children: []
+						});
+					}
+				} else {
 					nodes.push({
 						id: `navPoint-${nodeCounter++}`,
-						title: h.title,
-						href: basePath + anchor,
-						level: h.level,
+						title: c.title,
+						href: basePath,
+						level: 1,
 						children: []
 					});
+					for (const h of headings) {
+						const anchor = h.id ? `#${h.id}` : '';
+						nodes.push({
+							id: `navPoint-${nodeCounter++}`,
+							title: h.title,
+							href: basePath + anchor,
+							level: h.level,
+							children: []
+						});
+					}
 				}
 			}
 		}

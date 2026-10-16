@@ -496,7 +496,7 @@ export function parseTxtToChapters(
 			isInsideNewBlock = true;
 			isInsideNewCenterBlock = false;
 			currentChapter = {
-				title: `${fallbackTitle}`,
+				title: 'Giới Thiệu',
 				html: '',
 				sources: ['Tệp TXT'],
 				isChapter: true,
@@ -513,7 +513,7 @@ export function parseTxtToChapters(
 			isInsideNewBlock = true;
 			isInsideNewCenterBlock = true;
 			currentChapter = {
-				title: `${fallbackTitle}`,
+				title: 'Giới Thiệu',
 				html: '<section class="center-page">\n  <div class="center-page-content">\n',
 				sources: ['Tệp TXT'],
 				isChapter: true,
@@ -526,7 +526,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (/^\[\/new\]$/i.test(stripped)) {
+		if (/^\[\/(new|new:center)\]$/i.test(stripped)) {
 			if (isInsideNewCenterBlock) {
 				if (currentChapter) {
 					currentChapter.html += '  </div>\n</section>\n';
@@ -587,10 +587,12 @@ export function parseTxtToChapters(
 			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
 			const titlePlain = stripHtmlTags(titleFormatted);
 
+			const tocClass = isNoToc ? ' no-toc' : '';
+
 			if (atCount === 2) {
 				if (isInsideNewBlock) {
 					ensureChapterOpen();
-					currentChapter.html += `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`;
+					currentChapter.html += `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`;
 					if (!currentChapter.hasCustomTitle) {
 						currentChapter.title = titlePlain || `Chương ${chapters.length}`;
 						currentChapter.hasCustomTitle = true;
@@ -598,7 +600,7 @@ export function parseTxtToChapters(
 				} else {
 					currentChapter = {
 						title: titlePlain || `Chương ${chapters.length + 1}`,
-						html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
+						html: `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`,
 						sources: ['Tệp TXT'],
 						isChapter: true,
 						firstSourcePageNum: chapters.length + 1,
@@ -608,7 +610,6 @@ export function parseTxtToChapters(
 				}
 			} else {
 				ensureChapterOpen();
-				const tocClass = isNoToc ? ' no-toc' : '';
 				currentChapter.html += `<h2 class="side-chap ${align}${tocClass}">${titleFormatted}</h2>\n`;
 				if (!currentChapter.hasCustomTitle && isInsideNewBlock) {
 					currentChapter.title = titlePlain || `Chương ${chapters.length}`;

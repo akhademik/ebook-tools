@@ -142,9 +142,9 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		const openBlockMatch = stripped.match(/^\[(poem|letter|letter-box)\]$/i);
 		const openNewMatch = stripped.match(/^\[(new|new:center)\]$/i);
 
-		// Check for closing tags: [/poem], [/letter], [/letter-box], [/new]
+		// Check for closing tags: [/poem], [/letter], [/letter-box], [/new], [/new:center]
 		const closeBlockMatch = stripped.match(/^\[\/(poem|letter|letter-box)\]$/i);
-		const closeNewMatch = stripped.match(/^\[\/new\]$/i);
+		const closeNewMatch = stripped.match(/^\[\/(new|new:center)\]$/i);
 
 		if (openBlockMatch) {
 			const tag = openBlockMatch[1].toLowerCase();
@@ -252,26 +252,38 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		}
 
 		if (closeNewMatch) {
+			const closeTag = closeNewMatch[1].toLowerCase();
 			const topIndex = blockStack.findLastIndex((b) => b.closeTag === 'new');
 
 			if (topIndex === -1) {
 				errors.push({
 					lineNum,
 					lineContent: rawLine,
-					tag: '[/new]',
-					message: `Dòng ${lineNum}: Thấy thẻ đóng [/new] nhưng không có thẻ mở [new] hoặc [new:center] tương ứng trước đó.`
+					tag: `[/${closeTag}]`,
+					message: `Dòng ${lineNum}: Thấy thẻ đóng [/${closeTag}] nhưng không có thẻ mở [new] hoặc [new:center] tương ứng trước đó.`
 				});
 			} else {
-				if (topIndex < blockStack.length - 1) {
-					const unclosed = blockStack[blockStack.length - 1];
+				const targetBlock = blockStack[topIndex];
+				if (closeTag === 'new:center' && targetBlock.tag !== 'new:center') {
 					errors.push({
 						lineNum,
 						lineContent: rawLine,
-						tag: '[/new]',
-						message: `Dòng ${lineNum}: Đóng thẻ [/new] khi thẻ [${unclosed.tag}] mở tại dòng ${unclosed.lineNum} chưa được đóng.`
+						tag: '[/new:center]',
+						message: `Dòng ${lineNum}: Thẻ đóng [/new:center] chỉ được dùng để đóng khối [new:center], không thể dùng để đóng [${targetBlock.tag}] (mở tại dòng ${targetBlock.lineNum}). Vui lòng dùng [/new].`
 					});
+					blockStack.splice(topIndex, 1);
+				} else {
+					if (topIndex < blockStack.length - 1) {
+						const unclosed = blockStack[blockStack.length - 1];
+						errors.push({
+							lineNum,
+							lineContent: rawLine,
+							tag: `[/${closeTag}]`,
+							message: `Dòng ${lineNum}: Đóng thẻ [/${closeTag}] khi thẻ [${unclosed.tag}] mở tại dòng ${unclosed.lineNum} chưa được đóng.`
+						});
+					}
+					blockStack.splice(topIndex, 1);
 				}
-				blockStack.splice(topIndex, 1);
 			}
 			continue;
 		}

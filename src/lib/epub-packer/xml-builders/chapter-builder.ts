@@ -163,28 +163,32 @@ export function buildChapterXhtml(
 			});
 		}
 
-		// Automatically add dropcap to the first paragraph immediately following h1 or h2 (unless it has no-dropcap or already has-dropcap/dropcap)
-		content = content.replace(
-			/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
-			(match, p1, p2, p3, p4) => {
-				if (
-					/\bno-dropcap\b/i.test(p2) ||
-					/\bhas-dropcap\b/i.test(p2) ||
-					/class=["'][^"']*\bdropcap\b/i.test(p3)
-				) {
-					return match;
+		// Automatically add dropcap to the first paragraph immediately following h1 or h2
+		// (unless chapter is center-page, or paragraph has no-dropcap or already has dropcap/has-dropcap)
+		const isCenterPage = !!chapter.features?.hasCenterPage;
+		if (!isCenterPage) {
+			content = content.replace(
+				/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
+				(match, p1, p2, p3, p4) => {
+					if (
+						/\bno-dropcap\b/i.test(p2) ||
+						/\bhas-dropcap\b/i.test(p2) ||
+						/class=["'][^"']*\bdropcap\b/i.test(p3)
+					) {
+						return match;
+					}
+					let updatedP2: string;
+					if (p2.includes('class=')) {
+						updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
+							return `class="${classNames} has-dropcap"`;
+						});
+					} else {
+						updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
+					}
+					return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + '</span>';
 				}
-				let updatedP2: string;
-				if (p2.includes('class=')) {
-					updatedP2 = p2.replace(/class=["']([^"']*)["']/i, (_cMatch, classNames) => {
-						return `class="${classNames} has-dropcap"`;
-					});
-				} else {
-					updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
-				}
-				return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + '</span>';
-			}
-		);
+			);
+		}
 
 		// Ensure that any paragraph containing a dropcap has the "has-dropcap" class
 		content = content.replace(
