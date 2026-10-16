@@ -254,7 +254,10 @@ describe('image background removal and ornament optimization', () => {
 		});
 
 		it('should fallback to main-thread execution when worker.postMessage throws an error', async () => {
-			const { processOrnamentImage } = await import('../src/lib/utils/image-bg-remove-ml');
+			const { processOrnamentImage, _resetImageBgWorkerForTest } =
+				await import('../src/lib/utils/image-bg-remove-ml');
+			_resetImageBgWorkerForTest();
+
 			const fakeBlob = new Blob(['sample-img'], { type: 'image/png' });
 			const onProgress = vi.fn();
 
@@ -276,6 +279,86 @@ describe('image background removal and ornament optimization', () => {
 				expect(result.previewUrl).toBe('blob:http://localhost/dummy-url');
 				expect(onProgress).toHaveBeenCalledWith(expect.stringMatching(/hoàn tất/i), 100);
 			} finally {
+				_resetImageBgWorkerForTest();
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
+		});
+
+		it('should fallback to main-thread execution when worker emits onerror event', async () => {
+			const { processOrnamentImage, _resetImageBgWorkerForTest } =
+				await import('../src/lib/utils/image-bg-remove-ml');
+			_resetImageBgWorkerForTest();
+
+			const fakeBlob = new Blob(['sample-img-error'], { type: 'image/png' });
+			const onProgress = vi.fn();
+
+			const origWorker = globalThis.Worker;
+			class ErrorWorker {
+				postMessage = vi.fn().mockImplementation(() => {
+					setTimeout(() => {
+						if (this.onerror) {
+							this.onerror({ message: 'Worker script threw unexpected runtime exception' });
+						}
+					}, 10);
+				});
+				terminate = vi.fn();
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+			}
+			(globalThis as any).Worker = ErrorWorker;
+
+			try {
+				const result = await processOrnamentImage(fakeBlob as any, { onProgress });
+				expect(result.blob).toBeDefined();
+				expect(result.previewUrl).toBe('blob:http://localhost/dummy-url');
+				expect(onProgress).toHaveBeenCalledWith(expect.stringMatching(/hoàn tất/i), 100);
+			} finally {
+				_resetImageBgWorkerForTest();
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
+		});
+
+		it('should not fallback aborted jobs when worker fails', async () => {
+			const { processOrnamentImage, _resetImageBgWorkerForTest } =
+				await import('../src/lib/utils/image-bg-remove-ml');
+			_resetImageBgWorkerForTest();
+
+			const fakeBlob = new Blob(['sample-img-abort'], { type: 'image/png' });
+			const ac = new AbortController();
+
+			const origWorker = globalThis.Worker;
+			class SlowErrorWorker {
+				postMessage = vi.fn().mockImplementation(() => {
+					setTimeout(() => {
+						if (this.onerror) {
+							this.onerror({ message: 'Worker crashed' });
+						}
+					}, 30);
+				});
+				terminate = vi.fn();
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+			}
+			(globalThis as any).Worker = SlowErrorWorker;
+
+			try {
+				const promise = processOrnamentImage(fakeBlob as any, { signal: ac.signal });
+				// Abort before worker onerror fires
+				setTimeout(() => ac.abort(), 10);
+
+				await expect(promise).rejects.toThrow('Tác vụ xử lý ảnh đã bị hủy');
+			} finally {
+				_resetImageBgWorkerForTest();
 				if (origWorker) {
 					globalThis.Worker = origWorker;
 				} else {

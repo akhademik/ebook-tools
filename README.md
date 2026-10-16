@@ -197,19 +197,34 @@ pnpm test:e2e
   - Khắc phục triệt để lỗi CI/CD Prettier format trên GitHub Actions: chuẩn hóa sinh metadata font (`scripts/generate-fonts-meta.js` dùng tab và newline chuẩn `.prettierrc`).
   - Nâng cấp [AI_WORKFLOW.md](AI_WORKFLOW.md) chốt chặn kiểm tra bắt buộc trước khi commit/push: yêu cầu chạy `pnpm format:check`, `pnpm check`, `pnpm lint`, `pnpm test`, `pnpm knip`, `pnpm build`, và `pnpm test:e2e` đồng bộ hoàn toàn với GitHub Actions `ci.yml`.
   - Khắc phục triệt để lỗi `knip` (`oxc-parser` cấp phát 6 GiB buffer) bằng `KNIP_DISABLE_RAW_TRANSFER=1`, đưa `pnpm knip` về trạng thái pass 100% không còn nợ kỹ thuật.
-  - Hoàn tất khắc phục 6 điểm từ bản đánh giá lại `review.md`:
-    - Thêm `whitespace-pre-line` hiển thị danh sách lỗi gộp trên `EpubSourceSection.svelte`.
-    - Chuẩn hóa cú pháp trong khối `[letter]` và `[poem]`: chỉ cho phép `@@!` và `@!`, chặn `@@` và `@` không hợp lệ.
-    - Loại trừ hoa văn chương `chapter-ornament` cho thẻ `h1.no-toc` (`@@!`), chống lặp 2 hoa văn trong 1 chương.
-    - Tối ưu hóa bộ nhớ `pdf-splitter.ts` với Zero-Copy ArrayBuffer Transfer.
-    - Dùng cờ `hasCustomTitle: false` trong `nav-builder` và cảnh báo khi khối `[new]` thiếu tiêu đề.
-  - Bộ kiểm thử mở rộng đạt 303/303 unit tests pass và 12/12 Playwright E2E tests pass 100%.
+  - Hoàn tất khắc phục các điểm từ bản đánh giá lại `review.md`:
+    - Khắc phục triệt để lỗi buffer detachment khi Worker fallback trong EPUB Cleaner (`duplicate-detector.ts`): chuyển sang cơ chế Lazy Fallback Loader nạp lại byte tươi nguyên từ ZIP thay vì dùng buffer detached.
+    - Chuẩn hóa kiểm thử Web Worker Concurrency và Fallback trong `tests/epub-cleaner.test.ts` với `AsyncDuplicateWorkerMock` và mock `window`.
+    - Hoàn thiện cơ chế tự phục hồi xử lý ảnh ML: bao phủ sự cố `worker.onerror`, `worker.onmessageerror` và response lỗi với `cleanupWorkerAndFallbackPending`, tự động hủy các tác vụ đã bị abort.
+  - Bộ kiểm thử mở rộng đạt 311/311 unit tests pass và 12/12 Playwright E2E tests pass 100%.
+- Cập nhật lần cuối: 2026-10-16 17:08
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (Worker Detached Buffer Fallback, Concurrency Testing & ML Self-Healing)
+
+- Thêm/sửa: Khắc phục triệt để các vấn đề rà soát từ `review.md`:
+  - `duplicate-detector.ts`: Áp dụng cơ chế Lazy Fallback Loader (`fallbackLoader: () => Promise<ScanItemInput[]>`) khi Worker gặp lỗi, bảo toàn nguyên vẹn dữ liệu ảnh/font/CSS mà không bị lỗi detached buffer từ zero-copy transfer, đồng thời không gây tốn RAM ở luồng chính.
+  - `tests/epub-cleaner.test.ts`: Tích hợp `AsyncDuplicateWorkerMock` và giả lập `window` trong môi trường kiểm thử Vitest, kiểm chứng toàn diện 4 điều kiện: chạy chung 1 Worker instance, abort 1 job không ngắt worker của job còn lại, job còn lại nhận kết quả chính xác, và worker ném `onerror` tự động fallback thành công với buffer nguyên vẹn.
+  - `image-bg-remove-ml.ts`: Thay thế `cleanupWorkerAndRejectPending` bằng `cleanupWorkerAndFallbackPending(error)`, bao phủ triệt để các sự cố `onerror`, `onmessageerror` và lỗi xử lý worker để tự động phục hồi qua `processOrnamentOnMainThread()`, đảm bảo kiểm tra `signal?.aborted` tránh thực thi tác vụ bị hủy.
+  - `tests/image-bg-remove.test.ts`: Bổ sung 2 unit tests kiểm tra `worker.onerror` tự động phục hồi trên luồng chính và xác nhận bỏ qua các job đã bị abort.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (311/311 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (907 nodes, 2063 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-editor/cleaner/duplicate-detector.ts`
+  - `src/lib/utils/image-bg-remove-ml.ts`
+  - `tests/epub-cleaner.test.ts`
+  - `tests/image-bg-remove.test.ts`
+  - `review.md`
+  - `README.md`
 
 ### 2026-10-16 (Worker Cancellation Race Condition & ML Fallback Hardening)
 

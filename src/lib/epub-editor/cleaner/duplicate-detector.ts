@@ -13,7 +13,7 @@ interface DuplicatePendingJob {
 	resolve: (duplicates: DuplicateResourceItem[]) => void;
 	reject: (error: unknown) => void;
 	onProgress?: (current: number, total: number, filename: string) => void;
-	scanItems: ScanItemInput[];
+	fallbackLoader: () => Promise<ScanItemInput[]>;
 	cleanupSignal?: () => void;
 }
 
@@ -38,12 +38,23 @@ function cleanupDuplicateWorkerAndFallback(err: unknown): void {
 	}
 	for (const job of jobs) {
 		job.cleanupSignal?.();
-		try {
-			computeDuplicateResources(job.scanItems, job.onProgress).then(job.resolve, job.reject);
-		} catch (directErr) {
-			job.reject(directErr);
-		}
+		job
+			.fallbackLoader()
+			.then((items) => computeDuplicateResources(items, job.onProgress))
+			.then(job.resolve, job.reject);
 	}
+}
+
+export function _resetDuplicateWorkerForTest(): void {
+	if (workerInstance) {
+		try {
+			workerInstance.terminate();
+		} catch {
+			// ignore
+		}
+		workerInstance = null;
+	}
+	pendingDuplicateJobs.clear();
 }
 
 function getDuplicateWorker(): Worker | null {
@@ -76,11 +87,10 @@ function getDuplicateWorker(): Worker | null {
 						'Worker encountered error, falling back to direct computation:',
 						e.data.error
 					);
-					try {
-						computeDuplicateResources(job.scanItems, job.onProgress).then(job.resolve, job.reject);
-					} catch (fallbackErr) {
-						job.reject(fallbackErr);
-					}
+					job
+						.fallbackLoader()
+						.then((items) => computeDuplicateResources(items, job.onProgress))
+						.then(job.resolve, job.reject);
 				}
 			};
 
@@ -158,6 +168,29 @@ export async function scanDuplicateResources(
 		scanItems.push({ path, bytes });
 	}
 
+	const fallbackLoader = async (): Promise<ScanItemInput[]> => {
+		if (signal?.aborted) {
+			throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
+		}
+		const items: ScanItemInput[] = [];
+		for (const path of targetPaths) {
+			if (signal?.aborted) {
+				throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
+			}
+			let bytes: Uint8Array;
+			if (editBuffer && editBuffer.has(path)) {
+				const text = editBuffer.get(path) || '';
+				bytes = new TextEncoder().encode(text);
+			} else {
+				const file = zip.files[path];
+				if (!file) continue;
+				bytes = await file.async('uint8array');
+			}
+			items.push({ path, bytes });
+		}
+		return items;
+	};
+
 	const worker = getDuplicateWorker();
 	if (worker) {
 		return new Promise((resolve, reject) => {
@@ -198,7 +231,7 @@ export async function scanDuplicateResources(
 				resolve,
 				reject,
 				onProgress,
-				scanItems,
+				fallbackLoader,
 				cleanupSignal
 			});
 
@@ -214,24 +247,17 @@ export async function scanDuplicateResources(
 
 			try {
 				worker.postMessage(request, transferables);
-			} catch {
-				// Fallback without transfer if browser doesn't permit detached buffer
-				try {
-					worker.postMessage(request);
-				} catch (postErr) {
-					pendingDuplicateJobs.delete(requestId);
-					cleanupSignal();
-					Logger.warn(
-						'[duplicate-detector]',
-						'Failed to postMessage to worker, executing direct computation:',
-						postErr
-					);
-					try {
-						resolve(computeDuplicateResources(scanItems, onProgress));
-					} catch (directErr) {
-						reject(directErr);
-					}
-				}
+			} catch (postErr) {
+				pendingDuplicateJobs.delete(requestId);
+				cleanupSignal();
+				Logger.warn(
+					'[duplicate-detector]',
+					'Failed to postMessage to worker, executing direct computation:',
+					postErr
+				);
+				fallbackLoader()
+					.then((items) => computeDuplicateResources(items, onProgress))
+					.then(resolve, reject);
 			}
 		});
 	}

@@ -20,26 +20,27 @@ export interface OrnamentProcessResult {
 
 // Map of pending worker jobs
 interface PendingJob {
+	imageSource: Blob | File | string;
+	options: OrnamentProcessOptions;
 	onProgress?: (statusText: string, percent: number) => void;
 	resolve: (result: OrnamentProcessResult) => void;
 	reject: (err: Error) => void;
+	cleanupSignal?: () => void;
 }
 
 let workerInstance: Worker | null = null;
 const pendingJobs = new Map<string, PendingJob>();
 
 /**
- * Cleans up worker instance and rejects all pending jobs upon worker failure.
+ * Cleans up worker instance and falls back to main-thread processing for all pending jobs.
  */
-function cleanupWorkerAndRejectPending(error: Error): void {
-	Logger.error('[ImageBgWorker]', 'Cleaning up worker and rejecting pending jobs', error);
-	for (const [, job] of pendingJobs) {
-		try {
-			job.reject(error);
-		} catch {
-			// ignore
-		}
-	}
+function cleanupWorkerAndFallbackPending(error: Error): void {
+	Logger.warn(
+		'[ImageBgWorker]',
+		'Worker failure, falling back to main-thread processing for pending jobs:',
+		error
+	);
+	const jobs = Array.from(pendingJobs.values());
 	pendingJobs.clear();
 	if (workerInstance) {
 		try {
@@ -49,6 +50,26 @@ function cleanupWorkerAndRejectPending(error: Error): void {
 		}
 		workerInstance = null;
 	}
+	for (const job of jobs) {
+		job.cleanupSignal?.();
+		if (job.options.signal?.aborted) {
+			job.reject(new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError'));
+			continue;
+		}
+		processOrnamentOnMainThread(job.imageSource, job.options).then(job.resolve, job.reject);
+	}
+}
+
+export function _resetImageBgWorkerForTest(): void {
+	if (workerInstance) {
+		try {
+			workerInstance.terminate();
+		} catch {
+			// ignore
+		}
+		workerInstance = null;
+	}
+	pendingJobs.clear();
 }
 
 /**
@@ -76,6 +97,7 @@ function getOrCreateWorker(): Worker | null {
 					job.onProgress?.(data.statusText, data.percent);
 				} else if (data.type === 'success') {
 					pendingJobs.delete(data.id);
+					job.cleanupSignal?.();
 					const previewUrl =
 						typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function'
 							? URL.createObjectURL(data.blob)
@@ -88,22 +110,32 @@ function getOrCreateWorker(): Worker | null {
 					});
 				} else if (data.type === 'error') {
 					pendingJobs.delete(data.id);
-					job.reject(new Error(data.error || 'Lỗi xử lý ảnh trong background worker'));
+					job.cleanupSignal?.();
+					if (job.options.signal?.aborted) {
+						job.reject(new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError'));
+					} else {
+						Logger.warn(
+							'[ImageBgWorker]',
+							'Worker task error, falling back to main-thread processing:',
+							data.error
+						);
+						processOrnamentOnMainThread(job.imageSource, job.options).then(job.resolve, job.reject);
+					}
 				}
 			};
 
 			workerInstance.onerror = (err: ErrorEvent) => {
-				Logger.error('[ImageBgWorker]', 'Worker error event', err);
+				Logger.warn('[ImageBgWorker]', 'Worker error event', err);
 				const errMsg =
 					err && typeof err === 'object' && 'message' in err && err.message
 						? err.message
 						: 'Web Worker gặp sự cố không thể xử lý ảnh';
-				cleanupWorkerAndRejectPending(new Error(errMsg));
+				cleanupWorkerAndFallbackPending(new Error(errMsg));
 			};
 
 			workerInstance.onmessageerror = (err: MessageEvent) => {
-				Logger.error('[ImageBgWorker]', 'Worker message error', err);
-				cleanupWorkerAndRejectPending(new Error('Lỗi truyền dữ liệu với Web Worker'));
+				Logger.warn('[ImageBgWorker]', 'Worker message error', err);
+				cleanupWorkerAndFallbackPending(new Error('Lỗi truyền dữ liệu với Web Worker'));
 			};
 		} catch (err) {
 			Logger.warn(
@@ -497,6 +529,8 @@ export async function processOrnamentImage(
 			}
 
 			pendingJobs.set(jobId, {
+				imageSource,
+				options,
 				onProgress: (status, pct) => {
 					if (signal?.aborted) return;
 					onProgress?.(status, pct);
@@ -508,6 +542,11 @@ export async function processOrnamentImage(
 				reject: (err) => {
 					cleanup();
 					reject(err);
+				},
+				cleanupSignal: () => {
+					if (signal) {
+						signal.removeEventListener('abort', handleAbort);
+					}
 				}
 			});
 

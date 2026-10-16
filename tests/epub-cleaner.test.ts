@@ -1,5 +1,5 @@
 // tests/epub-cleaner.test.ts
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import JSZip from 'jszip';
 import {
 	extractCssUrls,
@@ -266,28 +266,156 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			);
 		});
 
-		it('should not break concurrent duplicate scan jobs when one job is aborted', async () => {
-			const { scanDuplicateResources } =
+		it('should not break concurrent duplicate scan jobs when one job is aborted (with Worker mock)', async () => {
+			const { scanDuplicateResources, _resetDuplicateWorkerForTest } =
 				await import('../src/lib/epub-editor/cleaner/duplicate-detector');
-			const zip1 = new JSZip();
-			zip1.file('OEBPS/images/img1.png', new Uint8Array([1, 2, 3]));
-			zip1.file('OEBPS/images/img2.png', new Uint8Array([1, 2, 3]));
+			const { computeDuplicateResources } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector.worker');
 
-			const zip2 = new JSZip();
-			zip2.file('OEBPS/images/imgA.png', new Uint8Array([9, 8, 7]));
-			zip2.file('OEBPS/images/imgB.png', new Uint8Array([9, 8, 7]));
+			_resetDuplicateWorkerForTest();
 
-			const ac1 = new AbortController();
-			const p1 = scanDuplicateResources(zip1, undefined, undefined, ac1.signal);
-			const p2 = scanDuplicateResources(zip2);
+			const origWindow = (globalThis as any).window;
+			const origWorker = globalThis.Worker;
 
-			ac1.abort();
+			let workerCount = 0;
+			let lastWorkerInstance: any = null;
+			const trackWorkerInstance = (inst: any) => {
+				lastWorkerInstance = inst;
+			};
 
-			await expect(p1).rejects.toThrow('Tác vụ quét tài nguyên đã bị hủy');
-			const res2 = await p2;
-			expect(res2).toHaveLength(1);
-			expect(res2[0].originalPath).toBe('OEBPS/images/imgA.png');
-			expect(res2[0].duplicatePath).toBe('OEBPS/images/imgB.png');
+			class AsyncDuplicateWorkerMock {
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+				terminate = vi.fn();
+				postMessage = vi.fn().mockImplementation((data: any) => {
+					setTimeout(async () => {
+						if (this.onmessage) {
+							const duplicates = await computeDuplicateResources(data.items);
+							this.onmessage({
+								data: {
+									id: data.id,
+									type: 'success',
+									duplicates
+								}
+							});
+						}
+					}, 30);
+				});
+				constructor() {
+					workerCount++;
+					trackWorkerInstance(this);
+				}
+			}
+
+			(globalThis as any).window = {};
+			(globalThis as any).Worker = AsyncDuplicateWorkerMock;
+
+			try {
+				const zip1 = new JSZip();
+				zip1.file('OEBPS/images/img1.png', new Uint8Array([1, 2, 3]));
+				zip1.file('OEBPS/images/img2.png', new Uint8Array([1, 2, 3]));
+
+				const zip2 = new JSZip();
+				zip2.file('OEBPS/images/imgA.png', new Uint8Array([9, 8, 7]));
+				zip2.file('OEBPS/images/imgB.png', new Uint8Array([9, 8, 7]));
+
+				const ac1 = new AbortController();
+				const p1 = scanDuplicateResources(zip1, undefined, undefined, ac1.signal);
+				const p2 = scanDuplicateResources(zip2);
+
+				// Allow zip parsing to finish and jobs to be posted to the worker
+				await new Promise((r) => setTimeout(r, 10));
+
+				// 1. Both jobs are dispatched to the exact same worker instance
+				expect(workerCount).toBe(1);
+				expect(lastWorkerInstance.postMessage).toHaveBeenCalledTimes(2);
+
+				// Abort task 1 while task 2 is still processing
+				ac1.abort();
+
+				// 2. Worker must NOT be terminated while task 2 is still pending
+				expect(lastWorkerInstance.terminate).not.toHaveBeenCalled();
+
+				// 3. Task 1 is rejected with AbortError
+				await expect(p1).rejects.toThrow('Tác vụ quét tài nguyên đã bị hủy');
+
+				// 4. Task 2 still receives accurate duplicate detection results
+				const res2 = await p2;
+				expect(res2).toHaveLength(1);
+				expect(res2[0].originalPath).toBe('OEBPS/images/imgA.png');
+				expect(res2[0].duplicatePath).toBe('OEBPS/images/imgB.png');
+			} finally {
+				_resetDuplicateWorkerForTest();
+				if (origWindow !== undefined) {
+					(globalThis as any).window = origWindow;
+				} else {
+					delete (globalThis as any).window;
+				}
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
+		});
+
+		it('should fallback to direct computation with fresh buffers when worker encounters error', async () => {
+			const { scanDuplicateResources, _resetDuplicateWorkerForTest } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector');
+
+			_resetDuplicateWorkerForTest();
+
+			const origWindow = (globalThis as any).window;
+			const origWorker = globalThis.Worker;
+
+			class FailingDuplicateWorkerMock {
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+				terminate = vi.fn();
+				postMessage = vi.fn().mockImplementation((data: any) => {
+					// In a real browser, transferables detach the main-thread buffers
+					for (const item of data.items) {
+						// Simulate detached buffer (byteLength = 0)
+						Object.defineProperty(item.bytes, 'byteLength', { value: 0 });
+					}
+					setTimeout(() => {
+						if (this.onerror) {
+							this.onerror({ type: 'error', message: 'Worker crashed unexpectedly' });
+						}
+					}, 20);
+				});
+			}
+
+			(globalThis as any).window = {};
+			(globalThis as any).Worker = FailingDuplicateWorkerMock;
+
+			try {
+				const zip = new JSZip();
+				zip.file('OEBPS/images/pic1.jpg', new Uint8Array([42, 43, 44, 45]));
+				zip.file('OEBPS/images/pic2.jpg', new Uint8Array([42, 43, 44, 45]));
+
+				const duplicates = await scanDuplicateResources(zip);
+				// Verify fallback reloaded fresh bytes from zip (non-detached, byteSize > 0)
+				expect(duplicates).toHaveLength(1);
+				expect(duplicates[0].originalPath).toBe('OEBPS/images/pic1.jpg');
+				expect(duplicates[0].duplicatePath).toBe('OEBPS/images/pic2.jpg');
+				expect(duplicates[0].byteSize).toBe(4);
+				expect(duplicates[0].hash).toBeTruthy();
+			} finally {
+				_resetDuplicateWorkerForTest();
+				if (origWindow !== undefined) {
+					(globalThis as any).window = origWindow;
+				} else {
+					delete (globalThis as any).window;
+				}
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
 		});
 	});
 });
