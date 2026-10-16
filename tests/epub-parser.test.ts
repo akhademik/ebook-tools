@@ -1839,24 +1839,61 @@ Nội dung bức thư
 				);
 			});
 
-			it('should reject @@ and @ inside [letter] or [poem] because only @@! or @! are allowed', () => {
+			it('should warn and render plain <p> without stopping when @@ and @ appear inside [letter] or [poem]', () => {
 				const txtWithChapter = `@@ Chương 1
 [letter]
-@@ Tiêu đề chương sai
+@@ Tên người dùng hoặc ký hiệu @@
 [/letter]`;
 				const val1 = validateTxtSyntax(txtWithChapter);
-				expect(val1.isValid).toBe(false);
-				expect(val1.errors[0].message).toContain('Trong khối [letter]');
-				expect(val1.errors[0].message).toContain("chỉ cho phép dùng '@@!'");
+				expect(val1.isValid).toBe(true);
+				expect(val1.errors).toHaveLength(0);
+				expect(
+					val1.warnings.some(
+						(w) =>
+							w.message.toLowerCase().includes('trong khối [letter]') &&
+							w.message.includes("chỉ có '@@!' mới được chuyển")
+					)
+				).toBe(true);
+
+				const chapters1 = parseTxtToChapters(txtWithChapter, {}, 'Tên Sách');
+				expect(chapters1).toHaveLength(1);
+				expect(chapters1[0].html).toContain('<p>@@ Tên người dùng hoặc ký hiệu @@</p>');
 
 				const txtWithSideChap = `@@ Chương 1
 [poem]
-@ Tiêu đề phụ sai
+@ Tác giả thơ @author
 [/poem]`;
 				const val2 = validateTxtSyntax(txtWithSideChap);
-				expect(val2.isValid).toBe(false);
-				expect(val2.errors[0].message).toContain('Trong khối [poem]');
-				expect(val2.errors[0].message).toContain("chỉ cho phép dùng '@!'");
+				expect(val2.isValid).toBe(true);
+				expect(val2.errors).toHaveLength(0);
+				expect(
+					val2.warnings.some(
+						(w) =>
+							w.message.toLowerCase().includes('trong khối [poem]') &&
+							w.message.includes("chỉ có '@!' mới được chuyển")
+					)
+				).toBe(true);
+
+				const chapters2 = parseTxtToChapters(txtWithSideChap, {}, 'Tên Sách');
+				expect(chapters2).toHaveLength(1);
+				expect(chapters2[0].html).toContain('<p>@ Tác giả thơ @author</p>');
+			});
+
+			it('should disable automatic dropcaps in [letter] and [poem] by default, but allow forced [c] dropcaps', () => {
+				const txt = `@@ Chương 1
+[letter]
+@@! Tiêu Đề Thư
+Đoạn văn bình thường không có dropcap dù đứng sau h1.
+[N] gày tháng năm được dropcap thủ công bằng [c].
+[/letter]`;
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain(
+					'<p>Đoạn văn bình thường không có dropcap dù đứng sau h1.</p>'
+				);
+				expect(chapters[0].html).toContain(
+					'<p class="has-dropcap"><span class="dropcap">N</span>gày tháng năm được dropcap thủ công bằng [c].</p>'
+				);
 			});
 
 			it('should warn when [new] block does not contain any heading and receives default title', () => {

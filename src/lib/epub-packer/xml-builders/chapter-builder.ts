@@ -167,6 +167,15 @@ export function buildChapterXhtml(
 		// (unless chapter is center-page, or paragraph has no-dropcap or already has dropcap/has-dropcap)
 		const isCenterPage = !!chapter.features?.hasCenterPage;
 		if (!isCenterPage) {
+			const protectedBlocks: string[] = [];
+			content = content.replace(
+				/<div\s+class=["'](?:letter|poem)["']>[\s\S]*?<\/div>/gi,
+				(match) => {
+					protectedBlocks.push(match);
+					return `<!--PROTECTED_BLOCK_DROPCAP_${protectedBlocks.length - 1}-->`;
+				}
+			);
+
 			content = content.replace(
 				/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
 				(match, p1, p2, p3, p4) => {
@@ -191,6 +200,10 @@ export function buildChapterXhtml(
 					return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + '</span>';
 				}
 			);
+
+			content = content.replace(/<!--PROTECTED_BLOCK_DROPCAP_(\d+)-->/g, (_m, idx) => {
+				return protectedBlocks[Number(idx)];
+			});
 		}
 
 		// Ensure that any paragraph containing a dropcap has the "has-dropcap" class

@@ -151,8 +151,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 15:25
+- Cập nhật lần cuối: 2026-10-16 16:32
 - Đã hoàn thành:
+  - **Tự động tắt Dropcap & Chuẩn hóa cú pháp `@` / `@@` trong `[letter]` và `[poem]`**:
+    - Trong khối `[letter]` và `[poem]`, mặc định tự động tắt Dropcap (không chèn Dropcap tự động ngay sau tiêu đề), chỉ áp dụng khi người dùng chủ động chỉ định bằng cú pháp `[c]`.
+    - Bảo vệ các khối `<div class="letter">` và `<div class="poem">` trong `chapter-builder.ts` khỏi thuật toán tự động tiêm dropcap.
+    - Trong khối `[letter]` và `[poem]`, chỉ có `@@!` và `@!` được chuyển đổi thành tiêu đề (`h1.no-toc` / `h2.no-toc`). Nếu gặp `@@` hoặc `@` (không có `!`), hệ thống không dừng build (không báo lỗi cú pháp) mà phát cảnh báo (`warning`) và giữ nguyên thành đoạn văn thông thường `<p>@...</p>`, `<p>@@...</p>`.
+    - Toàn bộ **305/305 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Chuẩn hóa toàn diện vòng đời Web Worker & Chống rò rỉ listener (Worker Lifecycle & Leak Prevention)**:
     - Rà soát và hoàn thiện cơ chế đăng ký và gỡ listener trên 4 modules Web Worker: [`txt-parser.ts`](src/lib/epub-packer/parser/txt-parser.ts), [`duplicate-detector.ts`](src/lib/epub-editor/cleaner/duplicate-detector.ts), [`pdf-splitter.ts`](src/lib/pdf-splitter/pdf-splitter.ts) và [`image-bg-remove-ml.ts`](src/lib/utils/image-bg-remove-ml.ts).
     - Bổ sung listener `error` và `messageerror`, đảm bảo `cleanup()` gỡ sạch 100% listener khỏi worker và `AbortSignal`, ngăn chặn triệt để nguy cơ treo Promise khi worker crash hoặc gặp sự cố tuần tự hóa dữ liệu.
@@ -201,6 +206,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-16 (Letter/Poem Dropcap Suppression & Heading Syntax Warning)
+
+- Thêm/sửa: Chuẩn hóa tính năng Dropcap và tiêu đề trong khối `[letter]` và `[poem]`:
+  - `chapter-builder.ts`: Tự động bảo vệ khối `[letter]` và `[poem]` (`<div class="letter">`, `<div class="poem">`) không bị tự động chèn dropcap sau tiêu đề `<h1>`/`<h2>`, chỉ giữ dropcap thủ công khi người dùng viết `[c]`.
+  - `txt-parser.ts`: Render đoạn văn thông thường bên trong `currentBlock` thành thẻ `<p>` tiêu chuẩn; hỗ trợ dropcap cưỡng bức `[c]` và tiêu đề không mục lục `@@!`, `@!`.
+  - `txt-syntax-validator.ts`: Chuyển đổi kiểm tra `@@` và `@` bên trong `[letter]` và `[poem]` sang `warning` (thay vì `error`), giữ `isValid: true` và không dừng tiến trình build, hiển thị cảnh báo chi tiết và render thành `<p>@...</p>`, `<p>@@...</p>`.
+  - Bổ sung và cập nhật unit tests cho `buildChapterXhtml`, `validateTxtSyntax` và `parseTxtToChapters` (305/305 unit tests pass 100%, 12/12 Playwright E2E browser tests pass 100%).
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (305/305 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (898 nodes, 2037 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `review.md`
+  - `README.md`
 
 ### 2026-10-16 (Review Refinements: UI Error Wrap, Letter/Poem Headings, Ornament Fix & PDF Zero-Copy)
 

@@ -240,6 +240,37 @@ describe('epub-packer tests', () => {
 			expect(html).not.toContain('class="dropcap"');
 		});
 
+		it('should disable automatic dropcaps in [letter] and [poem] by default, but allow forced [c] dropcaps', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: [
+						'<h1 class="main-chap center">Chương 1</h1>',
+						'<p>Đoạn mở đầu có dropcap tự động.</p>',
+						'<div class="letter">',
+						'  <h1 class="main-chap center no-toc">Tiêu Đề Thư</h1>',
+						'  <p>Đoạn văn trong thư không bị tự động dropcap.</p>',
+						'  <p class="has-dropcap"><span class="dropcap">K</span>ý tự cưỡng bức dropcap.</p>',
+						'</div>',
+						'<div class="poem">',
+						'  <h2 class="side-chap center no-toc">Tiêu Đề Thơ</h2>',
+						'  <p>Đoạn thơ không bị tự động dropcap.</p>',
+						'</div>'
+					].join('\n')
+				}
+			);
+			expect(html).toContain(
+				'<h1 class="main-chap center">Chương 1</h1>\n<p class="has-dropcap"><span class="dropcap">Đ</span>oạn mở đầu có dropcap tự động.</p>'
+			);
+			expect(html).toContain('<p>Đoạn văn trong thư không bị tự động dropcap.</p>');
+			expect(html).toContain(
+				'<p class="has-dropcap"><span class="dropcap">K</span>ý tự cưỡng bức dropcap.</p>'
+			);
+			expect(html).toContain('<p>Đoạn thơ không bị tự động dropcap.</p>');
+		});
+
 		it('should inject chapter and subchapter ornaments and ignore break-main-chap and no-toc h1/h2', () => {
 			const ornaments = {
 				chapterOrnament: { fileName: 'pre-chap.png', mimeType: 'image/png' },

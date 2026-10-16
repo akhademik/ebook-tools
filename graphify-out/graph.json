@@ -387,7 +387,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubbook",
       "source_file": "src/lib/epub/types/index.ts",
@@ -400,7 +400,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubbookmetadata",
       "source_file": "src/lib/epub/types/index.ts",
@@ -413,7 +413,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubcontainer",
       "source_file": "src/lib/epub/types/index.ts",
@@ -426,7 +426,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubmanifest",
       "source_file": "src/lib/epub/types/index.ts",
@@ -439,7 +439,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubmanifestitem",
       "source_file": "src/lib/epub/types/index.ts",
@@ -452,7 +452,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubnavigation",
       "source_file": "src/lib/epub/types/index.ts",
@@ -465,7 +465,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubnavpoint",
       "source_file": "src/lib/epub/types/index.ts",
@@ -478,7 +478,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubpackage",
       "source_file": "src/lib/epub/types/index.ts",
@@ -491,7 +491,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubresource",
       "source_file": "src/lib/epub/types/index.ts",
@@ -504,7 +504,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubresourcecategory",
       "source_file": "src/lib/epub/types/index.ts",
@@ -517,7 +517,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubresources",
       "source_file": "src/lib/epub/types/index.ts",
@@ -530,7 +530,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubspine",
       "source_file": "src/lib/epub/types/index.ts",
@@ -543,7 +543,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epubspineitem",
       "source_file": "src/lib/epub/types/index.ts",
@@ -933,7 +933,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "manifestiteminfo",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -946,7 +946,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationcategory",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -959,7 +959,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationcontext",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -972,7 +972,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationissue",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -985,7 +985,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationprofile",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -998,7 +998,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationresult",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -1011,7 +1011,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationrule",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -1024,7 +1024,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationseverity",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -1037,11 +1037,24 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validationsummary",
       "source_file": "src/lib/epub-editor/validator/types.ts",
       "source_location": "L18"
+    },
+    {
+      "id": "src_lib_utils_logger_loglevel",
+      "label": "LogLevel",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "loglevel",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L3"
     },
     {
       "id": "src_lib_epub_packer_state_epub_images_state_svelte_epubimagesstate",
@@ -1120,19 +1133,6 @@
       "norm_label": "workerresponse",
       "source_file": "src/lib/utils/image-bg-remove.worker.ts",
       "source_location": "L13"
-    },
-    {
-      "id": "src_lib_utils_logger_loglevel",
-      "label": "LogLevel",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "loglevel",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L3"
     },
     {
       "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte_markdownfixerstate",
@@ -2457,76 +2457,40 @@
       "source_location": "L239"
     },
     {
-      "id": "src_lib_utils_crypto_hashbytes",
-      "label": "hashBytes()",
+      "id": "src_lib_epub_editor_validator_validator_engine_validateepub",
+      "label": "validateEpub()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "epub-editor-state.svelte.ts",
       "file_type": "code",
-      "norm_label": "hashbytes()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L103"
+      "norm_label": "validateepub()",
+      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
+      "source_location": "L27"
     },
     {
-      "id": "src_lib_utils_crypto_sha1",
-      "label": "sha1()",
+      "id": "src_lib_epub_editor_validator_validator_engine_validateepub_getstatus",
+      "label": "getStatus()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "epub-editor-state.svelte.ts",
       "file_type": "code",
-      "norm_label": "sha1()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L84"
+      "norm_label": "getstatus()",
+      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
+      "source_location": "L73"
     },
     {
-      "id": "src_lib_utils_crypto_sha1async",
-      "label": "sha1Async()",
+      "id": "src_lib_epub_editor_validator_validator_engine_validateepub_gettext",
+      "label": "getText()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "epub-editor-state.svelte.ts",
       "file_type": "code",
-      "norm_label": "sha1async()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L111"
-    },
-    {
-      "id": "src_lib_utils_crypto_sha1bytes",
-      "label": "sha1Bytes()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "sha1bytes()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L7"
-    },
-    {
-      "id": "src_lib_utils_crypto_sha1hex",
-      "label": "sha1Hex()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "sha1hex()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L92"
-    },
-    {
-      "id": "src_lib_utils_crypto_sha1hexasync",
-      "label": "sha1HexAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "sha1hexasync()",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L123"
+      "norm_label": "gettext()",
+      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
+      "source_location": "L36"
     },
     {
       "id": "src_lib_utils_path_resolverelativepath",
@@ -2553,12 +2517,24 @@
       "source_location": "L443"
     },
     {
+      "id": "tests_epub_validator_test_createvalidepubzip",
+      "label": "createValidEpubZip()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "epub-editor-state.svelte.ts",
+      "file_type": "code",
+      "norm_label": "createvalidepubzip()",
+      "source_file": "tests/epub-validator.test.ts",
+      "source_location": "L7"
+    },
+    {
       "id": "src_lib_epub_parser_epub_reader_parser_categorizeresource",
       "label": "categorizeResource()",
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "categorizeresource()",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
@@ -2570,7 +2546,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "extractepubmetadata()",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
@@ -2582,7 +2558,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "findopfpath()",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
@@ -2594,7 +2570,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "parseepub()",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
@@ -2606,35 +2582,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "parseopfmanifestandspine()",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
       "source_location": "L41"
-    },
-    {
-      "id": "tests_e2e_epub_download_inspection_spec_ensureepubfixture",
-      "label": "ensureEpubFixture()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "code",
-      "norm_label": "ensureepubfixture()",
-      "source_file": "tests-e2e/epub-download-inspection.spec.ts",
-      "source_location": "L11"
-    },
-    {
-      "id": "tests_e2e_epub_workflow_spec_ensureepubfixture",
-      "label": "ensureEpubFixture()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "code",
-      "norm_label": "ensureepubfixture()",
-      "source_file": "tests-e2e/epub-workflow.spec.ts",
-      "source_location": "L11"
     },
     {
       "id": "src_lib_epub_packer_epub_state_svelte_epubstate_constructor",
@@ -2755,30 +2707,6 @@
       "norm_label": "onselectmultiple()",
       "source_file": "src/lib/components/DropZone.svelte",
       "source_location": "L33"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditorsidebar_each",
-      "label": "#each()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "#each()",
-      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
-      "source_location": "L149"
-    },
-    {
-      "id": "src_lib_epub_editor_cleaner_cleaner_engine_optimizeepub",
-      "label": "optimizeEpub()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 19,
-      "community_name": "real-world-workflows.test.ts",
-      "file_type": "code",
-      "norm_label": "optimizeepub()",
-      "source_file": "src/lib/epub-editor/cleaner/cleaner-engine.ts",
-      "source_location": "L432"
     },
     {
       "id": "src_lib_epub_packer_builders_asset_builder_preparechapters",
@@ -3141,6 +3069,18 @@
       "source_location": "L33"
     },
     {
+      "id": "src_lib_epub_editor_components_epubeditorsidebar_each",
+      "label": "#each()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "#each()",
+      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
+      "source_location": "L149"
+    },
+    {
       "id": "src_routes_epub_page_load",
       "label": "load()",
       "_callable": true,
@@ -3261,6 +3201,30 @@
       "source_location": "L8"
     },
     {
+      "id": "tests_e2e_epub_download_inspection_spec_ensureepubfixture",
+      "label": "ensureEpubFixture()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "code",
+      "norm_label": "ensureepubfixture()",
+      "source_file": "tests-e2e/epub-download-inspection.spec.ts",
+      "source_location": "L11"
+    },
+    {
+      "id": "tests_e2e_epub_workflow_spec_ensureepubfixture",
+      "label": "ensureEpubFixture()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "code",
+      "norm_label": "ensureepubfixture()",
+      "source_file": "tests-e2e/epub-workflow.spec.ts",
+      "source_location": "L11"
+    },
+    {
       "id": "src_lib_types_result_type_apperror_constructor",
       "label": ".constructor()",
       "_callable": true,
@@ -3285,51 +3249,63 @@
       "source_location": "L18"
     },
     {
-      "id": "src_lib_epub_editor_validator_validator_engine_validateepub",
-      "label": "validateEpub()",
+      "id": "src_lib_utils_logger_detectdefaultdebug",
+      "label": "detectDefaultDebug()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "validateepub()",
-      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
-      "source_location": "L27"
+      "norm_label": "detectdefaultdebug()",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L5"
     },
     {
-      "id": "src_lib_epub_editor_validator_validator_engine_validateepub_getstatus",
-      "label": "getStatus()",
+      "id": "src_lib_utils_logger_formatandlog",
+      "label": "formatAndLog()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "getstatus()",
-      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
-      "source_location": "L73"
+      "norm_label": "formatandlog()",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L35"
     },
     {
-      "id": "src_lib_epub_editor_validator_validator_engine_validateepub_gettext",
-      "label": "getText()",
+      "id": "src_lib_utils_logger_isdebug",
+      "label": "isDebug()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "gettext()",
-      "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
-      "source_location": "L36"
+      "norm_label": "isdebug()",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L81"
     },
     {
-      "id": "tests_epub_validator_test_createvalidepubzip",
-      "label": "createValidEpubZip()",
+      "id": "src_lib_utils_logger_setdebug",
+      "label": "setDebug()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "createvalidepubzip()",
-      "source_file": "tests/epub-validator.test.ts",
+      "norm_label": "setdebug()",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L77"
+    },
+    {
+      "id": "src_lib_utils_pdf_initpdfworker",
+      "label": "initPdfWorker()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "initpdfworker()",
+      "source_file": "src/lib/utils/pdf.ts",
       "source_location": "L7"
     },
     {
@@ -3717,66 +3693,6 @@
       "source_location": "L190"
     },
     {
-      "id": "src_lib_utils_logger_detectdefaultdebug",
-      "label": "detectDefaultDebug()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "detectdefaultdebug()",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L5"
-    },
-    {
-      "id": "src_lib_utils_logger_formatandlog",
-      "label": "formatAndLog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "formatandlog()",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L35"
-    },
-    {
-      "id": "src_lib_utils_logger_isdebug",
-      "label": "isDebug()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "isdebug()",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L81"
-    },
-    {
-      "id": "src_lib_utils_logger_setdebug",
-      "label": "setDebug()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "setdebug()",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L77"
-    },
-    {
-      "id": "src_lib_utils_pdf_initpdfworker",
-      "label": "initPdfWorker()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "initpdfworker()",
-      "source_file": "src/lib/utils/pdf.ts",
-      "source_location": "L7"
-    },
-    {
       "id": "src_lib_utils_pdf_renderpdfpagetoblob",
       "label": "renderPdfPageToBlob()",
       "_callable": true,
@@ -4005,6 +3921,18 @@
       "source_location": "L271"
     },
     {
+      "id": "src_lib_epub_editor_cleaner_cleaner_engine_optimizeepub",
+      "label": "optimizeEpub()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "optimizeepub()",
+      "source_file": "src/lib/epub-editor/cleaner/cleaner-engine.ts",
+      "source_location": "L432"
+    },
+    {
       "id": "src_lib_epub_editor_cleaner_duplicate_detector_getduplicateworker",
       "label": "getDuplicateWorker()",
       "_callable": true,
@@ -4087,6 +4015,78 @@
       "norm_label": ".analyzeforclean()",
       "source_file": "src/lib/epub-editor/epub-editor-state.svelte.ts",
       "source_location": "L277"
+    },
+    {
+      "id": "src_lib_utils_crypto_hashbytes",
+      "label": "hashBytes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "hashbytes()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L103"
+    },
+    {
+      "id": "src_lib_utils_crypto_sha1",
+      "label": "sha1()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "sha1()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L84"
+    },
+    {
+      "id": "src_lib_utils_crypto_sha1async",
+      "label": "sha1Async()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "sha1async()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L111"
+    },
+    {
+      "id": "src_lib_utils_crypto_sha1bytes",
+      "label": "sha1Bytes()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "sha1bytes()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_lib_utils_crypto_sha1hex",
+      "label": "sha1Hex()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "sha1hex()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "src_lib_utils_crypto_sha1hexasync",
+      "label": "sha1HexAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "sha1hexasync()",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L123"
     },
     {
       "id": "tests_epub_cleaner_test_createsampleepubzip",
@@ -4528,7 +4528,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (nhom 1 review bug fixes)",
       "source_file": "README.md",
-      "source_location": "L305"
+      "source_location": "L333"
     },
     {
       "id": "readme_2026_10_16_typescript_strict_mode_full_compliance",
@@ -4540,7 +4540,19 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (typescript strict mode full compliance)",
       "source_file": "README.md",
-      "source_location": "L232"
+      "source_location": "L260"
+    },
+    {
+      "id": "readme_tr\u1ea1ng_th\u00e1i_h\u1ec7_th\u1ed1ng",
+      "label": "Tr\u1ea1ng th\u00e1i h\u1ec7 th\u1ed1ng",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "epub-source-parser.ts",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "trang thai he thong",
+      "source_file": "README.md",
+      "source_location": "L152"
     },
     {
       "id": "src_lib_epub_editor_editor_editor_ops",
@@ -4609,17 +4621,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_lib_epub_editor_epub_cleaner",
-      "label": "epub-cleaner.ts",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "epub-cleaner.ts",
-      "source_file": "src/lib/epub-editor/epub-cleaner.ts",
-      "source_location": "L1"
-    },
-    {
       "id": "src_lib_epub_editor_epub_editor",
       "label": "epub-editor.ts",
       "_origin": "ast",
@@ -4642,6 +4643,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_lib_epub_editor_epub_validator",
+      "label": "epub-validator.ts",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "epub-editor-state.svelte.ts",
+      "file_type": "code",
+      "norm_label": "epub-validator.ts",
+      "source_file": "src/lib/epub-editor/epub-validator.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "src_lib_types_epub_editor_type",
       "label": "epub-editor.type.ts",
       "_origin": "ast",
@@ -4650,50 +4662,6 @@
       "file_type": "code",
       "norm_label": "epub-editor.type.ts",
       "source_file": "src/lib/types/epub-editor.type.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_utils_crypto",
-      "label": "crypto.ts",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "crypto.ts",
-      "source_file": "src/lib/utils/crypto.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_utils_index",
-      "label": "utils/index.ts",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "utils/index.ts",
-      "source_file": "src/lib/utils/index.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_utils_path",
-      "label": "path.ts",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "path.ts",
-      "source_file": "src/lib/utils/path.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_crypto_test",
-      "label": "crypto.test.ts",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "file_type": "code",
-      "norm_label": "crypto.test.ts",
-      "source_file": "tests/crypto.test.ts",
       "source_location": "L1"
     },
     {
@@ -4719,6 +4687,17 @@
       "source_location": "L1"
     },
     {
+      "id": "tests_epub_validator_test",
+      "label": "epub-validator.test.ts",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "epub-editor-state.svelte.ts",
+      "file_type": "code",
+      "norm_label": "epub-validator.test.ts",
+      "source_file": "tests/epub-validator.test.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "tests_smoke_smoke_workflows_test",
       "label": "smoke-workflows.test.ts",
       "_origin": "ast",
@@ -4730,6 +4709,17 @@
       "source_location": "L1"
     },
     {
+      "id": "ref_jszip",
+      "label": "jszip",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "epub-editor-state.svelte.ts",
+      "file_type": "concept",
+      "norm_label": "jszip",
+      "source_file": "package.json",
+      "source_location": "L59"
+    },
+    {
       "id": "ref_vitest",
       "label": "vitest",
       "_origin": "ast",
@@ -4739,6 +4729,28 @@
       "norm_label": "vitest",
       "source_file": "package.json",
       "source_location": "L47"
+    },
+    {
+      "id": "eslint_config",
+      "label": "eslint.config.js",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "code",
+      "norm_label": "eslint.config.js",
+      "source_file": "eslint.config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "eslint_config_gitignorepath",
+      "label": "gitignorePath",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "code",
+      "norm_label": "gitignorepath",
+      "source_file": "eslint.config.js",
+      "source_location": "L8"
     },
     {
       "id": "package",
@@ -4884,6 +4896,50 @@
       "source_location": "L55"
     },
     {
+      "id": "ref_eslint",
+      "label": "eslint",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "eslint",
+      "source_file": "package.json",
+      "source_location": "L35"
+    },
+    {
+      "id": "ref_eslint_js",
+      "label": "@eslint/js",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "@eslint/js",
+      "source_file": "package.json",
+      "source_location": "L28"
+    },
+    {
+      "id": "ref_eslint_plugin_svelte",
+      "label": "eslint-plugin-svelte",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "eslint-plugin-svelte",
+      "source_file": "package.json",
+      "source_location": "L36"
+    },
+    {
+      "id": "ref_globals",
+      "label": "globals",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "globals",
+      "source_file": "package.json",
+      "source_location": "L37"
+    },
+    {
       "id": "ref_knip",
       "label": "knip",
       "_origin": "ast",
@@ -4972,14 +5028,122 @@
       "source_location": "L44"
     },
     {
-      "id": "playwright_config",
-      "label": "playwright.config.ts",
+      "id": "ref_typescript_eslint",
+      "label": "typescript-eslint",
       "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "code",
-      "norm_label": "playwright.config.ts",
-      "source_file": "playwright.config.ts",
+      "community": 10,
+      "community_name": "package.json",
+      "file_type": "concept",
+      "norm_label": "typescript-eslint",
+      "source_file": "package.json",
+      "source_location": "L45"
+    },
+    {
+      "id": "review_1_hi\u1ec3n_th\u1ecb_l\u1ed7i_g\u1ed9p_tr\u00ean_giao_di\u1ec7n_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "label": "1. Hi\u1ec3n th\u1ecb l\u1ed7i g\u1ed9p tr\u00ean giao di\u1ec7n \u2705 [\u0110\u00c3 HO\u00c0N TH\u00c0NH]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. hien thi loi gop tren giao dien \u2705 [\u0111a hoan thanh]",
+      "source_file": "review.md",
+      "source_location": "L3"
+    },
+    {
+      "id": "review_2_quy_t\u1eafc_ti\u00eau_\u0111\u1ec1_v\u00e0_dropcap_trong_kh\u1ed1i_letter_v\u00e0_poem_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "label": "2. Quy t\u1eafc ti\u00eau \u0111\u1ec1 v\u00e0 Dropcap trong kh\u1ed1i `[letter]` v\u00e0 `[poem]` \u2705 [\u0110\u00c3 HO\u00c0N TH\u00c0NH]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. quy tac tieu \u0111e va dropcap trong khoi `[letter]` va `[poem]` \u2705 [\u0111a hoan thanh]",
+      "source_file": "review.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "review_3_nh\u1eadn_hoa_v\u0103n_ch\u01b0\u01a1ng_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "label": "3. `@@!` nh\u1eadn hoa v\u0103n ch\u01b0\u01a1ng \u2705 [\u0110\u00c3 HO\u00c0N TH\u00c0NH]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. `@@!` nhan hoa van chuong \u2705 [\u0111a hoan thanh]",
+      "source_file": "review.md",
+      "source_location": "L18"
+    },
+    {
+      "id": "review_4_\u0111\u1ed5i_ngh\u0129a_so_v\u1edbi_phi\u00ean_b\u1ea3n_c\u0169_x\u00e1c_nh\u1eadn_ch\u1ee7_\u00fd",
+      "label": "4. `@@!` \u0111\u1ed5i ngh\u0129a so v\u1edbi phi\u00ean b\u1ea3n c\u0169 \u2705 [X\u00c1C NH\u1eacN CH\u1ee6 \u00dd]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. `@@!` \u0111oi nghia so voi phien ban cu \u2705 [xac nhan chu y]",
+      "source_file": "review.md",
+      "source_location": "L23"
+    },
+    {
+      "id": "review_5_c\u1ea3i_ti\u1ebfn_trang_thi\u1ebfu_ti\u00eau_\u0111\u1ec1_c\u1ea3nh_b\u00e1o_new_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "label": "5. C\u1ea3i ti\u1ebfn trang thi\u1ebfu ti\u00eau \u0111\u1ec1 & c\u1ea3nh b\u00e1o `[new]` \u2705 [\u0110\u00c3 HO\u00c0N TH\u00c0NH]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. cai tien trang thieu tieu \u0111e & canh bao `[new]` \u2705 [\u0111a hoan thanh]",
+      "source_file": "review.md",
+      "source_location": "L27"
+    },
+    {
+      "id": "review_6_l\u00e0m_ph\u1eb3ng_m\u1ee5c_l\u1ee5c_trang_c\u00f3_hai_x\u00e1c_nh\u1eadn_h\u1ee3p_l\u00fd",
+      "label": "6. L\u00e0m ph\u1eb3ng m\u1ee5c l\u1ee5c trang c\u00f3 hai `@` \u2705 [X\u00c1C NH\u1eacN H\u1ee2P L\u00dd]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "6. lam phang muc luc trang co hai `@` \u2705 [xac nhan hop ly]",
+      "source_file": "review.md",
+      "source_location": "L33"
+    },
+    {
+      "id": "review_7_t\u1ed1i_\u01b0u_b\u1ed9_nh\u1edb_pdf_splitter_zero_copy_transfer_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "label": "7. T\u1ed1i \u01b0u b\u1ed9 nh\u1edb `pdf-splitter` (Zero-Copy Transfer) \u2705 [\u0110\u00c3 HO\u00c0N TH\u00c0NH]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "7. toi uu bo nho `pdf-splitter` (zero-copy transfer) \u2705 [\u0111a hoan thanh]",
+      "source_file": "review.md",
+      "source_location": "L37"
+    },
+    {
+      "id": "review_8_v\u00f2ng_\u0111\u1eddi_web_worker_typescript_strict_mode_x\u00e1c_nh\u1eadn_t\u1ed1t",
+      "label": "8. V\u00f2ng \u0111\u1eddi Web Worker & TypeScript Strict Mode \u2705 [X\u00c1C NH\u1eacN T\u1ed0T]",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "8. vong \u0111oi web worker & typescript strict mode \u2705 [xac nhan tot]",
+      "source_file": "review.md",
+      "source_location": "L42"
+    },
+    {
+      "id": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "label": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "K\u1ebft qu\u1ea3 r\u00e0 so\u00e1t v\u00e0 x\u1eed l\u00fd (Review & Resolutions - 2026-10-16)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "ket qua ra soat va xu ly (review & resolutions - 2026-10-16)",
+      "source_file": "review.md",
       "source_location": "L1"
     },
     {
@@ -4987,7 +5151,7 @@
       "label": "epub/index.ts",
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epub/index.ts",
       "source_file": "src/lib/epub/index.ts",
@@ -4998,7 +5162,7 @@
       "label": "epub-reader-parser.ts",
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epub-reader-parser.ts",
       "source_file": "src/lib/epub/parser/epub-reader-parser.ts",
@@ -5009,32 +5173,21 @@
       "label": "epub/types/index.ts",
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epub/types/index.ts",
       "source_file": "src/lib/epub/types/index.ts",
       "source_location": "L1"
     },
     {
-      "id": "tests_e2e_epub_download_inspection_spec",
-      "label": "epub-download-inspection.spec.ts",
+      "id": "src_lib_utils_path",
+      "label": "path.ts",
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
-      "norm_label": "epub-download-inspection.spec.ts",
-      "source_file": "tests-e2e/epub-download-inspection.spec.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_e2e_epub_workflow_spec",
-      "label": "epub-workflow.spec.ts",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "code",
-      "norm_label": "epub-workflow.spec.ts",
-      "source_file": "tests-e2e/epub-workflow.spec.ts",
+      "norm_label": "path.ts",
+      "source_file": "src/lib/utils/path.ts",
       "source_location": "L1"
     },
     {
@@ -5042,33 +5195,11 @@
       "label": "epub-core.test.ts",
       "_origin": "ast",
       "community": 12,
-      "community_name": "jszip",
+      "community_name": "epub-reader-parser.ts",
       "file_type": "code",
       "norm_label": "epub-core.test.ts",
       "source_file": "tests/epub-core.test.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "ref_jszip",
-      "label": "jszip",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "concept",
-      "norm_label": "jszip",
-      "source_file": "package.json",
-      "source_location": "L59"
-    },
-    {
-      "id": "ref_playwright_test",
-      "label": "@playwright/test",
-      "_origin": "ast",
-      "community": 12,
-      "community_name": "jszip",
-      "file_type": "concept",
-      "norm_label": "@playwright/test",
-      "source_file": "package.json",
-      "source_location": "L29"
     },
     {
       "id": "package_devdependencies",
@@ -5720,105 +5851,6 @@
       "source_location": "L2"
     },
     {
-      "id": "codemirror",
-      "label": "codemirror",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "codemirror",
-      "source_file": "codemirror"
-    },
-    {
-      "id": "commands",
-      "label": "@codemirror/commands",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/commands",
-      "source_file": "@codemirror/commands"
-    },
-    {
-      "id": "lang_css",
-      "label": "@codemirror/lang-css",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/lang-css",
-      "source_file": "@codemirror/lang-css"
-    },
-    {
-      "id": "lang_html",
-      "label": "@codemirror/lang-html",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/lang-html",
-      "source_file": "@codemirror/lang-html"
-    },
-    {
-      "id": "state",
-      "label": "@codemirror/state",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/state",
-      "source_file": "@codemirror/state"
-    },
-    {
-      "id": "stores",
-      "label": "$app/stores",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "$app/stores",
-      "source_file": "$app/stores"
-    },
-    {
-      "id": "svelte",
-      "label": "svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "svelte",
-      "source_file": "svelte"
-    },
-    {
-      "id": "theme_one_dark",
-      "label": "@codemirror/theme-one-dark",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/theme-one-dark",
-      "source_file": "@codemirror/theme-one-dark"
-    },
-    {
-      "id": "view",
-      "label": "@codemirror/view",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "confidence": "EXTRACTED",
-      "file_type": "code",
-      "norm_label": "@codemirror/view",
-      "source_file": "@codemirror/view"
-    },
-    {
       "id": "src_lib_components_button",
       "label": "Button.svelte",
       "_origin": "ast",
@@ -5872,61 +5904,6 @@
       "norm_label": "epubcleanermodal.svelte",
       "source_file": "src/lib/epub-editor/components/EpubCleanerModal.svelte",
       "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditorcodepane",
-      "label": "EpubEditorCodePane.svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "epubeditorcodepane.svelte",
-      "source_file": "src/lib/epub-editor/components/EpubEditorCodePane.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditormodal",
-      "label": "EpubEditorModal.svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "epubeditormodal.svelte",
-      "source_file": "src/lib/epub-editor/components/EpubEditorModal.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditorpreviewpane",
-      "label": "EpubEditorPreviewPane.svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "epubeditorpreviewpane.svelte",
-      "source_file": "src/lib/epub-editor/components/EpubEditorPreviewPane.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditorsidebar",
-      "label": "EpubEditorSidebar.svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "epubeditorsidebar.svelte",
-      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_epub_editor_components_epubeditorsidebar_isdirty",
-      "label": "isDirty",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "isdirty",
-      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
-      "source_location": "L152"
     },
     {
       "id": "src_lib_epub_editor_components_epubmetadatamodal",
@@ -6069,17 +6046,6 @@
       "file_type": "code",
       "norm_label": "epub-to-txt/+page.svelte",
       "source_file": "src/routes/epub-to-txt/+page.svelte",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_routes_layout",
-      "label": "+layout.svelte",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "epub-packer/+page.svelte",
-      "file_type": "code",
-      "norm_label": "+layout.svelte",
-      "source_file": "src/routes/+layout.svelte",
       "source_location": "L1"
     },
     {
@@ -6391,81 +6357,169 @@
       "source_location": "L1"
     },
     {
-      "id": "eslint_config",
-      "label": "eslint.config.js",
+      "id": "codemirror",
+      "label": "codemirror",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
       "file_type": "code",
-      "norm_label": "eslint.config.js",
-      "source_file": "eslint.config.js",
+      "norm_label": "codemirror",
+      "source_file": "codemirror"
+    },
+    {
+      "id": "commands",
+      "label": "@codemirror/commands",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/commands",
+      "source_file": "@codemirror/commands"
+    },
+    {
+      "id": "lang_css",
+      "label": "@codemirror/lang-css",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/lang-css",
+      "source_file": "@codemirror/lang-css"
+    },
+    {
+      "id": "lang_html",
+      "label": "@codemirror/lang-html",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/lang-html",
+      "source_file": "@codemirror/lang-html"
+    },
+    {
+      "id": "state",
+      "label": "@codemirror/state",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/state",
+      "source_file": "@codemirror/state"
+    },
+    {
+      "id": "stores",
+      "label": "$app/stores",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "$app/stores",
+      "source_file": "$app/stores"
+    },
+    {
+      "id": "svelte",
+      "label": "svelte",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "svelte",
+      "source_file": "svelte"
+    },
+    {
+      "id": "theme_one_dark",
+      "label": "@codemirror/theme-one-dark",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/theme-one-dark",
+      "source_file": "@codemirror/theme-one-dark"
+    },
+    {
+      "id": "view",
+      "label": "@codemirror/view",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "confidence": "EXTRACTED",
+      "file_type": "code",
+      "norm_label": "@codemirror/view",
+      "source_file": "@codemirror/view"
+    },
+    {
+      "id": "src_lib_epub_editor_components_epubeditorcodepane",
+      "label": "EpubEditorCodePane.svelte",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "epubeditorcodepane.svelte",
+      "source_file": "src/lib/epub-editor/components/EpubEditorCodePane.svelte",
       "source_location": "L1"
     },
     {
-      "id": "eslint_config_gitignorepath",
-      "label": "gitignorePath",
+      "id": "src_lib_epub_editor_components_epubeditormodal",
+      "label": "EpubEditorModal.svelte",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
+      "community_name": "EpubEditorCodePane.svelte",
       "file_type": "code",
-      "norm_label": "gitignorepath",
-      "source_file": "eslint.config.js",
-      "source_location": "L8"
+      "norm_label": "epubeditormodal.svelte",
+      "source_file": "src/lib/epub-editor/components/EpubEditorModal.svelte",
+      "source_location": "L1"
     },
     {
-      "id": "ref_eslint",
-      "label": "eslint",
+      "id": "src_lib_epub_editor_components_epubeditorpreviewpane",
+      "label": "EpubEditorPreviewPane.svelte",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
-      "file_type": "concept",
-      "norm_label": "eslint",
-      "source_file": "package.json",
-      "source_location": "L35"
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "epubeditorpreviewpane.svelte",
+      "source_file": "src/lib/epub-editor/components/EpubEditorPreviewPane.svelte",
+      "source_location": "L1"
     },
     {
-      "id": "ref_eslint_js",
-      "label": "@eslint/js",
+      "id": "src_lib_epub_editor_components_epubeditorsidebar",
+      "label": "EpubEditorSidebar.svelte",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
-      "file_type": "concept",
-      "norm_label": "@eslint/js",
-      "source_file": "package.json",
-      "source_location": "L28"
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "epubeditorsidebar.svelte",
+      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
+      "source_location": "L1"
     },
     {
-      "id": "ref_eslint_plugin_svelte",
-      "label": "eslint-plugin-svelte",
+      "id": "src_lib_epub_editor_components_epubeditorsidebar_isdirty",
+      "label": "isDirty",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
-      "file_type": "concept",
-      "norm_label": "eslint-plugin-svelte",
-      "source_file": "package.json",
-      "source_location": "L36"
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "isdirty",
+      "source_file": "src/lib/epub-editor/components/EpubEditorSidebar.svelte",
+      "source_location": "L152"
     },
     {
-      "id": "ref_globals",
-      "label": "globals",
+      "id": "src_routes_layout",
+      "label": "+layout.svelte",
       "_origin": "ast",
       "community": 2,
-      "community_name": "eslint.config.js",
-      "file_type": "concept",
-      "norm_label": "globals",
-      "source_file": "package.json",
-      "source_location": "L37"
-    },
-    {
-      "id": "ref_typescript_eslint",
-      "label": "typescript-eslint",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "eslint.config.js",
-      "file_type": "concept",
-      "norm_label": "typescript-eslint",
-      "source_file": "package.json",
-      "source_location": "L45"
+      "community_name": "EpubEditorCodePane.svelte",
+      "file_type": "code",
+      "norm_label": "+layout.svelte",
+      "source_file": "src/routes/+layout.svelte",
+      "source_location": "L1"
     },
     {
       "id": "src_lib_constants",
@@ -6542,6 +6596,102 @@
       "file_type": "code",
       "norm_label": "epub-images-state.svelte.ts",
       "source_file": "src/lib/epub-packer/state/epub-images-state.svelte.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "design_system",
+      "label": "DESIGN_SYSTEM.md",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "design_system.md",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "design_system_1_tri\u1ebft_l\u00fd_thi\u1ebft_k\u1ebf_ch\u1ee7_\u0111\u1ec1_theme_philosophy",
+      "label": "1. Tri\u1ebft l\u00fd Thi\u1ebft K\u1ebf & Ch\u1ee7 \u0111\u1ec1 (Theme Philosophy)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. triet ly thiet ke & chu \u0111e (theme philosophy)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L8"
+    },
+    {
+      "id": "design_system_2_1_css_theme_variables",
+      "label": "2.1 CSS Theme Variables",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2.1 css theme variables",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L20"
+    },
+    {
+      "id": "design_system_2_2_tailwind_css_utility_mapping",
+      "label": "2.2 Tailwind CSS Utility Mapping",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2.2 tailwind css utility mapping",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L37"
+    },
+    {
+      "id": "design_system_2_b\u1ea3ng_m\u00e0u_css_tokens_src_routes_layout_css",
+      "label": "2. B\u1ea3ng M\u00e0u & CSS Tokens (`src/routes/layout.css`)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. bang mau & css tokens (`src/routes/layout.css`)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L18"
+    },
+    {
+      "id": "design_system_3_typography",
+      "label": "3. Typography",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. typography",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L48"
+    },
+    {
+      "id": "design_system_5_quy_t\u1eafc_b\u1eaft_bu\u1ed9c_khi_vi\u1ebft_ui",
+      "label": "5. Quy t\u1eafc B\u1eaft bu\u1ed9c Khi Vi\u1ebft UI",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. quy tac bat buoc khi viet ui",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L94"
+    },
+    {
+      "id": "design_system_design_system_md_h\u1ec7_th\u1ed1ng_thi\u1ebft_k\u1ebf_quy_chu\u1ea9n_giao_di\u1ec7n_ebook_forge",
+      "label": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "design_system.md \u2014 he thong thiet ke & quy chuan giao dien (ebook forge)",
+      "source_file": "DESIGN_SYSTEM.md",
       "source_location": "L1"
     },
     {
@@ -6664,6 +6814,174 @@
       "norm_label": "jszip",
       "source_file": "package.json",
       "source_location": "L59"
+    },
+    {
+      "id": "readme_1_ch\u1ec9nh_s\u1eeda_ki\u1ec3m_\u0111\u1ecbnh_epub_tr\u1ef1c_quan_epub_editor_validator_suite",
+      "label": "1. \u270f\ufe0f Ch\u1ec9nh s\u1eeda & Ki\u1ec3m \u0111\u1ecbnh EPUB Tr\u1ef1c quan (EPUB Editor & Validator Suite)",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. \u270f\ufe0f chinh sua & kiem \u0111inh epub truc quan (epub editor & validator suite)",
+      "source_file": "README.md",
+      "source_location": "L9"
+    },
+    {
+      "id": "readme_2_\u0111\u00f3ng_g\u00f3i_epub_epub_packer",
+      "label": "2. \ud83d\udce6 \u0110\u00f3ng g\u00f3i EPUB (EPUB Packer)",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. \ud83d\udce6 \u0111ong goi epub (epub packer)",
+      "source_file": "README.md",
+      "source_location": "L39"
+    },
+    {
+      "id": "readme_3_t\u1ea9y_n\u1ec1n_hoa_v\u0103n_t\u1ef1_\u0111\u1ed9ng_b\u1eb1ng_ai_ml_ornament_background_removal",
+      "label": "3. \ud83c\udfa8 T\u1ea9y N\u1ec1n Hoa V\u0103n T\u1ef1 \u0110\u1ed9ng b\u1eb1ng AI (ML Ornament Background Removal)",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. \ud83c\udfa8 tay nen hoa van tu \u0111ong bang ai (ml ornament background removal)",
+      "source_file": "README.md",
+      "source_location": "L62"
+    },
+    {
+      "id": "readme_4_t\u00e1ch_trang_pdf_jpg_pdf_processor",
+      "label": "4. \ud83d\udcc4 T\u00e1ch trang PDF \u2192 JPG (PDF Processor)",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. \ud83d\udcc4 tach trang pdf \u2192 jpg (pdf processor)",
+      "source_file": "README.md",
+      "source_location": "L72"
+    },
+    {
+      "id": "readme_5_chu\u1ea9n_h\u00f3a_markdown_markdown_fixer",
+      "label": "5. \u270d\ufe0f Chu\u1ea9n h\u00f3a Markdown (Markdown Fixer)",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. \u270d\ufe0f chuan hoa markdown (markdown fixer)",
+      "source_file": "README.md",
+      "source_location": "L80"
+    },
+    {
+      "id": "readme_6_desktop_app_txt_pdf_cjk",
+      "label": "6. \ud83d\udcbb Desktop App: TXT \u2192 PDF CJK",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "6. \ud83d\udcbb desktop app: txt \u2192 pdf cjk",
+      "source_file": "README.md",
+      "source_location": "L87"
+    },
+    {
+      "id": "readme_c\u00e1c_c\u00f4ng_c\u1ee5_ch\u00ednh",
+      "label": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\ude80 cac cong cu chinh",
+      "source_file": "README.md",
+      "source_location": "L7"
+    },
+    {
+      "id": "readme_ebook_forge_b\u1ed9_c\u00f4ng_c\u1ee5_ch\u1ebf_b\u1ea3n_s\u00e1ch_\u0111i\u1ec7n_t\u1eed",
+      "label": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\u2692\ufe0f ebook forge \u2014 bo cong cu che ban sach \u0111ien tu",
+      "source_file": "README.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "readme_h\u01b0\u1edbng_d\u1eabn_c\u00e0i_\u0111\u1eb7t_s\u1eed_d\u1ee5ng",
+      "label": "\u26a1 H\u01b0\u1edbng d\u1eabn C\u00e0i \u0111\u1eb7t & S\u1eed d\u1ee5ng",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\u26a1 huong dan cai \u0111at & su dung",
+      "source_file": "README.md",
+      "source_location": "L95"
+    },
+    {
+      "id": "readme_kh\u1edfi_ch\u1ea1y_\u1ee9ng_d\u1ee5ng",
+      "label": "Kh\u1edfi ch\u1ea1y \u1ee9ng d\u1ee5ng",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "khoi chay ung dung",
+      "source_file": "README.md",
+      "source_location": "L102"
+    },
+    {
+      "id": "readme_quy_chu\u1ea9n_ki\u1ec3m_th\u1eed_ch\u1ea5t_l\u01b0\u1ee3ng_m\u00e3_ngu\u1ed3n_quality_gates",
+      "label": "\ud83e\uddea Quy chu\u1ea9n Ki\u1ec3m th\u1eed & Ch\u1ea5t l\u01b0\u1ee3ng M\u00e3 ngu\u1ed3n (Quality Gates)",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83e\uddea quy chuan kiem thu & chat luong ma nguon (quality gates)",
+      "source_file": "README.md",
+      "source_location": "L122"
+    },
+    {
+      "id": "readme_quy\u1ec1n_ri\u00eang_t\u01b0_b\u1ea3o_m\u1eadt",
+      "label": "\ud83d\udee1\ufe0f Quy\u1ec1n ri\u00eang t\u01b0 & B\u1ea3o m\u1eadt",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\ud83d\udee1\ufe0f quyen rieng tu & bao mat",
+      "source_file": "README.md",
+      "source_location": "L145"
+    },
+    {
+      "id": "readme_y\u00eau_c\u1ea7u_h\u1ec7_th\u1ed1ng",
+      "label": "Y\u00eau c\u1ea7u h\u1ec7 th\u1ed1ng",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "yeu cau he thong",
+      "source_file": "README.md",
+      "source_location": "L97"
+    },
+    {
+      "id": "readme_\u0111\u00f3ng_g\u00f3i_\u1ee9ng_d\u1ee5ng_production_build",
+      "label": "\u0110\u00f3ng g\u00f3i \u1ee9ng d\u1ee5ng (Production Build)",
+      "_origin": "ast",
+      "community": 24,
+      "community_name": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "\u0111ong goi ung dung (production build)",
+      "source_file": "README.md",
+      "source_location": "L114"
     },
     {
       "id": "src_routes_epub_page",
@@ -7013,11 +7331,35 @@
       "source_location": "L2"
     },
     {
+      "id": "ai_workflow",
+      "label": "AI_WORKFLOW.md",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "ai_workflow.md",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L1"
+    },
+    {
+      "id": "readme",
+      "label": "README.md",
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "README.md",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "readme.md",
+      "source_file": "README.md",
+      "source_location": "L1"
+    },
+    {
       "id": "review",
       "label": "review.md",
       "_origin": "ast",
       "community": 3,
-      "community_name": "review.md",
+      "community_name": "README.md",
       "file_type": "document",
       "node_kind": "page",
       "norm_label": "review.md",
@@ -7113,6 +7455,50 @@
       "source_location": "L1"
     },
     {
+      "id": "playwright_config",
+      "label": "playwright.config.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "code",
+      "norm_label": "playwright.config.ts",
+      "source_file": "playwright.config.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_e2e_epub_download_inspection_spec",
+      "label": "epub-download-inspection.spec.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "code",
+      "norm_label": "epub-download-inspection.spec.ts",
+      "source_file": "tests-e2e/epub-download-inspection.spec.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_e2e_epub_workflow_spec",
+      "label": "epub-workflow.spec.ts",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "code",
+      "norm_label": "epub-workflow.spec.ts",
+      "source_file": "tests-e2e/epub-workflow.spec.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "ref_playwright_test",
+      "label": "@playwright/test",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "file_type": "concept",
+      "norm_label": "@playwright/test",
+      "source_file": "package.json",
+      "source_location": "L29"
+    },
+    {
       "id": "src_routes_page",
       "label": "routes/+page.svelte",
       "_origin": "ast",
@@ -7122,6 +7508,66 @@
       "norm_label": "routes/+page.svelte",
       "source_file": "src/routes/+page.svelte",
       "source_location": "L1"
+    },
+    {
+      "id": "design_system_4_1_n\u00fat_b\u1ea5m_button_svelte",
+      "label": "4.1 N\u00fat b\u1ea5m (`Button.svelte`)",
+      "_origin": "ast",
+      "community": 41,
+      "community_name": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.1 nut bam (`button.svelte`)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L62"
+    },
+    {
+      "id": "design_system_4_2_khu_v\u1ef1c_k\u00e9o_th\u1ea3_t\u1ec7p_dropzone_svelte",
+      "label": "4.2 Khu v\u1ef1c K\u00e9o th\u1ea3 T\u1ec7p (`DropZone.svelte`)",
+      "_origin": "ast",
+      "community": 41,
+      "community_name": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.2 khu vuc keo tha tep (`dropzone.svelte`)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L71"
+    },
+    {
+      "id": "design_system_4_3_th\u1ebb_card_hi\u1ec7n_\u0111\u1ea1i_modern_card",
+      "label": "4.3 Th\u1ebb Card Hi\u1ec7n \u0110\u1ea1i (`.modern-card`)",
+      "_origin": "ast",
+      "community": 41,
+      "community_name": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.3 the card hien \u0111ai (`.modern-card`)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L77"
+    },
+    {
+      "id": "design_system_4_4_h\u1ed9p_tho\u1ea1i_modal_popup",
+      "label": "4.4 H\u1ed9p Tho\u1ea1i Modal & Popup",
+      "_origin": "ast",
+      "community": 41,
+      "community_name": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.4 hop thoai modal & popup",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L86"
+    },
+    {
+      "id": "design_system_4_quy_chu\u1ea9n_th\u00e0nh_ph\u1ea7n_giao_di\u1ec7n_components",
+      "label": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "_origin": "ast",
+      "community": 41,
+      "community_name": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. quy chuan thanh phan giao dien (components)",
+      "source_file": "DESIGN_SYSTEM.md",
+      "source_location": "L60"
     },
     {
       "id": "src_lib_types_components_type",
@@ -7157,14 +7603,14 @@
       "source_location": "L1"
     },
     {
-      "id": "src_lib_epub_editor_epub_validator",
-      "label": "epub-validator.ts",
+      "id": "src_lib_epub_editor_epub_cleaner",
+      "label": "epub-cleaner.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "epub-validator.ts",
-      "source_file": "src/lib/epub-editor/epub-validator.ts",
+      "norm_label": "epub-cleaner.ts",
+      "source_file": "src/lib/epub-editor/epub-cleaner.ts",
       "source_location": "L1"
     },
     {
@@ -7172,7 +7618,7 @@
       "label": "content-rules.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "content-rules.ts",
       "source_file": "src/lib/epub-editor/validator/content-rules.ts",
@@ -7183,7 +7629,7 @@
       "label": "CssAndFontsRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "cssandfontsrule",
       "source_file": "src/lib/epub-editor/validator/content-rules.ts",
@@ -7194,7 +7640,7 @@
       "label": "XhtmlPagesRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "xhtmlpagesrule",
       "source_file": "src/lib/epub-editor/validator/content-rules.ts",
@@ -7205,7 +7651,7 @@
       "label": "validator/index.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validator/index.ts",
       "source_file": "src/lib/epub-editor/validator/index.ts",
@@ -7216,7 +7662,7 @@
       "label": "structure-rules.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "structure-rules.ts",
       "source_file": "src/lib/epub-editor/validator/structure-rules.ts",
@@ -7227,7 +7673,7 @@
       "label": "NavigationRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "navigationrule",
       "source_file": "src/lib/epub-editor/validator/structure-rules.ts",
@@ -7238,7 +7684,7 @@
       "label": "OpfPackageRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "opfpackagerule",
       "source_file": "src/lib/epub-editor/validator/structure-rules.ts",
@@ -7249,7 +7695,7 @@
       "label": "SpineRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "spinerule",
       "source_file": "src/lib/epub-editor/validator/structure-rules.ts",
@@ -7260,7 +7706,7 @@
       "label": "StructureRule",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "structurerule",
       "source_file": "src/lib/epub-editor/validator/structure-rules.ts",
@@ -7271,7 +7717,7 @@
       "label": "validator/types.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validator/types.ts",
       "source_file": "src/lib/epub-editor/validator/types.ts",
@@ -7282,7 +7728,7 @@
       "label": "validator-engine.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "validator-engine.ts",
       "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
@@ -7293,21 +7739,109 @@
       "label": "DEFAULT_VALIDATION_RULES",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
       "norm_label": "default_validation_rules",
       "source_file": "src/lib/epub-editor/validator/validator-engine.ts",
       "source_location": "L15"
     },
     {
-      "id": "tests_epub_validator_test",
-      "label": "epub-validator.test.ts",
+      "id": "src_lib_utils_index",
+      "label": "utils/index.ts",
       "_origin": "ast",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "file_type": "code",
-      "norm_label": "epub-validator.test.ts",
-      "source_file": "tests/epub-validator.test.ts",
+      "norm_label": "utils/index.ts",
+      "source_file": "src/lib/utils/index.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_utils_logger",
+      "label": "logger.ts",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "logger.ts",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_lib_utils_logger_isdebugenabled",
+      "label": "isDebugEnabled",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "isdebugenabled",
+      "source_file": "src/lib/utils/logger.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "src_lib_utils_pdf",
+      "label": "pdf.ts",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "pdf.ts",
+      "source_file": "src/lib/utils/pdf.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_helpers_test",
+      "label": "helpers.test.ts",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "helpers.test.ts",
+      "source_file": "tests/helpers.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_helpers_test_mockanchor",
+      "label": "mockAnchor",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "mockanchor",
+      "source_file": "tests/helpers.test.ts",
+      "source_location": "L18"
+    },
+    {
+      "id": "tests_helpers_test_mockdocument",
+      "label": "mockDocument",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "mockdocument",
+      "source_file": "tests/helpers.test.ts",
+      "source_location": "L25"
+    },
+    {
+      "id": "tests_helpers_test_mockpdfjslib",
+      "label": "mockPdfjsLib",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "mockpdfjslib",
+      "source_file": "tests/helpers.test.ts",
+      "source_location": "L4"
+    },
+    {
+      "id": "tests_logger_test",
+      "label": "logger.test.ts",
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "file_type": "code",
+      "norm_label": "logger.test.ts",
+      "source_file": "tests/logger.test.ts",
       "source_location": "L1"
     },
     {
@@ -7355,83 +7889,6 @@
       "source_location": "L1"
     },
     {
-      "id": "src_lib_utils_logger",
-      "label": "logger.ts",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "logger.ts",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_lib_utils_logger_isdebugenabled",
-      "label": "isDebugEnabled",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "isdebugenabled",
-      "source_file": "src/lib/utils/logger.ts",
-      "source_location": "L33"
-    },
-    {
-      "id": "src_lib_utils_pdf",
-      "label": "pdf.ts",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "pdf.ts",
-      "source_file": "src/lib/utils/pdf.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_helpers_test",
-      "label": "helpers.test.ts",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "helpers.test.ts",
-      "source_file": "tests/helpers.test.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_helpers_test_mockanchor",
-      "label": "mockAnchor",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "mockanchor",
-      "source_file": "tests/helpers.test.ts",
-      "source_location": "L18"
-    },
-    {
-      "id": "tests_helpers_test_mockdocument",
-      "label": "mockDocument",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "mockdocument",
-      "source_file": "tests/helpers.test.ts",
-      "source_location": "L25"
-    },
-    {
-      "id": "tests_helpers_test_mockpdfjslib",
-      "label": "mockPdfjsLib",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "mockpdfjslib",
-      "source_file": "tests/helpers.test.ts",
-      "source_location": "L4"
-    },
-    {
       "id": "tests_image_bg_remove_test",
       "label": "image-bg-remove.test.ts",
       "_origin": "ast",
@@ -7440,17 +7897,6 @@
       "file_type": "code",
       "norm_label": "image-bg-remove.test.ts",
       "source_file": "tests/image-bg-remove.test.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "tests_logger_test",
-      "label": "logger.test.ts",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "file_type": "code",
-      "norm_label": "logger.test.ts",
-      "source_file": "tests/logger.test.ts",
       "source_location": "L1"
     },
     {
@@ -7553,18 +7999,6 @@
       "source_location": "L58"
     },
     {
-      "id": "ai_workflow",
-      "label": "AI_WORKFLOW.md",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "ai_workflow.md",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L1"
-    },
-    {
       "id": "ai_workflow_0_th\u1ee9_t\u1ef1_\u0111\u1ecdc_khi_m\u1edf_l\u1ea1i_project_b\u1eaft_bu\u1ed9c_kh\u00f4ng_\u0111\u01b0\u1ee3c_b\u1ecf_qua_b\u01b0\u1edbc_n\u00e0o",
       "label": "0. Th\u1ee9 t\u1ef1 \u0111\u1ecdc khi m\u1edf l\u1ea1i project (B\u1eaeT BU\u1ed8C, kh\u00f4ng \u0111\u01b0\u1ee3c b\u1ecf qua b\u01b0\u1edbc n\u00e0o)",
       "_origin": "ast",
@@ -7587,54 +8021,6 @@
       "norm_label": "1. ngan xep cong nghe & quy tac code bat buoc",
       "source_file": "AI_WORKFLOW.md",
       "source_location": "L33"
-    },
-    {
-      "id": "ai_workflow_2_1_chu_tr\u00ecnh_ki\u1ec3m_tra_c\u1ee5c_b\u1ed9_khi_s\u1eeda_code_local_dev_loop",
-      "label": "2.1 Chu tr\u00ecnh ki\u1ec3m tra c\u1ee5c b\u1ed9 khi s\u1eeda code (Local Dev Loop)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2.1 chu trinh kiem tra cuc bo khi sua code (local dev loop)",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L54"
-    },
-    {
-      "id": "ai_workflow_2_2_pipeline_ch\u1ed1t_ch\u1eb7n_ci_cd_b\u1eaft_bu\u1ed9c_100_pass_tr\u01b0\u1edbc_khi_commit_ho\u1eb7c_push",
-      "label": "2.2 Pipeline Ch\u1ed1t Ch\u1eb7n CI/CD (B\u1eaeT BU\u1ed8C 100% PASS TR\u01af\u1edaC KHI COMMIT HO\u1eb6C PUSH)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2.2 pipeline chot chan ci/cd (bat buoc 100% pass truoc khi commit hoac push)",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L70"
-    },
-    {
-      "id": "ai_workflow_2_3_quy_t\u1eafc_ch\u1ec9nh_s\u1eeda_file_b\u1eaft_bu\u1ed9c",
-      "label": "2.3 Quy t\u1eafc ch\u1ec9nh s\u1eeda file (b\u1eaft bu\u1ed9c)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2.3 quy tac chinh sua file (bat buoc)",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L121"
-    },
-    {
-      "id": "ai_workflow_2_pipeline_b\u1eaft_bu\u1ed9c_sau_m\u1ecdi_l\u1ea7n_ch\u1ec9nh_s\u1eeda_code_tr\u01b0\u1edbc_khi_commit",
-      "label": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2. pipeline bat buoc sau moi lan chinh sua code & truoc khi commit",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L50"
     },
     {
       "id": "ai_workflow_3_1_ki\u1ebfn_tr\u00fac_h\u1ec7_th\u1ed1ng_ki\u1ec3m_th\u1eed_4_t\u1ea7ng",
@@ -7683,54 +8069,6 @@
       "norm_label": "3. kien truc kiem thu 4 tang & ma tran: \"sua gi - chay test gi?\"",
       "source_file": "AI_WORKFLOW.md",
       "source_location": "L132"
-    },
-    {
-      "id": "ai_workflow_4_1_c\u1eadp_nh\u1eadt_readme_md",
-      "label": "4.1 C\u1eadp nh\u1eadt `README.md`",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.1 cap nhat `readme.md`",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L201"
-    },
-    {
-      "id": "ai_workflow_4_2_c\u1eadp_nh\u1eadt_design_system_md",
-      "label": "4.2 C\u1eadp nh\u1eadt `DESIGN_SYSTEM.md`",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.2 cap nhat `design_system.md`",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L228"
-    },
-    {
-      "id": "ai_workflow_4_3_b\u00e1o_c\u00e1o_graphiphy",
-      "label": "4.3 B\u00e1o c\u00e1o `/graphiphy`",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.3 bao cao `/graphiphy`",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L232"
-    },
-    {
-      "id": "ai_workflow_4_c\u1eadp_nh\u1eadt_t\u00e0i_li\u1ec7u_sau_khi_pipeline_pass",
-      "label": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4. cap nhat tai lieu sau khi pipeline pass",
-      "source_file": "AI_WORKFLOW.md",
-      "source_location": "L199"
     },
     {
       "id": "ai_workflow_5_nguy\u00ean_t\u1eafc_chung_khi_ai_l\u00e0m_vi\u1ec7c_tr\u00ean_project_n\u00e0y",
@@ -7793,174 +8131,6 @@
       "source_location": "L267"
     },
     {
-      "id": "design_system",
-      "label": "DESIGN_SYSTEM.md",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "design_system.md",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "design_system_1_tri\u1ebft_l\u00fd_thi\u1ebft_k\u1ebf_ch\u1ee7_\u0111\u1ec1_theme_philosophy",
-      "label": "1. Tri\u1ebft l\u00fd Thi\u1ebft K\u1ebf & Ch\u1ee7 \u0111\u1ec1 (Theme Philosophy)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "1. triet ly thiet ke & chu \u0111e (theme philosophy)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L8"
-    },
-    {
-      "id": "design_system_2_1_css_theme_variables",
-      "label": "2.1 CSS Theme Variables",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2.1 css theme variables",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L20"
-    },
-    {
-      "id": "design_system_2_2_tailwind_css_utility_mapping",
-      "label": "2.2 Tailwind CSS Utility Mapping",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2.2 tailwind css utility mapping",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L37"
-    },
-    {
-      "id": "design_system_2_b\u1ea3ng_m\u00e0u_css_tokens_src_routes_layout_css",
-      "label": "2. B\u1ea3ng M\u00e0u & CSS Tokens (`src/routes/layout.css`)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2. bang mau & css tokens (`src/routes/layout.css`)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L18"
-    },
-    {
-      "id": "design_system_3_typography",
-      "label": "3. Typography",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "3. typography",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L48"
-    },
-    {
-      "id": "design_system_4_1_n\u00fat_b\u1ea5m_button_svelte",
-      "label": "4.1 N\u00fat b\u1ea5m (`Button.svelte`)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.1 nut bam (`button.svelte`)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L62"
-    },
-    {
-      "id": "design_system_4_2_khu_v\u1ef1c_k\u00e9o_th\u1ea3_t\u1ec7p_dropzone_svelte",
-      "label": "4.2 Khu v\u1ef1c K\u00e9o th\u1ea3 T\u1ec7p (`DropZone.svelte`)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.2 khu vuc keo tha tep (`dropzone.svelte`)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L71"
-    },
-    {
-      "id": "design_system_4_3_th\u1ebb_card_hi\u1ec7n_\u0111\u1ea1i_modern_card",
-      "label": "4.3 Th\u1ebb Card Hi\u1ec7n \u0110\u1ea1i (`.modern-card`)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.3 the card hien \u0111ai (`.modern-card`)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L77"
-    },
-    {
-      "id": "design_system_4_4_h\u1ed9p_tho\u1ea1i_modal_popup",
-      "label": "4.4 H\u1ed9p Tho\u1ea1i Modal & Popup",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.4 hop thoai modal & popup",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L86"
-    },
-    {
-      "id": "design_system_4_quy_chu\u1ea9n_th\u00e0nh_ph\u1ea7n_giao_di\u1ec7n_components",
-      "label": "4. Quy chu\u1ea9n Th\u00e0nh ph\u1ea7n Giao di\u1ec7n (Components)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4. quy chuan thanh phan giao dien (components)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L60"
-    },
-    {
-      "id": "design_system_5_quy_t\u1eafc_b\u1eaft_bu\u1ed9c_khi_vi\u1ebft_ui",
-      "label": "5. Quy t\u1eafc B\u1eaft bu\u1ed9c Khi Vi\u1ebft UI",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "5. quy tac bat buoc khi viet ui",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L94"
-    },
-    {
-      "id": "design_system_design_system_md_h\u1ec7_th\u1ed1ng_thi\u1ebft_k\u1ebf_quy_chu\u1ea9n_giao_di\u1ec7n_ebook_forge",
-      "label": "DESIGN_SYSTEM.md \u2014 H\u1ec7 Th\u1ed1ng Thi\u1ebft K\u1ebf & Quy Chu\u1ea9n Giao Di\u1ec7n (Ebook Forge)",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "design_system.md \u2014 he thong thiet ke & quy chuan giao dien (ebook forge)",
-      "source_file": "DESIGN_SYSTEM.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "readme",
-      "label": "README.md",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "AI_WORKFLOW.md \u2014 Quy tr\u00ecnh l\u00e0m vi\u1ec7c & Ki\u1ec3m th\u1eed b\u1eaft bu\u1ed9c cho AI Coding Agent",
-      "file_type": "document",
-      "node_kind": "page",
-      "norm_label": "readme.md",
-      "source_file": "README.md",
-      "source_location": "L1"
-    },
-    {
       "id": "src_lib_markdown_fixer_markdown_fixer_state_svelte",
       "label": "markdown-fixer-state.svelte.ts",
       "_origin": "ast",
@@ -7992,6 +8162,102 @@
       "norm_label": "text.ts",
       "source_file": "src/lib/utils/text.ts",
       "source_location": "L1"
+    },
+    {
+      "id": "ai_workflow_2_1_chu_tr\u00ecnh_ki\u1ec3m_tra_c\u1ee5c_b\u1ed9_khi_s\u1eeda_code_local_dev_loop",
+      "label": "2.1 Chu tr\u00ecnh ki\u1ec3m tra c\u1ee5c b\u1ed9 khi s\u1eeda code (Local Dev Loop)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2.1 chu trinh kiem tra cuc bo khi sua code (local dev loop)",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L54"
+    },
+    {
+      "id": "ai_workflow_2_2_pipeline_ch\u1ed1t_ch\u1eb7n_ci_cd_b\u1eaft_bu\u1ed9c_100_pass_tr\u01b0\u1edbc_khi_commit_ho\u1eb7c_push",
+      "label": "2.2 Pipeline Ch\u1ed1t Ch\u1eb7n CI/CD (B\u1eaeT BU\u1ed8C 100% PASS TR\u01af\u1edaC KHI COMMIT HO\u1eb6C PUSH)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2.2 pipeline chot chan ci/cd (bat buoc 100% pass truoc khi commit hoac push)",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L70"
+    },
+    {
+      "id": "ai_workflow_2_3_quy_t\u1eafc_ch\u1ec9nh_s\u1eeda_file_b\u1eaft_bu\u1ed9c",
+      "label": "2.3 Quy t\u1eafc ch\u1ec9nh s\u1eeda file (b\u1eaft bu\u1ed9c)",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2.3 quy tac chinh sua file (bat buoc)",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L121"
+    },
+    {
+      "id": "ai_workflow_2_pipeline_b\u1eaft_bu\u1ed9c_sau_m\u1ecdi_l\u1ea7n_ch\u1ec9nh_s\u1eeda_code_tr\u01b0\u1edbc_khi_commit",
+      "label": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "2. Pipeline b\u1eaft bu\u1ed9c sau M\u1eccI l\u1ea7n ch\u1ec9nh s\u1eeda code & Tr\u01b0\u1edbc khi Commit",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. pipeline bat buoc sau moi lan chinh sua code & truoc khi commit",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L50"
+    },
+    {
+      "id": "ai_workflow_4_1_c\u1eadp_nh\u1eadt_readme_md",
+      "label": "4.1 C\u1eadp nh\u1eadt `README.md`",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.1 cap nhat `readme.md`",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L201"
+    },
+    {
+      "id": "ai_workflow_4_2_c\u1eadp_nh\u1eadt_design_system_md",
+      "label": "4.2 C\u1eadp nh\u1eadt `DESIGN_SYSTEM.md`",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.2 cap nhat `design_system.md`",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L228"
+    },
+    {
+      "id": "ai_workflow_4_3_b\u00e1o_c\u00e1o_graphiphy",
+      "label": "4.3 B\u00e1o c\u00e1o `/graphiphy`",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.3 bao cao `/graphiphy`",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L232"
+    },
+    {
+      "id": "ai_workflow_4_c\u1eadp_nh\u1eadt_t\u00e0i_li\u1ec7u_sau_khi_pipeline_pass",
+      "label": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
+      "_origin": "ast",
+      "community": 55,
+      "community_name": "4. C\u1eadp nh\u1eadt t\u00e0i li\u1ec7u sau khi pipeline pass",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. cap nhat tai lieu sau khi pipeline pass",
+      "source_file": "AI_WORKFLOW.md",
+      "source_location": "L199"
     },
     {
       "id": "src_lib_pdf_splitter_pdf_splitter_worker",
@@ -8575,6 +8841,28 @@
       "source_location": "L1"
     },
     {
+      "id": "src_lib_utils_crypto",
+      "label": "crypto.ts",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "crypto.ts",
+      "source_file": "src/lib/utils/crypto.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "tests_crypto_test",
+      "label": "crypto.test.ts",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "cleaner-engine.ts",
+      "file_type": "code",
+      "norm_label": "crypto.test.ts",
+      "source_file": "tests/crypto.test.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "tests_epub_cleaner_test",
       "label": "epub-cleaner.test.ts",
       "_origin": "ast",
@@ -8608,18 +8896,6 @@
       "source_location": "L1"
     },
     {
-      "id": "readme_1_ch\u1ec9nh_s\u1eeda_ki\u1ec3m_\u0111\u1ecbnh_epub_tr\u1ef1c_quan_epub_editor_validator_suite",
-      "label": "1. \u270f\ufe0f Ch\u1ec9nh s\u1eeda & Ki\u1ec3m \u0111\u1ecbnh EPUB Tr\u1ef1c quan (EPUB Editor & Validator Suite)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "1. \u270f\ufe0f chinh sua & kiem \u0111inh epub truc quan (epub editor & validator suite)",
-      "source_file": "README.md",
-      "source_location": "L9"
-    },
-    {
       "id": "readme_2026_09_27",
       "label": "2026-09-27",
       "_origin": "ast",
@@ -8629,7 +8905,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27",
       "source_file": "README.md",
-      "source_location": "L360"
+      "source_location": "L388"
     },
     {
       "id": "readme_2026_09_27_tr\u01b0\u1edbc_\u0111\u00f3",
@@ -8641,7 +8917,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27 (truoc \u0111o)",
       "source_file": "README.md",
-      "source_location": "L369"
+      "source_location": "L397"
     },
     {
       "id": "readme_2026_10_15",
@@ -8653,7 +8929,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-15",
       "source_file": "README.md",
-      "source_location": "L346"
+      "source_location": "L374"
     },
     {
       "id": "readme_2026_10_15_letter_box_wrapper",
@@ -8665,7 +8941,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-15 (letter-box wrapper)",
       "source_file": "README.md",
-      "source_location": "L331"
+      "source_location": "L359"
     },
     {
       "id": "readme_2026_10_16_ci_cd_pipeline_hardening_knip_resolution",
@@ -8677,7 +8953,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (ci/cd pipeline hardening & knip resolution)",
       "source_file": "README.md",
-      "source_location": "L198"
+      "source_location": "L226"
     },
     {
       "id": "readme_2026_10_16_ci_cd_verification_expanded_test_coverage",
@@ -8689,7 +8965,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (ci/cd verification & expanded test coverage)",
       "source_file": "README.md",
-      "source_location": "L270"
+      "source_location": "L298"
     },
     {
       "id": "readme_2026_10_16_clean_up",
@@ -8701,7 +8977,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (clean up)",
       "source_file": "README.md",
-      "source_location": "L323"
+      "source_location": "L351"
     },
     {
       "id": "readme_2026_10_16_refinements_toc_center_page_dropcap",
@@ -8713,7 +8989,19 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (refinements: toc, center page, dropcap & @@!)",
       "source_file": "README.md",
-      "source_location": "L287"
+      "source_location": "L315"
+    },
+    {
+      "id": "readme_2026_10_16_review_refinements_ui_error_wrap_letter_poem_headings_ornament_fix_pdf_zero_copy",
+      "label": "2026-10-16 (Review Refinements: UI Error Wrap, Letter/Poem Headings, Ornament Fix & PDF Zero-Copy)",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "epub-to-txt.ts",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2026-10-16 (review refinements: ui error wrap, letter/poem headings, ornament fix & pdf zero-copy)",
+      "source_file": "README.md",
+      "source_location": "L205"
     },
     {
       "id": "readme_2026_10_16_web_worker_lifecycle_hardening_listener_leak_prevention",
@@ -8725,7 +9013,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (web worker lifecycle hardening & listener leak prevention)",
       "source_file": "README.md",
-      "source_location": "L212"
+      "source_location": "L240"
     },
     {
       "id": "readme_2026_10_16_workflow_documentation_consolidation",
@@ -8737,67 +9025,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (workflow & documentation consolidation)",
       "source_file": "README.md",
-      "source_location": "L256"
-    },
-    {
-      "id": "readme_2_\u0111\u00f3ng_g\u00f3i_epub_epub_packer",
-      "label": "2. \ud83d\udce6 \u0110\u00f3ng g\u00f3i EPUB (EPUB Packer)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "2. \ud83d\udce6 \u0111ong goi epub (epub packer)",
-      "source_file": "README.md",
-      "source_location": "L39"
-    },
-    {
-      "id": "readme_3_t\u1ea9y_n\u1ec1n_hoa_v\u0103n_t\u1ef1_\u0111\u1ed9ng_b\u1eb1ng_ai_ml_ornament_background_removal",
-      "label": "3. \ud83c\udfa8 T\u1ea9y N\u1ec1n Hoa V\u0103n T\u1ef1 \u0110\u1ed9ng b\u1eb1ng AI (ML Ornament Background Removal)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "3. \ud83c\udfa8 tay nen hoa van tu \u0111ong bang ai (ml ornament background removal)",
-      "source_file": "README.md",
-      "source_location": "L62"
-    },
-    {
-      "id": "readme_4_t\u00e1ch_trang_pdf_jpg_pdf_processor",
-      "label": "4. \ud83d\udcc4 T\u00e1ch trang PDF \u2192 JPG (PDF Processor)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4. \ud83d\udcc4 tach trang pdf \u2192 jpg (pdf processor)",
-      "source_file": "README.md",
-      "source_location": "L72"
-    },
-    {
-      "id": "readme_5_chu\u1ea9n_h\u00f3a_markdown_markdown_fixer",
-      "label": "5. \u270d\ufe0f Chu\u1ea9n h\u00f3a Markdown (Markdown Fixer)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "5. \u270d\ufe0f chuan hoa markdown (markdown fixer)",
-      "source_file": "README.md",
-      "source_location": "L80"
-    },
-    {
-      "id": "readme_6_desktop_app_txt_pdf_cjk",
-      "label": "6. \ud83d\udcbb Desktop App: TXT \u2192 PDF CJK",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "6. \ud83d\udcbb desktop app: txt \u2192 pdf cjk",
-      "source_file": "README.md",
-      "source_location": "L87"
+      "source_location": "L284"
     },
     {
       "id": "readme_changelog",
@@ -8809,115 +9037,7 @@
       "node_kind": "heading",
       "norm_label": "changelog",
       "source_file": "README.md",
-      "source_location": "L196"
-    },
-    {
-      "id": "readme_c\u00e1c_c\u00f4ng_c\u1ee5_ch\u00ednh",
-      "label": "\ud83d\ude80 C\u00e1c c\u00f4ng c\u1ee5 ch\u00ednh",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\ude80 cac cong cu chinh",
-      "source_file": "README.md",
-      "source_location": "L7"
-    },
-    {
-      "id": "readme_ebook_forge_b\u1ed9_c\u00f4ng_c\u1ee5_ch\u1ebf_b\u1ea3n_s\u00e1ch_\u0111i\u1ec7n_t\u1eed",
-      "label": "\u2692\ufe0f Ebook Forge \u2014 B\u1ed9 C\u00f4ng C\u1ee5 Ch\u1ebf B\u1ea3n S\u00e1ch \u0110i\u1ec7n T\u1eed",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\u2692\ufe0f ebook forge \u2014 bo cong cu che ban sach \u0111ien tu",
-      "source_file": "README.md",
-      "source_location": "L1"
-    },
-    {
-      "id": "readme_h\u01b0\u1edbng_d\u1eabn_c\u00e0i_\u0111\u1eb7t_s\u1eed_d\u1ee5ng",
-      "label": "\u26a1 H\u01b0\u1edbng d\u1eabn C\u00e0i \u0111\u1eb7t & S\u1eed d\u1ee5ng",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\u26a1 huong dan cai \u0111at & su dung",
-      "source_file": "README.md",
-      "source_location": "L95"
-    },
-    {
-      "id": "readme_kh\u1edfi_ch\u1ea1y_\u1ee9ng_d\u1ee5ng",
-      "label": "Kh\u1edfi ch\u1ea1y \u1ee9ng d\u1ee5ng",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "khoi chay ung dung",
-      "source_file": "README.md",
-      "source_location": "L102"
-    },
-    {
-      "id": "readme_quy_chu\u1ea9n_ki\u1ec3m_th\u1eed_ch\u1ea5t_l\u01b0\u1ee3ng_m\u00e3_ngu\u1ed3n_quality_gates",
-      "label": "\ud83e\uddea Quy chu\u1ea9n Ki\u1ec3m th\u1eed & Ch\u1ea5t l\u01b0\u1ee3ng M\u00e3 ngu\u1ed3n (Quality Gates)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83e\uddea quy chuan kiem thu & chat luong ma nguon (quality gates)",
-      "source_file": "README.md",
-      "source_location": "L122"
-    },
-    {
-      "id": "readme_quy\u1ec1n_ri\u00eang_t\u01b0_b\u1ea3o_m\u1eadt",
-      "label": "\ud83d\udee1\ufe0f Quy\u1ec1n ri\u00eang t\u01b0 & B\u1ea3o m\u1eadt",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\ud83d\udee1\ufe0f quyen rieng tu & bao mat",
-      "source_file": "README.md",
-      "source_location": "L145"
-    },
-    {
-      "id": "readme_tr\u1ea1ng_th\u00e1i_h\u1ec7_th\u1ed1ng",
-      "label": "Tr\u1ea1ng th\u00e1i h\u1ec7 th\u1ed1ng",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "trang thai he thong",
-      "source_file": "README.md",
-      "source_location": "L152"
-    },
-    {
-      "id": "readme_y\u00eau_c\u1ea7u_h\u1ec7_th\u1ed1ng",
-      "label": "Y\u00eau c\u1ea7u h\u1ec7 th\u1ed1ng",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "yeu cau he thong",
-      "source_file": "README.md",
-      "source_location": "L97"
-    },
-    {
-      "id": "readme_\u0111\u00f3ng_g\u00f3i_\u1ee9ng_d\u1ee5ng_production_build",
-      "label": "\u0110\u00f3ng g\u00f3i \u1ee9ng d\u1ee5ng (Production Build)",
-      "_origin": "ast",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "\u0111ong goi ung dung (production build)",
-      "source_file": "README.md",
-      "source_location": "L114"
+      "source_location": "L203"
     },
     {
       "id": "src_app_d",
@@ -9415,6 +9535,18 @@
       "type": "external"
     },
     {
+      "id": "src_lib_epub_editor_epub_editor_resolverelativepath",
+      "label": "src_lib_epub_editor_epub_editor_resolverelativepath",
+      "_origin": "semantic",
+      "community": 1,
+      "community_name": "epub-editor-state.svelte.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_lib_epub_editor_epub_editor_resolverelativepath",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "src_lib_epub_editor_epub_editor_sha1",
       "label": "src_lib_epub_editor_epub_editor_sha1",
       "_origin": "semantic",
@@ -9499,30 +9631,6 @@
       "type": "external"
     },
     {
-      "id": "src_lib_utils_index_hashbytes",
-      "label": "src_lib_utils_index_hashbytes",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_lib_utils_index_hashbytes",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_lib_utils_index_resolverelativepath",
-      "label": "src_lib_utils_index_resolverelativepath",
-      "_origin": "semantic",
-      "community": 1,
-      "community_name": "epub-editor-state.svelte.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_lib_utils_index_resolverelativepath",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "src_lib_utils_index_sha1",
       "label": "src_lib_utils_index_sha1",
       "_origin": "semantic",
@@ -9543,42 +9651,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_utils_index_sha1async",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_node_fs",
-      "label": "ref_node_fs",
-      "_origin": "semantic",
-      "community": 12,
-      "community_name": "jszip",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_node_fs",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_node_path",
-      "label": "ref_node_path",
-      "_origin": "semantic",
-      "community": 12,
-      "community_name": "jszip",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_node_path",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_node_process",
-      "label": "ref_node_process",
-      "_origin": "semantic",
-      "community": 12,
-      "community_name": "jszip",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_node_process",
       "source_file": "",
       "type": "external"
     },
@@ -10171,11 +10243,47 @@
       "type": "external"
     },
     {
+      "id": "ref_node_fs",
+      "label": "ref_node_fs",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_node_fs",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "ref_node_path",
+      "label": "ref_node_path",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_node_path",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "ref_node_process",
+      "label": "ref_node_process",
+      "_origin": "semantic",
+      "community": 4,
+      "community_name": "epub-download-inspection.spec.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_node_process",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "src_lib_epub_editor_epub_editor_isvalidfontmagic",
       "label": "src_lib_epub_editor_epub_editor_isvalidfontmagic",
       "_origin": "semantic",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_epub_editor_epub_editor_isvalidfontmagic",
@@ -10187,10 +10295,58 @@
       "label": "src_lib_epub_editor_epub_editor_validatehtml",
       "_origin": "semantic",
       "community": 44,
-      "community_name": "content-rules.ts",
+      "community_name": "utils/index.ts",
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_epub_editor_epub_editor_validatehtml",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_lib_utils_index_hashbytes",
+      "label": "src_lib_utils_index_hashbytes",
+      "_origin": "semantic",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_lib_utils_index_hashbytes",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_lib_utils_index_resolverelativepath",
+      "label": "src_lib_utils_index_resolverelativepath",
+      "_origin": "semantic",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_lib_utils_index_resolverelativepath",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_lib_utils_logger_js_test_1",
+      "label": "src_lib_utils_logger_js_test_1",
+      "_origin": "semantic",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_lib_utils_logger_js_test_1",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "src_lib_utils_logger_js_test_2",
+      "label": "src_lib_utils_logger_js_test_2",
+      "_origin": "semantic",
+      "community": 44,
+      "community_name": "utils/index.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "src_lib_utils_logger_js_test_2",
       "source_file": "",
       "type": "external"
     },
@@ -10251,30 +10407,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_epub_packer_parser_epub_source_parser_parsemarkdownblocks",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_lib_utils_logger_js_test_1",
-      "label": "src_lib_utils_logger_js_test_1",
-      "_origin": "semantic",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_lib_utils_logger_js_test_1",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_lib_utils_logger_js_test_2",
-      "label": "src_lib_utils_logger_js_test_2",
-      "_origin": "semantic",
-      "community": 5,
-      "community_name": "image-bg-remove-ml.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_lib_utils_logger_js_test_2",
       "source_file": "",
       "type": "external"
     },
@@ -10431,18 +10563,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "src_lib_epub_editor_epub_cleaner_formatbytesize",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "src_lib_epub_editor_epub_editor_resolverelativepath",
-      "label": "src_lib_epub_editor_epub_editor_resolverelativepath",
-      "_origin": "semantic",
-      "community": 8,
-      "community_name": "epub-to-txt.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "src_lib_epub_editor_epub_editor_resolverelativepath",
       "source_file": "",
       "type": "external"
     },
@@ -12281,7 +12401,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/parser/txt-parser.ts",
-      "source_location": "L621",
+      "source_location": "L636",
       "weight": 1.0
     },
     {
@@ -12665,7 +12785,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/epub-packer/xml-builders/chapter-builder.ts",
-      "source_location": "L257",
+      "source_location": "L270",
       "weight": 1.0
     },
     {
@@ -27729,13 +27849,24 @@
     },
     {
       "source": "readme_changelog",
+      "target": "readme_2026_10_16_review_refinements_ui_error_wrap_letter_poem_headings_ornament_fix_pdf_zero_copy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "L205",
+      "weight": 1.0
+    },
+    {
+      "source": "readme_changelog",
       "target": "readme_2026_10_16_ci_cd_pipeline_hardening_knip_resolution",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L198",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -27746,7 +27877,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L212",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -27757,7 +27888,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L232",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -27768,7 +27899,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L256",
+      "source_location": "L284",
       "weight": 1.0
     },
     {
@@ -27779,7 +27910,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L270",
+      "source_location": "L298",
       "weight": 1.0
     },
     {
@@ -27790,7 +27921,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L287",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -27801,7 +27932,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L305",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -27812,7 +27943,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L323",
+      "source_location": "L351",
       "weight": 1.0
     },
     {
@@ -27823,7 +27954,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L331",
+      "source_location": "L359",
       "weight": 1.0
     },
     {
@@ -27834,7 +27965,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L346",
+      "source_location": "L374",
       "weight": 1.0
     },
     {
@@ -27845,7 +27976,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L360",
+      "source_location": "L388",
       "weight": 1.0
     },
     {
@@ -27856,7 +27987,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L369",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
@@ -27966,7 +28097,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L196",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -28022,6 +28153,105 @@
       "confidence_score": 1.0,
       "source_file": "README.md",
       "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "review",
+      "target": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_3_nh\u1eadn_hoa_v\u0103n_ch\u01b0\u01a1ng_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_4_\u0111\u1ed5i_ngh\u0129a_so_v\u1edbi_phi\u00ean_b\u1ea3n_c\u0169_x\u00e1c_nh\u1eadn_ch\u1ee7_\u00fd",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_5_c\u1ea3i_ti\u1ebfn_trang_thi\u1ebfu_ti\u00eau_\u0111\u1ec1_c\u1ea3nh_b\u00e1o_new_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_1_hi\u1ec3n_th\u1ecb_l\u1ed7i_g\u1ed9p_tr\u00ean_giao_di\u1ec7n_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_6_l\u00e0m_ph\u1eb3ng_m\u1ee5c_l\u1ee5c_trang_c\u00f3_hai_x\u00e1c_nh\u1eadn_h\u1ee3p_l\u00fd",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_7_t\u1ed1i_\u01b0u_b\u1ed9_nh\u1edb_pdf_splitter_zero_copy_transfer_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_8_v\u00f2ng_\u0111\u1eddi_web_worker_typescript_strict_mode_x\u00e1c_nh\u1eadn_t\u1ed1t",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "review_k\u1ebft_qu\u1ea3_r\u00e0_so\u00e1t_v\u00e0_x\u1eed_l\u00fd_review_resolutions_2026_10_16",
+      "target": "review_2_quy_t\u1eafc_ti\u00eau_\u0111\u1ec1_v\u00e0_dropcap_trong_kh\u1ed1i_letter_v\u00e0_poem_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -33810,6 +34040,28 @@
       "weight": 1.0
     },
     {
+      "source": "review",
+      "target": "ai_workflow",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "review",
+      "target": "readme",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "review.md",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
       "source": "src_lib_epub_editor_validator_validator_engine_validateepub",
       "target": "src_lib_epub_editor_validator_validator_engine_validateepub_gettext",
       "relation": "indirect_call",
@@ -33830,7 +34082,7 @@
       "confidence_score": 0.95,
       "context": "RawChapterItem",
       "source_file": "README.md",
-      "source_location": "L238",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -33854,7 +34106,7 @@
       "confidence_score": 0.95,
       "context": "analyzeChapterCandidates",
       "source_file": "README.md",
-      "source_location": "L236",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -33866,7 +34118,7 @@
       "confidence_score": 0.95,
       "context": "extractChunkBlocks",
       "source_file": "README.md",
-      "source_location": "L236",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -33878,7 +34130,7 @@
       "confidence_score": 0.95,
       "context": "htmlToCleanText",
       "source_file": "README.md",
-      "source_location": "L273",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -33914,7 +34166,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L371",
+      "source_location": "L399",
       "weight": 1.0
     },
     {
@@ -33926,7 +34178,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L333",
+      "source_location": "L361",
       "weight": 1.0
     },
     {
@@ -33938,7 +34190,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L277",
+      "source_location": "L305",
       "weight": 1.0
     },
     {
@@ -33962,7 +34214,7 @@
       "confidence_score": 0.95,
       "context": "parseTxtToChapters",
       "source_file": "README.md",
-      "source_location": "L312",
+      "source_location": "L340",
       "weight": 1.0
     },
     {
@@ -33975,6 +34227,18 @@
       "context": "parseTxtToChapters",
       "source_file": "README.md",
       "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "review_1_hi\u1ec3n_th\u1ecb_l\u1ed7i_g\u1ed9p_tr\u00ean_giao_di\u1ec7n_\u0111\u00e3_ho\u00e0n_th\u00e0nh",
+      "target": "src_lib_epub_packer_parser_txt_parser_parsetxttochapters",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "context": "parseTxtToChapters",
+      "source_file": "review.md",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -33998,10 +34262,10 @@
       "confidence_score": 0.95,
       "context": "validateTxtSyntax",
       "source_file": "README.md",
-      "source_location": "L312",
+      "source_location": "L340",
       "weight": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "364dbe2f10f255c9be521ddb09381a6b8c8ee9c4"
+  "built_at_commit": "96f72cf8502e2327d946db8d02fb241fe9cdb1df"
 }

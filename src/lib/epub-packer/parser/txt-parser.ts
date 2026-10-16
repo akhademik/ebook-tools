@@ -506,8 +506,23 @@ export function parseTxtToChapters(
 			}
 
 			const activeChapter = ensureChapterOpen();
-			const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
-			activeChapter.html += `  <p>${formatted}</p>\n`;
+			if (stripped.startsWith('!D ')) {
+				const textWithoutPrefix = origLine.replace(/^(\s*)!D\s+/, '$1');
+				const formatted = applyInlineFormatting(textWithoutPrefix.trim(), customDefinitions);
+				activeChapter.html += `  <p class="no-dropcap">${formatted}</p>\n`;
+			} else {
+				const dropcapMatch = stripped.match(/^\[([^\]\n])\]\s+(.+)$/);
+				if (dropcapMatch) {
+					const group1 = dropcapMatch[1];
+					const group2 = dropcapMatch[2];
+					const formattedGroup1 = escapeXml(group1);
+					const formattedGroup2 = applyInlineFormatting(group2, customDefinitions);
+					activeChapter.html += `  <p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
+				} else {
+					const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+					activeChapter.html += `  <p>${formatted}</p>\n`;
+				}
+			}
 			lineIdx++;
 			continue;
 		}

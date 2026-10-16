@@ -306,12 +306,13 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 					(b) => b.tag === 'letter' || b.tag === 'poem'
 				)!;
 				if (!isNoToc) {
-					// User rule: only @@! or @! are allowed in letter or poem
-					errors.push({
+					// User rule: inside [letter] and [poem], only @@! and @! are converted to headings.
+					// Regular @ or @@ do not STOP the build; emit a warning and render as plain <p>.
+					warnings.push({
 						lineNum,
 						lineContent: rawLine,
 						tag: headingSyntaxMatch[1],
-						message: `Dòng ${lineNum}: Trong khối [${activeLetterOrPoem.tag}] (mở tại dòng ${activeLetterOrPoem.lineNum}), chỉ cho phép dùng '${headingSyntaxMatch[1]}!' để lấy kiểu dáng tiêu đề không tạo mục lục. Tiêu đề '${headingSyntaxMatch[1]}' không hợp lệ bên trong khối này.`
+						message: `Dòng ${lineNum}: Phát hiện cú pháp '${headingSyntaxMatch[1]}' trong khối [${activeLetterOrPoem.tag}] (mở tại dòng ${activeLetterOrPoem.lineNum}). Trong [${activeLetterOrPoem.tag}], chỉ có '${headingSyntaxMatch[1]}!' mới được chuyển thành tiêu đề không mục lục; '${headingSyntaxMatch[1]}' sẽ được giữ nguyên dạng văn bản thường <p>.`
 					});
 				}
 			} else if (atCount === 2 && !isNoToc) {
