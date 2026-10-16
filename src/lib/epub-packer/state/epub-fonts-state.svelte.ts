@@ -4,5 +4,6 @@ export class EpubFontsState {
 	jacketFont = $state<string>('default');
 	h1Font = $state<string>('default');
 	h2Font = $state<string>('default');
+	h2SubFont = $state<string>('default');
 	dropcapFont = $state<string>('default');
 }

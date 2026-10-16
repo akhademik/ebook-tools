@@ -198,7 +198,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			await expect(modalTitle).not.toBeVisible();
 		}
 
-		// 4. Test FontSelect live preview dropdown for H1 font
+		// 4. Test FontSelect live preview dropdown for H1 font and H2 Sub font
 		const h1Trigger = page
 			.locator('label[for="h1-font-select"]')
 			.locator('..')
@@ -214,6 +214,22 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(listbox).not.toBeVisible();
 		await expect(h1Trigger).toContainText('Bookerly');
 		await expect(page.locator('#h1-font-select')).toHaveValue('Bookerly');
+
+		// Select H2 Sub font
+		const h2SubTrigger = page
+			.locator('label[for="h2-sub-font-select"]')
+			.locator('..')
+			.locator('button[aria-haspopup="listbox"]');
+		await expect(h2SubTrigger).toBeVisible();
+		await h2SubTrigger.click();
+		const listboxSub = page.locator('[role="listbox"]');
+		await expect(listboxSub).toBeVisible();
+		const akashiOption = listboxSub.locator('button', { hasText: 'Akashi' }).first();
+		await expect(akashiOption).toBeVisible();
+		await akashiOption.click();
+		await expect(listboxSub).not.toBeVisible();
+		await expect(h2SubTrigger).toContainText('Akashi');
+		await expect(page.locator('#h2-sub-font-select')).toHaveValue('UTM_Akashi');
 
 		// 5. Verify Pack button is enabled
 		const packBtn = page.getByRole('button', { name: /Đóng gói file EPUB/i }).first();

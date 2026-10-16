@@ -702,6 +702,44 @@ describe('epub-packer tests', () => {
 			consoleLogSpy.mockRestore();
 		});
 
+		it('should inject separate font rules for h2 and h2SubFont (h2 + h2)', async () => {
+			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+			const chapters = [
+				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
+			];
+			const fonts = {
+				h2Font: 'UTM_Akashi',
+				h2SubFont: 'Bookerly',
+				blobs: {
+					UTM_Akashi: new Blob(['akashi-binary']),
+					Bookerly: new Blob(['bookerly-binary'])
+				}
+			};
+
+			const blob = await buildEpubBlob(
+				{ title: 'Book Title' },
+				chapters,
+				'body {}',
+				false,
+				null,
+				null,
+				fonts
+			);
+			expect(blob).toBeDefined();
+
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining('h2 { font-family: "UTM Akashi", serif !important; }')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining(
+					'h2 + h2, .side-chap + .side-chap { font-family: "Bookerly", serif !important; }'
+				)
+			);
+			consoleLogSpy.mockRestore();
+		});
+
 		it('should conditionally include CSS snippets based on chapter features and content', async () => {
 			const chapters = [
 				{

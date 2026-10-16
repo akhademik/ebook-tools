@@ -96,6 +96,9 @@ export class EpubState {
 			if (this.fonts.h2Font !== 'default' && !neededFonts.includes(this.fonts.h2Font)) {
 				neededFonts.push(this.fonts.h2Font);
 			}
+			if (this.fonts.h2SubFont !== 'default' && !neededFonts.includes(this.fonts.h2SubFont)) {
+				neededFonts.push(this.fonts.h2SubFont);
+			}
 			if (this.fonts.dropcapFont !== 'default' && !neededFonts.includes(this.fonts.dropcapFont)) {
 				neededFonts.push(this.fonts.dropcapFont);
 			}
@@ -121,6 +124,7 @@ export class EpubState {
 				jacketFont: this.fonts.jacketFont,
 				h1Font: this.fonts.h1Font,
 				h2Font: this.fonts.h2Font,
+				h2SubFont: this.fonts.h2SubFont,
 				dropcapFont: this.fonts.dropcapFont,
 				blobs: fontBlobs
 			};

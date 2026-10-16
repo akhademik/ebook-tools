@@ -40,6 +40,8 @@ export function resolveActiveFonts(fonts: EpubFontsConfig | null): string[] {
 			activeFonts.push(fonts.h1Font);
 		if (fonts.h2Font && fonts.h2Font !== 'default' && fonts.blobs[fonts.h2Font])
 			activeFonts.push(fonts.h2Font);
+		if (fonts.h2SubFont && fonts.h2SubFont !== 'default' && fonts.blobs[fonts.h2SubFont])
+			activeFonts.push(fonts.h2SubFont);
 		if (fonts.dropcapFont && fonts.dropcapFont !== 'default' && fonts.blobs[fonts.dropcapFont])
 			activeFonts.push(fonts.dropcapFont);
 		if (fonts.blobs['Bookerly']) {

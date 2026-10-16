@@ -221,14 +221,38 @@ pnpm test:e2e
     - Chuẩn hóa kiểm thử Web Worker Concurrency và Fallback trong `tests/epub-cleaner.test.ts` với `AsyncDuplicateWorkerMock` và mock `window`.
     - Hoàn thiện cơ chế tự phục hồi xử lý ảnh ML: bao phủ sự cố `worker.onerror`, `worker.onmessageerror` và response lỗi với `cleanupWorkerAndFallbackPending`, tự động hủy các tác vụ đã bị abort.
   - Hoàn tất tính năng xem trước Jacket: Tích hợp dropdown phông chữ trực tiếp vào Modal xem trước trang giới thiệu (`EpubJacketModal.svelte`), phản chiếu tức thì (real-time font reflection) lên khung preview và đồng bộ 2 chiều với cấu hình Jacket Font.
-  - Bộ kiểm thử mở rộng đạt 311/311 unit tests pass và 12/12 Playwright E2E tests pass 100%.
-- Cập nhật lần cuối: 2026-10-16 17:22
+  - Bổ sung bộ chọn phông chữ riêng cho **"Font cho H2 Sub"** (`h2SubFont`), hỗ trợ quy tắc CSS `h2 + h2, .side-chap + .side-chap` để các tiêu đề H2 phụ liền kề (không có thẻ `<p>` xen giữa) tự động áp dụng phông chữ riêng biệt so với H2 chính.
+  - Tái thiết kế bố cục phần cấu hình phông chữ (`EpubFontSettingsSection.svelte`) thành 2 cột dọc responsive (`grid-cols-1 lg:grid-cols-2`): Cột 1 gồm 4 bộ chọn phông (H1, H2, H2 Sub, Dropcap) và Cột 2 là khung Preview chương mẫu thời gian thực.
+  - Bộ kiểm thử mở rộng đạt 312/312 unit tests pass và 12/12 Playwright E2E tests pass 100%.
+- Cập nhật lần cuối: 2026-10-16 18:55
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (H2 Sub Font Selector & 2-Column Font Settings Layout)
+
+- Thêm/sửa: Bổ sung bộ chọn phông chữ cho tiêu đề phụ H2 Sub và tái cấu trúc giao diện cài đặt phông:
+  - `src/lib/types/epub.type.ts`: Bổ sung thuộc tính `h2SubFont?: string;` vào `EpubFontsConfig`.
+  - `src/lib/epub-packer/state/epub-fonts-state.svelte.ts` & `src/lib/epub-packer/epub-state.svelte.ts`: Bổ sung `h2SubFont` vào state quản lý phông, danh sách phông cần tải và đóng gói vào tệp EPUB (`neededFonts`).
+  - `src/lib/epub-packer/builders/asset-builder.ts`: Phân giải active fonts bao gồm `h2SubFont`.
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`: Đăng ký `@font-face` khử trùng lặp cho `h2SubFont` và thêm quy tắc CSS `h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }` (khi có `<p>` xen giữa, H2 tiếp theo tự động quay về font H2 chính).
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`: Chuyển đổi giao diện thành lưới 2 cột: Cột 1 chứa 4 bộ chọn `FontSelect` dọc (Font cho Tiêu đề lớn H1, Font cho Tiêu đề nhỏ H2, Font cho H2 Sub, Font cho Chữ hoa đầu đoạn Dropcap); Cột 2 chứa khung Preview trực tiếp chương sách với H1, H2, H2 Sub và Dropcap.
+  - `tests/epub-packer.test.ts`: Bổ sung unit test xác thực quy tắc CSS `h2 + h2` được tiêm chính xác vào `style.css` của EPUB.
+  - `tests-e2e/epub-workflow.spec.ts`: Mở rộng test E2E kiểm tra chọn phông chữ H2 Sub và phản chiếu trong DOM.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (312/312 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (920 nodes, 2087 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/epub.type.ts`
+  - `src/lib/epub-packer/state/epub-fonts-state.svelte.ts`
+  - `src/lib/epub-packer/epub-state.svelte.ts`
+  - `src/lib/epub-packer/builders/asset-builder.ts`
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `tests/epub-packer.test.ts`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-10-16 (Fix Jacket Modal Font Persistence Across Templates)
 

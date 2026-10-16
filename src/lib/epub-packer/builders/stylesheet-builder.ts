@@ -135,10 +135,23 @@ export function prepareFinalCss(
 				elementFontRules += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }`;
 			}
 		}
+		if (fonts.h2SubFont && fonts.h2SubFont !== 'default') {
+			const f2Sub = findFont(fonts.h2SubFont);
+			if (f2Sub) {
+				if (fonts.h2SubFont !== fonts.h1Font && fonts.h2SubFont !== fonts.h2Font) {
+					fontFaces += getFontCSSDeclaration(fonts.h2SubFont);
+				}
+				elementFontRules += `\nh2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			}
+		}
 		if (fonts.dropcapFont && fonts.dropcapFont !== 'default') {
 			const fd = findFont(fonts.dropcapFont);
 			if (fd) {
-				if (fonts.dropcapFont !== fonts.h1Font && fonts.dropcapFont !== fonts.h2Font) {
+				if (
+					fonts.dropcapFont !== fonts.h1Font &&
+					fonts.dropcapFont !== fonts.h2Font &&
+					fonts.dropcapFont !== fonts.h2SubFont
+				) {
 					fontFaces += getFontCSSDeclaration(fonts.dropcapFont);
 				}
 				if (finalCss.includes('.dropcap {')) {
