@@ -265,5 +265,29 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 				'Tác vụ quét tài nguyên đã bị hủy'
 			);
 		});
+
+		it('should not break concurrent duplicate scan jobs when one job is aborted', async () => {
+			const { scanDuplicateResources } =
+				await import('../src/lib/epub-editor/cleaner/duplicate-detector');
+			const zip1 = new JSZip();
+			zip1.file('OEBPS/images/img1.png', new Uint8Array([1, 2, 3]));
+			zip1.file('OEBPS/images/img2.png', new Uint8Array([1, 2, 3]));
+
+			const zip2 = new JSZip();
+			zip2.file('OEBPS/images/imgA.png', new Uint8Array([9, 8, 7]));
+			zip2.file('OEBPS/images/imgB.png', new Uint8Array([9, 8, 7]));
+
+			const ac1 = new AbortController();
+			const p1 = scanDuplicateResources(zip1, undefined, undefined, ac1.signal);
+			const p2 = scanDuplicateResources(zip2);
+
+			ac1.abort();
+
+			await expect(p1).rejects.toThrow('Tác vụ quét tài nguyên đã bị hủy');
+			const res2 = await p2;
+			expect(res2).toHaveLength(1);
+			expect(res2[0].originalPath).toBe('OEBPS/images/imgA.png');
+			expect(res2[0].duplicatePath).toBe('OEBPS/images/imgB.png');
+		});
 	});
 });

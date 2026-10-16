@@ -9,7 +9,42 @@ import {
 	type ScanItemInput
 } from './duplicate-detector.worker';
 
+interface DuplicatePendingJob {
+	resolve: (duplicates: DuplicateResourceItem[]) => void;
+	reject: (error: unknown) => void;
+	onProgress?: (current: number, total: number, filename: string) => void;
+	scanItems: ScanItemInput[];
+	cleanupSignal?: () => void;
+}
+
 let workerInstance: Worker | null = null;
+const pendingDuplicateJobs = new Map<string, DuplicatePendingJob>();
+
+function cleanupDuplicateWorkerAndFallback(err: unknown): void {
+	Logger.warn(
+		'[duplicate-detector]',
+		'Worker event error, falling back to direct computation for all pending jobs:',
+		err
+	);
+	const jobs = Array.from(pendingDuplicateJobs.values());
+	pendingDuplicateJobs.clear();
+	if (workerInstance) {
+		try {
+			workerInstance.terminate();
+		} catch {
+			// ignore
+		}
+		workerInstance = null;
+	}
+	for (const job of jobs) {
+		job.cleanupSignal?.();
+		try {
+			computeDuplicateResources(job.scanItems, job.onProgress).then(job.resolve, job.reject);
+		} catch (directErr) {
+			job.reject(directErr);
+		}
+	}
+}
 
 function getDuplicateWorker(): Worker | null {
 	if (typeof window === 'undefined' || typeof Worker === 'undefined') {
@@ -17,9 +52,47 @@ function getDuplicateWorker(): Worker | null {
 	}
 	if (!workerInstance) {
 		try {
-			workerInstance = new Worker(new URL('./duplicate-detector.worker.ts', import.meta.url), {
+			const worker = new Worker(new URL('./duplicate-detector.worker.ts', import.meta.url), {
 				type: 'module'
 			});
+
+			worker.onmessage = (e: MessageEvent<DuplicateDetectorWorkerResponse>) => {
+				const job = pendingDuplicateJobs.get(e.data.id);
+				if (!job) return;
+
+				if (e.data.type === 'progress') {
+					job.onProgress?.(e.data.current, e.data.total, e.data.filename);
+					return;
+				}
+
+				pendingDuplicateJobs.delete(e.data.id);
+				job.cleanupSignal?.();
+
+				if (e.data.type === 'success') {
+					job.resolve(e.data.duplicates);
+				} else if (e.data.type === 'error') {
+					Logger.warn(
+						'[duplicate-detector]',
+						'Worker encountered error, falling back to direct computation:',
+						e.data.error
+					);
+					try {
+						computeDuplicateResources(job.scanItems, job.onProgress).then(job.resolve, job.reject);
+					} catch (fallbackErr) {
+						job.reject(fallbackErr);
+					}
+				}
+			};
+
+			worker.onerror = (err: ErrorEvent) => {
+				cleanupDuplicateWorkerAndFallback(err);
+			};
+
+			worker.onmessageerror = (err: MessageEvent) => {
+				cleanupDuplicateWorkerAndFallback(err);
+			};
+
+			workerInstance = worker;
 		} catch (err) {
 			Logger.warn(
 				'[duplicate-detector]',
@@ -90,74 +163,26 @@ export async function scanDuplicateResources(
 		return new Promise((resolve, reject) => {
 			const requestId = `scan-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-			const cleanup = () => {
-				worker.removeEventListener('message', handleMessage);
-				worker.removeEventListener('error', handleWorkerError);
-				worker.removeEventListener('messageerror', handleWorkerError);
+			const handleAbort = () => {
+				pendingDuplicateJobs.delete(requestId);
 				if (signal) {
 					signal.removeEventListener('abort', handleAbort);
 				}
-			};
-
-			const handleAbort = () => {
-				cleanup();
-				try {
-					worker.terminate();
-				} catch {
-					// ignore
+				// Only terminate the shared worker if there are NO OTHER active jobs running
+				if (pendingDuplicateJobs.size === 0 && workerInstance) {
+					try {
+						workerInstance.terminate();
+					} catch {
+						// ignore
+					}
+					workerInstance = null;
 				}
-				workerInstance = null;
 				reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
 			};
 
-			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
-				cleanup();
-				Logger.warn(
-					'[duplicate-detector]',
-					'Worker event error, falling back to direct computation:',
-					err
-				);
-				try {
-					worker.terminate();
-				} catch {
-					// ignore
-				}
-				workerInstance = null;
-				try {
-					resolve(computeDuplicateResources(scanItems, onProgress));
-				} catch (fallbackErr) {
-					reject(fallbackErr);
-				}
-			};
-
-			const handleMessage = (e: MessageEvent<DuplicateDetectorWorkerResponse>) => {
-				if (e.data.id !== requestId) return;
-
-				if (signal?.aborted) {
-					cleanup();
-					reject(new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError'));
-					return;
-				}
-
-				if (e.data.type === 'progress') {
-					if (onProgress) {
-						onProgress(e.data.current, e.data.total, e.data.filename);
-					}
-				} else if (e.data.type === 'success') {
-					cleanup();
-					resolve(e.data.duplicates);
-				} else if (e.data.type === 'error') {
-					cleanup();
-					Logger.warn(
-						'[duplicate-detector]',
-						'Worker encountered error, falling back to direct computation:',
-						e.data.error
-					);
-					try {
-						resolve(computeDuplicateResources(scanItems, onProgress));
-					} catch (fallbackErr) {
-						reject(fallbackErr);
-					}
+			const cleanupSignal = () => {
+				if (signal) {
+					signal.removeEventListener('abort', handleAbort);
 				}
 			};
 
@@ -169,9 +194,13 @@ export async function scanDuplicateResources(
 				signal.addEventListener('abort', handleAbort, { once: true });
 			}
 
-			worker.addEventListener('message', handleMessage);
-			worker.addEventListener('error', handleWorkerError);
-			worker.addEventListener('messageerror', handleWorkerError);
+			pendingDuplicateJobs.set(requestId, {
+				resolve,
+				reject,
+				onProgress,
+				scanItems,
+				cleanupSignal
+			});
 
 			const request: DuplicateDetectorWorkerRequest = {
 				id: requestId,
@@ -190,7 +219,8 @@ export async function scanDuplicateResources(
 				try {
 					worker.postMessage(request);
 				} catch (postErr) {
-					cleanup();
+					pendingDuplicateJobs.delete(requestId);
+					cleanupSignal();
 					Logger.warn(
 						'[duplicate-detector]',
 						'Failed to postMessage to worker, executing direct computation:',

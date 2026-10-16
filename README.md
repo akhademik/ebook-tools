@@ -151,8 +151,12 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 16:32
+- Cập nhật lần cuối: 2026-10-16 16:45
 - Đã hoàn thành:
+  - **Khắc phục triệt để Race Condition khi hủy tác vụ Worker & Bổ sung Full Fallback cho Image Background Removal**:
+    - `txt-parser.ts` & `duplicate-detector.ts`: Quản lý các tác vụ worker đang chạy theo `requestId` thông qua Map trung tâm. Khi một tác vụ bị hủy qua `AbortSignal`, chỉ hủy tác vụ đó và chỉ terminate worker khi không còn tác vụ nào khác (`pendingJobs.size === 0`), giải quyết triệt để nguy cơ làm treo Promise của các tác vụ chạy song song.
+    - `image-bg-remove-ml.ts`: Tự động phục hồi sang xử lý trên luồng chính (`processOrnamentOnMainThread`) khi `worker.postMessage` ném lỗi thay vì reject Promise.
+    - Mở rộng bộ kiểm thử đạt **308/308 unit tests pass 100%**.
   - **Tự động tắt Dropcap & Chuẩn hóa cú pháp `@` / `@@` trong `[letter]` và `[poem]`**:
     - Trong khối `[letter]` và `[poem]`, mặc định tự động tắt Dropcap (không chèn Dropcap tự động ngay sau tiêu đề), chỉ áp dụng khi người dùng chủ động chỉ định bằng cú pháp `[c]`.
     - Bảo vệ các khối `<div class="letter">` và `<div class="poem">` trong `chapter-builder.ts` khỏi thuật toán tự động tiêm dropcap.
@@ -206,6 +210,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-16 (Worker Cancellation Race Condition & ML Fallback Hardening)
+
+- Thêm/sửa: Khắc phục 2 lỗi tiềm ẩn từ `review.md`:
+  - `txt-parser.ts` & `duplicate-detector.ts`: Thiết lập cơ chế đăng ký tác vụ trung tâm (`pendingTxtJobs` và `pendingDuplicateJobs`), tránh gọi `worker.terminate()` trên Worker Singleton dùng chung khi vẫn còn tác vụ khác đang chờ kết quả, bảo vệ an toàn cho các tác vụ chạy song song khi có 1 tác vụ bị abort.
+  - `image-bg-remove-ml.ts`: Tách hàm `processOrnamentOnMainThread`, bổ sung cơ chế tự phục hồi chạy trên luồng chính khi `worker.postMessage` ném lỗi.
+  - Bổ sung 3 unit tests mới cho `txt-parser`, `duplicate-detector` và `image-bg-remove` (nâng tổng số tests lên 308/308 pass).
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (308/308 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-editor/cleaner/duplicate-detector.ts`
+  - `src/lib/utils/image-bg-remove-ml.ts`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-cleaner.test.ts`
+  - `tests/image-bg-remove.test.ts`
+  - `review.md`
+  - `README.md`
 
 ### 2026-10-16 (Letter/Poem Dropcap Suppression & Heading Syntax Warning)
 

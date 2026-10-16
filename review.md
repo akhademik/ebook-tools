@@ -1,44 +1,19 @@
-# Kết quả rà soát và xử lý (Review & Resolutions - 2026-10-16)
+# Kết quả xử lý rà soát (Worker Cancellation & Fallback Resolutions - 2026-10-16)
 
-### 1. Hiển thị lỗi gộp trên giao diện ✅ [ĐÃ HOÀN THÀNH]
+### 1. Hủy tác vụ Worker — Đã xử lý triệt để race condition ✅ [ĐÃ HOÀN THÀNH]
 
-- **Hiện trạng trước**: `parseTxtToChapters` nối các lỗi bằng `\n`, nhưng `<div>` hiển thị trong `EpubSourceSection.svelte` thiếu `whitespace-pre-line` làm dính chữ.
-- **Xử lý**: Đã bổ sung class `whitespace-pre-line` vào `<div>` hiển thị lỗi `epubState.source.parseStatus` trong `EpubSourceSection.svelte`.
-
-### 2. Quy tắc tiêu đề và Dropcap trong khối `[letter]` và `[poem]` ✅ [ĐÃ HOÀN THÀNH]
-
-- **Yêu cầu & Xử lý**:
-  - Tự động tắt Dropcap mặc định trong khối `[letter]` và `[poem]`. Người dùng chỉ có dropcap khi chủ động dùng cú pháp `[c]`.
-  - Trong khối `[letter]` và `[poem]`, chỉ có `@@!` và `@!` được chuyển thành tiêu đề (`h1.no-toc` / `h2.no-toc`).
-  - Nếu xuất hiện `@@` hoặc `@` (không có `!`): hệ thống không dừng (không báo lỗi cú pháp làm hỏng build) mà chỉ đưa ra cảnh báo (`warning`) và giữ nguyên thành đoạn văn thông thường `<p>@...</p>`, `<p>@@...</p>` phòng ngừa văn bản chứa ký tự `@` (email, username, v.v.).
-- Cập nhật `txt-syntax-validator.ts`: Bổ sung warning khi gặp `@` hoặc `@@` trong `letter`/`poem`.
-- Cập nhật `txt-parser.ts`: Parse `@@!` và `@!` thành `h1`/`h2` `no-toc`, hỗ trợ `[c]` dropcap thủ công trong `letter`/`poem`.
-- Cập nhật `chapter-builder.ts`: Bảo vệ các khối `letter` và `poem` khỏi việc tự động chèn dropcap sau tiêu đề.
-
-### 3. `@@!` nhận hoa văn chương ✅ [ĐÃ HOÀN THÀNH]
-
-- **Hiện trạng trước**: `chapter-builder.ts` chỉ kiểm tra `break-main-chap` cho `h1` mà không kiểm tra `no-toc`, dẫn đến `@@!` vẫn nhận hoa văn `chapter-ornament`.
-- **Xử lý**: Đã thêm điều kiện `classes.includes('no-toc')` cho thẻ `<h1>` trong `chapter-builder.ts`, đồng bộ với `<h2>`.
-
-### 4. `@@!` đổi nghĩa so với phiên bản cũ ✅ [XÁC NHẬN CHỦ Ý]
-
-- `@@!` được định nghĩa chính thức là tiêu đề lớn `h1` trên trang hiện tại, không ngắt chương và không tạo TOC (`no-toc`). Đã ghi chú đầy đủ trong tài liệu [README.md](README.md) và [AI_WORKFLOW.md](AI_WORKFLOW.md).
-
-### 5. Cải tiến trang thiếu tiêu đề & cảnh báo `[new]` ✅ [ĐÃ HOÀN THÀNH]
-
+- **Hiện trạng trước**: Trong `txt-parser.ts` và `duplicate-detector.ts`, hàm `handleAbort` gọi `worker.terminate()` trên Worker Singleton dùng chung. Nếu 2 tác vụ cùng chạy và 1 tác vụ bị hủy, worker bị kết thúc đột ngột khiến Promise của tác vụ còn lại bị treo vĩnh viễn.
 - **Xử lý**:
-  - Dùng cờ `hasCustomTitle: false` trên model thay vì so chuỗi literal `'Giới Thiệu'` trong `nav-builder.ts`.
-  - Bổ sung cảnh báo trong `warnings` khi khối `[new]` hoặc `[new:center]` kết thúc mà không chứa bất kỳ tiêu đề nào.
+  - Thiết lập cơ chế đăng ký tác vụ trung tâm (`pendingTxtJobs` và `pendingDuplicateJobs` dạng `Map<string, Job>`) với bộ listener `onmessage`, `onerror`, `onmessageerror` duy nhất gắn trên Worker.
+  - Khi một tác vụ bị hủy qua `AbortSignal`: Gỡ listener abort, xóa tác vụ khỏi Map và reject `AbortError`.
+  - **Chỉ gọi `worker.terminate()` khi `pendingJobs.size === 0`** (không còn bất kỳ tác vụ nào khác đang chờ). Nếu vẫn còn tác vụ khác đang chạy, worker tiếp tục hoạt động bình thường và hoàn tất tác vụ còn lại.
+  - Khi worker gặp sự cố (`onerror` / `onmessageerror`): Toàn bộ tác vụ đang chờ trong Map được chuyển đổi an toàn sang tính toán trực tiếp trên luồng chính (fallback).
+  - Bổ sung unit tests kiểm tra tình huống 2 tác vụ chạy song song và hủy 1 tác vụ mà tác vụ kia vẫn hoàn thành thành công trong `tests/epub-parser.test.ts` và `tests/epub-cleaner.test.ts`.
 
-### 6. Làm phẳng mục lục trang có hai `@` ✅ [XÁC NHẬN HỢP LÝ]
+### 2. Image Background Removal — Hoàn thiện fallback tự phục hồi ✅ [ĐÃ HOÀN THÀNH]
 
-- Hai thẻ `@` trong cùng một trang `[new]` được đưa về ngang cấp trong TOC, tránh phân cấp cha-con bất tự nhiên.
-
-### 7. Tối ưu bộ nhớ `pdf-splitter` (Zero-Copy Transfer) ✅ [ĐÃ HOÀN THÀNH]
-
-- **Hiện trạng trước**: `pdfBytes: arrayBuffer.slice(0)` và `[arrayBuffer.slice(0)]` tạo ra 2 bản sao độc lập, làm worker ngốn gấp đôi RAM.
-- **Xử lý**: Tạo một biến `const workerBuf = arrayBuffer.slice(0);`, truyền `pdfBytes: workerBuf` và chuyển giao chính xác `[workerBuf]` theo cơ chế Zero-Copy Transfer.
-
-### 8. Vòng đời Web Worker & TypeScript Strict Mode ✅ [XÁC NHẬN TỐT]
-
-- Xác nhận các worker dọn sạch listener, fallback try-catch đầy đủ, và `"strict": true` an toàn trên toàn bộ 303 bài kiểm thử (100% pass) và 12/12 Playwright E2E browser tests.
+- **Hiện trạng trước**: Trong `image-bg-remove-ml.ts`, nếu `worker.postMessage(req)` ném lỗi (ví dụ lỗi DataCloneError hoặc worker crash ngầm), code chỉ dọn job rồi reject Promise mà không chuyển sang xử lý trên luồng chính.
+- **Xử lý**:
+  - Tách logic xử lý trên main thread thành hàm `processOrnamentOnMainThread(imageSource, options)`.
+  - Trong khối `catch (postErr)` của `worker.postMessage(req)`: Ghi nhận warning và tự động chuyển hướng sang `processOrnamentOnMainThread(...)` để hoàn tất tác vụ thay vì reject.
+  - Bổ sung unit test mô phỏng `worker.postMessage` ném lỗi và xác nhận hệ thống tự phục hồi thành công trên luồng chính trong `tests/image-bg-remove.test.ts`.

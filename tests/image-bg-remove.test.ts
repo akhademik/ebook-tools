@@ -252,6 +252,37 @@ describe('image background removal and ornament optimization', () => {
 			expect(result.previewUrl).toBe('blob:http://localhost/dummy-url');
 			expect(onProgress).toHaveBeenCalledWith(expect.stringMatching(/hoàn tất/i), 100);
 		});
+
+		it('should fallback to main-thread execution when worker.postMessage throws an error', async () => {
+			const { processOrnamentImage } = await import('../src/lib/utils/image-bg-remove-ml');
+			const fakeBlob = new Blob(['sample-img'], { type: 'image/png' });
+			const onProgress = vi.fn();
+
+			const origWorker = globalThis.Worker;
+			class ThrowingWorker {
+				postMessage = vi.fn().mockImplementation(() => {
+					throw new Error('DataCloneError: Mock cannot clone object');
+				});
+				terminate = vi.fn();
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+			}
+			(globalThis as any).Worker = ThrowingWorker;
+
+			try {
+				const result = await processOrnamentImage(fakeBlob as any, { onProgress });
+				expect(result.blob).toBeDefined();
+				expect(result.previewUrl).toBe('blob:http://localhost/dummy-url');
+				expect(onProgress).toHaveBeenCalledWith(expect.stringMatching(/hoàn tất/i), 100);
+			} finally {
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
+		});
 	});
 
 	describe('EpubImagesState ornament handlers', () => {

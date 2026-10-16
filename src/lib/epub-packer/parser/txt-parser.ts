@@ -118,7 +118,43 @@ function isIllustrationTag(
 	return null;
 }
 
+interface TxtParserPendingJob {
+	resolve: (chapters: RawChapterItem[]) => void;
+	reject: (error: unknown) => void;
+	options: ParseTxtOptions;
+	rawText: string;
+	fallbackTitle: string;
+	cleanupSignal?: () => void;
+}
+
 let txtWorkerInstance: Worker | null = null;
+const pendingTxtJobs = new Map<string, TxtParserPendingJob>();
+
+function cleanupTxtWorkerAndFallback(err: unknown): void {
+	Logger.warn(
+		'[txt-parser]',
+		'Worker event error, falling back to direct parse for all pending jobs:',
+		err
+	);
+	const jobs = Array.from(pendingTxtJobs.values());
+	pendingTxtJobs.clear();
+	if (txtWorkerInstance) {
+		try {
+			txtWorkerInstance.terminate();
+		} catch {
+			// ignore
+		}
+		txtWorkerInstance = null;
+	}
+	for (const job of jobs) {
+		job.cleanupSignal?.();
+		try {
+			job.resolve(parseTxtToChapters(job.rawText, job.options, job.fallbackTitle));
+		} catch (directErr) {
+			job.reject(directErr);
+		}
+	}
+}
 
 function getTxtParserWorker(): Worker | null {
 	if (typeof window === 'undefined' || typeof Worker === 'undefined') {
@@ -126,9 +162,48 @@ function getTxtParserWorker(): Worker | null {
 	}
 	if (!txtWorkerInstance) {
 		try {
-			txtWorkerInstance = new Worker(new URL('./txt-parser.worker.ts', import.meta.url), {
+			const worker = new Worker(new URL('./txt-parser.worker.ts', import.meta.url), {
 				type: 'module'
 			});
+
+			worker.onmessage = (
+				e: MessageEvent<{
+					id: string;
+					type: string;
+					chapters?: RawChapterItem[];
+					warnings?: string[];
+					error?: string;
+				}>
+			) => {
+				const job = pendingTxtJobs.get(e.data.id);
+				if (!job) return;
+				pendingTxtJobs.delete(e.data.id);
+				job.cleanupSignal?.();
+
+				if (e.data.type === 'success' && e.data.chapters) {
+					if (job.options.warnings && e.data.warnings) {
+						job.options.warnings.push(...e.data.warnings);
+					}
+					job.resolve(e.data.chapters);
+				} else if (e.data.type === 'error') {
+					Logger.warn('[txt-parser]', 'Worker parsing error:', e.data.error);
+					try {
+						job.resolve(parseTxtToChapters(job.rawText, job.options, job.fallbackTitle));
+					} catch (directErr) {
+						job.reject(directErr);
+					}
+				}
+			};
+
+			worker.onerror = (err: ErrorEvent) => {
+				cleanupTxtWorkerAndFallback(err);
+			};
+
+			worker.onmessageerror = (err: MessageEvent) => {
+				cleanupTxtWorkerAndFallback(err);
+			};
+
+			txtWorkerInstance = worker;
 		} catch (err) {
 			Logger.warn(
 				'[txt-parser]',
@@ -163,72 +238,26 @@ export async function parseTxtToChaptersAsync(
 		return new Promise((resolve, reject) => {
 			const requestId = `parse-txt-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-			const cleanup = () => {
-				worker.removeEventListener('message', handleMessage);
-				worker.removeEventListener('error', handleWorkerError);
-				worker.removeEventListener('messageerror', handleWorkerError);
+			const handleAbort = () => {
+				pendingTxtJobs.delete(requestId);
 				if (options.signal) {
 					options.signal.removeEventListener('abort', handleAbort);
 				}
-			};
-
-			const handleAbort = () => {
-				cleanup();
-				try {
-					worker.terminate();
-				} catch {
-					// ignore
+				// Only terminate the shared worker if there are NO OTHER active jobs running
+				if (pendingTxtJobs.size === 0 && txtWorkerInstance) {
+					try {
+						txtWorkerInstance.terminate();
+					} catch {
+						// ignore
+					}
+					txtWorkerInstance = null;
 				}
-				txtWorkerInstance = null;
 				reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
 			};
 
-			const handleWorkerError = (err: ErrorEvent | MessageEvent) => {
-				cleanup();
-				Logger.warn('[txt-parser]', 'Worker event error, falling back to direct parse:', err);
-				try {
-					worker.terminate();
-				} catch {
-					// ignore
-				}
-				txtWorkerInstance = null;
-				try {
-					resolve(parseTxtToChapters(rawText, options, fallbackTitle));
-				} catch (directErr) {
-					reject(directErr);
-				}
-			};
-
-			const handleMessage = (
-				e: MessageEvent<{
-					id: string;
-					type: string;
-					chapters?: RawChapterItem[];
-					warnings?: string[];
-					error?: string;
-				}>
-			) => {
-				if (e.data.id !== requestId) return;
-				if (options.signal?.aborted) {
-					cleanup();
-					reject(new DOMException('Tác vụ đọc TXT đã bị hủy', 'AbortError'));
-					return;
-				}
-
-				if (e.data.type === 'success' && e.data.chapters) {
-					cleanup();
-					if (options.warnings && e.data.warnings) {
-						options.warnings.push(...e.data.warnings);
-					}
-					resolve(e.data.chapters);
-				} else if (e.data.type === 'error') {
-					cleanup();
-					Logger.warn('[txt-parser]', 'Worker parsing error:', e.data.error);
-					try {
-						resolve(parseTxtToChapters(rawText, options, fallbackTitle));
-					} catch (directErr) {
-						reject(directErr);
-					}
+			const cleanupSignal = () => {
+				if (options.signal) {
+					options.signal.removeEventListener('abort', handleAbort);
 				}
 			};
 
@@ -240,9 +269,14 @@ export async function parseTxtToChaptersAsync(
 				options.signal.addEventListener('abort', handleAbort, { once: true });
 			}
 
-			worker.addEventListener('message', handleMessage);
-			worker.addEventListener('error', handleWorkerError);
-			worker.addEventListener('messageerror', handleWorkerError);
+			pendingTxtJobs.set(requestId, {
+				resolve,
+				reject,
+				options,
+				rawText,
+				fallbackTitle,
+				cleanupSignal
+			});
 
 			// Sanitize options to avoid DataCloneError: DOMException / AbortSignal or Proxies cannot be cloned
 			const rawDefs = options.customDefinitions
@@ -270,7 +304,8 @@ export async function parseTxtToChaptersAsync(
 					fallbackTitle
 				});
 			} catch (postErr) {
-				cleanup();
+				pendingTxtJobs.delete(requestId);
+				cleanupSignal();
 				Logger.warn(
 					'[txt-parser]',
 					'Failed to postMessage to worker, executing direct synchronous parse:',

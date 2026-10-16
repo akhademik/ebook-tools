@@ -1405,6 +1405,61 @@ Dòng văn bản bình thường trong thư.
 			);
 		});
 
+		it('should not break concurrent parsing jobs when one job is aborted', async () => {
+			const { parseTxtToChaptersAsync } =
+				await import('../src/lib/epub-packer/parser/epub-source-parser');
+			const largeTxt1 = `@@ Chương 1\n` + 'Nội dung kiểm tra abort concurrency 1. '.repeat(2000);
+			const largeTxt2 = `@@ Chương 2\n` + 'Nội dung kiểm tra abort concurrency 2. '.repeat(2000);
+
+			const origWindow = (globalThis as any).window;
+			const origWorker = globalThis.Worker;
+
+			class AsyncWorkerMock {
+				onmessage: any = null;
+				onerror: any = null;
+				onmessageerror: any = null;
+				terminate = vi.fn();
+				postMessage = vi.fn().mockImplementation((data: any) => {
+					setTimeout(() => {
+						this.onmessage?.({
+							data: {
+								id: data.id,
+								type: 'success',
+								chapters: [{ title: data.fallbackTitle, html: '', isChapter: true, sources: [] }]
+							}
+						});
+					}, 20);
+				});
+			}
+
+			(globalThis as any).window = {};
+			(globalThis as any).Worker = AsyncWorkerMock;
+
+			try {
+				const ac1 = new AbortController();
+				const p1 = parseTxtToChaptersAsync(largeTxt1, { signal: ac1.signal }, 'Chương 1');
+				const p2 = parseTxtToChaptersAsync(largeTxt2, {}, 'Chương 2');
+
+				ac1.abort();
+
+				await expect(p1).rejects.toThrow('Tác vụ đọc TXT đã bị hủy');
+				const res2 = await p2;
+				expect(res2).toHaveLength(1);
+				expect(res2[0].title).toBe('Chương 2');
+			} finally {
+				if (origWindow !== undefined) {
+					(globalThis as any).window = origWindow;
+				} else {
+					delete (globalThis as any).window;
+				}
+				if (origWorker) {
+					globalThis.Worker = origWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+			}
+		});
+
 		it('should validate and report unclosed [poem] with exact line number', () => {
 			const txt = `@@ Chương 1\nNội dung mở đầu.\n[poem]\nMột dòng thơ.\nKhông có thẻ đóng.`;
 			const validation = validateTxtSyntax(txt);

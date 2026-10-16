@@ -524,19 +524,48 @@ export async function processOrnamentImage(
 				worker.postMessage(req);
 			} catch (postErr) {
 				cleanup();
-				reject(
-					postErr instanceof Error ? postErr : new Error('Không thể gửi dữ liệu tới Web Worker')
+				Logger.warn(
+					'[ImageBgWorker]',
+					'worker.postMessage thất bại, tự động chuyển sang xử lý trên luồng chính:',
+					postErr
 				);
+				processOrnamentOnMainThread(imageSource, options).then(resolve, reject);
 			}
 		});
 	}
 
-	// Main-thread fallback
+	return processOrnamentOnMainThread(imageSource, options);
+}
+
+/**
+ * Main-thread ornament background removal & optimization fallback.
+ */
+export async function processOrnamentOnMainThread(
+	imageSource: Blob | File | string,
+	options: OrnamentProcessOptions = {}
+): Promise<OrnamentProcessResult> {
+	const {
+		maxWidth = 800,
+		maxHeight = 400,
+		padding = 4,
+		alphaThreshold = 10,
+		onProgress,
+		signal
+	} = options;
+
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError');
+	}
+
 	onProgress?.('Bắt đầu xử lý ảnh trang trí...', 0);
 	await yieldToMain();
 
 	const transparentBlob = await removeOrnamentBackground(imageSource, onProgress);
 	await yieldToMain();
+
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError');
+	}
 
 	onProgress?.('Đang cắt viền thừa (Auto-crop)...', 80);
 	await yieldToMain();
@@ -554,6 +583,10 @@ export async function processOrnamentImage(
 
 	canvas = autoCropTransparentCanvas(canvas, padding, alphaThreshold);
 	await yieldToMain();
+
+	if (signal?.aborted) {
+		throw new DOMException('Tác vụ xử lý ảnh đã bị hủy', 'AbortError');
+	}
 
 	onProgress?.('Đang tối ưu dung lượng cho EPUB...', 90);
 	await yieldToMain();
