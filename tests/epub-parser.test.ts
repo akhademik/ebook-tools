@@ -1585,6 +1585,93 @@ Khối hộp trong trang độc lập
 				expect(chapters[0].html).toContain('<div class="letter-box">');
 				expect(chapters[0].html).toContain('<p>Khối hộp trong trang độc lập</p>');
 			});
+
+			it('should reject @@ inside [letter-box] when not wrapped by [new]', () => {
+				const txt = `@@ Chương 1
+[letter-box]
+Đoạn văn trong hộp
+@@ Chương 2
+[/letter-box]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(false);
+				expect(
+					validation.errors.some((e) =>
+						e.message.includes("Tiêu đề phân chương '@@' nằm bên trong khối [letter-box]")
+					)
+				).toBe(true);
+				expect(() => parseTxtToChapters(txt)).toThrow(
+					"Tiêu đề phân chương '@@' nằm bên trong khối [letter-box]"
+				);
+			});
+
+			it('should allow @@ inside [letter-box] if wrapped by [new] as page wrapper', () => {
+				const txt = `[new]
+[letter-box]
+@@ Chương 1 trong trang new
+Nội dung
+[/letter-box]
+[/new]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+			});
+		});
+
+		describe('NHOM 1 edge cases: uppercase tags, misplaced footnote warning, and multiple errors', () => {
+			it('should correctly parse uppercase and mixed case tags ([NEW], [/NEW], [POEM], [LETTER-BOX]) without leaking tags to text', () => {
+				const txt = `[NEW]
+[LETTER-BOX]
+[POEM]
+Dòng thơ hoa
+[/POEM]
+[/LETTER-BOX]
+[/NEW]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+
+				const chapters = parseTxtToChapters(txt, {}, 'Trang hoa');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain('<div class="letter-box">');
+				expect(chapters[0].html).toContain('<div class="poem">');
+				expect(chapters[0].html).toContain('<p>Dòng thơ hoa</p>');
+				expect(chapters[0].html).not.toContain('[NEW]');
+				expect(chapters[0].html).not.toContain('[LETTER-BOX]');
+				expect(chapters[0].html).not.toContain('[POEM]');
+			});
+
+			it('should warn when content (@@ or [new]) appears after "Chú thích:" line', () => {
+				const txt = `@@ Chương 1
+Nội dung có chú thích {1}.
+Chú thích:
+{1} Lời giải thích.
+@@ Chương 2 lạc sau chú thích`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true); // warning, not blocking error
+				expect(
+					validation.warnings.some((w) => w.message.includes("nằm sau dòng 'Chú thích:'"))
+				).toBe(true);
+
+				const warnings: string[] = [];
+				parseTxtToChapters(txt, { warnings });
+				expect(warnings.some((w) => w.includes("nằm sau dòng 'Chú thích:'"))).toBe(true);
+			});
+
+			it('should consolidate multiple syntax error messages separated by newline', () => {
+				const txt = `[poem]\nThơ không đóng\n[letter]\nThư không đóng\n{999 chú thích dở dang`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(false);
+				expect(validation.errors.length).toBeGreaterThan(1);
+
+				expect(() => parseTxtToChapters(txt)).toThrow(/\n/);
+				try {
+					parseTxtToChapters(txt);
+				} catch (err: unknown) {
+					const msg = err instanceof Error ? err.message : String(err);
+					const lines = msg.split('\n');
+					expect(lines.length).toBeGreaterThan(1);
+				}
+			});
 		});
 	});
 });

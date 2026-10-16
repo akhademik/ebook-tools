@@ -31,6 +31,7 @@ vite.config.ts.timestamp-*
 # Test Results
 /test-results
 /playwright-report
+/coverage
 
 # Graphify
 graphify-out/*

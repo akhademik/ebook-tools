@@ -163,11 +163,15 @@ export function buildChapterXhtml(
 			});
 		}
 
-		// Automatically add dropcap to the first paragraph immediately following h1 or h2 (unless it has no-dropcap class)
+		// Automatically add dropcap to the first paragraph immediately following h1 or h2 (unless it has no-dropcap or already has-dropcap/dropcap)
 		content = content.replace(
 			/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
 			(match, p1, p2, p3, p4) => {
-				if (/\bno-dropcap\b/i.test(p2)) {
+				if (
+					/\bno-dropcap\b/i.test(p2) ||
+					/\bhas-dropcap\b/i.test(p2) ||
+					/class=["'][^"']*\bdropcap\b/i.test(p3)
+				) {
 					return match;
 				}
 				let updatedP2: string;

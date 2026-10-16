@@ -179,6 +179,24 @@ describe('epub-packer tests', () => {
 			);
 		});
 
+		it('should not double wrap dropcap when paragraph under heading already has [c] dropcap or has-dropcap class', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<h1 class="main-chap center">Chương 1</h1>\n<p class="has-dropcap"><span class="dropcap">N</span>gày xửa ngày xưa</p>'
+				}
+			);
+			// Should contain exactly one occurrence of span class="dropcap"
+			const matches = html.match(/class=["']dropcap["']/g);
+			expect(matches).toHaveLength(1);
+			expect(html).not.toContain('<span class="dropcap"><span class="dropcap">');
+			expect(html).toContain(
+				'<p class="has-dropcap"><span class="dropcap">N</span>gày xửa ngày xưa</p>'
+			);
+		});
+
 		it('should not add dropcap to special pages like jacket or cover', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },

@@ -286,8 +286,8 @@ export function parseTxtToChapters(
 	if (options.validateSyntax !== false) {
 		const validation = validateTxtSyntax(rawText);
 		if (!validation.isValid) {
-			const firstError = validation.errors[0];
-			throw new Error(firstError.message);
+			const errorMessages = validation.errors.map((e) => e.message).join('\n');
+			throw new Error(errorMessages);
 		}
 		if (options.warnings && validation.warnings && validation.warnings.length > 0) {
 			for (const w of validation.warnings) {
@@ -393,7 +393,7 @@ export function parseTxtToChapters(
 		const stripped = origLine.trim();
 
 		// Handle letter-box closing tag
-		if (stripped === '[/letter-box]') {
+		if (/^\[\/letter-box\]$/i.test(stripped)) {
 			if (currentBlock) {
 				if (currentChapter) {
 					currentChapter.html += `</div>\n`;
@@ -411,8 +411,8 @@ export function parseTxtToChapters(
 		}
 
 		if (currentBlock) {
-			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/);
-			if (closeBlockMatch && closeBlockMatch[1] === currentBlock) {
+			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/i);
+			if (closeBlockMatch && closeBlockMatch[1].toLowerCase() === currentBlock.toLowerCase()) {
 				if (currentChapter) {
 					currentChapter.html += `</div>\n`;
 				}
@@ -492,7 +492,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (stripped === '[new]') {
+		if (/^\[new\]$/i.test(stripped)) {
 			isInsideNewBlock = true;
 			isInsideNewCenterBlock = false;
 			currentChapter = {
@@ -509,7 +509,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (stripped === '[new:center]') {
+		if (/^\[new:center\]$/i.test(stripped)) {
 			isInsideNewBlock = true;
 			isInsideNewCenterBlock = true;
 			currentChapter = {
@@ -526,7 +526,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (stripped === '[/new]') {
+		if (/^\[\/new\]$/i.test(stripped)) {
 			if (isInsideNewCenterBlock) {
 				if (currentChapter) {
 					currentChapter.html += '  </div>\n</section>\n';
@@ -539,7 +539,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (stripped === '[letter-box]') {
+		if (/^\[letter-box\]$/i.test(stripped)) {
 			isInsideLetterBox = true;
 			ensureChapterOpen();
 			currentChapter.html += `<div class="letter-box">\n`;
@@ -547,9 +547,9 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/);
+		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/i);
 		if (openBlockMatch) {
-			currentBlock = openBlockMatch[1];
+			currentBlock = openBlockMatch[1].toLowerCase();
 			ensureChapterOpen();
 			currentChapter.html += `<div class="${currentBlock}">\n`;
 			lineIdx++;

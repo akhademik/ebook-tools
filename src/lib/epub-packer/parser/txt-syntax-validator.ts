@@ -281,6 +281,38 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 
 		// Check for unclosed inline formatting markers: *, /, _
 		checkInlineFormatting(rawLine, lineNum, warnings);
+
+		// Check for @@ inside [letter-box] without outer [new] wrapper
+		if (/^@@/i.test(stripped)) {
+			const activeLetterBox = blockStack.find((b) => b.tag === 'letter-box');
+			if (activeLetterBox) {
+				const hasNewWrapper = blockStack.some((b) => b.tag === 'new' || b.tag === 'new:center');
+				if (!hasNewWrapper) {
+					errors.push({
+						lineNum,
+						lineContent: rawLine,
+						tag: '@@',
+						message: `Dòng ${lineNum}: Tiêu đề phân chương '@@' nằm bên trong khối [letter-box] (mở tại dòng ${activeLetterBox.lineNum}) sẽ làm vỡ cấu trúc XHTML. Vui lòng đóng [/letter-box] trước khi mở chương mới, hoặc bọc ngoài bằng [new].`
+					});
+				}
+			}
+		}
+	}
+
+	// Check if there are content lines (like @@ or [new]) placed after "Chú thích:"
+	if (footnoteIdx !== -1) {
+		for (let j = footnoteIdx + 1; j < lines.length; j++) {
+			const afterLine = lines[j].trim();
+			const afterLineNum = j + 1;
+			if (/^@@/i.test(afterLine) || /^\[(new|new:center)\]$/i.test(afterLine)) {
+				warnings.push({
+					lineNum: afterLineNum,
+					lineContent: lines[j],
+					tag: 'chú thích:',
+					message: `Dòng ${afterLineNum}: Phát hiện cú pháp '${afterLine}' nằm sau dòng 'Chú thích:' (dòng ${footnoteIdx + 1}). Toàn bộ nội dung sau 'Chú thích:' được coi là chú thích cuối sách và không tạo chương mới.`
+				});
+			}
+		}
 	}
 
 	// At end of file, check for any unclosed tags remaining in the stack
