@@ -35,3 +35,12 @@ export interface PageHeaderProps {
 	title?: string;
 	description?: string;
 }
+
+export interface FontSelectProps {
+	id?: string;
+	value?: string;
+	label?: string;
+	placeholder?: string;
+	disabled?: boolean;
+	compact?: boolean;
+}

@@ -43,10 +43,17 @@
       @font-face {
         font-family: "${font.id}";
         src: url("${font.url}");
+        font-display: swap;
       }
       @font-face {
         font-family: "${font.name}";
         src: url("${font.url}");
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "${font.cssFamily}";
+        src: url("${font.url}");
+        font-display: swap;
       }
     `
 		).join('\n')}

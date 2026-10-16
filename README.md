@@ -151,8 +151,22 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 17:35
+- Cập nhật lần cuối: 2026-10-16 18:30
 - Đã hoàn thành:
+  - **Khắc phục lỗi Phông chữ Trang giới thiệu khi chuyển tiếp Mẫu (Fix Jacket Modal Font Persistence Across Templates)**:
+    - Sửa triệt để sự cố phông chữ chỉ đổi ở Mẫu 1 và không phản ánh khi chuyển tiếp sang Mẫu 2, Mẫu 3 bằng nút 'Tiếp' / 'Trước'.
+    - Chuyển toàn bộ CSS override của jacket font ra thẻ `<style id="jacket-font-override">` trong `<svelte:head>`, đồng thời gán CSS variable `--jacket-font` trực tiếp lên `.preview-wrap` và quy tắc toàn cục `:global(.preview-wrap, .preview-wrap *) { font-family: var(--jacket-font, inherit) !important; }`. Loại bỏ hoàn toàn việc lồng thẻ `<style>` bên trong thẻ `<div>` dễ gây lỗi desync DOM giữa các khối `{@html}`.
+    - Chuẩn hóa chuỗi font family: lọc bỏ chuỗi rỗng `""` tránh lỗi cú pháp CSS khiến browser discard toàn bộ thuộc tính `font-family`.
+    - Sử dụng biến cờ `wasOpen` để chỉ khởi tạo chỉ mục template khi modal mở lần đầu, ngăn ngừa việc điều hướng hoặc chọn font làm reset chỉ mục về mẫu 1.
+    - Toàn bộ **311/311 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
+  - **Trực quan hóa Phông chữ Trực tiếp ngay tại Bộ chọn (Live Font Preview Dropdown for H1, H2, Dropcap & Jacket Modal)**:
+    - Xây dựng component giao diện tái sử dụng cao cấp [`FontSelect.svelte`](src/lib/components/FontSelect.svelte) hỗ trợ cả chế độ chuẩn (`h-11.5`) và chế độ thu gọn `compact` (`h-9`) cho toolbar.
+    - Áp dụng đồng bộ cho cả khu vực cấu hình phông chữ nội dung ([`EpubFontSettingsSection.svelte`](src/lib/epub-packer/components/EpubFontSettingsSection.svelte)) và thanh công cụ của Modal xem trước Jacket ([`EpubJacketModal.svelte`](src/lib/epub-packer/components/EpubJacketModal.svelte)).
+    - Render trực quan mọi tên phông chữ trong danh sách bằng chính kiểu dáng typography thực tế của phông chữ đó (`font-family` động tương ứng với từng font nhúng), kèm đoạn text tiếng Việt xem trước ("Chương 1: Bình minh") để đánh giá độ tương thích dấu thanh tiếng Việt trước khi chọn.
+    - Hiển thị tên phông chữ đã chọn trên nút trigger bằng chính font tương ứng khi đóng menu. Tích hợp thanh tìm kiếm font tức thì và hỗ trợ phím Escape / click outside để đóng menu mượt mà.
+    - Bảo toàn thẻ `<select>` gốc ẩn (`sr-only`) đồng bộ 2 chiều (`bind:value`), duy trì khả năng truy cập (accessibility) và tương thích hoàn toàn với automation/E2E test suite.
+    - Bổ sung kịch bản kiểm thử E2E tự động mở listbox, chọn font và xác minh giá trị cập nhật trên cả trigger lẫn hidden select cho cả H1 và Jacket Modal.
+    - Toàn bộ **311/311 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Tối ưu hóa UI Trang giới thiệu (Jacket Template Naming & Font Selection)**:
     - Đơn giản hóa toàn bộ tên 10 mẫu trang lót trong `jacket-templates.ts` chỉ còn thuần túy `Mẫu 1`, `Mẫu 2`, ..., `Mẫu 10` (loại bỏ hoàn toàn các hậu tố mô tả như 'Bất đối xứng', 'Cột dọc'...).
     - Di dời input lựa chọn phông chữ trang giới thiệu (`#jacket-font-select`) khỏi trang chính `EpubMetadataSection.svelte`, chỉ đặt lựa chọn phông chữ bên trong Preview Modal (`EpubJacketModal.svelte`) kèm huy hiệu phông chữ hiển thị tinh tế trên giao diện chính khi đã chọn.
@@ -215,6 +229,39 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-16 (Fix Jacket Modal Font Persistence Across Templates)
+
+- Thêm/sửa: Khắc phục sự cố phông chữ không phản ánh khi chuyển tiếp giữa các mẫu trang giới thiệu trong `EpubJacketModal.svelte`:
+  - Khắc phục cơ chế tiêm style: Loại bỏ hoàn toàn thẻ `<style>` lồng trong container `.preview-wrap`, chuyển toàn bộ định nghĩa style ghi đè phông chữ vào `<svelte:head>` và đồng thời gán CSS custom property `--jacket-font` trực tiếp lên phần tử `.preview-wrap` kèm quy tắc `:global(.preview-wrap, .preview-wrap *) { font-family: var(--jacket-font, inherit) !important; }`.
+  - Chuẩn hóa hàm sinh `jacketFontFamily`: Lọc sạch chuỗi rỗng `""`, loại bỏ lỗi cú pháp font-family khiến browser CSS parser bỏ qua toàn bộ thuộc tính.
+  - Ổn định chỉ mục mẫu preview: Sử dụng biến trạng thái `wasOpen` để chỉ đồng bộ chỉ mục mẫu từ `epubState.jacket.jacketTemplateId` khi modal mở lần đầu, ngăn ngừa việc điều hướng 'Tiếp' / 'Trước' hoặc chọn phông chữ bị reset ngược về mẫu 1.
+  - Cập nhật kịch bản kiểm thử Playwright E2E: Xác minh toàn diện việc chọn phông, chuyển tiếp qua lại giữa các Mẫu 1, 2, 3 và kiểm tra giá trị `fontFamily` thực tế tại từng bước.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (311/311 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (919 nodes, 2086 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/components/EpubJacketModal.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
+
+### 2026-10-16 (Live Font Preview Dropdown for H1, H2, Dropcap & Jacket Modal)
+
+- Thêm/sửa: Trực quan hóa lựa chọn phông chữ H1, H2, Dropcap và Jacket Modal với typography thực tế ngay tại danh sách chọn:
+  - `FontSelect.svelte`: Tạo mới component chọn font tùy biến theo chuẩn Solarized Glassmorphism, hỗ trợ prop `compact` cho toolbar. Mỗi mục trong danh sách được định kiểu trực tiếp bằng `font-family` của chính nó, hiển thị tên phông chữ và văn bản mẫu tiếng Việt có dấu ("Chương 1: Bình minh") cùng mã định danh font.
+  - Tích hợp ô lọc tìm kiếm phông chữ (`searchQuery`) gõ nhanh theo tên hoặc ID. Nút trigger khi đóng hiển thị tên phông chữ được vẽ bằng chính font đang chọn.
+  - Tích hợp thẻ `<select class="sr-only">` ẩn đồng bộ 2 chiều, đảm bảo tương thích 100% với form accessibility và các công cụ tự động hóa.
+  - `EpubFontSettingsSection.svelte`: Nâng cấp bộ chọn font Tiêu đề lớn (H1), Tiêu đề nhỏ (H2) và Dropcap sang dùng `FontSelect`.
+  - `EpubJacketModal.svelte`: Nâng cấp dropdown phông chữ trên thanh công cụ của Modal xem trước trang giới thiệu sang dùng `FontSelect` với chế độ `compact={true}`.
+  - `src/routes/epub-packer/+page.svelte`: Đăng ký bổ sung `font.cssFamily` và `font-display: swap` vào định nghĩa `@font-face` để tăng tốc độ nạp font trong trình duyệt.
+  - `tests-e2e/epub-workflow.spec.ts`: Bổ sung kiểm thử tương tác mở dropdown xem trước font H1 và Jacket Modal, chọn phông chữ và kiểm chứng phản chiếu giá trị.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (311/311 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (918 nodes, 2085 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/components/FontSelect.svelte`
+  - `src/lib/types/components.type.ts`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `src/lib/epub-packer/components/EpubJacketModal.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-10-16 (Jacket Template Name Simplification & Dedicated Modal Font Selection)
 

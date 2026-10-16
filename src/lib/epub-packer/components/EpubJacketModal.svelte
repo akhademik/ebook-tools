@@ -1,6 +1,7 @@
 <script lang="ts">
+	import FontSelect from '$lib/components/FontSelect.svelte';
 	import { JACKET_TEMPLATES } from '$lib/epub-packer/templates/jacket-templates';
-	import { AVAILABLE_FONTS, findFont } from '$lib/epub-packer/templates/fonts';
+	import { findFont } from '$lib/epub-packer/templates/fonts';
 	import type { EpubState } from '../epub-state.svelte';
 
 	interface Props {
@@ -11,12 +12,14 @@
 	let { show = $bindable(false), epubState }: Props = $props();
 
 	let currentPreviewTemplateIdx = $state(0);
+	let wasOpen = false;
 
 	$effect(() => {
-		if (show) {
+		if (show && !wasOpen) {
 			const idx = JACKET_TEMPLATES.findIndex((t) => t.id === epubState.jacket.jacketTemplateId);
 			currentPreviewTemplateIdx = idx !== -1 ? idx : 0;
 		}
+		wasOpen = show;
 	});
 
 	function nextTemplate() {
@@ -36,12 +39,33 @@
 	const activeFont = $derived(
 		epubState.fonts.jacketFont !== 'default' ? findFont(epubState.fonts.jacketFont) : null
 	);
+
+	const jacketFontFamily = $derived.by(() => {
+		if (epubState.fonts.jacketFont === 'default') return '';
+		const font = activeFont || findFont(epubState.fonts.jacketFont);
+		if (!font) {
+			return `"${epubState.fonts.jacketFont}", sans-serif`;
+		}
+		const familyCandidates = [font.id, font.cssFamily, font.name]
+			.map((s) => s.trim())
+			.filter((s) => s.length > 0);
+		const uniqueFamilies = [...new Set(familyCandidates)];
+		return uniqueFamilies.map((f) => `"${f}"`).join(', ') + ', sans-serif';
+	});
 </script>
 
-{#if show}
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-	{@html `<style>${JACKET_TEMPLATES[currentPreviewTemplateIdx].css}</style>`}
+<svelte:head>
+	{#if show}
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html `<style id="jacket-template-css">${JACKET_TEMPLATES[currentPreviewTemplateIdx].css}</style>`}
+		{#if jacketFontFamily}
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+			{@html `<style id="jacket-font-override">.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2, .preview-wrap hr, .preview-wrap * { font-family: ${jacketFontFamily} !important; }</style>`}
+		{/if}
+	{/if}
+</svelte:head>
 
+{#if show}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
 		role="dialog"
@@ -72,33 +96,28 @@
 						1}/{JACKET_TEMPLATES.length})
 				</span>
 
-				<div class="flex items-center gap-2">
-					<label
-						for="jacket-modal-font-select"
-						class="font-mono text-xs text-text-mute uppercase font-semibold whitespace-nowrap"
-					>
+				<div class="flex items-center gap-2 w-full sm:w-auto">
+					<span class="font-mono text-xs text-text-mute uppercase font-semibold whitespace-nowrap">
 						Phông chữ:
-					</label>
-					<select
-						id="jacket-modal-font-select"
-						bind:value={epubState.fonts.jacketFont}
-						class="bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-xl py-1.5 px-3 font-sans text-xs focus:outline-none transition-colors cursor-pointer"
-					>
-						<option value="default">Mặc định</option>
-						{#each AVAILABLE_FONTS as font (font.id)}
-							<option value={font.id}>{font.name}</option>
-						{/each}
-					</select>
+					</span>
+					<div class="w-full sm:w-52">
+						<FontSelect
+							id="jacket-modal-font-select"
+							bind:value={epubState.fonts.jacketFont}
+							compact={true}
+						/>
+					</div>
 				</div>
 			</div>
 
 			<!-- Body -->
 			<div class="p-6 flex flex-col items-center overflow-y-auto flex-1 gap-4 bg-brand-bg">
-				<div class="preview-wrap">
-					{#if epubState.fonts.jacketFont !== 'default'}
-						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-						{@html `<style>.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2, .preview-wrap * { font-family: "${epubState.fonts.jacketFont}", "${activeFont?.cssFamily || ''}", "${activeFont?.name || ''}", sans-serif !important; }</style>`}
-					{/if}
+				<div
+					class="preview-wrap"
+					style={jacketFontFamily
+						? `--jacket-font: ${jacketFontFamily}; font-family: ${jacketFontFamily} !important;`
+						: undefined}
+				>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 					{@html JACKET_TEMPLATES[currentPreviewTemplateIdx].render(
 						epubState.metadata.title.trim() || 'Tác phẩm mẫu',
@@ -159,6 +178,10 @@
 		overflow: hidden;
 		position: relative;
 		text-align: left;
+	}
+
+	:global(.preview-wrap, .preview-wrap *) {
+		font-family: var(--jacket-font, inherit) !important;
 	}
 
 	:global(.preview-wrap p) {
