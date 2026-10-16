@@ -106,6 +106,119 @@ export function mergeBrokenParagraphs(html: string): string {
 	return result;
 }
 
+/**
+ * Classifies <h2> headings into main H2 vs H2 Sub according to typographical hierarchy:
+ * - An <h2> is MAIN if:
+ *   1. It immediately follows an <h1> (ignoring whitespace, comments, and ornaments like <div class="chapter-ornament"> / <div class="subchapter-ornament">)
+ *   2. OR it is the first <h2> in a sequence of consecutive <h2> headings (e.g. h2 + h2, even with intervening subchapter ornament)
+ * - Otherwise, it is H2 SUB:
+ *   1. Subsequent <h2> in a consecutive sequence (2nd, 3rd... in h2 + h2)
+ *   2. Standalone <h2> (surrounded by <p>, other tags, or at chapter start without following h2)
+ *
+ * H2 Sub headings receive the CSS class "h2-sub".
+ */
+export function classifyChapterHeadings(html: string): string {
+	if (!html || !html.includes('<h2')) return html;
+
+	const HEADING_REGEX = /<h([12])(\s+[^>]*)?>([\s\S]*?)<\/h\1>/gi;
+	interface HeadingItem {
+		level: number;
+		fullMatch: string;
+		attrs: string;
+		content: string;
+		startIndex: number;
+		endIndex: number;
+	}
+
+	const headings: HeadingItem[] = [];
+	let match: RegExpExecArray | null;
+	while ((match = HEADING_REGEX.exec(html)) !== null) {
+		headings.push({
+			level: parseInt(match[1], 10),
+			fullMatch: match[0],
+			attrs: match[2] || '',
+			content: match[3],
+			startIndex: match.index,
+			endIndex: match.index + match[0].length
+		});
+	}
+
+	if (headings.length === 0) return html;
+
+	const ORNAMENT_CONTAINER_REGEX =
+		/<(?:div|p)\b[^>]*\bclass=["'][^"']*\b(?:chapter-ornament|subchapter-ornament|ornament)\b[^"']*["'][^>]*>[\s\S]*?<\/(?:div|p)>/gi;
+	const ORNAMENT_IMG_REGEX =
+		/<img\b[^>]*\bclass=["'][^"']*\b(?:chapter-ornament|subchapter-ornament|ornament)\b[^"']*\/?>/gi;
+
+	const isAdjacent = (fromEnd: number, toStart: number): boolean => {
+		const between = html
+			.slice(fromEnd, toStart)
+			.replace(/<!--[\s\S]*?-->/g, '')
+			.replace(ORNAMENT_CONTAINER_REGEX, '')
+			.replace(ORNAMENT_IMG_REGEX, '')
+			.trim();
+		return between === '';
+	};
+
+	const replacements = new Map<number, string>();
+
+	for (let i = 0; i < headings.length; i++) {
+		const curr = headings[i];
+		if (curr.level !== 2) continue;
+
+		const prev = i > 0 ? headings[i - 1] : null;
+		const next = i < headings.length - 1 ? headings[i + 1] : null;
+
+		const isPrecededByH1 = !!(
+			prev &&
+			prev.level === 1 &&
+			isAdjacent(prev.endIndex, curr.startIndex)
+		);
+		const isPrecededByH2 = !!(
+			prev &&
+			prev.level === 2 &&
+			isAdjacent(prev.endIndex, curr.startIndex)
+		);
+		const isFollowedByH2 = !!(
+			next &&
+			next.level === 2 &&
+			isAdjacent(curr.endIndex, next.startIndex)
+		);
+
+		const isMain = isPrecededByH1 || (!isPrecededByH2 && isFollowedByH2);
+
+		if (!isMain) {
+			let newAttrs = curr.attrs;
+			if (/class=["'][^"']*["']/i.test(newAttrs)) {
+				newAttrs = newAttrs.replace(/class=["']([^"']*)["']/i, (_m, classNames) => {
+					const trimmed = classNames.trim();
+					if (trimmed.split(/\s+/).includes('h2-sub')) return _m;
+					return `class="${trimmed} h2-sub"`;
+				});
+			} else {
+				newAttrs = `${newAttrs} class="h2-sub"`.trimStart();
+				if (!newAttrs.startsWith(' ')) newAttrs = ' ' + newAttrs;
+			}
+			const replacement = `<h2${newAttrs}>${curr.content}</h2>`;
+			replacements.set(curr.startIndex, replacement);
+		}
+	}
+
+	if (replacements.size === 0) return html;
+
+	let resultHtml = '';
+	let lastIndex = 0;
+	for (const heading of headings) {
+		const rep = replacements.get(heading.startIndex);
+		if (rep !== undefined) {
+			resultHtml += html.slice(lastIndex, heading.startIndex) + rep;
+			lastIndex = heading.endIndex;
+		}
+	}
+	resultHtml += html.slice(lastIndex);
+	return resultHtml;
+}
+
 export function buildChapterXhtml(
 	meta: EpubMetadata,
 	chapter: EpubChapterItem,
@@ -134,6 +247,7 @@ export function buildChapterXhtml(
 
 	const isSpecialPage = chapter.fileName === 'jacket' || chapter.fileName === 'cover';
 	if (!isSpecialPage) {
+		content = classifyChapterHeadings(content);
 		if (ornaments?.chapterOrnament?.fileName) {
 			const imgPath = `../images/${ornaments.chapterOrnament.fileName}`;
 			content = content.replace(/(<h1\b[^>]*>[\s\S]*?<\/h1>)/gi, (match) => {

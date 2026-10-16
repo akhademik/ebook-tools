@@ -223,14 +223,47 @@ pnpm test:e2e
   - Hoàn tất tính năng xem trước Jacket: Tích hợp dropdown phông chữ trực tiếp vào Modal xem trước trang giới thiệu (`EpubJacketModal.svelte`), phản chiếu tức thì (real-time font reflection) lên khung preview và đồng bộ 2 chiều với cấu hình Jacket Font.
   - Bổ sung bộ chọn phông chữ riêng cho **"Font cho H2 Sub"** (`h2SubFont`), hỗ trợ quy tắc CSS `h2 + h2, .side-chap + .side-chap` để các tiêu đề H2 phụ liền kề (không có thẻ `<p>` xen giữa) tự động áp dụng phông chữ riêng biệt so với H2 chính.
   - Tái thiết kế bố cục phần cấu hình phông chữ (`EpubFontSettingsSection.svelte`) thành 2 cột dọc responsive (`grid-cols-1 lg:grid-cols-2`): Cột 1 gồm 4 bộ chọn phông (H1, H2, H2 Sub, Dropcap) và Cột 2 là khung Preview chương mẫu thời gian thực.
-  - Bộ kiểm thử mở rộng đạt 312/312 unit tests pass và 12/12 Playwright E2E tests pass 100%.
-- Cập nhật lần cuối: 2026-10-16 18:55
+  - Tinh chỉnh logic nhận diện H2 & H2 Sub: Chỉ thẻ H2 đi ngay sau H1 (`h1 + h2`) mới được tính là Main H2 (nhận font H2). Tất cả các trường hợp H2 còn lại (đứng sau `<p>`, đứng sau H2 khác `h2 + h2`, hoặc đứng đầu chương không có H1) đều tự động nhận font H2 Sub.
+  - **Tối ưu hóa Phân loại Phông chữ H2 & H2 Sub với Hoa văn Xen giữa (`<ornamenth1> h1 <ornamenth2> h2`)**:
+    - Chuẩn hóa hàm `classifyChapterHeadings` trong `chapter-builder.ts`: Thuật toán kiểm tra tính liền kề `isAdjacent` tự động loại bỏ các khối hoa văn (`<div class="chapter-ornament">`, `<div class="subchapter-ornament">`) và thẻ ảnh hoa văn khi xét quan hệ giữa các tiêu đề.
+    - Đảm bảo trường hợp `<ornamenth1> h1 <ornamenth2> h2` thì thẻ `h2` luôn được tính là **Main H2** (nhận `h2Font`) thay vì bị nhầm thành `h2SubFont`.
+    - Bảo toàn quy tắc `H2 + H2` (kể cả có `<subchapter-ornament>` xen giữa) thì H2 đầu tiên là Main H2, H2 tiếp theo là H2 Sub (`h2-sub`).
+    - Bổ sung các unit test bao phủ toàn diện cho trường hợp có hoa văn đầu chương và phân đoạn xen kẽ.
+    - Mở rộng bộ kiểm thử đạt **319/319 unit tests pass** và **12/12 Playwright E2E browser tests pass 100%**.
+- Cập nhật lần cuối: 2026-10-16 19:55
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-16 (H2 Font Classification with Intervening Ornaments)
+
+- Thêm/sửa: Hỗ trợ trường hợp hoa văn xen kẽ `<ornamenth1> h1 <ornamenth2> h2` trong logic phân loại phông chữ H2:
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`: Bổ sung `ORNAMENT_CONTAINER_REGEX` và `ORNAMENT_IMG_REGEX` vào hàm `classifyChapterHeadings`, đảm bảo việc kiểm tra tính liền kề giữa `h1` và `h2` bỏ qua các khối hoa văn chương/tiểu chương, giữ nguyên `h2` là Main H2 (`h2Font`).
+  - `tests/epub-packer.test.ts`: Thêm test suites kiểm tra `<ornamenth1> h1 <ornamenth2> h2` và chuỗi `h2` có hoa văn xen kẽ.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (319/319 pass) | test e2e ✅ (12/12 pass) | knip ✅ (0 issues) | graphify ✅ (923 nodes, 2094 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
+
+### 2026-10-16 (Refine H2 & H2 Sub Font Assignment Logic: Direct Sibling Only)
+
+- Thêm/sửa: Điều chỉnh logic nhận diện Main H2 và H2 Sub theo quy tắc liền kề trực tiếp:
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`:
+    - Chỉ thẻ H2 đi **ngay sau H1** (`h1 + h2`, `h1.main-chap + h2.side-chap`, kèm hỗ trợ hoa văn phụ `h1 + .subchapter-ornament + h2`) mới được tính là Main H2 (áp dụng `h2Font`).
+    - Tất cả các trường hợp H2 khác (ngay trước nó là đoạn văn `<p>`, đứng sau H2 khác `h2 + h2`, hoặc chương không có H1) đều mặc định là H2 Sub (áp dụng `h2SubFont`).
+    - Giữ trọn vẹn cơ chế fallback an toàn về `h2Font` khi `h2SubFont` để `'default'`.
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`: Cập nhật nhãn và mô tả trong khung Preview: `H2 ngay sau H1` vs `H2 Sub (sau đoạn văn, tiếp nối H2 hoặc không có H1)`.
+  - `tests/epub-packer.test.ts`: Cập nhật unit test xác thực các quy tắc CSS `h1 + h2` và `h2` trong `style.css`.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (312/312 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (922 nodes, 2090 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
 
 ### 2026-10-16 (H2 Sub Font Selector & 2-Column Font Settings Layout)
 

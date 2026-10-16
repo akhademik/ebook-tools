@@ -15,6 +15,10 @@ export {
 	buildNavXhtml,
 	buildTocNcx
 } from './xml-builders/nav-builder';
-export { mergeBrokenParagraphs, buildChapterXhtml } from './xml-builders/chapter-builder';
+export {
+	mergeBrokenParagraphs,
+	buildChapterXhtml,
+	classifyChapterHeadings
+} from './xml-builders/chapter-builder';
 
 export type { EpubFontsConfig, EpubJacketConfig, CoverBlobItem } from '$lib/types';

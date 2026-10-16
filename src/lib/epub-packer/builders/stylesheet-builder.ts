@@ -119,49 +119,50 @@ export function prepareFinalCss(
 	let fontFaces = '';
 	let elementFontRules = '';
 	if (fonts) {
-		if (fonts.h1Font && fonts.h1Font !== 'default') {
-			const f1 = findFont(fonts.h1Font);
-			if (f1) {
-				fontFaces += getFontCSSDeclaration(fonts.h1Font);
-				elementFontRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
+		const f1 = fonts.h1Font && fonts.h1Font !== 'default' ? findFont(fonts.h1Font) : null;
+		const f2 = fonts.h2Font && fonts.h2Font !== 'default' ? findFont(fonts.h2Font) : null;
+		const f2Sub =
+			fonts.h2SubFont && fonts.h2SubFont !== 'default' ? findFont(fonts.h2SubFont) : null;
+		const fd =
+			fonts.dropcapFont && fonts.dropcapFont !== 'default' ? findFont(fonts.dropcapFont) : null;
+
+		// Deduplicate @font-face declarations
+		const fontFaceIds = new Set<string>();
+		for (const f of [f1, f2, f2Sub, fd]) {
+			if (f && !fontFaceIds.has(f.id)) {
+				fontFaceIds.add(f.id);
+				fontFaces += getFontCSSDeclaration(f.id);
 			}
 		}
-		if (fonts.h2Font && fonts.h2Font !== 'default') {
-			const f2 = findFont(fonts.h2Font);
-			if (f2) {
-				if (fonts.h2Font !== fonts.h1Font) {
-					fontFaces += getFontCSSDeclaration(fonts.h2Font);
-				}
-				elementFontRules += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }`;
-			}
+
+		if (f1) {
+			elementFontRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
 		}
-		if (fonts.h2SubFont && fonts.h2SubFont !== 'default') {
-			const f2Sub = findFont(fonts.h2SubFont);
-			if (f2Sub) {
-				if (fonts.h2SubFont !== fonts.h1Font && fonts.h2SubFont !== fonts.h2Font) {
-					fontFaces += getFontCSSDeclaration(fonts.h2SubFont);
-				}
-				elementFontRules += `\nh2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
-			}
+
+		if (f2 && f2Sub) {
+			// Both H2 (main) and H2 Sub fonts are defined:
+			// 1. By default, h2 receives the main H2 font
+			// 2. Elements with .h2-sub (standalone h2, h2 after <p>, or consecutive h2) receive h2SubFont
+			// 3. h1 + h2 reinforces main H2 font
+			elementFontRules += `\nh2, .side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
+			elementFontRules += `\nh2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			elementFontRules += `\nh1 + h2, h1.main-chap + h2.side-chap, h1 + .subchapter-ornament + h2, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
+		} else if (f2 && !f2Sub) {
+			// Only main H2 font is defined -> all h2 elements use f2
+			elementFontRules += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }`;
+		} else if (!f2 && f2Sub) {
+			// Only H2 Sub font is defined -> h2-sub elements and h2+h2 use f2Sub
+			elementFontRules += `\nh2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
 		}
-		if (fonts.dropcapFont && fonts.dropcapFont !== 'default') {
-			const fd = findFont(fonts.dropcapFont);
-			if (fd) {
-				if (
-					fonts.dropcapFont !== fonts.h1Font &&
-					fonts.dropcapFont !== fonts.h2Font &&
-					fonts.dropcapFont !== fonts.h2SubFont
-				) {
-					fontFaces += getFontCSSDeclaration(fonts.dropcapFont);
-				}
-				if (finalCss.includes('.dropcap {')) {
-					finalCss = finalCss.replace(
-						'.dropcap {',
-						`.dropcap {\n  font-family: "${fd.cssFamily}", serif !important;`
-					);
-				} else {
-					elementFontRules += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }`;
-				}
+
+		if (fd) {
+			if (finalCss.includes('.dropcap {')) {
+				finalCss = finalCss.replace(
+					'.dropcap {',
+					`.dropcap {\n  font-family: "${fd.cssFamily}", serif !important;`
+				);
+			} else {
+				elementFontRules += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }`;
 			}
 		}
 	}

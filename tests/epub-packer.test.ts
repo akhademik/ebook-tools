@@ -47,6 +47,7 @@ vi.mock('../src/lib/epub-packer/templates/css-template/cover.css?raw', () => ({
 
 import {
 	buildChapterXhtml,
+	classifyChapterHeadings,
 	buildContainerXml,
 	buildTocNcx,
 	buildContentOpf,
@@ -83,7 +84,7 @@ describe('epub-packer tests', () => {
 					html: '<h2 class="side-chap center no-toc">Mục không TOC</h2>\n<p>Nội dung</p>'
 				}
 			);
-			expect(html).toContain('<h2 class="side-chap center">Mục không TOC</h2>');
+			expect(html).toContain('<h2 class="side-chap center h2-sub">Mục không TOC</h2>');
 			expect(html).not.toContain('no-toc');
 		});
 
@@ -161,7 +162,7 @@ describe('epub-packer tests', () => {
 				}
 			);
 			expect(htmlEntity).toContain(
-				'<h2>18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>'
+				'<h2 class="h2-sub">18 PHÚT</h2>\n<p class="has-dropcap"><span class="dropcap">&ldquo;M</span>ỗi giây là một năm&rdquo;</p>'
 			);
 		});
 
@@ -299,7 +300,7 @@ describe('epub-packer tests', () => {
 			expect(html).toContain(
 				'<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">1</h2>'
 			);
-			expect(html).toContain('<h2 class="side-chap center">2</h2>');
+			expect(html).toContain('<h2 class="side-chap center h2-sub">2</h2>');
 			expect(html).not.toContain(
 				'<div class="subchapter-ornament">\n    <img src="../images/pre-small-chap.png" alt=""/>\n  </div>\n  <h2 class="side-chap center">2</h2>'
 			);
@@ -307,6 +308,84 @@ describe('epub-packer tests', () => {
 			expect(html).not.toContain(
 				'<div class="chapter-ornament">\n    <img src="../images/pre-chap.png" alt=""/>\n  </div>\n  <h1 class="break-main-chap">PHẦN I</h1>'
 			);
+		});
+	});
+
+	describe('classifyChapterHeadings', () => {
+		it('should keep H2 directly after H1 as main H2 (no h2-sub class)', () => {
+			const html =
+				'<h1 class="main-chap center">Chương 1</h1>\n<h2 class="side-chap center">Tên chương</h2>';
+			const result = classifyChapterHeadings(html);
+			expect(result).not.toContain('h2-sub');
+			expect(result).toContain('<h2 class="side-chap center">Tên chương</h2>');
+		});
+
+		it('should mark second H2 in h2 + h2 as h2-sub and keep first H2 as main H2', () => {
+			const html =
+				'<h2 class="side-chap center">Mở đầu</h2>\n<h2 class="side-chap center">Tiểu dẫn</h2>';
+			const result = classifyChapterHeadings(html);
+			expect(result).toContain('<h2 class="side-chap center">Mở đầu</h2>');
+			expect(result).toContain('<h2 class="side-chap center h2-sub">Tiểu dẫn</h2>');
+		});
+
+		it('should mark standalone H2 (surrounded by p or without h1/h2 neighbors) as h2-sub', () => {
+			const html = '<h2 class="side-chap center">Lời nói đầu</h2>\n<p>Đoạn văn</p>';
+			const result = classifyChapterHeadings(html);
+			expect(result).toContain('<h2 class="side-chap center h2-sub">Lời nói đầu</h2>');
+		});
+
+		it('should mark H2 after paragraph as h2-sub even if chapter has H1 earlier', () => {
+			const html =
+				'<h1 class="main-chap">Chương 1</h1>\n<p>Đoạn văn mở đầu</p>\n<h2 class="side-chap">Phần 1</h2>\n<p>Nội dung</p>';
+			const result = classifyChapterHeadings(html);
+			expect(result).toContain('<h2 class="side-chap h2-sub">Phần 1</h2>');
+		});
+
+		it('should handle H1 then H2 then H2: first H2 is main, second H2 is sub', () => {
+			const html =
+				'<h1 class="main-chap">Chương 1</h1>\n<h2 class="side-chap">Tên chương</h2>\n<h2 class="side-chap">Phụ đề</h2>';
+			const result = classifyChapterHeadings(html);
+			expect(result).toContain('<h2 class="side-chap">Tên chương</h2>');
+			expect(result).toContain('<h2 class="side-chap h2-sub">Phụ đề</h2>');
+		});
+
+		it('should keep H2 as main H2 when preceded by H1 with chapter and subchapter ornaments (<ornamenth1> h1 <ornamenth2> h2)', () => {
+			const html = [
+				'<div class="chapter-ornament">',
+				'    <img src="../images/pre-chap.png" alt=""/>',
+				'</div>',
+				'<h1 class="main-chap center">Chương 1: Khởi Đầu</h1>',
+				'<div class="subchapter-ornament">',
+				'    <img src="../images/pre-small-chap.png" alt=""/>',
+				'</div>',
+				'<h2 class="side-chap center">Phần Thứ Nhất</h2>',
+				'<p>Đoạn văn mở đầu</p>'
+			].join('\n');
+
+			const result = classifyChapterHeadings(html);
+			expect(result).not.toContain('h2-sub');
+			expect(result).toContain('<h2 class="side-chap center">Phần Thứ Nhất</h2>');
+		});
+
+		it('should handle <ornamenth1> h1 <ornamenth2> h2 <ornamenth2> h2: first H2 is main, second H2 is sub', () => {
+			const html = [
+				'<div class="chapter-ornament">',
+				'    <img src="../images/pre-chap.png" alt=""/>',
+				'</div>',
+				'<h1 class="main-chap center">Chương 1</h1>',
+				'<div class="subchapter-ornament">',
+				'    <img src="../images/pre-small-chap.png" alt=""/>',
+				'</div>',
+				'<h2 class="side-chap center">Tiêu đề chính</h2>',
+				'<div class="subchapter-ornament">',
+				'    <img src="../images/pre-small-chap.png" alt=""/>',
+				'</div>',
+				'<h2 class="side-chap center">Tiêu đề phụ nối tiếp</h2>'
+			].join('\n');
+
+			const result = classifyChapterHeadings(html);
+			expect(result).toContain('<h2 class="side-chap center">Tiêu đề chính</h2>');
+			expect(result).toContain('<h2 class="side-chap center h2-sub">Tiêu đề phụ nối tiếp</h2>');
 		});
 	});
 
@@ -702,7 +781,7 @@ describe('epub-packer tests', () => {
 			consoleLogSpy.mockRestore();
 		});
 
-		it('should inject separate font rules for h2 and h2SubFont (h2 + h2)', async () => {
+		it('should inject separate font rules for h2 (main after h1) and h2SubFont (standalone or h2 + h2)', async () => {
 			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 			const chapters = [
 				{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01', html: '<p>Nội dung</p>' }
@@ -729,12 +808,18 @@ describe('epub-packer tests', () => {
 
 			expect(mockZipInstance.file).toHaveBeenCalledWith(
 				'style.css',
-				expect.stringContaining('h2 { font-family: "UTM Akashi", serif !important; }')
+				expect.stringContaining('h2, .side-chap { font-family: "UTM Akashi", serif !important; }')
 			);
 			expect(mockZipInstance.file).toHaveBeenCalledWith(
 				'style.css',
 				expect.stringContaining(
-					'h2 + h2, .side-chap + .side-chap { font-family: "Bookerly", serif !important; }'
+					'h2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "Bookerly", serif !important; }'
+				)
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining(
+					'h1 + h2, h1.main-chap + h2.side-chap, h1 + .subchapter-ornament + h2, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "UTM Akashi", serif !important; }'
 				)
 			);
 			consoleLogSpy.mockRestore();

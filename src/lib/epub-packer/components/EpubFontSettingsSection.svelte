@@ -94,7 +94,7 @@
 							? `"${h2FontInfo.id}", "${h2FontInfo.cssFamily}", "${h2FontInfo.name}", sans-serif`
 							: 'inherit'}; color: #333333; margin-top: -0.2em;"
 				>
-					Đây là chapter nhỏ tiếp nối (H2 Sub)
+					Đây là chapter nhỏ tiếp nối
 				</h2>
 				<p class="text-sm leading-relaxed text-gray-700 font-sans">
 					<span
@@ -102,10 +102,10 @@
 						style="font-family: {dropcapFontInfo
 							? `"${dropcapFontInfo.id}", "${dropcapFontInfo.cssFamily}", "${dropcapFontInfo.name}", sans-serif`
 							: 'inherit'};">Đ</span
-					>ây là nội dung thử nghiệm (dummy text) để xem trước phông chữ hiển thị trong cuốn sách
-					của bạn sau khi xuất bản. Tiêu đề lớn (h1), tiêu đề nhỏ (h2) và tiêu đề nhỏ tiếp nối (h2
-					sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử dụng phông chữ
-					không chân (sans-serif) mặc định của thiết bị đọc sách.
+					>ây là nội dung thử nghiệm để xem trước phông chữ hiển thị trong cuốn sách của bạn sau khi
+					xuất bản. Tiêu đề lớn (h1), tiêu đề nhỏ ngay sau h1 (h2 chính), và tiêu đề nhỏ ở các vị
+					trí khác (h2 sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử
+					dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc sách.
 				</p>
 			</div>
 		</div>
