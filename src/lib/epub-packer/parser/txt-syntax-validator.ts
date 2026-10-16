@@ -294,8 +294,8 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		// Check for unclosed inline formatting markers: *, /, _
 		checkInlineFormatting(rawLine, lineNum, warnings);
 
-		// Check for @@ inside [letter-box] without outer [new] wrapper
-		if (/^@@/i.test(stripped)) {
+		// Check for page-breaking @@ (not @@!) inside [letter-box] without outer [new] wrapper
+		if (/^@@(?!!)/i.test(stripped)) {
 			const activeLetterBox = blockStack.find((b) => b.tag === 'letter-box');
 			if (activeLetterBox) {
 				const hasNewWrapper = blockStack.some((b) => b.tag === 'new' || b.tag === 'new:center');

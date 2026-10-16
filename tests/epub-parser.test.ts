@@ -1718,15 +1718,39 @@ Chú thích:
 				expect(chapters[1].title).toBe('Lời Mở Đầu Tác Giả');
 			});
 
-			it('should support @@! as chapter cut with class "no-toc"', () => {
-				const txt = `@@! Lời Nói Đầu\nNội dung không đưa vào mục lục\n@@ Chương 1\nNội dung chương 1`;
+			it('should support @@! to apply h1 main-chap style and no-toc without splitting into a new chapter page', () => {
+				const txt = `@@ Chương 1
+Nội dung phần 1
+@@! Tiêu Đề Lớn Cùng Trang
+Nội dung phần 2
+@@ Chương 2
+Nội dung chương 2`;
 				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
 				expect(chapters).toHaveLength(2);
-				expect(chapters[0].title).toBe('Lời Nói Đầu');
-				expect(chapters[0].html).toContain('<h1 class="main-chap center no-toc">Lời Nói Đầu</h1>');
-				expect(chapters[1].title).toBe('Chương 1');
-				expect(chapters[1].html).toContain('<h1 class="main-chap center">Chương 1</h1>');
-				expect(chapters[1].html).not.toContain('no-toc');
+				expect(chapters[0].title).toBe('Chương 1');
+				expect(chapters[0].html).toContain('<h1 class="main-chap center">Chương 1</h1>');
+				expect(chapters[0].html).toContain(
+					'<h1 class="main-chap center no-toc">Tiêu Đề Lớn Cùng Trang</h1>'
+				);
+				expect(chapters[0].html).toContain('<p>Nội dung phần 2</p>');
+				expect(chapters[1].title).toBe('Chương 2');
+			});
+
+			it('should allow @@! inside [letter-box] without throwing page-split syntax error', () => {
+				const txt = `@@ Chương 1
+[letter-box]
+@@! Tiêu Đề H1 Trong Hộp
+Nội dung trong hộp
+[/letter-box]`;
+				const validation = validateTxtSyntax(txt);
+				expect(validation.isValid).toBe(true);
+				expect(validation.errors).toHaveLength(0);
+
+				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+				expect(chapters).toHaveLength(1);
+				expect(chapters[0].html).toContain(
+					'<div class="letter-box">\n<h1 class="main-chap center no-toc">Tiêu Đề H1 Trong Hộp</h1>'
+				);
 			});
 		});
 	});

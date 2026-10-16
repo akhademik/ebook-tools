@@ -590,9 +590,13 @@ export function parseTxtToChapters(
 			const tocClass = isNoToc ? ' no-toc' : '';
 
 			if (atCount === 2) {
-				if (isInsideNewBlock) {
+				if (isNoToc) {
+					// @@! applies h1 main-chap style but does NOT cut a new chapter page and is excluded from TOC
 					ensureChapterOpen();
 					currentChapter.html += `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`;
+				} else if (isInsideNewBlock) {
+					ensureChapterOpen();
+					currentChapter.html += `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`;
 					if (!currentChapter.hasCustomTitle) {
 						currentChapter.title = titlePlain || `Chương ${chapters.length}`;
 						currentChapter.hasCustomTitle = true;
@@ -600,7 +604,7 @@ export function parseTxtToChapters(
 				} else {
 					currentChapter = {
 						title: titlePlain || `Chương ${chapters.length + 1}`,
-						html: `<h1 class="main-chap ${align}${tocClass}">${titleFormatted}</h1>\n`,
+						html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
 						sources: ['Tệp TXT'],
 						isChapter: true,
 						firstSourcePageNum: chapters.length + 1,

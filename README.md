@@ -151,13 +151,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 11:42
+- Cập nhật lần cuối: 2026-10-16 11:55
 - Đã hoàn thành:
   - Cải tiến tính năng biên tập theo yêu cầu đánh giá (Vấn đề 2, 3, 4, 5, 7):
     - **Vấn đề 2 & 5 (Placeholder 'Giới Thiệu' & TOC gộp)**: Khối `[new]` và `[new:center]` mặc định nhận tiêu đề `Giới Thiệu` thay vì trùng tên sách; khi có `@@` hoặc `@` bên trong thì ưu tiên tuyệt đối tiêu đề đó và tự động khử trùng lặp mục lục TOC trong `nav-builder`.
     - **Vấn đề 3 (Bí danh đóng `[/new:center]`)**: Thêm hỗ trợ thẻ đóng `[/new:center]` dành riêng cho khối `[new:center]`; chặn dùng `[/new:center]` cho khối `[new]` thường; cho phép `[/new]` đóng được cả hai.
     - **Vấn đề 4 (Tắt auto-dropcap trên trang căn giữa)**: Tắt tự động dropcap chữ cái đầu đoạn trên các trang `hasCenterPage` (`[new:center]` như trang đề tặng), giữ dropcap thủ công bằng `[c]` theo chủ đích người dùng.
-    - **Vấn đề 7 (Hỗ trợ `@@!`)**: Hỗ trợ cú pháp phân chương `@@!` tạo file XHTML chương mới nhưng gắn class `no-toc` và không hiển thị trên mục lục TOC.
+    - **Vấn đề 7 (Hỗ trợ `@@!`)**: Hỗ trợ cú pháp tiêu đề lớn `@@!` áp dụng kiểu dáng `h1.main-chap` (kèm class `no-toc` ẩn khỏi mục lục) trong cùng trang hiện tại mà không tách chương độc lập như thẻ `@@`. Cho phép dùng `@@!` bên trong `[letter-box]` an toàn.
   - Sửa toàn bộ 5 lỗi kiểm định & render trong nhóm 'NHOM 1' từ `review.md`:
     - **Mục 1 (Case-insensitive tags)**: Đồng bộ parser nhận diện không phân biệt hoa/thường cho tất cả các thẻ `[NEW]`, `[/NEW]`, `[NEW:CENTER]`, `[LETTER-BOX]`, `[/LETTER-BOX]`, `[POEM]`, `[LETTER]`, tránh rò rỉ nguyên văn tên thẻ ra sách.
     - **Mục 2 (Chặn `@@` vỡ layout trong `[letter-box]`)**: Validator chặn tiêu đề phân chương `@@` nằm bên trong `[letter-box]` khi không có wrapper `[new]`, bảo vệ cấu trúc XHTML chương.
@@ -173,7 +173,7 @@ pnpm test:e2e
     - Loại trừ `letter-box` khỏi nhận diện thẻ ảnh minh họa `isIllustrationTag`.
     - Hỗ trợ cơ chế dịch ngược **EPUB to TXT** (`htmlToCleanText` & `replaceNestedDiv`), nhận diện chính xác thẻ `<div>` lồng nhau.
     - Bổ sung hướng dẫn cú pháp vào bảng tra cứu `EpubSyntaxModal.svelte`.
-    - Bộ kiểm thử mở rộng đạt 289/289 unit tests pass và 12/12 Playwright E2E tests pass.
+    - Bộ kiểm thử mở rộng đạt 290/290 unit tests pass và 12/12 Playwright E2E tests pass.
   - Khắc phục lỗi CI/CD E2E trong test Playwright (`tests-e2e/epub-download-inspection.spec.ts` & `tests-e2e/epub-workflow.spec.ts`).
   - Cơ chế **TXT Syntax Pre-flight Validator & Fail-Fast** khi đóng gói EPUB từ tệp `.TXT`.
 - Đang dở: Không
@@ -190,9 +190,9 @@ pnpm test:e2e
   - Vấn đề 2 & 5: Dùng placeholder 'Giới Thiệu' cho `[new]` và `[new:center]` khi không có tiêu đề, tự động khử trùng lặp mục lục TOC khi có `h2`.
   - Vấn đề 3: Cho phép đóng `[/new:center]` cho `[new:center]` và kiểm định tính hợp lệ bất đối xứng (không cho đóng `[new]` thường).
   - Vấn đề 4: Tắt auto-dropcap trên các chương căn giữa `hasCenterPage` (trang đề tặng).
-  - Vấn đề 7: Hỗ trợ cú pháp phân chương chính `@@!` kèm class `no-toc` ẩn khỏi mục lục.
-  - Viết bổ sung 7 unit tests kiểm định toàn diện.
-- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (289/289 pass) | test e2e ✅ (12/12 pass) | knip: nợ kỹ thuật oxc-parser | graphify ✅ (862 nodes, 1990 edges)
+  - Vấn đề 7: Hỗ trợ cú pháp tiêu đề lớn `@@!` áp dụng kiểu dáng `h1.main-chap` (kèm class `no-toc`) cùng trang, không tách chương độc lập như `@@`.
+  - Viết bổ sung 8 unit tests kiểm định toàn diện.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (290/290 pass) | test e2e ✅ (12/12 pass) | knip: nợ kỹ thuật oxc-parser | graphify ✅ (863 nodes, 1991 edges)
 - File chính bị ảnh hưởng:
   - `src/lib/epub-packer/parser/txt-parser.ts`
   - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
