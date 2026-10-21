@@ -229,14 +229,31 @@ pnpm test:e2e
     - Đảm bảo trường hợp `<ornamenth1> h1 <ornamenth2> h2` thì thẻ `h2` luôn được tính là **Main H2** (nhận `h2Font`) thay vì bị nhầm thành `h2SubFont`.
     - Bảo toàn quy tắc `H2 + H2` (kể cả có `<subchapter-ornament>` xen giữa) thì H2 đầu tiên là Main H2, H2 tiếp theo là H2 Sub (`h2-sub`).
     - Bổ sung các unit test bao phủ toàn diện cho trường hợp có hoa văn đầu chương và phân đoạn xen kẽ.
-    - Mở rộng bộ kiểm thử đạt **319/319 unit tests pass** và **12/12 Playwright E2E browser tests pass 100%**.
-- Cập nhật lần cuối: 2026-10-16 19:55
+    - Bổ sung unit tests cho trường hợp khối trích dẫn có tối đa 3 footer liền mạch, trích dẫn bị ngắt bởi dòng trống và dịch ngược EPUB to TXT.
+    - Mở rộng bộ kiểm thử đạt **321/321 unit tests pass** và **12/12 Playwright E2E browser tests pass 100%**.
+- Cập nhật lần cuối: 2026-10-21 07:50
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-21 (Seamless Multi-Footers Support in Blockquote)
+
+- Thêm/sửa: Hỗ trợ nhiều dòng footer `>` liền mạch (tối đa 3 dòng footer) trong khối trích dẫn `~`:
+  - `src/lib/epub-packer/parser/txt-parser.ts`: Cập nhật logic nhận diện khối `~` (cả ở chế độ thông thường lẫn bên trong `[letter-box]`/`[new]`), cho phép quét tối đa 3 dòng footer `>` liên tiếp nếu viết liền mạch (không có dòng trống). Nếu gặp dòng trống ngắt quãng hoặc vượt quá 3 dòng, các dòng `>` phía sau tự động dừng gom nhóm và được render thành thẻ văn bản `<p>&gt; ...</p>` thông thường.
+  - `src/lib/epub-to-txt/epub-to-txt.ts`: Đồng bộ cơ chế đảo ngược EPUB to TXT (`htmlToCleanText`), bắt tất cả các thẻ `<footer>`/`<cite>` bên trong `<blockquote>` xuất ra thành các dòng `> Footer` tương ứng.
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`: Cập nhật hướng dẫn cú pháp modal ghi rõ hỗ trợ tối đa 3 footer liền mạch.
+  - `tests/epub-parser.test.ts` & `tests/epub-to-txt.test.ts`: Bổ sung 2 unit test mới kiểm tra khối trích dẫn 3 footer liền mạch, trích dẫn bị ngắt bởi dòng trống, trích dẫn vượt quá 3 footer, và đảo ngược EPUB to TXT.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (321/321 pass) | knip ✅ (0 issues) | graphify ✅ (918 nodes, 2088 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-to-txt.test.ts`
+  - `README.md`
 
 ### 2026-10-16 (H2 Font Classification with Intervening Ornaments)
 

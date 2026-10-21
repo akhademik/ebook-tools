@@ -128,12 +128,19 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 					<p>Trích dẫn thông thường.</p>
 					<cite>Hồ Chí Minh</cite>
 				</blockquote>
+				<blockquote class="center">
+					<p>Trích dẫn có nhiều footer.</p>
+					<footer>Tác giả 1</footer>
+					<footer>Tác giả 2</footer>
+					<footer>Tác giả 3</footer>
+				</blockquote>
 			`;
 			const text = htmlToCleanText(html);
 			expect(text).toContain('~ Đây là lời thoại căn giữa.\n> Nguyễn Du');
 			expect(text).toContain('~t Lời thoại căn trái.');
 			expect(text).toContain('~p Lời thoại căn phải.');
 			expect(text).toContain('~ Trích dẫn thông thường.\n> Hồ Chí Minh');
+			expect(text).toContain('~ Trích dẫn có nhiều footer.\n> Tác giả 1\n> Tác giả 2\n> Tác giả 3');
 		});
 
 		it('should convert figure illustrations and general img tags to [tag-name]', () => {

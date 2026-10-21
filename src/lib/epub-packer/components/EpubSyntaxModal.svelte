@@ -152,7 +152,8 @@
 								<td class="py-3 px-3">
 									<code>&lt;footer&gt;Tác giả&lt;/footer&gt;</code> (bên trong blockquote)<br />
 									<span class="text-[11px] text-text-mute"
-										>Chỉ có tác dụng khi đứng ngay sau dòng <code>~</code> trích dẫn.</span
+										>Chỉ có tác dụng khi đứng liền mạch ngay sau dòng <code>~</code> trích dẫn (hỗ trợ
+										tối đa 3 dòng footer liền nhau, không có dòng trống ngăn cách).</span
 									>
 								</td>
 							</tr>

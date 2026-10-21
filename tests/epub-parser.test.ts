@@ -846,6 +846,63 @@ Tiếp tục lời mở đầu.`;
 			);
 		});
 
+		it('should support up to 3 consecutive seamless footers in blockquote, breaking on empty line', () => {
+			const txt = `@@ Chương 1
+~ Câu trích dẫn có 3 footer liền mạch
+> Dòng footer 1
+> Dòng footer 2
+> Dòng footer 3
+
+~t Trích dẫn bị ngăn cách bởi dòng trống
+> Footer 1
+
+> Footer 2
+> Footer 3
+
+~p Trích dẫn vượt quá 3 footer liên tiếp
+> Footer A
+> Footer B
+> Footer C
+> Footer D`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+
+			expect(chapters).toHaveLength(1);
+			// 1. Trích dẫn 3 footer liền mạch
+			expect(chapters[0].html).toContain(
+				'<blockquote class="center"><p>Câu trích dẫn có 3 footer liền mạch</p><footer>Dòng footer 1</footer><footer>Dòng footer 2</footer><footer>Dòng footer 3</footer></blockquote>'
+			);
+
+			// 2. Trích dẫn bị ngắt bởi dòng trống: Footer 1 nằm trong quote, 2 footer sau là <p>> ...</p>
+			expect(chapters[0].html).toContain(
+				'<blockquote class="left"><p>Trích dẫn bị ngăn cách bởi dòng trống</p><footer>Footer 1</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain('<p>&gt; Footer 2</p>');
+			expect(chapters[0].html).toContain('<p>&gt; Footer 3</p>');
+
+			// 3. Vượt quá 3 footer: 3 cái đầu gom vào quote, cái thứ 4 trở đi là <p>> ...</p>
+			expect(chapters[0].html).toContain(
+				'<blockquote class="right"><p>Trích dẫn vượt quá 3 footer liên tiếp</p><footer>Footer A</footer><footer>Footer B</footer><footer>Footer C</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain('<p>&gt; Footer D</p>');
+		});
+
+		it('should support multiple seamless footers inside [letter-box]', () => {
+			const txt = `[new]
+[letter-box]
+~ Lời nhắn trong hộp
+> Người gửi 1
+> Người gửi 2
+[/letter-box]
+[/new]`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain(
+				'<blockquote class="center"><p>Lời nhắn trong hộp</p><footer>Người gửi 1</footer><footer>Người gửi 2</footer></blockquote>'
+			);
+		});
+
 		it('should parse nested formatting without tag collision (slash matching issue)', () => {
 			const txt = `@@ Chương 1
 Một câu có *nhiều* từ *in đậm* liên tiếp và cả /nghiêng/ xen kẽ, thử xem regex có bắt đúng từng cặp không: *đậm 1* bình thường /nghiêng 1/ bình thường *đậm 2*.`;

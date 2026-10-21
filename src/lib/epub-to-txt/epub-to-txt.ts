@@ -463,21 +463,29 @@ export function htmlToCleanText(htmlContent: string): string {
 			const isRight = isRightAligned(attrs);
 			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
 
-			let author = '';
-			const footerMatch = /<footer\b[^>]*>([\s\S]*?)<\/footer>/i.exec(inner);
-			if (footerMatch) {
-				author = processLineContent(footerMatch[1]);
+			const authors: string[] = [];
+			const footerMatches = [...inner.matchAll(/<footer\b[^>]*>([\s\S]*?)<\/footer>/gi)];
+			if (footerMatches.length > 0) {
+				for (const fm of footerMatches) {
+					const authorText = processLineContent(fm[1]);
+					if (authorText) authors.push(authorText);
+				}
 			} else {
-				const citeMatch = /<cite\b[^>]*>([\s\S]*?)<\/cite>/i.exec(inner);
-				if (citeMatch) {
-					author = processLineContent(citeMatch[1]);
+				const citeMatches = [...inner.matchAll(/<cite\b[^>]*>([\s\S]*?)<\/cite>/gi)];
+				if (citeMatches.length > 0) {
+					for (const cm of citeMatches) {
+						const authorText = processLineContent(cm[1]);
+						if (authorText) authors.push(authorText);
+					}
 				} else {
-					const authorMatch =
-						/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/i.exec(
-							inner
-						);
-					if (authorMatch) {
-						author = processLineContent(authorMatch[1]);
+					const authorMatches = [
+						...inner.matchAll(
+							/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/gi
+						)
+					];
+					for (const am of authorMatches) {
+						const authorText = processLineContent(am[1]);
+						if (authorText) authors.push(authorText);
 					}
 				}
 			}
@@ -502,7 +510,7 @@ export function htmlToCleanText(htmlContent: string): string {
 				if (text) quoteLines.push(`${prefix} ${text}`);
 			}
 
-			if (author) {
+			for (const author of authors) {
 				quoteLines.push(`> ${author}`);
 			}
 
@@ -518,14 +526,20 @@ export function htmlToCleanText(htmlContent: string): string {
 			const isRight = isRightAligned(attrs);
 			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
 
-			let author = '';
-			const footerMatch = /<footer\b[^>]*>([\s\S]*?)<\/footer>/i.exec(inner);
-			if (footerMatch) {
-				author = processLineContent(footerMatch[1]);
+			const authors: string[] = [];
+			const footerMatches = [...inner.matchAll(/<footer\b[^>]*>([\s\S]*?)<\/footer>/gi)];
+			if (footerMatches.length > 0) {
+				for (const fm of footerMatches) {
+					const authorText = processLineContent(fm[1]);
+					if (authorText) authors.push(authorText);
+				}
 			} else {
-				const citeMatch = /<cite\b[^>]*>([\s\S]*?)<\/cite>/i.exec(inner);
-				if (citeMatch) {
-					author = processLineContent(citeMatch[1]);
+				const citeMatches = [...inner.matchAll(/<cite\b[^>]*>([\s\S]*?)<\/cite>/gi)];
+				if (citeMatches.length > 0) {
+					for (const cm of citeMatches) {
+						const authorText = processLineContent(cm[1]);
+						if (authorText) authors.push(authorText);
+					}
 				}
 			}
 
@@ -545,7 +559,7 @@ export function htmlToCleanText(htmlContent: string): string {
 				if (text) quoteLines.push(`${prefix} ${text}`);
 			}
 
-			if (author) {
+			for (const author of authors) {
 				quoteLines.push(`> ${author}`);
 			}
 

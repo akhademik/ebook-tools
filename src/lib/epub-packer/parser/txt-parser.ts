@@ -505,22 +505,28 @@ export function parseTxtToChapters(
 				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
 				const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
 
+				const authorFooters: string[] = [];
 				let nextLineIdx = lineIdx + 1;
-				let nextStripped = '';
-				while (nextLineIdx < preprocessedLines.length) {
-					if (preprocessedLines[nextLineIdx].trim() !== '') {
-						nextStripped = preprocessedLines[nextLineIdx].trim();
+
+				while (nextLineIdx < preprocessedLines.length && authorFooters.length < 3) {
+					const candidateRaw = preprocessedLines[nextLineIdx];
+					if (candidateRaw.trim() === '') {
+						// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 						break;
 					}
-					nextLineIdx++;
+					const authorMatch = candidateRaw.trim().match(/^>\s*(.+)$/);
+					if (authorMatch) {
+						const authorFormatted = applyInlineFormatting(authorMatch[1].trim(), customDefinitions);
+						authorFooters.push(`<footer>${authorFormatted}</footer>`);
+						nextLineIdx++;
+					} else {
+						break;
+					}
 				}
 
-				const authorMatch = nextStripped.match(/^>\s*(.+)$/);
-				if (authorMatch) {
-					const authorRaw = authorMatch[1].trim();
-					const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
-					activeChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
-					lineIdx = nextLineIdx + 1;
+				if (authorFooters.length > 0) {
+					activeChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p>${authorFooters.join('')}</blockquote>\n`;
+					lineIdx = nextLineIdx;
 				} else {
 					activeChapter.html += `  <blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
 					lineIdx++;
@@ -715,22 +721,28 @@ export function parseTxtToChapters(
 			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
 			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
 
+			const authorFooters: string[] = [];
 			let nextLineIdx = lineIdx + 1;
-			let nextStripped = '';
-			while (nextLineIdx < preprocessedLines.length) {
-				if (preprocessedLines[nextLineIdx].trim() !== '') {
-					nextStripped = preprocessedLines[nextLineIdx].trim();
+
+			while (nextLineIdx < preprocessedLines.length && authorFooters.length < 3) {
+				const candidateRaw = preprocessedLines[nextLineIdx];
+				if (candidateRaw.trim() === '') {
+					// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 					break;
 				}
-				nextLineIdx++;
+				const authorMatch = candidateRaw.trim().match(/^>\s*(.+)$/);
+				if (authorMatch) {
+					const authorFormatted = applyInlineFormatting(authorMatch[1].trim(), customDefinitions);
+					authorFooters.push(`<footer>${authorFormatted}</footer>`);
+					nextLineIdx++;
+				} else {
+					break;
+				}
 			}
 
-			const authorMatch = nextStripped.match(/^>\s*(.+)$/);
-			if (authorMatch) {
-				const authorRaw = authorMatch[1].trim();
-				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
-				activeChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p><footer>${authorFormatted}</footer></blockquote>\n`;
-				lineIdx = nextLineIdx + 1;
+			if (authorFooters.length > 0) {
+				activeChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p>${authorFooters.join('')}</blockquote>\n`;
+				lineIdx = nextLineIdx;
 			} else {
 				activeChapter.html += `<blockquote class="${align}"><p>${quoteFormatted}</p></blockquote>\n`;
 				lineIdx++;
