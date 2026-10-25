@@ -45,9 +45,8 @@
 				</strong>
 				<span class="text-text-mute">
 					Dung lượng tệp: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
-					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({state.isMobile
-						? 'scale 1.5x'
-						: 'scale 2.0x'}) để tránh sự cố tràn bộ nhớ.
+					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({state.selectedDpi}
+					DPI chuẩn OCR) để tránh sự cố tràn bộ nhớ RAM.
 				</span>
 			</div>
 		</div>
@@ -210,6 +209,58 @@
 			</p>
 		</div>
 
+		<div class="mb-5 pt-4 border-t border-border-color">
+			<div class="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+				<span class="font-mono text-xs tracking-wider text-text-mute uppercase block">
+					Độ phân giải xuất ảnh (DPI cho OCR)
+				</span>
+				<span class="text-xs font-mono text-accent-color">
+					{state.selectedDpi} DPI (~{(state.selectedDpi / 72).toFixed(1)}x)
+				</span>
+			</div>
+			<div class="grid grid-cols-3 gap-2">
+				<button
+					type="button"
+					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
+					150
+						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
+						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
+					onclick={() => {
+						state.selectedDpi = 150;
+					}}
+				>
+					150 DPI
+					<span class="block text-[10px] text-text-mute">Nhanh / Nhẹ</span>
+				</button>
+				<button
+					type="button"
+					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
+					200
+						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
+						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
+					onclick={() => {
+						state.selectedDpi = 200;
+					}}
+				>
+					200 DPI
+					<span class="block text-[10px] text-accent-color">Chuẩn OCR</span>
+				</button>
+				<button
+					type="button"
+					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
+					300
+						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
+						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
+					onclick={() => {
+						state.selectedDpi = 300;
+					}}
+				>
+					300 DPI
+					<span class="block text-[10px] text-text-mute">Scan mờ / Nét nhỏ</span>
+				</button>
+			</div>
+		</div>
+
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pt-4 border-t border-border-color">
 			<div>
 				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
@@ -338,6 +389,43 @@
 					Đã lưu thành công các phần ZIP vào thư mục <strong>{state.savedDirectoryName}</strong> trên
 					máy tính. Bộ nhớ RAM được giải phóng hoàn toàn!
 				</span>
+			</div>
+		{/if}
+
+		{#if state.degradedPages.length > 0}
+			<div
+				class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
+			>
+				<span class="text-amber-color text-lg leading-none">⚠️</span>
+				<div class="text-xs">
+					<strong class="font-semibold block mb-0.5 text-amber-color">
+						Chú ý: {state.degradedPages.length} trang tự động giảm độ phân giải do giới hạn bộ nhớ
+					</strong>
+					<span class="text-text-mute">
+						Các trang: <span class="font-mono text-text-color font-semibold"
+							>{state.degradedPages.join(', ')}</span
+						>. Chất lượng JPEG vẫn được giữ 85%. Bạn có thể chọn riêng các trang này ở dải trang để
+						tách lại nếu cần OCR nét hơn.
+					</span>
+				</div>
+			</div>
+		{/if}
+
+		{#if state.failedPages.length > 0}
+			<div
+				class="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
+			>
+				<span class="text-red-500 text-lg leading-none">❌</span>
+				<div class="text-xs">
+					<strong class="font-semibold block mb-0.5 text-red-500">
+						Lỗi: {state.failedPages.length} trang không thể xuất hình ảnh
+					</strong>
+					<span class="text-text-mute">
+						Các trang bị lỗi: <span class="font-mono text-red-400 font-semibold"
+							>{state.failedPages.join(', ')}</span
+						> (trình duyệt không đủ bộ nhớ canvas).
+					</span>
+				</div>
 			</div>
 		{/if}
 

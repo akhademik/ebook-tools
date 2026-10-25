@@ -37,6 +37,8 @@ export class PdfSplitterState {
 	status = $state<string>('');
 	isError = $state<boolean>(false);
 	failedPages = $state<number[]>([]);
+	degradedPages = $state<number[]>([]);
+	selectedDpi = $state<number>(200);
 
 	loadingPreview = $state<boolean>(false);
 	processing = $state<boolean>(false);
@@ -79,6 +81,7 @@ export class PdfSplitterState {
 		this.pdfZipBlob = null;
 		this.pdfZipParts = [];
 		this.failedPages = [];
+		this.degradedPages = [];
 		this.savedDirectoryName = '';
 
 		this.previewPages = [];
@@ -197,6 +200,7 @@ export class PdfSplitterState {
 		this.pdfZipBlob = null;
 		this.pdfZipParts = [];
 		this.failedPages = [];
+		this.degradedPages = [];
 		this.savedDirectoryName = '';
 		this.status = 'Đang bắt đầu xử lý tệp PDF...';
 		this.isError = false;
@@ -211,6 +215,7 @@ export class PdfSplitterState {
 				endPage: this.endPage,
 				maxPartBytes: this.maxPartBytes,
 				maxPagesPerPart: this.maxPagesPerPart,
+				targetDpi: this.selectedDpi,
 				dirHandle: this.dirHandle,
 				onProgress: (info) => {
 					this.progressPercent = info.progressPercent;
@@ -221,6 +226,7 @@ export class PdfSplitterState {
 			this.pdfZipBlob = res.zipBlob;
 			this.pdfZipParts = res.zipParts || [];
 			this.failedPages = res.failedPages || [];
+			this.degradedPages = res.degradedPages || [];
 			this.savedDirectoryName = res.savedDirectoryName || '';
 		} catch (err: unknown) {
 			if (err instanceof DOMException && err.name === 'AbortError') {

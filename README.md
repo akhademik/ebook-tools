@@ -151,8 +151,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-25 19:00
+- Cập nhật lần cuối: 2026-10-25 19:35
 - Đã hoàn thành:
+  - **Tối ưu hóa Chuẩn OCR & Nâng cấp Chất lượng Tách trang PDF (PDF Splitter for OCR)**:
+    - **Mặc định chuẩn 200 DPI**: Đặt mặc định 200 DPI ($scale \approx 2.778$, kích thước trang A4 đạt $\approx 1654 \times 2339$px) đồng nhất trên cả Desktop và Mobile/Touch device, đảm bảo độ phân giải sắc nét tối ưu cho Google Vision OCR và các công cụ OCR nhận diện chuẩn xác dấu tiếng Việt, chữ nhỏ.
+    - **Lựa chọn DPI linh hoạt trên UI**: Bổ sung bộ chọn DPI trực quan trên giao diện (150 DPI - Nhanh/Nhẹ, 200 DPI - Mặc định chuẩn OCR, 300 DPI - Sách scan mờ / Nét nhỏ).
+    - **Tách biệt điều kiện Mobile với DPI**: Điều kiện `isMobileOrLowMemoryDevice()` chỉ dùng để giảm trần dung lượng phần ZIP (`40MB` thay vì `80MB`) nhằm bảo toàn RAM, tuyệt đối không ép giảm ngầm DPI chất lượng ảnh. Tinh chỉnh nhận diện mobile để không gán nhầm laptop màn hình cảm ứng thành thiết bị di động.
+    - **Đệm số 0 tên tệp (`page0001.jpg`)**: Tự động đệm số 0 theo tổng số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo thứ tự từ điển (lexicographical order) luôn tuần tự chuẩn xác cho các script OCR (`page0001.jpg`, `page0002.jpg`, ..., `page0010.jpg`).
+    - **Cơ chế Retry giữ chuẩn chất lượng & Minh bạch Trang giảm độ phân giải (`degradedPages`)**:
+      - Khi trang gặp lỗi canvas/bộ nhớ, cơ chế thử lại chỉ hạ tỷ lệ scale, bảo toàn chất lượng nén ảnh JPEG tối thiểu 85% (`JPEG_QUALITY = 0.85`).
+      - Tự động ghi nhận danh sách các trang phải giảm độ phân giải do giới hạn bộ nhớ/canvas (`degradedPages`) và hiển thị cảnh báo chi tiết trên giao diện hoàn tất kèm hướng dẫn tách lại độc lập dải trang nếu cần.
+    - Toàn bộ **342/342 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Tối ưu hóa & Hoàn thiện toàn diện PDF Splitter & PDF.js Offline**:
     - **Thiết lập trần bộ nhớ cố định O(1) & Dynamic Byte Chunking**:
       - Phân tách phần ZIP theo dung lượng byte cộng dồn (`DEFAULT_DESKTOP_PART_BYTES = 80MB`, `DEFAULT_MOBILE_PART_BYTES = 40MB`, kèm trần an toàn 300 trang), khống chế hoàn toàn đỉnh RAM của JSZip heap độc lập với độ dài cuốn sách.
@@ -260,6 +269,25 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-25 (PDF Splitter OCR Optimization: 200 DPI Default, Zero-padded Filenames & Degraded Quality Tracking)
+
+- Thêm/sửa: Chuẩn hóa tính năng tách trang PDF phục vụ nhận diện quang học OCR:
+  - **Mặc định chuẩn 200 DPI**: Thiết lập mặc định 200 DPI ($scale \approx 2.778$, A4 $\approx 1654 \times 2339$px) đồng nhất trên mọi thiết bị (desktop lẫn mobile), đảm bảo độ nét và kích thước ký tự đủ lớn cho Vision OCR phân tích chính xác dấu tiếng Việt.
+  - **Tùy chọn DPI trên UI**: Bổ sung bộ chọn DPI 3 mức (150 DPI - Nhanh/Nhẹ, 200 DPI - Chuẩn OCR, 300 DPI - Scan mờ / Nét nhỏ) trong thẻ cấu hình.
+  - **Đệm số 0 tên file (`page0001.jpg`)**: Đệm số 0 tự động theo số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo các script xử lý OCR tự động duyệt file theo thứ tự từ điển không bị đảo trang (tránh `page1, page10, page2`).
+  - **Tách biệt điều kiện Mobile với DPI**: Điều kiện thiết bị di động/RAM thấp chỉ áp dụng để chia nhỏ phần ZIP (40MB/phần) nhằm kiểm soát RAM, không hạ ngầm DPI. Khắc phục việc laptop màn hình cảm ứng bị nhận diện nhầm thành điện thoại.
+  - **Bảo toàn chất lượng khi thử lại & Minh bạch danh sách trang giảm độ phân giải**:
+    - Khi trang gặp lỗi canvas và phải retry ở scale thấp hơn, giữ nguyên chất lượng nén JPEG tối thiểu 85% (`JPEG_QUALITY = 0.85`).
+    - Ghi nhận danh sách `degradedPages` và hiển thị cảnh báo trực quan trên giao diện khi hoàn tất kèm danh sách số trang cụ thể.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (342/342 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (4860 nodes, 10494 edges, 271 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/pdf-splitter.type.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`
+  - `src/routes/pdf/+page.svelte`
+  - `tests/pdf-splitter.test.ts`
+  - `README.md`
 
 ### 2026-10-25 (PDF Memory Ceiling Hardening: Dynamic Byte Chunking, File System Access API & Page Range)
 

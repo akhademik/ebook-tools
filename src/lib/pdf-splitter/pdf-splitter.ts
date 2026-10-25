@@ -18,33 +18,38 @@ import type {
 	PdfJsDocument
 } from '$lib/types';
 
-export type { PdfPreviewPage, PdfProgressInfo, ProcessPdfResult, PdfZipPart, ProcessPdfOptions };
+export const DEFAULT_DPI = 200;
 
-export const PDF_SCALE = 2.0;
-export const MOBILE_PDF_SCALE = 1.5;
-export const JPEG_QUALITY = 0.85;
-export const GRAY_CONTRAST = 1.08;
+export function dpiToScale(dpi: number): number {
+	return dpi / 72;
+}
+
+const PDF_SCALE = dpiToScale(DEFAULT_DPI);
+const JPEG_QUALITY = 0.85;
+const GRAY_CONTRAST = 1.08;
 
 export const DEFAULT_DESKTOP_PART_BYTES = 80 * 1024 * 1024; // 80 MB
 export const DEFAULT_MOBILE_PART_BYTES = 40 * 1024 * 1024; // 40 MB
 export const DEFAULT_MAX_PAGES_PER_PART = 300;
-export const MAX_PAGES_PER_ZIP_PART = 200; // legacy compatibility
 
-export { getClampedViewport, MAX_CANVAS_DIMENSION, MAX_CANVAS_PIXELS, MOBILE_MAX_CANVAS_PIXELS };
+export { getClampedViewport, MAX_CANVAS_DIMENSION, MAX_CANVAS_PIXELS };
 
 /**
- * Check if the current device is mobile, touch, or has low hardware RAM (<= 4GB).
+ * Check if the current device is mobile, iPad, or has low hardware RAM (<= 4GB).
  */
 export function isMobileOrLowMemoryDevice(): boolean {
 	if (typeof navigator === 'undefined') return false;
-	const isTouch = navigator.maxTouchPoints > 0;
 	const isMobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 		navigator.userAgent
 	);
+	const isIpadOS =
+		typeof navigator.platform === 'string' &&
+		navigator.platform === 'MacIntel' &&
+		navigator.maxTouchPoints > 1;
 	const navWithMemory = navigator as { deviceMemory?: number };
 	const isLowMemory =
 		typeof navWithMemory.deviceMemory === 'number' ? navWithMemory.deviceMemory <= 4 : false;
-	return isTouch || isMobileUa || isLowMemory;
+	return isMobileUa || isIpadOS || isLowMemory;
 }
 
 export function applyGrayscale(
@@ -268,7 +273,8 @@ export async function processPdfToJpg(
 	const maxPartBytes =
 		opts.maxPartBytes ?? (isMobile ? DEFAULT_MOBILE_PART_BYTES : DEFAULT_DESKTOP_PART_BYTES);
 	const maxPagesPerPart = opts.maxPagesPerPart ?? DEFAULT_MAX_PAGES_PER_PART;
-	const targetScale = opts.targetScale ?? (isMobile ? MOBILE_PDF_SCALE : PDF_SCALE);
+	const targetDpi = opts.targetDpi ?? DEFAULT_DPI;
+	const targetScale = opts.targetScale ?? dpiToScale(targetDpi);
 	const maxCanvasPixels = isMobile ? MOBILE_MAX_CANVAS_PIXELS : MAX_CANVAS_PIXELS;
 	const keepColor = opts.keepColor ?? false;
 	const cropTopPx = opts.cropTopPx ?? 0;
@@ -295,6 +301,7 @@ export async function processPdfToJpg(
 
 		const zipParts: PdfZipPart[] = [];
 		const failedPages: number[] = [];
+		const degradedPages: number[] = [];
 		let currentZip = new JSZip();
 		let partStartPage = startPage;
 		let currentPartIndex = 1;
@@ -345,6 +352,7 @@ export async function processPdfToJpg(
 			let blob: Blob | null = null;
 			let renderScale = targetScale;
 			let retryCount = 0;
+			let isDegraded = false;
 
 			while (retryCount <= 1) {
 				try {
@@ -354,6 +362,9 @@ export async function processPdfToJpg(
 						MAX_CANVAS_DIMENSION,
 						maxCanvasPixels
 					);
+					if (typeof viewport.scale === 'number' && viewport.scale < targetScale * 0.95) {
+						isDegraded = true;
+					}
 					let canvas = document.createElement('canvas');
 					canvas.width = viewport.width;
 					canvas.height = viewport.height;
@@ -383,9 +394,9 @@ export async function processPdfToJpg(
 						applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
 					}
 
-					const quality = retryCount > 0 ? 0.75 : JPEG_QUALITY;
+					// Maintain quality >= 0.85 even during retry (only scale is reduced)
 					blob = await new Promise<Blob | null>((resolve) =>
-						canvas.toBlob(resolve, 'image/jpeg', quality)
+						canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
 					);
 
 					// Release canvas backing store memory immediately
@@ -401,12 +412,13 @@ export async function processPdfToJpg(
 				} catch (renderErr) {
 					retryCount++;
 					if (retryCount <= 1) {
+						isDegraded = true;
 						Logger.warn(
 							'[pdf-splitter]',
-							`Trang ${p} render lỗi ở scale ${renderScale}, tự động thử lại ở scale 1.0...`,
+							`Trang ${p} render lỗi ở scale ${renderScale}, tự động thử lại ở scale thấp hơn...`,
 							renderErr
 						);
-						renderScale = Math.min(1.0, targetScale * 0.65);
+						renderScale = Math.min(1.5, targetScale * 0.7);
 					} else {
 						Logger.error(
 							'[pdf-splitter]',
@@ -424,7 +436,12 @@ export async function processPdfToJpg(
 			page.cleanup();
 
 			if (blob) {
-				currentZip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
+				if (isDegraded && !degradedPages.includes(p)) {
+					degradedPages.push(p);
+				}
+				const padLength = Math.max(4, String(totalDocPages).length);
+				const paddedPageNum = String(p).padStart(padLength, '0');
+				currentZip.file(`page${paddedPageNum}.jpg`, blob, { compression: 'STORE' });
 				currentPartBytes += blob.size;
 				currentPartPagesCount++;
 				completed++;
@@ -526,6 +543,9 @@ export async function processPdfToJpg(
 			if (failedPages.length > 0) {
 				doneLabel += ` · Cảnh báo: ${failedPages.length} trang bị lỗi: ${failedPages.join(', ')}`;
 			}
+			if (degradedPages.length > 0) {
+				doneLabel += ` · Chú ý: ${degradedPages.length} trang bị giảm độ phân giải: ${degradedPages.join(', ')}`;
+			}
 
 			opts.onProgress({
 				progressPercent: 100,
@@ -542,6 +562,7 @@ export async function processPdfToJpg(
 			numPages: totalDocPages,
 			processedPages: completed,
 			failedPages,
+			degradedPages,
 			savedDirectoryName: opts.dirHandle?.name
 		};
 	} finally {

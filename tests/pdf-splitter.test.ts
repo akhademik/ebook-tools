@@ -123,9 +123,12 @@ import {
 	loadPdfPreview,
 	processPdfToJpg,
 	getClampedViewport,
+	DEFAULT_DPI,
+	dpiToScale,
 	MAX_CANVAS_DIMENSION,
 	MAX_CANVAS_PIXELS
 } from '../src/lib/pdf-splitter/pdf-splitter';
+import JSZip from 'jszip';
 import { renderPdfPageToBlob } from '../src/lib/utils/pdf';
 import { PdfSplitterState } from '../src/lib/pdf-splitter/pdf-splitter-state.svelte';
 
@@ -712,6 +715,7 @@ describe('pdf-splitter tests', () => {
 				});
 				expect(result.processedPages).toBe(1);
 				expect(attempt).toBeGreaterThan(1);
+				expect(result.degradedPages).toEqual([1]);
 			} finally {
 				document.createElement = originalCreateElement;
 			}
@@ -766,6 +770,60 @@ describe('pdf-splitter tests', () => {
 
 			state.releasePartBlob(0);
 			expect(state.pdfZipParts[0].blob).toBeUndefined();
+		});
+
+		it('should pad page filenames with zeros (e.g., page0001.jpg, page0002.jpg) for OCR lexical sorting', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'ocr-scan.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 12;
+
+			const zipInstance = new JSZip();
+			vi.clearAllMocks();
+
+			await processPdfToJpg(fakeFile, {
+				startPage: 1,
+				endPage: 2,
+				keepColor: true
+			});
+
+			expect(zipInstance.file).toHaveBeenCalledWith(
+				'page0001.jpg',
+				expect.any(Blob),
+				expect.objectContaining({ compression: 'STORE' })
+			);
+			expect(zipInstance.file).toHaveBeenCalledWith(
+				'page0002.jpg',
+				expect.any(Blob),
+				expect.objectContaining({ compression: 'STORE' })
+			);
+		});
+
+		it('should default to 200 DPI and convert targetDpi correctly to viewport scale', async () => {
+			expect(DEFAULT_DPI).toBe(200);
+			expect(dpiToScale(200)).toBeCloseTo(200 / 72, 4);
+			expect(dpiToScale(150)).toBeCloseTo(150 / 72, 4);
+			expect(dpiToScale(300)).toBeCloseTo(300 / 72, 4);
+
+			const fakeFile = new File(['mock-pdf-content'], 'dpi-test.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 1;
+			mockPage.getViewport.mockClear();
+
+			// Test custom 150 DPI
+			await processPdfToJpg(fakeFile, {
+				targetDpi: 150,
+				keepColor: true
+			});
+			expect(mockPage.getViewport).toHaveBeenCalledWith(
+				expect.objectContaining({ scale: 150 / 72 })
+			);
+
+			// Test state defaults
+			const state = new PdfSplitterState();
+			expect(state.selectedDpi).toBe(200);
+			expect(state.degradedPages).toEqual([]);
 		});
 	});
 });

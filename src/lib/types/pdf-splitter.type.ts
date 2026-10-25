@@ -31,6 +31,7 @@ export interface ProcessPdfResult {
 	numPages: number;
 	processedPages: number;
 	failedPages: number[];
+	degradedPages: number[];
 	savedDirectoryName?: string;
 }
 
@@ -42,6 +43,7 @@ export interface ProcessPdfOptions {
 	endPage?: number;
 	maxPartBytes?: number;
 	maxPagesPerPart?: number;
+	targetDpi?: number;
 	targetScale?: number;
 	dirHandle?: FileSystemDirectoryHandle | null;
 	onProgress?: (info: PdfProgressInfo) => void;
@@ -51,6 +53,7 @@ export interface ProcessPdfOptions {
 export interface PdfJsViewport {
 	width: number;
 	height: number;
+	scale?: number;
 }
 
 export interface PdfJsPage {
