@@ -19,14 +19,33 @@ export interface PdfZipPart {
 	totalParts: number;
 	startPage: number;
 	endPage: number;
-	blob: Blob;
+	blob?: Blob;
 	filename: string;
+	sizeBytes: number;
+	savedToDisk?: boolean;
 }
 
 export interface ProcessPdfResult {
 	zipBlob: Blob;
 	zipParts: PdfZipPart[];
 	numPages: number;
+	processedPages: number;
+	failedPages: number[];
+	savedDirectoryName?: string;
+}
+
+export interface ProcessPdfOptions {
+	keepColor?: boolean;
+	cropTopPx?: number;
+	cropBottomPx?: number;
+	startPage?: number;
+	endPage?: number;
+	maxPartBytes?: number;
+	maxPagesPerPart?: number;
+	targetScale?: number;
+	dirHandle?: FileSystemDirectoryHandle | null;
+	onProgress?: (info: PdfProgressInfo) => void;
+	signal?: AbortSignal;
 }
 
 export interface PdfJsViewport {

@@ -4,6 +4,7 @@ import type { PdfJsPage, PdfJsViewport } from '$lib/types';
 
 export const MAX_CANVAS_DIMENSION = 4096;
 export const MAX_CANVAS_PIXELS = 16 * 1024 * 1024; // 16 Megapixels
+export const MOBILE_MAX_CANVAS_PIXELS = 8 * 1024 * 1024; // 8 Megapixels for mobile/low-memory
 
 /**
  * Configure PDF.js worker URL (100% offline self-hosted with fallback).
@@ -24,20 +25,25 @@ if (typeof window !== 'undefined') {
 /**
  * Safely compute viewport dimensions clamped to maximum canvas limits to prevent iOS/browser OOM.
  */
-export function getClampedViewport(page: PdfJsPage, targetScale = 2.0): PdfJsViewport {
+export function getClampedViewport(
+	page: PdfJsPage,
+	targetScale = 2.0,
+	maxDimension = MAX_CANVAS_DIMENSION,
+	maxPixels = MAX_CANVAS_PIXELS
+): PdfJsViewport {
 	const baseViewport = page.getViewport({ scale: 1.0 });
 	let scale = targetScale;
 
 	// Clamp max dimension
 	const maxDim = Math.max(baseViewport.width * scale, baseViewport.height * scale);
-	if (maxDim > MAX_CANVAS_DIMENSION) {
-		scale = (MAX_CANVAS_DIMENSION / maxDim) * scale;
+	if (maxDim > maxDimension) {
+		scale = (maxDimension / maxDim) * scale;
 	}
 
 	// Clamp total pixels to avoid canvas allocation failure / OOM
 	const totalPixels = baseViewport.width * scale * (baseViewport.height * scale);
-	if (totalPixels > MAX_CANVAS_PIXELS) {
-		scale = scale * Math.sqrt(MAX_CANVAS_PIXELS / totalPixels);
+	if (totalPixels > maxPixels) {
+		scale = scale * Math.sqrt(maxPixels / totalPixels);
 	}
 
 	return page.getViewport({ scale });

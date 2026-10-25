@@ -151,13 +151,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-25 18:25
+- Cập nhật lần cuối: 2026-10-25 19:00
 - Đã hoàn thành:
   - **Tối ưu hóa & Hoàn thiện toàn diện PDF Splitter & PDF.js Offline**:
-    - **Khắc phục lỗi ngốn RAM & Smart Split ZIP**:
-      - Loại bỏ việc nhân bản buffer `arrayBuffer.slice(0)`. Sử dụng Zero-Copy Streaming qua `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })`. Loại bỏ `probeDoc` thừa, tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
-      - Cơ chế chia phần ZIP thông minh (`MAX_PAGES_PER_ZIP_PART = 200`): Tự động chia nhỏ bộ ảnh thành các tệp ZIP độc lập và tái tạo `JSZip()` sau mỗi phần, khống chế đỉnh RAM dưới 100MB cho tài liệu scan hàng trăm trang.
-      - Hỗ trợ tải từng phần hoặc tải tất cả liên tiếp trên giao diện (`src/routes/pdf/+page.svelte`), kèm cảnh báo UX chủ động cho tệp lớn (>150MB) và thiết bị di động.
+    - **Thiết lập trần bộ nhớ cố định O(1) & Dynamic Byte Chunking**:
+      - Phân tách phần ZIP theo dung lượng byte cộng dồn (`DEFAULT_DESKTOP_PART_BYTES = 80MB`, `DEFAULT_MOBILE_PART_BYTES = 40MB`, kèm trần an toàn 300 trang), khống chế hoàn toàn đỉnh RAM của JSZip heap độc lập với độ dài cuốn sách.
+      - Tích hợp **File System Access API (`showDirectoryPicker`)** trên Chromium Desktop: cho phép chọn thư mục đích, stream ghi trực tiếp từng phần ZIP vào ổ đĩa và giải phóng Blob tức thì khỏi RAM, giúp bộ nhớ giữa các phần xấp xỉ bằng 0.
+      - Bổ sung tùy chọn giải phóng bộ nhớ thủ công từng phần (`releasePartBlob`) cho Safari/iOS.
+    - **Lựa chọn Dải trang & Cơ chế Graceful Retry tự hạ chất lượng**:
+      - Bổ sung chọn dải trang xử lý ("Từ trang X đến Y"), cho phép người dùng chia nhỏ phiên làm việc hoặc tiếp tục xử lý khi phiên trước bị ngắt quãng.
+      - Cơ chế Graceful Retry per-page: Khi một trang gặp lỗi render canvas hoặc `toBlob`, tự động thử lại 1 lần ở `scale 1.0` và giảm quality JPEG xuống 0.75; nếu vẫn lỗi, ghi nhận vào `failedPages` và tiếp tục các trang kế tiếp mà không làm hỏng toàn bộ sách.
+      - Tự động hạ scale xuống 1.5x và `MAX_CANVAS_PIXELS = 8Mpx` trên thiết bị di động hoặc máy có RAM <= 4GB (`navigator.deviceMemory`).
+    - **Khắc phục lỗi ngốn RAM (Mục 1)**: Loại bỏ việc nhân bản buffer `arrayBuffer.slice(0)`. Sử dụng Zero-Copy Streaming qua `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })`. Loại bỏ `probeDoc` thừa, tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
     - **Đồng bộ hóa 2 vị trí nạp PDF cũ**:
       - Cập nhật `renderPdfPageToBlob` trong [`src/lib/utils/pdf.ts`](src/lib/utils/pdf.ts) chấp nhận `File | Blob | ArrayBuffer | Uint8Array`, dùng zero-copy streaming, áp dụng viewport clamping và giải phóng bộ nhớ canvas.
       - Cập nhật trích xuất bìa PDF và ảnh minh họa trong [`src/lib/epub-packer/state/epub-images-state.svelte.ts`](src/lib/epub-packer/state/epub-images-state.svelte.ts), quản lý vòng đời Object URL và dọn dẹp sạch sẽ tránh rò rỉ bộ nhớ.
@@ -165,12 +170,11 @@ pnpm test:e2e
     - **Bảo vệ Canvas & Minh bạch lỗi**:
       - Tích hợp thuật toán tính toán kích thước co giãn thích ứng [`getClampedViewport`](src/lib/pdf-splitter/pdf-splitter.ts), khống chế kích thước tối đa `MAX_CANVAS_DIMENSION = 4096px` và `MAX_CANVAS_PIXELS = 16M pixels` chống tràn bộ nhớ và crash canvas trên Safari iOS / thiết bị di động.
       - Giải phóng ngay lập tức bộ nhớ GPU/backing store sau mỗi trang bằng `canvas.width = 0; canvas.height = 0`.
-      - Minh bạch lỗi tuyệt đối: Ném lỗi rõ ràng kèm số trang chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được Canvas 2D context, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến file ZIP thiếu trang.
     - **100% Ngoại tuyến (Offline hoàn toàn)**:
-      - Self-host toàn bộ `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) nội bộ vào thư mục [`static/vendor/pdfjs/`](static/vendor/pdfjs/), giải phóng hoàn toàn sự phụ thuộc vào mạng internet hoặc cdnjs bên ngoài.
-      - Cập nhật [`src/app.html`](src/app.html) tải cục bộ `/vendor/pdfjs/pdf.min.js` kèm fallback CDN an toàn khi cần.
+      - Self-host toàn bộ `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) nội bộ vào thư mục [`static/vendor/pdfjs/`](static/vendor/pdfjs/).
+      - Cập nhật [`src/app.html`](src/app.html) tải cục bộ `/vendor/pdfjs/pdf.min.js` kèm fallback CDN an toàn.
       - Đồng bộ [`initPdfWorker`](src/lib/utils/pdf.ts) trỏ trực tiếp worker của PDF.js vào `/vendor/pdfjs/pdf.worker.min.js`.
-    - Toàn bộ **338/338 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
+    - Toàn bộ **340/340 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Khắc phục lỗi Phông chữ Trang giới thiệu khi chuyển tiếp Mẫu (Fix Jacket Modal Font Persistence Across Templates)**:
     - Sửa triệt để sự cố phông chữ chỉ đổi ở Mẫu 1 và không phản ánh khi chuyển tiếp sang Mẫu 2, Mẫu 3 bằng nút 'Tiếp' / 'Trước'.
     - Chuyển toàn bộ CSS override của jacket font ra thẻ `<style id="jacket-font-override">` trong `<svelte:head>`, đồng thời gán CSS variable `--jacket-font` trực tiếp lên `.preview-wrap` và quy tắc toàn cục `:global(.preview-wrap, .preview-wrap *) { font-family: var(--jacket-font, inherit) !important; }`. Loại bỏ hoàn toàn việc lồng thẻ `<style>` bên trong thẻ `<div>` dễ gây lỗi desync DOM giữa các khối `{@html}`.
@@ -256,6 +260,29 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-25 (PDF Memory Ceiling Hardening: Dynamic Byte Chunking, File System Access API & Page Range)
+
+- Thêm/sửa: Triển khai toàn diện trần bộ nhớ cố định O(1), cơ chế stream trực tiếp ra đĩa và xử lý linh hoạt theo dải trang:
+  - **Dynamic Byte Chunking (80MB desktop / 40MB mobile)**:
+    - `src/lib/pdf-splitter/pdf-splitter.ts`: Chuyển điều kiện chia phần ZIP từ số trang cố định sang kiểm soát dung lượng cộng dồn `currentPartBytes >= maxPartBytes` (80MB desktop / 40MB mobile) kết hợp trần an toàn 300 trang. Đảm bảo đỉnh heap JSZip được giới hạn cố định $\le 160$MB trên desktop và $\le 80$MB trên mobile, triệt tiêu nguy cơ sập tab trên thiết bị yếu dù sách scan nặng hàng trăm trang.
+  - **File System Access API (Stream ghi trực tiếp ra ổ đĩa & giải phóng RAM)**:
+    - Tích hợp `window.showDirectoryPicker()` trên Chromium Desktop (`src/lib/pdf-splitter/pdf-splitter-state.svelte.ts` & `src/routes/pdf/+page.svelte`): người dùng chọn thư mục lưu trữ một lần trước khi bắt đầu. Mỗi phần ZIP được stream ghi thẳng vào file trên ổ đĩa và hủy ngay tham chiếu `Blob` khỏi RAM, đưa bộ nhớ đệm tích lũy giữa các phần về mức xấp xỉ 0.
+    - Với Safari/iOS: Giữ `Blob` trong RAM và bổ sung nút giải phóng bộ nhớ thủ công từng phần (`releasePartBlob`) sau khi người dùng tải xong.
+  - **Lựa chọn Dải trang & Graceful Retry per-page**:
+    - Giao diện `src/routes/pdf/+page.svelte`: Bổ sung ô nhập dải trang xử lý ("Từ trang X đến trang Y") cho phép người dùng chia nhỏ hoặc tiếp tục xử lý cuốn sách từ vị trí bị gián đoạn mà không phải chạy lại từ đầu.
+    - Cơ chế Graceful Retry: Nếu một trang vẽ canvas hoặc `toBlob` bị lỗi ở scale chuẩn, hệ thống tự động thử lại 1 lần ở `scale 1.0` (quality 0.75). Nếu vẫn lỗi, trang đó được đưa vào danh sách `failedPages` và tiến trình tiếp tục các trang tiếp theo thay vì làm hỏng toàn bộ sách.
+    - Tự động hạ scale xuống 1.5x và `MAX_CANVAS_PIXELS = 8Mpx` trên thiết bị di động hoặc máy có RAM $\le$ 4GB (`navigator.deviceMemory`).
+  - **Kiểm thử**: Mở rộng thêm 2 unit test suites mới cho dynamic byte chunking, dải trang, graceful retry và stream ghi ra đĩa với mock `FileSystemDirectoryHandle`.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (340/340 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (4861 nodes, 10489 edges, 267 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/pdf-splitter.type.ts`
+  - `src/lib/utils/pdf.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`
+  - `src/routes/pdf/+page.svelte`
+  - `tests/pdf-splitter.test.ts`
+  - `README.md`
 
 ### 2026-10-25 (PDF Smart Split ZIP, Mobile Guard & Full Zero-Copy Synchronization)
 

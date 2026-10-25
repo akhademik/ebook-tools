@@ -1,15 +1,32 @@
 import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
 import { MAX_PDF_FILE_SIZE } from '$lib/constants';
-import { loadPdfPreview, processPdfToJpg, MAX_PAGES_PER_ZIP_PART } from './pdf-splitter';
+import {
+	loadPdfPreview,
+	processPdfToJpg,
+	isMobileOrLowMemoryDevice,
+	DEFAULT_DESKTOP_PART_BYTES,
+	DEFAULT_MOBILE_PART_BYTES,
+	DEFAULT_MAX_PAGES_PER_PART
+} from './pdf-splitter';
 import type { PdfPreviewPage, PdfZipPart } from '$lib/types';
 
 export class PdfSplitterState {
 	pdfSelectedFile = $state<File | null>(null);
 	pdfZipBlob = $state<Blob | null>(null);
 	pdfZipParts = $state<PdfZipPart[]>([]);
-	pagesPerPart = $state<number>(MAX_PAGES_PER_ZIP_PART);
 	bookName = $state<string>('');
 	keepColor = $state<boolean>(false);
+
+	totalDocPages = $state<number>(0);
+	startPage = $state<number>(1);
+	endPage = $state<number>(1);
+
+	maxPartBytes = $state<number>(DEFAULT_DESKTOP_PART_BYTES);
+	maxPagesPerPart = $state<number>(DEFAULT_MAX_PAGES_PER_PART);
+
+	dirHandle = $state<FileSystemDirectoryHandle | null>(null);
+	dirName = $state<string>('');
+	savedDirectoryName = $state<string>('');
 
 	selectedPreviewCount = $state<number>(10);
 	previewPages = $state<PdfPreviewPage[]>([]);
@@ -19,6 +36,7 @@ export class PdfSplitterState {
 
 	status = $state<string>('');
 	isError = $state<boolean>(false);
+	failedPages = $state<number[]>([]);
 
 	loadingPreview = $state<boolean>(false);
 	processing = $state<boolean>(false);
@@ -33,12 +51,14 @@ export class PdfSplitterState {
 			: ''
 	);
 	isLargeFile = $derived(!!this.pdfSelectedFile && this.pdfSelectedFile.size > 150 * 1024 * 1024);
-	isMobile = $derived(
-		typeof navigator !== 'undefined' &&
-			(navigator.maxTouchPoints > 0 ||
-				/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-	);
+	isMobile = $derived(isMobileOrLowMemoryDevice());
+	supportsFSA = $derived(typeof window !== 'undefined' && 'showDirectoryPicker' in window);
 	hasMultipleParts = $derived(this.pdfZipParts.length > 1);
+	deviceMemoryGb = $derived<number | null>(
+		typeof navigator !== 'undefined' && 'deviceMemory' in navigator
+			? ((navigator as { deviceMemory?: number }).deviceMemory ?? null)
+			: null
+	);
 
 	handleFile(file: File | null): void {
 		if (!file) return;
@@ -58,11 +78,55 @@ export class PdfSplitterState {
 		this.bookName = slugify(file.name);
 		this.pdfZipBlob = null;
 		this.pdfZipParts = [];
+		this.failedPages = [];
+		this.savedDirectoryName = '';
 
 		this.previewPages = [];
 		this.currentPreviewIndex = 0;
 		this.cropTopPx = 0;
 		this.cropBottomPx = 0;
+
+		// Set adaptive byte threshold
+		this.maxPartBytes = this.isMobile ? DEFAULT_MOBILE_PART_BYTES : DEFAULT_DESKTOP_PART_BYTES;
+
+		// Quick inspect total pages if PDF.js is loaded
+		const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
+		if (globalPdfjs) {
+			const isBlob = typeof Blob !== 'undefined' && file instanceof Blob;
+			const url = isBlob ? URL.createObjectURL(file) : null;
+			const src = url ? { url } : { data: file as unknown as Uint8Array };
+			globalPdfjs
+				.getDocument(src)
+				.promise.then((d) => {
+					this.totalDocPages = d.numPages;
+					this.startPage = 1;
+					this.endPage = d.numPages;
+					d.destroy();
+				})
+				.catch(() => {})
+				.finally(() => {
+					if (url) URL.revokeObjectURL(url);
+				});
+		}
+	}
+
+	async selectOutputDirectory(): Promise<void> {
+		if (!this.supportsFSA) return;
+		try {
+			const handle = await (
+				window as unknown as { showDirectoryPicker: () => Promise<FileSystemDirectoryHandle> }
+			).showDirectoryPicker();
+			this.dirHandle = handle;
+			this.dirName = handle.name;
+		} catch (err: unknown) {
+			if (err instanceof DOMException && err.name === 'AbortError') return;
+			Logger.error('[PdfSplitterState]', 'Directory picker error:', err);
+		}
+	}
+
+	clearOutputDirectory(): void {
+		this.dirHandle = null;
+		this.dirName = '';
 	}
 
 	async loadPreview(): Promise<void> {
@@ -132,25 +196,32 @@ export class PdfSplitterState {
 		this.processing = true;
 		this.pdfZipBlob = null;
 		this.pdfZipParts = [];
+		this.failedPages = [];
+		this.savedDirectoryName = '';
 		this.status = 'Đang bắt đầu xử lý tệp PDF...';
 		this.isError = false;
 		this.progressPercent = 0;
 
 		try {
-			const res = await processPdfToJpg(
-				this.pdfSelectedFile,
-				this.keepColor,
-				this.cropTopPx,
-				this.cropBottomPx,
-				(info) => {
+			const res = await processPdfToJpg(this.pdfSelectedFile, {
+				keepColor: this.keepColor,
+				cropTopPx: this.cropTopPx,
+				cropBottomPx: this.cropBottomPx,
+				startPage: this.startPage,
+				endPage: this.endPage,
+				maxPartBytes: this.maxPartBytes,
+				maxPagesPerPart: this.maxPagesPerPart,
+				dirHandle: this.dirHandle,
+				onProgress: (info) => {
 					this.progressPercent = info.progressPercent;
 					this.status = info.progressLabel;
 				},
-				ac.signal,
-				this.pagesPerPart
-			);
+				signal: ac.signal
+			});
 			this.pdfZipBlob = res.zipBlob;
 			this.pdfZipParts = res.zipParts || [];
+			this.failedPages = res.failedPages || [];
+			this.savedDirectoryName = res.savedDirectoryName || '';
 		} catch (err: unknown) {
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.status = 'Đã hủy xử lý PDF.';
@@ -179,20 +250,22 @@ export class PdfSplitterState {
 
 	downloadPart(index: number): void {
 		const part = this.pdfZipParts[index];
-		if (!part) return;
-		const base = this.bookName.trim() || 'ten-sach';
-		const filename =
-			this.pdfZipParts.length > 1
-				? `${base}-part${part.partIndex}-pages${part.startPage}-${part.endPage}.zip`
-				: this.zipNamePreview;
-		triggerDownload(part.blob, filename);
+		if (!part || !part.blob) return;
+		triggerDownload(part.blob, part.filename);
+	}
+
+	releasePartBlob(index: number): void {
+		const part = this.pdfZipParts[index];
+		if (part) {
+			part.blob = undefined; // Free from RAM!
+		}
 	}
 
 	async downloadAllParts(): Promise<void> {
 		for (let i = 0; i < this.pdfZipParts.length; i++) {
 			this.downloadPart(i);
 			if (i < this.pdfZipParts.length - 1) {
-				await new Promise((resolve) => setTimeout(resolve, 600));
+				await new Promise((resolve) => setTimeout(resolve, 800));
 			}
 		}
 	}

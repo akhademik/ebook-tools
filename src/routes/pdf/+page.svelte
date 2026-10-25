@@ -31,16 +31,23 @@
 </div>
 
 {#if state.pdfSelectedFile}
-	{#if state.isLargeFile || (state.isMobile && (state.pdfSelectedFile?.size ?? 0) > 50 * 1024 * 1024)}
+	{#if state.isLargeFile || state.isMobile}
 		<div
 			class="mb-6 p-4 rounded-xl border border-amber-color/40 bg-accent-soft text-text-color flex items-start gap-3"
 		>
 			<span class="text-amber-color text-xl leading-none">⚠️</span>
 			<div class="text-sm">
-				<strong class="font-semibold block mb-0.5">Tệp PDF lớn / Thiết bị di động:</strong>
-				<span>
-					Tệp có dung lượng lớn. Trình duyệt sẽ tự động tối ưu hóa giải phóng RAM và chia nhỏ bộ ảnh
-					thành các phần ({state.pagesPerPart} trang/phần) nếu cần để tránh sự cố tràn bộ nhớ.
+				<strong class="font-semibold block mb-0.5">
+					{state.isMobile ? 'Thiết bị di động / RAM giới hạn' : 'Tệp PDF dung lượng lớn'}
+					{#if state.deviceMemoryGb}
+						· RAM: ~{state.deviceMemoryGb}GB
+					{/if}
+				</strong>
+				<span class="text-text-mute">
+					Dung lượng tệp: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
+					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({state.isMobile
+						? 'scale 1.5x'
+						: 'scale 2.0x'}) để tránh sự cố tràn bộ nhớ.
 				</span>
 			</div>
 		</div>
@@ -203,6 +210,76 @@
 			</p>
 		</div>
 
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pt-4 border-t border-border-color">
+			<div>
+				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
+					Dải trang xử lý
+				</span>
+				<div class="flex items-center gap-2 flex-wrap">
+					<div class="flex items-center gap-1.5">
+						<span class="text-xs text-text-mute font-mono">Từ:</span>
+						<input
+							type="number"
+							bind:value={state.startPage}
+							min="1"
+							max={state.totalDocPages || 99999}
+							class="w-18 bg-panel-2 border border-border-color text-text-color font-mono text-sm py-1.5 px-2.5 rounded-xl text-center outline-none focus:border-accent-color"
+						/>
+					</div>
+					<div class="flex items-center gap-1.5">
+						<span class="text-xs text-text-mute font-mono">Đến:</span>
+						<input
+							type="number"
+							bind:value={state.endPage}
+							min={state.startPage}
+							max={state.totalDocPages || 99999}
+							class="w-18 bg-panel-2 border border-border-color text-text-color font-mono text-sm py-1.5 px-2.5 rounded-xl text-center outline-none focus:border-accent-color"
+						/>
+					</div>
+					{#if state.totalDocPages > 0}
+						<span class="text-xs text-text-mute font-mono">/ {state.totalDocPages} trang</span>
+					{/if}
+				</div>
+			</div>
+
+			<div>
+				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
+					Ghi trực tiếp ra ổ đĩa
+				</span>
+				{#if state.supportsFSA}
+					{#if state.dirName}
+						<div class="flex items-center gap-2">
+							<span
+								class="text-xs font-mono text-accent-color truncate max-w-50"
+								title={state.dirName}
+							>
+								📁 {state.dirName}
+							</span>
+							<button
+								type="button"
+								class="text-xs font-mono text-red-500 hover:underline cursor-pointer"
+								onclick={() => state.clearOutputDirectory()}
+							>
+								Hủy
+							</button>
+						</div>
+					{:else}
+						<button
+							type="button"
+							class="bg-panel-2 border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-2 px-3 rounded-xl cursor-pointer transition-colors"
+							onclick={() => state.selectOutputDirectory()}
+						>
+							📁 Chọn thư mục lưu (Giải phóng RAM)
+						</button>
+					{/if}
+				{:else}
+					<span class="text-xs text-text-mute font-mono block">
+						Trình duyệt không hỗ trợ File System API (tải về qua trình tải)
+					</span>
+				{/if}
+			</div>
+		</div>
+
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			{#if state.processing}
 				<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
@@ -216,10 +293,14 @@
 			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button
 					onclick={() => state.downloadZip()}
-					disabled={!state.pdfZipBlob || state.processing}
+					disabled={(!state.pdfZipBlob && state.pdfZipParts.length === 0) || state.processing}
 					variant="secondary"
 				>
-					{state.hasMultipleParts ? 'Tải toàn bộ ZIP' : 'Tải tệp .ZIP'}
+					{state.dirHandle
+						? 'Đã lưu vào đĩa'
+						: state.hasMultipleParts
+							? 'Tải toàn bộ ZIP'
+							: 'Tải tệp .ZIP'}
 				</Button>
 			</div>
 		</div>
@@ -248,20 +329,34 @@
 			</div>
 		{/if}
 
+		{#if state.savedDirectoryName}
+			<div
+				class="mt-4 p-3.5 rounded-xl bg-accent-soft border border-accent-color/40 text-text-color text-sm flex items-center gap-2.5 animate-fade-in"
+			>
+				<span>✅</span>
+				<span>
+					Đã lưu thành công các phần ZIP vào thư mục <strong>{state.savedDirectoryName}</strong> trên
+					máy tính. Bộ nhớ RAM được giải phóng hoàn toàn!
+				</span>
+			</div>
+		{/if}
+
 		{#if state.hasMultipleParts}
 			<div class="mt-6 pt-5 border-t border-border-color animate-fade-in">
 				<div class="flex items-center justify-between mb-3 flex-wrap gap-2">
 					<span class="font-mono text-xs uppercase tracking-wider text-text-mute">
 						Các phần ZIP đã hoàn tất ({state.pdfZipParts.length} phần)
 					</span>
-					<button
-						type="button"
-						class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
-						onclick={() => state.downloadAllParts()}
-						disabled={state.processing}
-					>
-						Tải lần lượt tất cả
-					</button>
+					{#if !state.savedDirectoryName}
+						<button
+							type="button"
+							class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+							onclick={() => state.downloadAllParts()}
+							disabled={state.processing}
+						>
+							Tải lần lượt tất cả
+						</button>
+					{/if}
 				</div>
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 					{#each state.pdfZipParts as part, idx (part.partIndex)}
@@ -273,17 +368,34 @@
 									Phần {part.partIndex}: Trang {part.startPage}–{part.endPage}
 								</span>
 								<span class="font-mono text-xs text-text-mute">
-									{(part.blob.size / (1024 * 1024)).toFixed(1)} MB
+									{(part.sizeBytes / (1024 * 1024)).toFixed(1)} MB
+									{#if part.savedToDisk}
+										· <span class="text-green-500 font-medium">Đã lưu ra đĩa</span>
+									{:else if !part.blob}
+										· <span class="text-text-mute">Đã giải phóng RAM</span>
+									{/if}
 								</span>
 							</div>
-							<button
-								type="button"
-								class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
-								onclick={() => state.downloadPart(idx)}
-								disabled={state.processing}
-							>
-								Tải phần {part.partIndex}
-							</button>
+							{#if part.blob}
+								<div class="flex items-center gap-1.5 shrink-0">
+									<button
+										type="button"
+										class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
+										onclick={() => state.downloadPart(idx)}
+										disabled={state.processing}
+									>
+										Tải phần {part.partIndex}
+									</button>
+									<button
+										type="button"
+										class="text-text-mute hover:text-red-500 font-mono text-xs py-1 px-1.5 rounded cursor-pointer"
+										onclick={() => state.releasePartBlob(idx)}
+										title="Giải phóng bộ nhớ phần này khỏi RAM"
+									>
+										✕
+									</button>
+								</div>
+							{/if}
 						</div>
 					{/each}
 				</div>

@@ -124,8 +124,7 @@ import {
 	processPdfToJpg,
 	getClampedViewport,
 	MAX_CANVAS_DIMENSION,
-	MAX_CANVAS_PIXELS,
-	MAX_PAGES_PER_ZIP_PART
+	MAX_CANVAS_PIXELS
 } from '../src/lib/pdf-splitter/pdf-splitter';
 import { renderPdfPageToBlob } from '../src/lib/utils/pdf';
 import { PdfSplitterState } from '../src/lib/pdf-splitter/pdf-splitter-state.svelte';
@@ -642,52 +641,131 @@ describe('pdf-splitter tests', () => {
 		});
 	});
 
-	describe('PdfSplitterState multi-part functionality', () => {
-		it('should initialize with default 200 pagesPerPart and empty zipParts', () => {
-			const state = new PdfSplitterState();
-			expect(state.pagesPerPart).toBe(MAX_PAGES_PER_ZIP_PART);
-			expect(state.pdfZipParts).toEqual([]);
-			expect(state.hasMultipleParts).toBe(false);
-		});
+	describe('advanced features in processPdfToJpg and PdfSplitterState', () => {
+		it('should support page range (startPage and endPage)', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'scan-book.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 6;
 
-		it('should recognize large files (>150MB)', () => {
-			const state = new PdfSplitterState();
-			const smallFile = new File(['content'], 'book.pdf', { type: 'application/pdf' });
-			state.handleFile(smallFile);
-			expect(state.isLargeFile).toBe(false);
-
-			const largeFile = new File(['content'], 'big-book.pdf', { type: 'application/pdf' });
-			Object.defineProperty(largeFile, 'size', { value: 160 * 1024 * 1024 });
-			state.handleFile(largeFile);
-			expect(state.isLargeFile).toBe(true);
-		});
-
-		it('should manage multi-part downloads', async () => {
-			const state = new PdfSplitterState();
-			const part1: any = {
-				partIndex: 1,
-				totalParts: 2,
-				startPage: 1,
-				endPage: 2,
-				blob: new Blob(['part1']),
-				filename: 'book-part1.zip'
-			};
-			const part2: any = {
-				partIndex: 2,
-				totalParts: 2,
-				startPage: 3,
+			const result = await processPdfToJpg(fakeFile, {
+				startPage: 2,
 				endPage: 4,
-				blob: new Blob(['part2']),
-				filename: 'book-part2.zip'
+				keepColor: true
+			});
+
+			expect(result.processedPages).toBe(3);
+			expect(result.numPages).toBe(6);
+			expect(result.zipParts[0].startPage).toBe(2);
+			expect(result.zipParts[0].endPage).toBe(4);
+		});
+
+		it('should dynamically split by byte ceiling (maxPartBytes)', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'heavy-scan.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 4;
+
+			// Set maxPartBytes low so each page triggers a part
+			const result = await processPdfToJpg(fakeFile, {
+				maxPartBytes: 10,
+				keepColor: true
+			});
+
+			expect(result.processedPages).toBe(4);
+			expect(result.zipParts.length).toBeGreaterThanOrEqual(2);
+		});
+
+		it('should retry page at lower scale when canvas rendering fails on first attempt', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'retry-test.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 1;
+
+			let attempt = 0;
+			const originalCreateElement = document.createElement;
+			document.createElement = vi.fn().mockImplementation((type: string) => {
+				if (type === 'canvas') {
+					attempt++;
+					return {
+						width: 100,
+						height: 200,
+						getContext: vi.fn().mockReturnValue({
+							getImageData: vi.fn().mockReturnValue({ data: new Uint8Array(4) }),
+							putImageData: vi.fn()
+						}),
+						toBlob: vi.fn().mockImplementation((cb: (blob: Blob | null) => void) => {
+							if (attempt === 1) {
+								cb(null); // Fail first attempt
+							} else {
+								cb(new Blob(['success-after-retry'])); // Succeed on retry
+							}
+						})
+					};
+				}
+				return originalCreateElement(type);
+			});
+
+			try {
+				const result = await processPdfToJpg(fakeFile, {
+					keepColor: true
+				});
+				expect(result.processedPages).toBe(1);
+				expect(attempt).toBeGreaterThan(1);
+			} finally {
+				document.createElement = originalCreateElement;
+			}
+		});
+
+		it('should stream write to disk and release Blob from RAM when dirHandle is provided', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'disk-stream.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const mockWritable = {
+				write: vi.fn().mockResolvedValue(undefined),
+				close: vi.fn().mockResolvedValue(undefined)
 			};
-			state.pdfZipParts = [part1, part2];
-			state.bookName = 'test-book';
+			const mockFileHandle = {
+				createWritable: vi.fn().mockResolvedValue(mockWritable)
+			};
+			const mockDirHandle = {
+				name: 'MyOutputFolder',
+				getFileHandle: vi.fn().mockResolvedValue(mockFileHandle)
+			} as unknown as FileSystemDirectoryHandle;
 
-			expect(state.hasMultipleParts).toBe(true);
+			const result = await processPdfToJpg(fakeFile, {
+				dirHandle: mockDirHandle,
+				keepColor: true
+			});
 
-			// Test downloadPart
-			expect(() => state.downloadPart(0)).not.toThrow();
-			expect(() => state.downloadPart(1)).not.toThrow();
+			expect(result.savedDirectoryName).toBe('MyOutputFolder');
+			expect(mockDirHandle.getFileHandle).toHaveBeenCalled();
+			expect(mockWritable.write).toHaveBeenCalled();
+			expect(mockWritable.close).toHaveBeenCalled();
+			// RAM freed: Blob should be undefined in zipParts when savedToDisk is true
+			expect(result.zipParts[0].savedToDisk).toBe(true);
+			expect(result.zipParts[0].blob).toBeUndefined();
+		});
+
+		it('should support releasing part blob in PdfSplitterState', () => {
+			const state = new PdfSplitterState();
+			state.pdfZipParts = [
+				{
+					partIndex: 1,
+					totalParts: 1,
+					startPage: 1,
+					endPage: 2,
+					blob: new Blob(['test-data']),
+					filename: 'test.zip',
+					sizeBytes: 9
+				}
+			];
+			expect(state.pdfZipParts[0].blob).toBeDefined();
+
+			state.releasePartBlob(0);
+			expect(state.pdfZipParts[0].blob).toBeUndefined();
 		});
 	});
 });
