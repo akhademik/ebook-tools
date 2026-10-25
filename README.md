@@ -151,11 +151,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-25 19:35
+- Cập nhật lần cuối: 2026-10-25 19:58
 - Đã hoàn thành:
   - **Tối ưu hóa Chuẩn OCR & Nâng cấp Chất lượng Tách trang PDF (PDF Splitter for OCR)**:
     - **Mặc định chuẩn 200 DPI**: Đặt mặc định 200 DPI ($scale \approx 2.778$, kích thước trang A4 đạt $\approx 1654 \times 2339$px) đồng nhất trên cả Desktop và Mobile/Touch device, đảm bảo độ phân giải sắc nét tối ưu cho Google Vision OCR và các công cụ OCR nhận diện chuẩn xác dấu tiếng Việt, chữ nhỏ.
-    - **Lựa chọn DPI linh hoạt trên UI**: Bổ sung bộ chọn DPI trực quan trên giao diện (150 DPI - Nhanh/Nhẹ, 200 DPI - Mặc định chuẩn OCR, 300 DPI - Sách scan mờ / Nét nhỏ).
+    - **Cố định chuẩn 200 DPI**: Khóa cứng mặc định 200 DPI tối ưu cho OCR, loại bỏ hoàn toàn bộ chọn DPI thủ công trên UI để đảm bảo chất lượng xuất ảnh đồng nhất và đơn giản hóa giao diện.
     - **Tách biệt điều kiện Mobile với DPI**: Điều kiện `isMobileOrLowMemoryDevice()` chỉ dùng để giảm trần dung lượng phần ZIP (`40MB` thay vì `80MB`) nhằm bảo toàn RAM, tuyệt đối không ép giảm ngầm DPI chất lượng ảnh. Tinh chỉnh nhận diện mobile để không gán nhầm laptop màn hình cảm ứng thành thiết bị di động.
     - **Đệm số 0 tên tệp (`page0001.jpg`)**: Tự động đệm số 0 theo tổng số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo thứ tự từ điển (lexicographical order) luôn tuần tự chuẩn xác cho các script OCR (`page0001.jpg`, `page0002.jpg`, ..., `page0010.jpg`).
     - **Cơ chế Retry giữ chuẩn chất lượng & Minh bạch Trang giảm độ phân giải (`degradedPages`)**:
@@ -274,7 +274,7 @@ pnpm test:e2e
 
 - Thêm/sửa: Chuẩn hóa tính năng tách trang PDF phục vụ nhận diện quang học OCR:
   - **Mặc định chuẩn 200 DPI**: Thiết lập mặc định 200 DPI ($scale \approx 2.778$, A4 $\approx 1654 \times 2339$px) đồng nhất trên mọi thiết bị (desktop lẫn mobile), đảm bảo độ nét và kích thước ký tự đủ lớn cho Vision OCR phân tích chính xác dấu tiếng Việt.
-  - **Tùy chọn DPI trên UI**: Bổ sung bộ chọn DPI 3 mức (150 DPI - Nhanh/Nhẹ, 200 DPI - Chuẩn OCR, 300 DPI - Scan mờ / Nét nhỏ) trong thẻ cấu hình.
+  - **Khóa cố định 200 DPI**: Loại bỏ bộ chọn DPI trên UI, khóa cứng chuẩn 200 DPI cho toàn bộ tiến trình để đơn giản hóa giao diện và ngăn người dùng vô tình chọn độ phân giải thấp gây lỗi nhận diện OCR.
   - **Đệm số 0 tên file (`page0001.jpg`)**: Đệm số 0 tự động theo số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo các script xử lý OCR tự động duyệt file theo thứ tự từ điển không bị đảo trang (tránh `page1, page10, page2`).
   - **Tách biệt điều kiện Mobile với DPI**: Điều kiện thiết bị di động/RAM thấp chỉ áp dụng để chia nhỏ phần ZIP (40MB/phần) nhằm kiểm soát RAM, không hạ ngầm DPI. Khắc phục việc laptop màn hình cảm ứng bị nhận diện nhầm thành điện thoại.
   - **Bảo toàn chất lượng khi thử lại & Minh bạch danh sách trang giảm độ phân giải**:

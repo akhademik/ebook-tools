@@ -45,7 +45,7 @@
 				</strong>
 				<span class="text-text-mute">
 					Dung lượng tệp: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
-					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({state.selectedDpi}
+					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần (200
 					DPI chuẩn OCR) để tránh sự cố tràn bộ nhớ RAM.
 				</span>
 			</div>
@@ -56,9 +56,6 @@
 		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block"
 			>Cắt xén Header / Footer</span
 		>
-		<p class="text-sm text-text-mute mb-5">
-			Xem trước trang để canh lề cắt bỏ header/footer thừa cho toàn bộ tài liệu.
-		</p>
 
 		<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
 			<span class="text-sm font-medium text-text-mute">Trang xem trước</span>
@@ -210,125 +207,40 @@
 		</div>
 
 		<div class="mb-5 pt-4 border-t border-border-color">
-			<div class="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
-				<span class="font-mono text-xs tracking-wider text-text-mute uppercase block">
-					Độ phân giải xuất ảnh (DPI cho OCR)
-				</span>
-				<span class="text-xs font-mono text-accent-color">
-					{state.selectedDpi} DPI (~{(state.selectedDpi / 72).toFixed(1)}x)
-				</span>
-			</div>
-			<div class="grid grid-cols-3 gap-2">
-				<button
-					type="button"
-					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
-					150
-						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
-						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
-					onclick={() => {
-						state.selectedDpi = 150;
-					}}
-				>
-					150 DPI
-					<span class="block text-[10px] text-text-mute">Nhanh / Nhẹ</span>
-				</button>
-				<button
-					type="button"
-					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
-					200
-						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
-						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
-					onclick={() => {
-						state.selectedDpi = 200;
-					}}
-				>
-					200 DPI
-					<span class="block text-[10px] text-accent-color">Chuẩn OCR</span>
-				</button>
-				<button
-					type="button"
-					class="py-2 px-3 rounded-xl border text-xs font-mono cursor-pointer transition-colors text-center {state.selectedDpi ===
-					300
-						? 'border-accent-color text-accent-color bg-accent-soft font-semibold'
-						: 'border-border-color bg-panel-2 text-text-color hover:border-amber-color'}"
-					onclick={() => {
-						state.selectedDpi = 300;
-					}}
-				>
-					300 DPI
-					<span class="block text-[10px] text-text-mute">Scan mờ / Nét nhỏ</span>
-				</button>
-			</div>
-		</div>
-
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 pt-4 border-t border-border-color">
-			<div>
-				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
-					Dải trang xử lý
-				</span>
-				<div class="flex items-center gap-2 flex-wrap">
-					<div class="flex items-center gap-1.5">
-						<span class="text-xs text-text-mute font-mono">Từ:</span>
-						<input
-							type="number"
-							bind:value={state.startPage}
-							min="1"
-							max={state.totalDocPages || 99999}
-							class="w-18 bg-panel-2 border border-border-color text-text-color font-mono text-sm py-1.5 px-2.5 rounded-xl text-center outline-none focus:border-accent-color"
-						/>
-					</div>
-					<div class="flex items-center gap-1.5">
-						<span class="text-xs text-text-mute font-mono">Đến:</span>
-						<input
-							type="number"
-							bind:value={state.endPage}
-							min={state.startPage}
-							max={state.totalDocPages || 99999}
-							class="w-18 bg-panel-2 border border-border-color text-text-color font-mono text-sm py-1.5 px-2.5 rounded-xl text-center outline-none focus:border-accent-color"
-						/>
-					</div>
-					{#if state.totalDocPages > 0}
-						<span class="text-xs text-text-mute font-mono">/ {state.totalDocPages} trang</span>
-					{/if}
-				</div>
-			</div>
-
-			<div>
-				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
-					Ghi trực tiếp ra ổ đĩa
-				</span>
-				{#if state.supportsFSA}
-					{#if state.dirName}
-						<div class="flex items-center gap-2">
-							<span
-								class="text-xs font-mono text-accent-color truncate max-w-50"
-								title={state.dirName}
-							>
-								📁 {state.dirName}
-							</span>
-							<button
-								type="button"
-								class="text-xs font-mono text-red-500 hover:underline cursor-pointer"
-								onclick={() => state.clearOutputDirectory()}
-							>
-								Hủy
-							</button>
-						</div>
-					{:else}
+			<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
+				Ghi trực tiếp ra ổ đĩa
+			</span>
+			{#if state.supportsFSA}
+				{#if state.dirName}
+					<div class="flex items-center gap-2">
+						<span
+							class="text-xs font-mono text-accent-color truncate max-w-75"
+							title={state.dirName}
+						>
+							📁 {state.dirName}
+						</span>
 						<button
 							type="button"
-							class="bg-panel-2 border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-2 px-3 rounded-xl cursor-pointer transition-colors"
-							onclick={() => state.selectOutputDirectory()}
+							class="text-xs font-mono text-red-500 hover:underline cursor-pointer"
+							onclick={() => state.clearOutputDirectory()}
 						>
-							📁 Chọn thư mục lưu (Giải phóng RAM)
+							Hủy
 						</button>
-					{/if}
+					</div>
 				{:else}
-					<span class="text-xs text-text-mute font-mono block">
-						Trình duyệt không hỗ trợ File System API (tải về qua trình tải)
-					</span>
+					<button
+						type="button"
+						class="bg-panel-2 border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-2 px-3 rounded-xl cursor-pointer transition-colors"
+						onclick={() => state.selectOutputDirectory()}
+					>
+						📁 Chọn thư mục lưu (Giải phóng RAM)
+					</button>
 				{/if}
-			</div>
+			{:else}
+				<span class="text-xs text-text-mute font-mono block">
+					Trình duyệt không hỗ trợ File System API (tải về qua trình tải)
+				</span>
+			{/if}
 		</div>
 
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
@@ -404,8 +316,7 @@
 					<span class="text-text-mute">
 						Các trang: <span class="font-mono text-text-color font-semibold"
 							>{state.degradedPages.join(', ')}</span
-						>. Chất lượng JPEG vẫn được giữ 85%. Bạn có thể chọn riêng các trang này ở dải trang để
-						tách lại nếu cần OCR nét hơn.
+						>. Chất lượng JPEG vẫn được giữ 85%.
 					</span>
 				</div>
 			</div>

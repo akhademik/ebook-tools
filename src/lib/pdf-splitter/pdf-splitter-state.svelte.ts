@@ -18,8 +18,6 @@ export class PdfSplitterState {
 	keepColor = $state<boolean>(false);
 
 	totalDocPages = $state<number>(0);
-	startPage = $state<number>(1);
-	endPage = $state<number>(1);
 
 	maxPartBytes = $state<number>(DEFAULT_DESKTOP_PART_BYTES);
 	maxPagesPerPart = $state<number>(DEFAULT_MAX_PAGES_PER_PART);
@@ -102,8 +100,6 @@ export class PdfSplitterState {
 				.getDocument(src)
 				.promise.then((d) => {
 					this.totalDocPages = d.numPages;
-					this.startPage = 1;
-					this.endPage = d.numPages;
 					d.destroy();
 				})
 				.catch(() => {})
@@ -211,8 +207,6 @@ export class PdfSplitterState {
 				keepColor: this.keepColor,
 				cropTopPx: this.cropTopPx,
 				cropBottomPx: this.cropBottomPx,
-				startPage: this.startPage,
-				endPage: this.endPage,
 				maxPartBytes: this.maxPartBytes,
 				maxPagesPerPart: this.maxPagesPerPart,
 				targetDpi: this.selectedDpi,
