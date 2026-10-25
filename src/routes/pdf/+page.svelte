@@ -31,6 +31,21 @@
 </div>
 
 {#if state.pdfSelectedFile}
+	{#if state.isLargeFile || (state.isMobile && (state.pdfSelectedFile?.size ?? 0) > 50 * 1024 * 1024)}
+		<div
+			class="mb-6 p-4 rounded-xl border border-amber-color/40 bg-accent-soft text-text-color flex items-start gap-3"
+		>
+			<span class="text-amber-color text-xl leading-none">⚠️</span>
+			<div class="text-sm">
+				<strong class="font-semibold block mb-0.5">Tệp PDF lớn / Thiết bị di động:</strong>
+				<span>
+					Tệp có dung lượng lớn. Trình duyệt sẽ tự động tối ưu hóa giải phóng RAM và chia nhỏ bộ ảnh
+					thành các phần ({state.pagesPerPart} trang/phần) nếu cần để tránh sự cố tràn bộ nhớ.
+				</span>
+			</div>
+		</div>
+	{/if}
+
 	<div class="modern-card rounded-2xl p-7 mb-6">
 		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block"
 			>Cắt xén Header / Footer</span
@@ -204,7 +219,7 @@
 					disabled={!state.pdfZipBlob || state.processing}
 					variant="secondary"
 				>
-					Tải tệp .ZIP
+					{state.hasMultipleParts ? 'Tải toàn bộ ZIP' : 'Tải tệp .ZIP'}
 				</Button>
 			</div>
 		</div>
@@ -229,6 +244,48 @@
 						class="h-full bg-accent-color transition-all duration-150"
 						style="width: {state.progressPercent}%"
 					></div>
+				</div>
+			</div>
+		{/if}
+
+		{#if state.hasMultipleParts}
+			<div class="mt-6 pt-5 border-t border-border-color animate-fade-in">
+				<div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+					<span class="font-mono text-xs uppercase tracking-wider text-text-mute">
+						Các phần ZIP đã hoàn tất ({state.pdfZipParts.length} phần)
+					</span>
+					<button
+						type="button"
+						class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+						onclick={() => state.downloadAllParts()}
+						disabled={state.processing}
+					>
+						Tải lần lượt tất cả
+					</button>
+				</div>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+					{#each state.pdfZipParts as part, idx (part.partIndex)}
+						<div
+							class="p-3 rounded-xl bg-panel-2 border border-border-color flex items-center justify-between gap-3"
+						>
+							<div class="min-w-0">
+								<span class="font-mono text-sm font-semibold text-text-color block truncate">
+									Phần {part.partIndex}: Trang {part.startPage}–{part.endPage}
+								</span>
+								<span class="font-mono text-xs text-text-mute">
+									{(part.blob.size / (1024 * 1024)).toFixed(1)} MB
+								</span>
+							</div>
+							<button
+								type="button"
+								class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
+								onclick={() => state.downloadPart(idx)}
+								disabled={state.processing}
+							>
+								Tải phần {part.partIndex}
+							</button>
+						</div>
+					{/each}
 				</div>
 			</div>
 		{/if}

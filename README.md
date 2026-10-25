@@ -151,20 +151,26 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-25 18:05
+- Cập nhật lần cuối: 2026-10-25 18:25
 - Đã hoàn thành:
   - **Tối ưu hóa & Hoàn thiện toàn diện PDF Splitter & PDF.js Offline**:
-    - **Khắc phục lỗi ngốn RAM (Mục 1)**: Loại bỏ việc nhân bản buffer `arrayBuffer.slice(0)`. Sử dụng Zero-Copy Streaming qua `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })`. Loại bỏ `probeDoc` thừa, tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
-    - **Xử lý dứt điểm Web Worker (Mục 2)**: Gỡ bỏ hoàn toàn module worker lỗi thời bên ngoài (`pdf-splitter.worker.ts`), giải phóng triệt để dead code. Tận dụng trực tiếp worker native nội bộ của PDF.js kết hợp vòng lặp render tuần tự cooperative trên luồng chính với `page.cleanup()` và `setTimeout(0)`, duy trì UI 60fps mượt mà, triệt tiêu đỉnh RAM và nguy cơ rò rỉ worker.
-    - **Bảo vệ Canvas & Minh bạch lỗi (Mục 3)**:
+    - **Khắc phục lỗi ngốn RAM & Smart Split ZIP**:
+      - Loại bỏ việc nhân bản buffer `arrayBuffer.slice(0)`. Sử dụng Zero-Copy Streaming qua `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })`. Loại bỏ `probeDoc` thừa, tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
+      - Cơ chế chia phần ZIP thông minh (`MAX_PAGES_PER_ZIP_PART = 200`): Tự động chia nhỏ bộ ảnh thành các tệp ZIP độc lập và tái tạo `JSZip()` sau mỗi phần, khống chế đỉnh RAM dưới 100MB cho tài liệu scan hàng trăm trang.
+      - Hỗ trợ tải từng phần hoặc tải tất cả liên tiếp trên giao diện (`src/routes/pdf/+page.svelte`), kèm cảnh báo UX chủ động cho tệp lớn (>150MB) và thiết bị di động.
+    - **Đồng bộ hóa 2 vị trí nạp PDF cũ**:
+      - Cập nhật `renderPdfPageToBlob` trong [`src/lib/utils/pdf.ts`](src/lib/utils/pdf.ts) chấp nhận `File | Blob | ArrayBuffer | Uint8Array`, dùng zero-copy streaming, áp dụng viewport clamping và giải phóng bộ nhớ canvas.
+      - Cập nhật trích xuất bìa PDF và ảnh minh họa trong [`src/lib/epub-packer/state/epub-images-state.svelte.ts`](src/lib/epub-packer/state/epub-images-state.svelte.ts), quản lý vòng đời Object URL và dọn dẹp sạch sẽ tránh rò rỉ bộ nhớ.
+    - **Xử lý dứt điểm Web Worker**: Gỡ bỏ hoàn toàn module worker lỗi thời bên ngoài (`pdf-splitter.worker.ts`), giải phóng triệt để dead code. Tận dụng trực tiếp worker native nội bộ của PDF.js kết hợp vòng lặp render tuần tự cooperative trên luồng chính với `page.cleanup()` và `setTimeout(0)`, duy trì UI 60fps mượt mà, triệt tiêu đỉnh RAM và nguy cơ rò rỉ worker.
+    - **Bảo vệ Canvas & Minh bạch lỗi**:
       - Tích hợp thuật toán tính toán kích thước co giãn thích ứng [`getClampedViewport`](src/lib/pdf-splitter/pdf-splitter.ts), khống chế kích thước tối đa `MAX_CANVAS_DIMENSION = 4096px` và `MAX_CANVAS_PIXELS = 16M pixels` chống tràn bộ nhớ và crash canvas trên Safari iOS / thiết bị di động.
       - Giải phóng ngay lập tức bộ nhớ GPU/backing store sau mỗi trang bằng `canvas.width = 0; canvas.height = 0`.
       - Minh bạch lỗi tuyệt đối: Ném lỗi rõ ràng kèm số trang chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được Canvas 2D context, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến file ZIP thiếu trang.
-    - **100% Ngoại tuyến (Offline hoàn toàn - Mục 4)**:
+    - **100% Ngoại tuyến (Offline hoàn toàn)**:
       - Self-host toàn bộ `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) nội bộ vào thư mục [`static/vendor/pdfjs/`](static/vendor/pdfjs/), giải phóng hoàn toàn sự phụ thuộc vào mạng internet hoặc cdnjs bên ngoài.
       - Cập nhật [`src/app.html`](src/app.html) tải cục bộ `/vendor/pdfjs/pdf.min.js` kèm fallback CDN an toàn khi cần.
       - Đồng bộ [`initPdfWorker`](src/lib/utils/pdf.ts) trỏ trực tiếp worker của PDF.js vào `/vendor/pdfjs/pdf.worker.min.js`.
-    - Toàn bộ **328/328 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
+    - Toàn bộ **338/338 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Khắc phục lỗi Phông chữ Trang giới thiệu khi chuyển tiếp Mẫu (Fix Jacket Modal Font Persistence Across Templates)**:
     - Sửa triệt để sự cố phông chữ chỉ đổi ở Mẫu 1 và không phản ánh khi chuyển tiếp sang Mẫu 2, Mẫu 3 bằng nút 'Tiếp' / 'Trước'.
     - Chuyển toàn bộ CSS override của jacket font ra thẻ `<style id="jacket-font-override">` trong `<svelte:head>`, đồng thời gán CSS variable `--jacket-font` trực tiếp lên `.preview-wrap` và quy tắc toàn cục `:global(.preview-wrap, .preview-wrap *) { font-family: var(--jacket-font, inherit) !important; }`. Loại bỏ hoàn toàn việc lồng thẻ `<style>` bên trong thẻ `<div>` dễ gây lỗi desync DOM giữa các khối `{@html}`.
@@ -250,6 +256,34 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-25 (PDF Smart Split ZIP, Mobile Guard & Full Zero-Copy Synchronization)
+
+- Thêm/sửa: Khắc phục triệt để vấn đề JSZip ngốn RAM khi nén hàng trăm trang PDF scan, bổ sung cảnh báo thiết bị di động và đồng bộ hóa Zero-Copy trên toàn bộ codebase:
+  - **Đồng bộ hóa các vị trí nạp PDF cũ (`epub-images-state.svelte.ts` & `src/lib/utils/pdf.ts`)**:
+    - `src/lib/utils/pdf.ts`: Cập nhật `renderPdfPageToBlob` chấp nhận `File | Blob | ArrayBuffer | Uint8Array`. Với `Blob`/`File`, truyền trực tiếp qua `URL.createObjectURL(pdfInput)` (zero-copy streaming) thay vì sao chép toàn bộ file vào mảng RAM; tự động thu hồi bằng `URL.revokeObjectURL(url)` trong `finally`.
+    - Tích hợp `getClampedViewport(page, scale)` khống chế tối đa `4096px` / `16MP`, và giải phóng bộ nhớ texture/GPU ngay lập tức bằng `canvas.width = 0; canvas.height = 0`.
+    - `src/lib/epub-packer/state/epub-images-state.svelte.ts`:
+      - Trích xuất ảnh bìa PDF (`handleCoverFile`): Thay thế mã render thủ công bằng `renderPdfPageToBlob(file, 1, 2.0, 0.9)`, sử dụng Object URL thay vì chuỗi base64 khổng lồ, tự động thu hồi URL trong `removeCoverFile` và `resetCoverCrop`.
+      - Trích xuất ảnh minh họa PDF (`handleIllustrationFiles`): Loại bỏ `file.arrayBuffer()`, truyền trực tiếp `file` hoặc `zip.files[name].async('blob')` cho `renderPdfPageToBlob`.
+  - **Smart Split ZIP (Khắc phục JSZip gom hết ảnh trong RAM)**:
+    - `src/lib/types/pdf-splitter.type.ts`: Bổ sung interface `PdfZipPart` và mở rộng `ProcessPdfResult` gồm `zipBlob: Blob` (tương thích ngược) và `zipParts: PdfZipPart[]`.
+    - `src/lib/pdf-splitter/pdf-splitter.ts`: Thiết lập giới hạn `MAX_PAGES_PER_ZIP_PART = 200`. Khi tệp có nhiều trang (>200 trang), tiến trình tự động đóng gói từng phần ZIP độc lập và tái tạo `currentZip = new JSZip()`, giải phóng toàn bộ ảnh JPEG của phần trước khỏi heap JavaScript, khống chế đỉnh RAM dưới 100MB cho tài liệu scan hàng trăm trang.
+  - **Cảnh báo thiết bị di động & Giao diện tải đa phần (UI/UX)**:
+    - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`: Bổ sung `pdfZipParts`, `pagesPerPart`, `isLargeFile`, `isMobile`, `hasMultipleParts`, cùng phương thức `downloadPart(index)` và `downloadAllParts()`.
+    - `src/routes/pdf/+page.svelte`: Bổ sung banner cảnh báo tệp PDF lớn / thiết bị di động theo phong cách Solarized Glassmorphism, và hiển thị giao diện tải từng phần ZIP hoặc tải toàn bộ liên tiếp khi sách được chia thành nhiều phần.
+  - **Kiểm thử**: Bổ sung unit tests cho multi-part ZIP splitting, `renderPdfPageToBlob` (zero-copy streaming & error handling), `PdfSplitterState` (download helpers & large-file detection) và trích xuất bìa PDF.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (338/338 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (4845 nodes, 10458 edges, 276 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/pdf-splitter.type.ts`
+  - `src/lib/utils/pdf.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`
+  - `src/lib/epub-packer/state/epub-images-state.svelte.ts`
+  - `src/routes/pdf/+page.svelte`
+  - `tests/pdf-splitter.test.ts`
+  - `tests/image-bg-remove.test.ts`
+  - `README.md`
 
 ### 2026-10-25 (PDF Splitter Full Hardening: Zero-Copy, Canvas Guard, 100% Offline)
 

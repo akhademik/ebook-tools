@@ -1,5 +1,9 @@
 // src/lib/utils/pdf.ts
 import { Logger } from './logger';
+import type { PdfJsPage, PdfJsViewport } from '$lib/types';
+
+export const MAX_CANVAS_DIMENSION = 4096;
+export const MAX_CANVAS_PIXELS = 16 * 1024 * 1024; // 16 Megapixels
 
 /**
  * Configure PDF.js worker URL (100% offline self-hosted with fallback).
@@ -18,10 +22,33 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Render a single page of PDF data (ArrayBuffer or Uint8Array) to an image Blob.
+ * Safely compute viewport dimensions clamped to maximum canvas limits to prevent iOS/browser OOM.
+ */
+export function getClampedViewport(page: PdfJsPage, targetScale = 2.0): PdfJsViewport {
+	const baseViewport = page.getViewport({ scale: 1.0 });
+	let scale = targetScale;
+
+	// Clamp max dimension
+	const maxDim = Math.max(baseViewport.width * scale, baseViewport.height * scale);
+	if (maxDim > MAX_CANVAS_DIMENSION) {
+		scale = (MAX_CANVAS_DIMENSION / maxDim) * scale;
+	}
+
+	// Clamp total pixels to avoid canvas allocation failure / OOM
+	const totalPixels = baseViewport.width * scale * (baseViewport.height * scale);
+	if (totalPixels > MAX_CANVAS_PIXELS) {
+		scale = scale * Math.sqrt(MAX_CANVAS_PIXELS / totalPixels);
+	}
+
+	return page.getViewport({ scale });
+}
+
+/**
+ * Render a single page of PDF data (File, Blob, ArrayBuffer, or Uint8Array) to an image Blob.
+ * Uses zero-copy object URL for Blobs/Files to avoid copying data into RAM.
  */
 export async function renderPdfPageToBlob(
-	pdfData: ArrayBuffer | Uint8Array,
+	pdfInput: File | Blob | ArrayBuffer | Uint8Array,
 	pageNum = 1,
 	scale = 2.0,
 	quality = 0.9
@@ -32,12 +59,33 @@ export async function renderPdfPageToBlob(
 		throw new Error('Thư viện PDF.js chưa sẵn sàng.');
 	}
 
-	const doc = await globalPdfjs.getDocument({ data: pdfData }).promise;
+	let docSource: { url?: string; data?: ArrayBuffer | Uint8Array };
+	let url: string | null = null;
+
+	if (typeof Blob !== 'undefined' && pdfInput instanceof Blob) {
+		url = URL.createObjectURL(pdfInput);
+		docSource = { url };
+	} else if (pdfInput instanceof ArrayBuffer || pdfInput instanceof Uint8Array) {
+		docSource = { data: pdfInput };
+	} else {
+		throw new Error('Định dạng dữ liệu đầu vào PDF không hợp lệ.');
+	}
+
+	let doc;
+	try {
+		doc = await globalPdfjs.getDocument(docSource).promise;
+	} catch (loadErr) {
+		if (url) {
+			URL.revokeObjectURL(url);
+		}
+		throw loadErr;
+	}
+
 	try {
 		const targetPage = Math.min(Math.max(1, pageNum), doc.numPages);
 		const page = await doc.getPage(targetPage);
 		try {
-			const viewport = page.getViewport({ scale });
+			const viewport = getClampedViewport(page, scale);
 			const canvas = document.createElement('canvas');
 			canvas.width = viewport.width;
 			canvas.height = viewport.height;
@@ -62,6 +110,12 @@ export async function renderPdfPageToBlob(
 			page.cleanup();
 		}
 	} finally {
-		doc.destroy();
+		try {
+			doc.destroy();
+		} finally {
+			if (url) {
+				URL.revokeObjectURL(url);
+			}
+		}
 	}
 }

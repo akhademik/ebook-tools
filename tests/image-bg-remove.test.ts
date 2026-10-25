@@ -472,5 +472,26 @@ describe('image background removal and ornament optimization', () => {
 			const fileNames = state.illustrationFiles.map((f) => f.fileName).sort();
 			expect(fileNames).toEqual(['hinh-a.jpg', 'hinh-b.jpg']);
 		});
+
+		it('should extract cover from page 1 of a PDF file using renderPdfPageToBlob', async () => {
+			const state = new EpubImagesState();
+			const pdfCover = new File([new ArrayBuffer(100)], 'cover.pdf', {
+				type: 'application/pdf'
+			});
+
+			await state.handleCoverFile(pdfCover);
+
+			expect(state.coverFile).toBe(pdfCover);
+			expect(state.coverOriginalUrl).toBeDefined();
+			expect(state.coverOriginalUrl).toContain('blob:');
+			expect(state.coverWidth).toBe(20);
+			expect(state.coverHeight).toBe(20);
+			expect(state.coverIsError).toBe(false);
+
+			// Test removeCoverFile cleanup
+			state.removeCoverFile();
+			expect(state.coverFile).toBeNull();
+			expect(state.coverOriginalUrl).toBeNull();
+		});
 	});
 });

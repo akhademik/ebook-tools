@@ -14,8 +14,18 @@ export interface PdfProgressInfo {
 	numPages: number;
 }
 
+export interface PdfZipPart {
+	partIndex: number;
+	totalParts: number;
+	startPage: number;
+	endPage: number;
+	blob: Blob;
+	filename: string;
+}
+
 export interface ProcessPdfResult {
 	zipBlob: Blob;
+	zipParts: PdfZipPart[];
 	numPages: number;
 }
 

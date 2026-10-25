@@ -120,8 +120,8 @@ export class EpubImagesState {
 							} else if (/\.pdf$/i.test(name)) {
 								try {
 									this.illustrationStatus = `Đang xử lý PDF: ${name}...`;
-									const ab = await zip.files[name].async('arraybuffer');
-									const blob = await renderPdfPageToBlob(ab, 1, 2.0, 0.9);
+									const pdfBlob = await zip.files[name].async('blob');
+									const blob = await renderPdfPageToBlob(pdfBlob, 1, 2.0, 0.9);
 									if (!blob) continue;
 									const rawFileName = name.split('/').pop() || name;
 									const baseName = rawFileName.replace(/\.pdf$/i, '');
@@ -166,8 +166,7 @@ export class EpubImagesState {
 					}
 					try {
 						this.illustrationStatus = `Đang chuyển đổi PDF: ${file.name}...`;
-						const ab = await file.arrayBuffer();
-						const blob = await renderPdfPageToBlob(ab, 1, 2.0, 0.9);
+						const blob = await renderPdfPageToBlob(file, 1, 2.0, 0.9);
 						if (!blob) continue;
 						const baseName = file.name.replace(/\.pdf$/i, '');
 						const outputFileName = `${baseName}.jpg`;
@@ -422,22 +421,27 @@ export class EpubImagesState {
 			}
 			try {
 				this.coverStatus = 'Đang trích xuất trang bìa từ tệp PDF...';
-				const arrayBuffer = await file.arrayBuffer();
-				const doc = await globalPdfjs.getDocument({ data: arrayBuffer }).promise;
-				const page = await doc.getPage(1);
-				const viewport = page.getViewport({ scale: 2.0 });
-				const canvas = document.createElement('canvas');
-				canvas.width = viewport.width;
-				canvas.height = viewport.height;
-				const ctx = canvas.getContext('2d');
-				if (ctx) {
-					await page.render({ canvasContext: ctx, viewport }).promise;
-					this.coverOriginalUrl = canvas.toDataURL('image/jpeg', 0.9);
-					this.coverWidth = canvas.width;
-					this.coverHeight = canvas.height;
+				const blob = await renderPdfPageToBlob(file, 1, 2.0, 0.9);
+				if (!blob) {
+					throw new Error('Không thể tạo ảnh từ trang đầu của tệp PDF.');
 				}
-				page.cleanup();
-				doc.destroy();
+				if (this.coverOriginalUrl && this.coverOriginalUrl.startsWith('blob:')) {
+					URL.revokeObjectURL(this.coverOriginalUrl);
+				}
+				const objectUrl = URL.createObjectURL(blob);
+				this.coverOriginalUrl = objectUrl;
+
+				await new Promise<void>((resolve, reject) => {
+					const img = new Image();
+					img.onload = () => {
+						this.coverWidth = img.naturalWidth;
+						this.coverHeight = img.naturalHeight;
+						resolve();
+					};
+					img.onerror = () => reject(new Error('Không thể tải ảnh bìa sau khi trích xuất.'));
+					img.src = objectUrl;
+				});
+
 				this.coverStatus = '';
 				this.coverIsError = false;
 			} catch (err: unknown) {
@@ -462,6 +466,9 @@ export class EpubImagesState {
 	}
 
 	removeCoverFile(): void {
+		if (this.coverOriginalUrl && this.coverOriginalUrl.startsWith('blob:')) {
+			URL.revokeObjectURL(this.coverOriginalUrl);
+		}
 		this.coverFile = null;
 		this.coverOriginalUrl = null;
 		this.coverWidth = 0;

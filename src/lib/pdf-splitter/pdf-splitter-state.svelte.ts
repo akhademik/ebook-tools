@@ -1,11 +1,13 @@
 import { slugify, ensureZipExt, triggerDownload, Logger } from '$lib/utils';
 import { MAX_PDF_FILE_SIZE } from '$lib/constants';
-import { loadPdfPreview, processPdfToJpg } from './pdf-splitter';
-import type { PdfPreviewPage } from '$lib/types';
+import { loadPdfPreview, processPdfToJpg, MAX_PAGES_PER_ZIP_PART } from './pdf-splitter';
+import type { PdfPreviewPage, PdfZipPart } from '$lib/types';
 
 export class PdfSplitterState {
 	pdfSelectedFile = $state<File | null>(null);
 	pdfZipBlob = $state<Blob | null>(null);
+	pdfZipParts = $state<PdfZipPart[]>([]);
+	pagesPerPart = $state<number>(MAX_PAGES_PER_ZIP_PART);
 	bookName = $state<string>('');
 	keepColor = $state<boolean>(false);
 
@@ -30,6 +32,13 @@ export class PdfSplitterState {
 			? `Sẽ cắt ${this.cropTopPx}px trên · ${this.cropBottomPx}px dưới ở mỗi trang khi xuất.`
 			: ''
 	);
+	isLargeFile = $derived(!!this.pdfSelectedFile && this.pdfSelectedFile.size > 150 * 1024 * 1024);
+	isMobile = $derived(
+		typeof navigator !== 'undefined' &&
+			(navigator.maxTouchPoints > 0 ||
+				/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+	);
+	hasMultipleParts = $derived(this.pdfZipParts.length > 1);
 
 	handleFile(file: File | null): void {
 		if (!file) return;
@@ -48,6 +57,7 @@ export class PdfSplitterState {
 		this.pdfSelectedFile = file;
 		this.bookName = slugify(file.name);
 		this.pdfZipBlob = null;
+		this.pdfZipParts = [];
 
 		this.previewPages = [];
 		this.currentPreviewIndex = 0;
@@ -121,6 +131,7 @@ export class PdfSplitterState {
 
 		this.processing = true;
 		this.pdfZipBlob = null;
+		this.pdfZipParts = [];
 		this.status = 'Đang bắt đầu xử lý tệp PDF...';
 		this.isError = false;
 		this.progressPercent = 0;
@@ -135,9 +146,11 @@ export class PdfSplitterState {
 					this.progressPercent = info.progressPercent;
 					this.status = info.progressLabel;
 				},
-				ac.signal
+				ac.signal,
+				this.pagesPerPart
 			);
 			this.pdfZipBlob = res.zipBlob;
+			this.pdfZipParts = res.zipParts || [];
 		} catch (err: unknown) {
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.status = 'Đã hủy xử lý PDF.';
@@ -156,7 +169,31 @@ export class PdfSplitterState {
 	}
 
 	downloadZip(): void {
+		if (this.pdfZipParts.length > 1) {
+			void this.downloadAllParts();
+			return;
+		}
 		if (!this.pdfZipBlob) return;
 		triggerDownload(this.pdfZipBlob, this.zipNamePreview);
+	}
+
+	downloadPart(index: number): void {
+		const part = this.pdfZipParts[index];
+		if (!part) return;
+		const base = this.bookName.trim() || 'ten-sach';
+		const filename =
+			this.pdfZipParts.length > 1
+				? `${base}-part${part.partIndex}-pages${part.startPage}-${part.endPage}.zip`
+				: this.zipNamePreview;
+		triggerDownload(part.blob, filename);
+	}
+
+	async downloadAllParts(): Promise<void> {
+		for (let i = 0; i < this.pdfZipParts.length; i++) {
+			this.downloadPart(i);
+			if (i < this.pdfZipParts.length - 1) {
+				await new Promise((resolve) => setTimeout(resolve, 600));
+			}
+		}
 	}
 }

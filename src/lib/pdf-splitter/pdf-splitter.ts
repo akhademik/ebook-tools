@@ -1,47 +1,29 @@
 // src/lib/pdf-splitter/pdf-splitter.ts
 import JSZip from 'jszip';
-import { Logger, initPdfWorker } from '$lib/utils';
+import {
+	Logger,
+	initPdfWorker,
+	getClampedViewport,
+	MAX_CANVAS_DIMENSION,
+	MAX_CANVAS_PIXELS
+} from '$lib/utils';
 import type {
 	PdfPreviewPage,
 	PdfProgressInfo,
 	ProcessPdfResult,
+	PdfZipPart,
 	PdfJsLib,
-	PdfJsDocument,
-	PdfJsPage,
-	PdfJsViewport
+	PdfJsDocument
 } from '$lib/types';
 
-export type { PdfPreviewPage, PdfProgressInfo, ProcessPdfResult };
+export type { PdfPreviewPage, PdfProgressInfo, ProcessPdfResult, PdfZipPart };
 
 const PDF_SCALE = 2.0;
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
 
-export const MAX_CANVAS_DIMENSION = 4096;
-export const MAX_CANVAS_PIXELS = 4096 * 4096; // 16 megapixels
-
-/**
- * Calculates adaptive viewport scale so canvas dimensions and total pixel count
- * do not exceed browser hardware limitations (e.g. Safari iOS canvas limits).
- */
-export function getClampedViewport(page: PdfJsPage, targetScale = PDF_SCALE): PdfJsViewport {
-	const baseViewport = page.getViewport({ scale: 1.0 });
-	let scale = targetScale;
-
-	// Clamp max dimension
-	const maxDim = Math.max(baseViewport.width * scale, baseViewport.height * scale);
-	if (maxDim > MAX_CANVAS_DIMENSION) {
-		scale = (MAX_CANVAS_DIMENSION / maxDim) * scale;
-	}
-
-	// Clamp total pixels to avoid canvas allocation failure / OOM
-	const totalPixels = baseViewport.width * scale * (baseViewport.height * scale);
-	if (totalPixels > MAX_CANVAS_PIXELS) {
-		scale = scale * Math.sqrt(MAX_CANVAS_PIXELS / totalPixels);
-	}
-
-	return page.getViewport({ scale });
-}
+export const MAX_PAGES_PER_ZIP_PART = 200;
+export { getClampedViewport, MAX_CANVAS_DIMENSION, MAX_CANVAS_PIXELS };
 
 export function applyGrayscale(
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -236,7 +218,8 @@ export async function processPdfToJpg(
 	cropTopPx: number,
 	cropBottomPx: number,
 	onProgress?: (info: PdfProgressInfo) => void,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	maxPagesPerPart = MAX_PAGES_PER_ZIP_PART
 ): Promise<ProcessPdfResult> {
 	if (signal?.aborted) {
 		throw new DOMException('Tác vụ xử lý PDF đã bị hủy', 'AbortError');
@@ -248,7 +231,7 @@ export async function processPdfToJpg(
 	}
 	Logger.debug(
 		'[pdf-splitter]',
-		`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, cropTop: ${cropTopPx}, cropBottom: ${cropBottomPx}`
+		`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, cropTop: ${cropTopPx}, cropBottom: ${cropBottomPx}, maxPagesPerPart: ${maxPagesPerPart}`
 	);
 
 	// Load document ONCE with zero-copy stream or single-buffer reuse (eliminates O(N * fileSize) copies)
@@ -256,21 +239,29 @@ export async function processPdfToJpg(
 
 	try {
 		const numPages = doc.numPages;
-		Logger.debug('[pdf-splitter]', `processPdfToJpg: total pages to process: ${numPages}`);
+		const totalParts = Math.max(1, Math.ceil(numPages / maxPagesPerPart));
+		Logger.debug(
+			'[pdf-splitter]',
+			`processPdfToJpg: total pages: ${numPages}, total parts: ${totalParts}`
+		);
 
-		const zip = new JSZip();
+		const zipParts: PdfZipPart[] = [];
+		let currentZip = new JSZip();
+		let partStartPage = 1;
+		let currentPartIndex = 1;
 		let completed = 0;
 		const startTime = performance.now();
 
-		function updateProgress(): void {
+		function updateProgress(customLabel?: string): void {
 			const elapsedSec = (performance.now() - startTime) / 1000;
 			const rate = completed / Math.max(elapsedSec, 0.001);
 			const remaining = numPages - completed;
 			const eta = rate > 0 ? remaining / rate : Infinity;
-			const progressPercent = Math.round((completed / numPages) * 100);
+			const progressPercent = Math.min(99, Math.round((completed / numPages) * 100));
 			const progressLabel =
+				customLabel ??
 				`Đang xử lý ${completed} / ${numPages} trang · ` +
-				`${rate.toFixed(1)} trang/giây · còn lại ~${formatEta(eta)}`;
+					`${rate.toFixed(1)} trang/giây · còn lại ~${formatEta(eta)}`;
 
 			if (onProgress) {
 				onProgress({ progressPercent, progressLabel, completed, numPages });
@@ -338,39 +329,67 @@ export async function processPdfToJpg(
 				);
 			}
 
-			zip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
+			currentZip.file('page' + p + '.jpg', blob, { compression: 'STORE' });
 			page.cleanup();
 			completed++;
-			updateProgress();
+
+			const isEndOfPart = p % maxPagesPerPart === 0 || p === numPages;
+			if (isEndOfPart) {
+				const partMsg =
+					totalParts > 1
+						? `Đang đóng gói Phần ${currentPartIndex}/${totalParts} (trang ${partStartPage}–${p})...`
+						: 'Đang đóng gói thành tệp .ZIP...';
+				updateProgress(partMsg);
+
+				const partBlob = await currentZip.generateAsync({ type: 'blob', compression: 'STORE' });
+				const cleanBase = (pdfSelectedFile.name || 'pages').replace(/\.pdf$/i, '');
+				const filename =
+					totalParts > 1
+						? `${cleanBase}-part${currentPartIndex}-pages${partStartPage}-${p}.zip`
+						: `${cleanBase}-pages.zip`;
+
+				zipParts.push({
+					partIndex: currentPartIndex,
+					totalParts,
+					startPage: partStartPage,
+					endPage: p,
+					blob: partBlob,
+					filename
+				});
+
+				Logger.info(
+					'[pdf-splitter]',
+					`Part ${currentPartIndex}/${totalParts} generated: ${filename} (${partBlob.size} bytes)`
+				);
+
+				if (p < numPages) {
+					currentPartIndex++;
+					partStartPage = p + 1;
+					currentZip = new JSZip(); // GC can now reclaim all previous images!
+				}
+			} else {
+				updateProgress();
+			}
 
 			// Yield to main event loop to ensure smooth 60fps UI updates and prevent freeze
 			await new Promise((resolve) => setTimeout(resolve, 0));
 		}
 
-		Logger.debug('[pdf-splitter]', 'All pages completed. Generating ZIP...');
-
 		if (onProgress) {
-			onProgress({
-				progressPercent: 95,
-				progressLabel: 'Đang đóng gói thành tệp .ZIP...',
-				completed,
-				numPages
-			});
-		}
-
-		const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
-		Logger.info('[pdf-splitter]', `ZIP generated successfully, size: ${zipBlob.size}`);
-
-		if (onProgress) {
+			const doneLabel =
+				totalParts > 1
+					? `Hoàn tất — ${numPages} trang đã sẵn sàng (${totalParts} phần ZIP).`
+					: `Hoàn tất — ${numPages} trang đã sẵn sàng.`;
 			onProgress({
 				progressPercent: 100,
-				progressLabel: `Hoàn tất — ${numPages} trang đã sẵn sàng.`,
+				progressLabel: doneLabel,
 				completed,
 				numPages
 			});
 		}
 
-		return { zipBlob, numPages };
+		const zipBlob = zipParts[0]?.blob ?? new Blob();
+		return { zipBlob, zipParts, numPages };
 	} finally {
 		cleanup();
 	}

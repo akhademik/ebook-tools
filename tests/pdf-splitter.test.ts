@@ -38,10 +38,20 @@ Object.defineProperty(globalThis, 'navigator', {
 
 // Track mock canvas creations to inspect call arguments
 const createdCanvases: any[] = [];
+const mockAnchor = {
+	click: vi.fn(),
+	remove: vi.fn(),
+	href: '',
+	download: ''
+};
 
 Object.defineProperty(globalThis, 'document', {
 	value: {
+		body: {
+			appendChild: vi.fn()
+		},
 		createElement: vi.fn().mockImplementation((type: string) => {
+			if (type === 'a') return mockAnchor;
 			if (type === 'canvas') {
 				const ctx = {
 					getImageData: vi
@@ -114,8 +124,11 @@ import {
 	processPdfToJpg,
 	getClampedViewport,
 	MAX_CANVAS_DIMENSION,
-	MAX_CANVAS_PIXELS
+	MAX_CANVAS_PIXELS,
+	MAX_PAGES_PER_ZIP_PART
 } from '../src/lib/pdf-splitter/pdf-splitter';
+import { renderPdfPageToBlob } from '../src/lib/utils/pdf';
+import { PdfSplitterState } from '../src/lib/pdf-splitter/pdf-splitter-state.svelte';
 
 describe('pdf-splitter tests', () => {
 	beforeEach(() => {
@@ -487,6 +500,194 @@ describe('pdf-splitter tests', () => {
 			const vp = getClampedViewport(page, 2.0);
 			const totalPixels = vp.width * vp.height;
 			expect(totalPixels).toBeLessThanOrEqual(MAX_CANVAS_PIXELS + 1);
+		});
+	});
+
+	describe('multi-part ZIP splitting in processPdfToJpg', () => {
+		it('should split 5 pages into 3 parts when maxPagesPerPart is 2', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'scan-book.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 5;
+
+			const result = await processPdfToJpg(fakeFile, true, 0, 0, undefined, undefined, 2);
+
+			expect(result.numPages).toBe(5);
+			expect(result.zipParts).toHaveLength(3);
+
+			// Part 1
+			expect(result.zipParts[0]).toMatchObject({
+				partIndex: 1,
+				totalParts: 3,
+				startPage: 1,
+				endPage: 2,
+				filename: 'scan-book-part1-pages1-2.zip'
+			});
+			expect(result.zipParts[0].blob).toBeDefined();
+
+			// Part 2
+			expect(result.zipParts[1]).toMatchObject({
+				partIndex: 2,
+				totalParts: 3,
+				startPage: 3,
+				endPage: 4,
+				filename: 'scan-book-part2-pages3-4.zip'
+			});
+
+			// Part 3
+			expect(result.zipParts[2]).toMatchObject({
+				partIndex: 3,
+				totalParts: 3,
+				startPage: 5,
+				endPage: 5,
+				filename: 'scan-book-part3-pages5-5.zip'
+			});
+
+			// Primary zipBlob references part 1 for backward compatibility
+			expect(result.zipBlob).toBe(result.zipParts[0].blob);
+		});
+
+		it('should produce a single part with standard filename when pages <= maxPagesPerPart', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'small-doc.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const result = await processPdfToJpg(fakeFile, true, 0, 0, undefined, undefined, 200);
+
+			expect(result.numPages).toBe(2);
+			expect(result.zipParts).toHaveLength(1);
+			expect(result.zipParts[0]).toMatchObject({
+				partIndex: 1,
+				totalParts: 1,
+				startPage: 1,
+				endPage: 2,
+				filename: 'small-doc-pages.zip'
+			});
+		});
+	});
+
+	describe('renderPdfPageToBlob', () => {
+		it('should render a PDF page to Blob from a File or Blob with object URL cleanup', async () => {
+			const fakeBlob = new Blob(['pdf-bytes'], { type: 'application/pdf' });
+			mockDoc.numPages = 1;
+
+			const originalCreateObjectURL = URL.createObjectURL;
+			const originalRevokeObjectURL = URL.revokeObjectURL;
+			const mockCreate = vi.fn().mockReturnValue('blob:http://localhost/test-uuid');
+			const mockRevoke = vi.fn();
+			URL.createObjectURL = mockCreate;
+			URL.revokeObjectURL = mockRevoke;
+
+			try {
+				const blob = await renderPdfPageToBlob(fakeBlob, 1, 2.0, 0.9);
+				expect(blob).toBeInstanceOf(Blob);
+				expect(mockCreate).toHaveBeenCalledWith(fakeBlob);
+				expect(mockRevoke).toHaveBeenCalledWith('blob:http://localhost/test-uuid');
+				expect(mockDoc.destroy).toHaveBeenCalled();
+			} finally {
+				URL.createObjectURL = originalCreateObjectURL;
+				URL.revokeObjectURL = originalRevokeObjectURL;
+			}
+		});
+
+		it('should render a PDF page from ArrayBuffer input', async () => {
+			const ab = new ArrayBuffer(16);
+			mockDoc.numPages = 1;
+
+			const blob = await renderPdfPageToBlob(ab, 1, 1.5, 0.85);
+			expect(blob).toBeInstanceOf(Blob);
+			expect(mockPdfjsLib.getDocument).toHaveBeenCalledWith({ data: ab });
+		});
+
+		it('should throw if pdfjsLib is missing', async () => {
+			const originalPdfjs = (globalThis as any).window.pdfjsLib;
+			(globalThis as any).window.pdfjsLib = undefined;
+
+			try {
+				await expect(renderPdfPageToBlob(new Uint8Array(8), 1)).rejects.toThrow(
+					'Thư viện PDF.js chưa sẵn sàng.'
+				);
+			} finally {
+				(globalThis as any).window.pdfjsLib = originalPdfjs;
+			}
+		});
+
+		it('should throw if toBlob returns null', async () => {
+			const originalCreateElement = document.createElement;
+			document.createElement = vi.fn().mockImplementation((type: string) => {
+				if (type === 'canvas') {
+					return {
+						width: 0,
+						height: 0,
+						getContext: vi.fn().mockReturnValue({
+							getImageData: vi.fn().mockReturnValue({ data: new Uint8Array(10) }),
+							putImageData: vi.fn()
+						}),
+						toBlob: vi.fn().mockImplementation((resolve: (blob: Blob | null) => void) => {
+							resolve(null);
+						})
+					};
+				}
+				return originalCreateElement(type);
+			});
+
+			try {
+				await expect(renderPdfPageToBlob(new Uint8Array(8), 1)).rejects.toThrow(
+					'Không thể xuất Blob từ Canvas cho trang PDF.'
+				);
+			} finally {
+				document.createElement = originalCreateElement;
+			}
+		});
+	});
+
+	describe('PdfSplitterState multi-part functionality', () => {
+		it('should initialize with default 200 pagesPerPart and empty zipParts', () => {
+			const state = new PdfSplitterState();
+			expect(state.pagesPerPart).toBe(MAX_PAGES_PER_ZIP_PART);
+			expect(state.pdfZipParts).toEqual([]);
+			expect(state.hasMultipleParts).toBe(false);
+		});
+
+		it('should recognize large files (>150MB)', () => {
+			const state = new PdfSplitterState();
+			const smallFile = new File(['content'], 'book.pdf', { type: 'application/pdf' });
+			state.handleFile(smallFile);
+			expect(state.isLargeFile).toBe(false);
+
+			const largeFile = new File(['content'], 'big-book.pdf', { type: 'application/pdf' });
+			Object.defineProperty(largeFile, 'size', { value: 160 * 1024 * 1024 });
+			state.handleFile(largeFile);
+			expect(state.isLargeFile).toBe(true);
+		});
+
+		it('should manage multi-part downloads', async () => {
+			const state = new PdfSplitterState();
+			const part1: any = {
+				partIndex: 1,
+				totalParts: 2,
+				startPage: 1,
+				endPage: 2,
+				blob: new Blob(['part1']),
+				filename: 'book-part1.zip'
+			};
+			const part2: any = {
+				partIndex: 2,
+				totalParts: 2,
+				startPage: 3,
+				endPage: 4,
+				blob: new Blob(['part2']),
+				filename: 'book-part2.zip'
+			};
+			state.pdfZipParts = [part1, part2];
+			state.bookName = 'test-book';
+
+			expect(state.hasMultipleParts).toBe(true);
+
+			// Test downloadPart
+			expect(() => state.downloadPart(0)).not.toThrow();
+			expect(() => state.downloadPart(1)).not.toThrow();
 		});
 	});
 });
