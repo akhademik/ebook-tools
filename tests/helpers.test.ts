@@ -61,9 +61,7 @@ describe('utils tests', () => {
 
 	describe('top-level block', () => {
 		it('should set GlobalWorkerOptions.workerSrc when window.pdfjsLib exists', () => {
-			expect(mockPdfjsLib.GlobalWorkerOptions.workerSrc).toBe(
-				'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
-			);
+			expect(mockPdfjsLib.GlobalWorkerOptions.workerSrc).toBe('/vendor/pdfjs/pdf.worker.min.js');
 		});
 	});
 

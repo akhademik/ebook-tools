@@ -2,13 +2,13 @@
 import { Logger } from './logger';
 
 /**
- * Configure PDF.js worker URL if PDF.js library is loaded globally via CDN.
+ * Configure PDF.js worker URL (100% offline self-hosted with fallback).
  */
 export function initPdfWorker(): void {
 	if (typeof window !== 'undefined' && window.pdfjsLib?.GlobalWorkerOptions) {
-		window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-			'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-		Logger.debug('[PDFWorker]', 'PDF.js worker configured');
+		const localWorker = '/vendor/pdfjs/pdf.worker.min.js';
+		window.pdfjsLib.GlobalWorkerOptions.workerSrc = localWorker;
+		Logger.debug('[PDFWorker]', 'PDF.js worker configured locally:', localWorker);
 	}
 }
 
@@ -45,10 +45,19 @@ export async function renderPdfPageToBlob(
 			if (!ctx) {
 				throw new Error('Không thể khởi tạo Canvas 2D context.');
 			}
-			await page.render({ canvasContext: ctx, viewport }).promise;
-			return await new Promise<Blob | null>((resolve) =>
-				canvas.toBlob(resolve, 'image/jpeg', quality)
-			);
+			try {
+				await page.render({ canvasContext: ctx, viewport }).promise;
+				const blob = await new Promise<Blob | null>((resolve) =>
+					canvas.toBlob(resolve, 'image/jpeg', quality)
+				);
+				if (!blob) {
+					throw new Error('Không thể xuất Blob từ Canvas cho trang PDF.');
+				}
+				return blob;
+			} finally {
+				canvas.width = 0;
+				canvas.height = 0;
+			}
 		} finally {
 			page.cleanup();
 		}

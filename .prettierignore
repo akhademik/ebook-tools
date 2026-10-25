@@ -14,3 +14,7 @@ dist
 
 # Graphify generated knowledge graph output
 graphify-out/
+
+# Third-party vendor assets
+static/vendor/
+

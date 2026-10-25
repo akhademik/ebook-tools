@@ -108,7 +108,14 @@ vi.mock('jszip', () => {
 });
 
 // Import modules AFTER setting up globals
-import { formatEta, loadPdfPreview, processPdfToJpg } from '../src/lib/pdf-splitter/pdf-splitter';
+import {
+	formatEta,
+	loadPdfPreview,
+	processPdfToJpg,
+	getClampedViewport,
+	MAX_CANVAS_DIMENSION,
+	MAX_CANVAS_PIXELS
+} from '../src/lib/pdf-splitter/pdf-splitter';
 
 describe('pdf-splitter tests', () => {
 	beforeEach(() => {
@@ -265,8 +272,6 @@ describe('pdf-splitter tests', () => {
 			renderCanvas.width = 100;
 
 			const croppedCanvas = createdCanvases[1];
-			expect(croppedCanvas.height).toBe(175);
-
 			const croppedCtx = croppedCanvas.getContext('2d');
 			expect(croppedCtx.drawImage).toHaveBeenCalledWith(
 				renderCanvas,
@@ -279,6 +284,9 @@ describe('pdf-splitter tests', () => {
 				100,
 				175
 			);
+			// Confirms immediate memory deallocation after page processing
+			expect(croppedCanvas.height).toBe(0);
+			expect(croppedCanvas.width).toBe(0);
 		});
 
 		it('should pick concurrency based on file size and hardwareConcurrency', async () => {
@@ -334,6 +342,48 @@ describe('pdf-splitter tests', () => {
 			expect(cropped).toBeDefined();
 		});
 
+		it('should load a single document instance and clean it up upon completion', async () => {
+			mockPdfjsLib.getDocument.mockClear();
+			mockDoc.destroy.mockClear();
+
+			const result = await processPdfToJpg(fakeFile, true, 0, 0);
+
+			expect(result.numPages).toBe(2);
+			// Confirms single document instance reused: getDocument called exactly once (no probeDoc, no per-thread docs)
+			expect(mockPdfjsLib.getDocument).toHaveBeenCalledTimes(1);
+			expect(mockDoc.destroy).toHaveBeenCalledTimes(1);
+		});
+
+		it('should use URL.createObjectURL when available and revoke it after processing', async () => {
+			const realFile = new File(['mock-pdf-binary-data'], 'sample.pdf', {
+				type: 'application/pdf'
+			});
+
+			const originalCreateObjectURL = URL.createObjectURL;
+			const originalRevokeObjectURL = URL.revokeObjectURL;
+
+			const mockCreateObjectURL = vi.fn().mockReturnValue('blob:http://localhost/mock-uuid');
+			const mockRevokeObjectURL = vi.fn();
+
+			URL.createObjectURL = mockCreateObjectURL;
+			URL.revokeObjectURL = mockRevokeObjectURL;
+
+			mockPdfjsLib.getDocument.mockClear();
+
+			try {
+				await processPdfToJpg(realFile, true, 0, 0);
+
+				expect(mockCreateObjectURL).toHaveBeenCalledWith(realFile);
+				expect(mockPdfjsLib.getDocument).toHaveBeenCalledWith({
+					url: 'blob:http://localhost/mock-uuid'
+				});
+				expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/mock-uuid');
+			} finally {
+				URL.createObjectURL = originalCreateObjectURL;
+				URL.revokeObjectURL = originalRevokeObjectURL;
+			}
+		});
+
 		it('should abort processPdfToJpg when signal is aborted', async () => {
 			const ac = new AbortController();
 			ac.abort();
@@ -341,6 +391,102 @@ describe('pdf-splitter tests', () => {
 			await expect(processPdfToJpg(fakeFile, true, 0, 0, undefined, ac.signal)).rejects.toThrow(
 				'Tác vụ xử lý PDF đã bị hủy'
 			);
+		});
+
+		it('should throw explicit error when canvas.toBlob returns null instead of silently skipping', async () => {
+			mockDoc.numPages = 1;
+			// Temporarily mock canvas.toBlob to resolve null
+			const originalCreateElement = document.createElement;
+			document.createElement = vi.fn().mockImplementation((type: string) => {
+				if (type === 'canvas') {
+					return {
+						width: 100,
+						height: 200,
+						getContext: vi.fn().mockReturnValue({
+							drawImage: vi.fn(),
+							getImageData: vi.fn().mockReturnValue({ data: new Uint8Array(4) }),
+							putImageData: vi.fn()
+						}),
+						toBlob: vi.fn().mockImplementation((cb: (blob: Blob | null) => void) => {
+							cb(null); // Simulate OOM / canvas size limit failure
+						})
+					};
+				}
+				return originalCreateElement(type);
+			});
+
+			try {
+				await expect(processPdfToJpg(fakeFile, true, 0, 0)).rejects.toThrow(
+					/Không thể xuất hình ảnh cho trang 1/
+				);
+			} finally {
+				document.createElement = originalCreateElement;
+			}
+		});
+
+		it('should throw explicit error when canvas context cannot be initialized', async () => {
+			mockDoc.numPages = 1;
+			const originalCreateElement = document.createElement;
+			document.createElement = vi.fn().mockImplementation((type: string) => {
+				if (type === 'canvas') {
+					return {
+						width: 100,
+						height: 200,
+						getContext: vi.fn().mockReturnValue(null) // Context creation failed
+					};
+				}
+				return originalCreateElement(type);
+			});
+
+			try {
+				await expect(processPdfToJpg(fakeFile, true, 0, 0)).rejects.toThrow(
+					/Không thể khởi tạo Canvas 2D context cho trang 1/
+				);
+			} finally {
+				document.createElement = originalCreateElement;
+			}
+		});
+	});
+
+	describe('getClampedViewport', () => {
+		it('should keep default scale 2.0 when dimensions are well within safe bounds', () => {
+			const page = {
+				getViewport: vi.fn().mockImplementation(({ scale }: { scale: number }) => ({
+					width: 600 * scale,
+					height: 800 * scale
+				}))
+			} as any;
+
+			const vp = getClampedViewport(page, 2.0);
+			expect(page.getViewport).toHaveBeenCalledWith({ scale: 2.0 });
+			expect(vp.width).toBe(1200);
+			expect(vp.height).toBe(1600);
+		});
+
+		it('should scale down when page dimension exceeds MAX_CANVAS_DIMENSION (e.g. 5000px)', () => {
+			const page = {
+				getViewport: vi.fn().mockImplementation(({ scale }: { scale: number }) => ({
+					width: 3000 * scale,
+					height: 5000 * scale
+				}))
+			} as any;
+
+			const vp = getClampedViewport(page, 2.0);
+			expect(vp.height).toBeLessThanOrEqual(MAX_CANVAS_DIMENSION);
+			expect(vp.width).toBeLessThanOrEqual(MAX_CANVAS_DIMENSION);
+		});
+
+		it('should scale down when total pixels exceed MAX_CANVAS_PIXELS', () => {
+			const page = {
+				getViewport: vi.fn().mockImplementation(({ scale }: { scale: number }) => ({
+					width: 3500 * scale,
+					height: 3500 * scale
+				}))
+			} as any;
+
+			const vp = getClampedViewport(page, 2.0);
+			const totalPixels = vp.width * vp.height;
+			expect(totalPixels).toBeLessThanOrEqual(MAX_CANVAS_PIXELS + 1);
 		});
 	});
 });

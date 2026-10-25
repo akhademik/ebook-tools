@@ -151,8 +151,20 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-16 18:30
+- Cập nhật lần cuối: 2026-10-25 18:05
 - Đã hoàn thành:
+  - **Tối ưu hóa & Hoàn thiện toàn diện PDF Splitter & PDF.js Offline**:
+    - **Khắc phục lỗi ngốn RAM (Mục 1)**: Loại bỏ việc nhân bản buffer `arrayBuffer.slice(0)`. Sử dụng Zero-Copy Streaming qua `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })`. Loại bỏ `probeDoc` thừa, tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
+    - **Xử lý dứt điểm Web Worker (Mục 2)**: Gỡ bỏ hoàn toàn module worker lỗi thời bên ngoài (`pdf-splitter.worker.ts`), giải phóng triệt để dead code. Tận dụng trực tiếp worker native nội bộ của PDF.js kết hợp vòng lặp render tuần tự cooperative trên luồng chính với `page.cleanup()` và `setTimeout(0)`, duy trì UI 60fps mượt mà, triệt tiêu đỉnh RAM và nguy cơ rò rỉ worker.
+    - **Bảo vệ Canvas & Minh bạch lỗi (Mục 3)**:
+      - Tích hợp thuật toán tính toán kích thước co giãn thích ứng [`getClampedViewport`](src/lib/pdf-splitter/pdf-splitter.ts), khống chế kích thước tối đa `MAX_CANVAS_DIMENSION = 4096px` và `MAX_CANVAS_PIXELS = 16M pixels` chống tràn bộ nhớ và crash canvas trên Safari iOS / thiết bị di động.
+      - Giải phóng ngay lập tức bộ nhớ GPU/backing store sau mỗi trang bằng `canvas.width = 0; canvas.height = 0`.
+      - Minh bạch lỗi tuyệt đối: Ném lỗi rõ ràng kèm số trang chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được Canvas 2D context, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến file ZIP thiếu trang.
+    - **100% Ngoại tuyến (Offline hoàn toàn - Mục 4)**:
+      - Self-host toàn bộ `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) nội bộ vào thư mục [`static/vendor/pdfjs/`](static/vendor/pdfjs/), giải phóng hoàn toàn sự phụ thuộc vào mạng internet hoặc cdnjs bên ngoài.
+      - Cập nhật [`src/app.html`](src/app.html) tải cục bộ `/vendor/pdfjs/pdf.min.js` kèm fallback CDN an toàn khi cần.
+      - Đồng bộ [`initPdfWorker`](src/lib/utils/pdf.ts) trỏ trực tiếp worker của PDF.js vào `/vendor/pdfjs/pdf.worker.min.js`.
+    - Toàn bộ **328/328 unit tests** và **12/12 Playwright E2E browser tests** pass 100%.
   - **Khắc phục lỗi Phông chữ Trang giới thiệu khi chuyển tiếp Mẫu (Fix Jacket Modal Font Persistence Across Templates)**:
     - Sửa triệt để sự cố phông chữ chỉ đổi ở Mẫu 1 và không phản ánh khi chuyển tiếp sang Mẫu 2, Mẫu 3 bằng nút 'Tiếp' / 'Trước'.
     - Chuyển toàn bộ CSS override của jacket font ra thẻ `<style id="jacket-font-override">` trong `<svelte:head>`, đồng thời gán CSS variable `--jacket-font` trực tiếp lên `.preview-wrap` và quy tắc toàn cục `:global(.preview-wrap, .preview-wrap *) { font-family: var(--jacket-font, inherit) !important; }`. Loại bỏ hoàn toàn việc lồng thẻ `<style>` bên trong thẻ `<div>` dễ gây lỗi desync DOM giữa các khối `{@html}`.
@@ -231,13 +243,48 @@ pnpm test:e2e
     - Bổ sung các unit test bao phủ toàn diện cho trường hợp có hoa văn đầu chương và phân đoạn xen kẽ.
     - Bổ sung unit tests cho trường hợp khối trích dẫn có tối đa 3 footer liền mạch, trích dẫn bị ngắt bởi dòng trống và dịch ngược EPUB to TXT.
     - Mở rộng bộ kiểm thử đạt **321/321 unit tests pass** và **12/12 Playwright E2E browser tests pass 100%**.
-- Cập nhật lần cuối: 2026-10-21 07:50
+- Cập nhật lần cuối: 2026-10-25 18:05
 - Đang dở: Không
 - Biết trước còn thiếu / nợ kỹ thuật: Không
 
 ---
 
 ## Changelog
+
+### 2026-10-25 (PDF Splitter Full Hardening: Zero-Copy, Canvas Guard, 100% Offline)
+
+- Thêm/sửa: Khắc phục toàn diện 4 vấn đề kỹ thuật cốt lõi trong bộ tách trang PDF và thư viện PDF.js:
+  - **Mục 1 & 2 (Khắc phục ngốn RAM & Xử lý dứt điểm Web Worker)**:
+    - `src/lib/pdf-splitter/pdf-splitter.ts`: Loại bỏ hoàn toàn việc nhân bản buffer `arrayBuffer.slice(0)` trên mỗi luồng. Helper `openPdfDocument` sử dụng `URL.createObjectURL(file)` truyền trực tiếp cho `pdfjsLib.getDocument({ url })` đọc dữ liệu dạng streaming theo range requests từ đĩa/blob thay vì giữ toàn bộ buffer 1GB trong heap JavaScript.
+    - Xóa bỏ việc tạo `probeDoc` thừa, khởi tạo và tái sử dụng 1 bản thể `PdfJsDocument` duy nhất xuyên suốt.
+    - Chuyển sang vòng lặp render tuần tự từng trang trên main thread với `page.cleanup()` và `await new Promise(r => setTimeout(r, 0))` sau mỗi trang, đảm bảo đỉnh RAM tối thiểu và UI luôn đạt 60fps mượt mà.
+    - Gỡ bỏ hoàn toàn file `src/lib/pdf-splitter/pdf-splitter.worker.ts` lỗi thời, loại trừ lỗi WHATWG spec `importScripts` trong module worker và triệt tiêu nguy cơ rò rỉ worker.
+  - **Mục 3 (Bảo vệ Canvas & Minh bạch lỗi)**:
+    - `src/lib/pdf-splitter/pdf-splitter.ts`: Tích hợp hàm tính toán tỉ lệ thích ứng `getClampedViewport`, tự động giới hạn `MAX_CANVAS_DIMENSION = 4096px` và `MAX_CANVAS_PIXELS = 16M pixels`, ngăn chặn việc tràn bộ nhớ hoặc crash canvas trên Safari iOS / thiết bị di động khi gặp trang scan khổ lớn.
+    - Giải phóng lập tức bộ nhớ texture/GPU bằng `canvas.width = 0; canvas.height = 0` sau khi hoàn tất render / crop / toBlob mỗi trang.
+    - Minh bạch lỗi: Ném ngoại lệ chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được context 2D, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến tệp ZIP thiếu trang.
+  - **Mục 4 (100% Ngoại tuyến / Offline hoàn toàn)**:
+    - Vendor trực tiếp thư viện `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) vào `static/vendor/pdfjs/`.
+    - `src/app.html`: Chuyển sang tải script cục bộ `/vendor/pdfjs/pdf.min.js` kèm cơ chế fallback sang CDN khi cần.
+    - `src/lib/utils/pdf.ts`: Cập nhật `initPdfWorker` trỏ trực tiếp `GlobalWorkerOptions.workerSrc` vào `/vendor/pdfjs/pdf.worker.min.js`.
+    - Bổ sung cấu hình `.prettierignore` và `eslint.config.js` loại trừ thư mục vendor bên thứ ba.
+  - **Kiểm thử & Khắc phục**:
+    - `tests/pdf-splitter.test.ts`: Bổ sung 5 unit tests mới kiểm tra tái sử dụng document duy nhất, thu hồi `URL.revokeObjectURL`, kiểm tra thuật toán giới hạn canvas `getClampedViewport`, kiểm tra giải phóng kích thước canvas về 0 và kiểm tra ném lỗi khi `toBlob` thất bại.
+    - `tests/helpers.test.ts`: Đồng bộ kỳ vọng `workerSrc` cục bộ.
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (328/328 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (4833 nodes, 10424 edges, 275 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/utils/pdf.ts`
+  - `src/app.html`
+  - `src/lib/types/pdf-splitter.type.ts`
+  - `static/vendor/pdfjs/pdf.min.js` (thêm mới)
+  - `static/vendor/pdfjs/pdf.worker.min.js` (thêm mới)
+  - `src/lib/pdf-splitter/pdf-splitter.worker.ts` (đã xóa)
+  - `tests/pdf-splitter.test.ts`
+  - `tests/helpers.test.ts`
+  - `.prettierignore`
+  - `eslint.config.js`
+  - `README.md`
 
 ### 2026-10-21 (Seamless Multi-Footers Support in Blockquote)
 
