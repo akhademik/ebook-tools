@@ -26,7 +26,7 @@ export interface PdfZipPart {
 }
 
 export interface ProcessPdfResult {
-	zipBlob: Blob;
+	zipBlob?: Blob;
 	zipParts: PdfZipPart[];
 	numPages: number;
 	processedPages: number;

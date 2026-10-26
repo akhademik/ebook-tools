@@ -555,7 +555,8 @@ export async function processPdfToJpg(
 			});
 		}
 
-		const zipBlob = zipParts[0]?.blob ?? new Blob();
+		// If saved directly to disk, parts do not hold blobs in RAM, so zipBlob is undefined (avoid returning 0-byte empty Blob)
+		const zipBlob = zipParts[0]?.blob;
 		return {
 			zipBlob,
 			zipParts,

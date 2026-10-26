@@ -7,8 +7,8 @@ import { Logger } from './logger';
  */
 export function triggerDownload(blob: Blob | unknown, filename?: string | null): void {
 	Logger.debug('[download]', `triggerDownload called with filename: ${filename}`, blob);
-	if (!blob || !(blob instanceof Blob)) {
-		Logger.error('[download]', 'Invalid blob:', blob);
+	if (!blob || !(blob instanceof Blob) || blob.size === 0) {
+		Logger.error('[download]', 'Invalid or empty blob:', blob);
 		return;
 	}
 	const safeFilename = filename || 'download';

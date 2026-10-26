@@ -151,8 +151,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-25 19:58
+- Cập nhật lần cuối: 2026-10-26 08:20
 - Đã hoàn thành:
+  - **Khắc phục lỗi nút tải ZIP rỗng khi lưu ra đĩa & Mở rộng E2E Test Suite cho PDF Splitter**:
+    - **Sửa dứt điểm tải ZIP rỗng**: Loại bỏ việc gán `zipBlob = new Blob()` khi đã lưu ra đĩa (`savedToDisk: true`). Trả về `zipBlob: undefined` nếu không có phần nào trong RAM, đồng thời bổ sung chốt chặn `blob.size === 0` trong `triggerDownload` ngăn ngừa triệt để việc tải file rỗng 0 byte.
+    - **Đồng bộ hóa trạng thái nút UI & Giải phóng hoàn toàn RAM**: Khi đã ghi thành công vào thư mục trên đĩa (`savedDirectoryName`), nút chuyển thành `"Đã lưu vào đĩa"` và bị vô hiệu hóa hoàn toàn (`disabled`), ngăn chặn tải tệp rỗng hoặc gây hiểu lầm cho người dùng.
+    - **Dọn dẹp mã nguồn thừa & Hướng dẫn Safari**: Đồng bộ sử dụng hằng số `DEFAULT_DPI` (200 DPI), loại bỏ biến `selectedDpi` dư thừa khỏi `PdfSplitterState`. Bổ sung mẹo hướng dẫn tải từng phần an toàn trên các trình duyệt chặn download liên tiếp (Safari, Chrome).
+    - **Mở rộng kiểm thử Playwright E2E cho PDF Splitter**: Bổ sung kịch bản kiểm thử E2E tự động hoàn chỉnh (`tests-e2e/pdf-workflow.spec.ts` gồm 3 workflows: Xem trước & Cắt lề, Tách trang & Tải ZIP thật không rỗng, Giả lập File System Access API ghi đĩa & Xác thực nút disabled).
+    - Toàn bộ **344/344 unit tests** và **15/15 Playwright E2E browser tests** pass 100%.
   - **Tối ưu hóa Chuẩn OCR & Nâng cấp Chất lượng Tách trang PDF (PDF Splitter for OCR)**:
     - **Mặc định chuẩn 200 DPI**: Đặt mặc định 200 DPI ($scale \approx 2.778$, kích thước trang A4 đạt $\approx 1654 \times 2339$px) đồng nhất trên cả Desktop và Mobile/Touch device, đảm bảo độ phân giải sắc nét tối ưu cho Google Vision OCR và các công cụ OCR nhận diện chuẩn xác dấu tiếng Việt, chữ nhỏ.
     - **Cố định chuẩn 200 DPI**: Khóa cứng mặc định 200 DPI tối ưu cho OCR, loại bỏ hoàn toàn bộ chọn DPI thủ công trên UI để đảm bảo chất lượng xuất ảnh đồng nhất và đơn giản hóa giao diện.
@@ -269,6 +275,26 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-26 (PDF Splitter Disk Stream Zero-byte Fix, UI Button State Sync & Playwright E2E Coverage)
+
+- Thêm/sửa: Sửa triệt để lỗi nút "Đã lưu vào đĩa" tải ZIP 0-byte, dọn dẹp state và mở rộng E2E test suite:
+  - **Sửa lỗi tải ZIP rỗng (`pdf-splitter.ts` & `download.ts`)**: `processPdfToJpg` trả về `zipBlob: undefined` khi toàn bộ các phần đã lưu trực tiếp ra đĩa (loại bỏ fallback `?? new Blob()` tạo đối tượng 0-byte). Bổ sung điều kiện `blob.size === 0` trong `triggerDownload` để không bao giờ kích hoạt tải tệp rỗng.
+  - **Vô hiệu hóa nút khi đã lưu đĩa (`+page.svelte` & `pdf-splitter-state.svelte.ts`)**: Thêm thuộc tính derived `isSavedToDisk` và `canDownloadZip`. Nút hiển thị `"Đã lưu vào đĩa"` và tự động vô hiệu hóa (`disabled`) khi đã lưu xong vào thư mục trên đĩa.
+  - **Hướng dẫn cho trình duyệt chặn tải liên tiếp**: Thêm lưu ý gợi ý tải từng phần riêng biệt cho Safari và Chrome khi tài liệu gồm nhiều phần.
+  - **Dọn dẹp code thừa**: Loại bỏ `selectedDpi` dư thừa khỏi `PdfSplitterState`, đồng bộ hằng số `DEFAULT_DPI` từ thư viện.
+  - **Playwright E2E Tests (`tests-e2e/pdf-workflow.spec.ts`)**: Bổ sung 3 kịch bản kiểm thử trình duyệt thực tế bao phủ toàn diện luồng PDF Splitter (Preview & Crop, Process & Tải ZIP hợp lệ, và Luồng ghi ra đĩa với mock File System Access API xác nhận nút disabled).
+- Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (344/344 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (15/15 pass) | graphify ✅ (4863 nodes, 10501 edges, 266 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/types/pdf-splitter.type.ts`
+  - `src/lib/pdf-splitter/pdf-splitter.ts`
+  - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`
+  - `src/lib/utils/download.ts`
+  - `src/routes/pdf/+page.svelte`
+  - `tests/pdf-splitter.test.ts`
+  - `tests/helpers.test.ts`
+  - `tests-e2e/pdf-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-10-25 (PDF Splitter OCR Optimization: 200 DPI Default, Zero-padded Filenames & Degraded Quality Tracking)
 

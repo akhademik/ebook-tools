@@ -36,7 +36,6 @@ export class PdfSplitterState {
 	isError = $state<boolean>(false);
 	failedPages = $state<number[]>([]);
 	degradedPages = $state<number[]>([]);
-	selectedDpi = $state<number>(200);
 
 	loadingPreview = $state<boolean>(false);
 	processing = $state<boolean>(false);
@@ -54,6 +53,12 @@ export class PdfSplitterState {
 	isMobile = $derived(isMobileOrLowMemoryDevice());
 	supportsFSA = $derived(typeof window !== 'undefined' && 'showDirectoryPicker' in window);
 	hasMultipleParts = $derived(this.pdfZipParts.length > 1);
+	isSavedToDisk = $derived(!!this.savedDirectoryName);
+	canDownloadZip = $derived(
+		!this.isSavedToDisk &&
+			((!!this.pdfZipBlob && this.pdfZipBlob.size > 0) ||
+				this.pdfZipParts.some((p) => !!p.blob && p.sizeBytes > 0))
+	);
 	deviceMemoryGb = $derived<number | null>(
 		typeof navigator !== 'undefined' && 'deviceMemory' in navigator
 			? ((navigator as { deviceMemory?: number }).deviceMemory ?? null)
@@ -209,7 +214,6 @@ export class PdfSplitterState {
 				cropBottomPx: this.cropBottomPx,
 				maxPartBytes: this.maxPartBytes,
 				maxPagesPerPart: this.maxPagesPerPart,
-				targetDpi: this.selectedDpi,
 				dirHandle: this.dirHandle,
 				onProgress: (info) => {
 					this.progressPercent = info.progressPercent;
@@ -217,7 +221,7 @@ export class PdfSplitterState {
 				},
 				signal: ac.signal
 			});
-			this.pdfZipBlob = res.zipBlob;
+			this.pdfZipBlob = res.zipBlob ?? null;
 			this.pdfZipParts = res.zipParts || [];
 			this.failedPages = res.failedPages || [];
 			this.degradedPages = res.degradedPages || [];
@@ -240,17 +244,18 @@ export class PdfSplitterState {
 	}
 
 	downloadZip(): void {
+		if (this.isSavedToDisk) return;
 		if (this.pdfZipParts.length > 1) {
 			void this.downloadAllParts();
 			return;
 		}
-		if (!this.pdfZipBlob) return;
+		if (!this.pdfZipBlob || this.pdfZipBlob.size === 0) return;
 		triggerDownload(this.pdfZipBlob, this.zipNamePreview);
 	}
 
 	downloadPart(index: number): void {
 		const part = this.pdfZipParts[index];
-		if (!part || !part.blob) return;
+		if (!part || !part.blob || part.blob.size === 0) return;
 		triggerDownload(part.blob, part.filename);
 	}
 

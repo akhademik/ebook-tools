@@ -4,6 +4,7 @@
 	import Input from '$lib/components/Input.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import { PdfSplitterState } from '$lib/pdf-splitter/pdf-splitter-state.svelte';
+	import { DEFAULT_DPI } from '$lib/pdf-splitter/pdf-splitter';
 
 	const state = new PdfSplitterState();
 </script>
@@ -45,7 +46,7 @@
 				</strong>
 				<span class="text-text-mute">
 					Dung lượng tệp: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
-					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần (200
+					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({DEFAULT_DPI}
 					DPI chuẩn OCR) để tránh sự cố tràn bộ nhớ RAM.
 				</span>
 			</div>
@@ -256,10 +257,10 @@
 			<div class="w-full md:w-auto md:flex-1 max-w-55 min-w-42.5 shrink-0">
 				<Button
 					onclick={() => state.downloadZip()}
-					disabled={(!state.pdfZipBlob && state.pdfZipParts.length === 0) || state.processing}
+					disabled={!state.canDownloadZip || state.processing}
 					variant="secondary"
 				>
-					{state.dirHandle
+					{state.savedDirectoryName
 						? 'Đã lưu vào đĩa'
 						: state.hasMultipleParts
 							? 'Tải toàn bộ ZIP'
@@ -343,9 +344,16 @@
 		{#if state.hasMultipleParts}
 			<div class="mt-6 pt-5 border-t border-border-color animate-fade-in">
 				<div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-					<span class="font-mono text-xs uppercase tracking-wider text-text-mute">
-						Các phần ZIP đã hoàn tất ({state.pdfZipParts.length} phần)
-					</span>
+					<div>
+						<span class="font-mono text-xs uppercase tracking-wider text-text-mute block">
+							Các phần ZIP đã hoàn tất ({state.pdfZipParts.length} phần)
+						</span>
+						{#if !state.savedDirectoryName}
+							<span class="text-xs text-text-mute mt-0.5 block">
+								💡 Mẹo: Bấm "Tải phần N" bên dưới nếu trình duyệt chặn tải nhiều file liên tiếp.
+							</span>
+						{/if}
+					</div>
 					{#if !state.savedDirectoryName}
 						<button
 							type="button"

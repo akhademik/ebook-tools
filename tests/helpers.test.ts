@@ -114,13 +114,14 @@ describe('utils tests', () => {
 	});
 
 	describe('triggerDownload', () => {
-		it('should early-exit and log error for invalid blobs', () => {
+		it('should early-exit and log error for invalid or empty blobs', () => {
 			const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 			triggerDownload(null, 'test.zip');
 			triggerDownload('not a blob', 'test.zip');
+			triggerDownload(new Blob([]), 'empty.zip');
 
-			expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
+			expect(consoleErrorSpy).toHaveBeenCalledTimes(3);
 			expect(URL.createObjectURL).not.toHaveBeenCalled();
 
 			consoleErrorSpy.mockRestore();

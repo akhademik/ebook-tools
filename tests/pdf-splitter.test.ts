@@ -751,6 +751,50 @@ describe('pdf-splitter tests', () => {
 			// RAM freed: Blob should be undefined in zipParts when savedToDisk is true
 			expect(result.zipParts[0].savedToDisk).toBe(true);
 			expect(result.zipParts[0].blob).toBeUndefined();
+			expect(result.zipBlob).toBeUndefined();
+		});
+
+		it('should disable download and not trigger download when saved to disk', () => {
+			const state = new PdfSplitterState();
+			state.savedDirectoryName = 'MyFolder';
+			state.pdfZipBlob = null;
+			state.pdfZipParts = [
+				{
+					partIndex: 1,
+					totalParts: 1,
+					startPage: 1,
+					endPage: 2,
+					filename: 'test.zip',
+					sizeBytes: 100,
+					savedToDisk: true
+				}
+			];
+
+			expect(state.isSavedToDisk).toBe(true);
+			expect(state.canDownloadZip).toBe(false);
+
+			mockAnchor.click.mockClear();
+			state.downloadZip();
+			expect(mockAnchor.click).not.toHaveBeenCalled();
+		});
+
+		it('should enable download when valid non-empty zip blob is present', () => {
+			const state = new PdfSplitterState();
+			state.pdfZipBlob = new Blob(['sample-data']);
+			state.pdfZipParts = [
+				{
+					partIndex: 1,
+					totalParts: 1,
+					startPage: 1,
+					endPage: 2,
+					blob: state.pdfZipBlob,
+					filename: 'test.zip',
+					sizeBytes: 11
+				}
+			];
+
+			expect(state.isSavedToDisk).toBe(false);
+			expect(state.canDownloadZip).toBe(true);
 		});
 
 		it('should support releasing part blob in PdfSplitterState', () => {
@@ -822,7 +866,7 @@ describe('pdf-splitter tests', () => {
 
 			// Test state defaults
 			const state = new PdfSplitterState();
-			expect(state.selectedDpi).toBe(200);
+			expect(DEFAULT_DPI).toBe(200);
 			expect(state.degradedPages).toEqual([]);
 		});
 	});
