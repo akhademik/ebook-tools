@@ -207,11 +207,11 @@
 			</p>
 		</div>
 
-		<div class="mb-5 pt-4 border-t border-border-color">
-			<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
-				Ghi trực tiếp ra ổ đĩa
-			</span>
-			{#if state.supportsFSA}
+		{#if state.supportsFSA}
+			<div class="mb-5 pt-4 border-t border-border-color">
+				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
+					Ghi trực tiếp ra ổ đĩa
+				</span>
 				{#if state.dirName}
 					<div class="flex items-center gap-2">
 						<span
@@ -237,12 +237,8 @@
 						📁 Chọn thư mục lưu (Giải phóng RAM)
 					</button>
 				{/if}
-			{:else}
-				<span class="text-xs text-text-mute font-mono block">
-					Trình duyệt không hỗ trợ File System API (tải về qua trình tải)
-				</span>
-			{/if}
-		</div>
+			</div>
+		{/if}
 
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			{#if state.processing}
