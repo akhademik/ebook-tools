@@ -64,8 +64,8 @@
 				<button
 					class="bg-panel-2 border border-border-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					10
-						? 'border-accent-color text-accent-color bg-accent-soft'
-						: 'text-amber-color hover:border-amber-color'}"
+						? 'text-amber-color hover:border-amber-color'
+						: 'border-accent-color text-accent-color bg-accent-soft'}"
 					onclick={() => {
 						state.selectedPreviewCount = 10;
 					}}
@@ -74,8 +74,8 @@
 				<button
 					class="bg-panel-2 border border-border-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					20
-						? 'border-accent-color text-accent-color bg-accent-soft'
-						: 'text-amber-color hover:border-amber-color'}"
+						? 'text-amber-color hover:border-amber-color'
+						: 'border-accent-color text-accent-color bg-accent-soft'}"
 					onclick={() => {
 						state.selectedPreviewCount = 20;
 					}}
