@@ -143,6 +143,21 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 			expect(text).toContain('~ Trích dẫn có nhiều footer.\n> Tác giả 1\n> Tác giả 2\n> Tác giả 3');
 		});
 
+		it('should detect footers with alignment classes (>t, >p, >c)', () => {
+			const html = `
+				<blockquote class="left">
+					<p>Lời thoại căn trái.</p>
+					<footer class="right">Tác giả Căn Phải</footer>
+					<footer class="left">Tác giả Căn Trái</footer>
+					<footer class="center">Tác giả Căn Giữa</footer>
+				</blockquote>
+			`;
+			const text = htmlToCleanText(html);
+			expect(text).toContain(
+				'~t Lời thoại căn trái.\n>p Tác giả Căn Phải\n>t Tác giả Căn Trái\n>c Tác giả Căn Giữa'
+			);
+		});
+
 		it('should convert figure illustrations and general img tags to [tag-name]', () => {
 			const html = `
 				<figure class="illust-box">

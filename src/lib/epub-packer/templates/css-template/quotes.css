@@ -16,6 +16,22 @@ blockquote footer {
 	font-size: 0.9em;
 	margin-top: 0.4em;
 	opacity: 0.8;
+	text-align: inherit;
+}
+
+footer.left,
+blockquote footer.left {
+	text-align: left !important;
+}
+
+footer.right,
+blockquote footer.right {
+	text-align: right !important;
+}
+
+footer.center,
+blockquote footer.center {
+	text-align: center !important;
 }
 
 /* ===== KHỐI THƯ (LETTER) ===== */
@@ -58,28 +74,24 @@ blockquote footer {
 	margin: 0 0 0.8em 0;
 }
 
-.letter-box p:last-child {
-	margin-bottom: 0;
-}
-
 /* ===== CĂN LỀ TRÍCH DẪN (ALIGNMENT) ===== */
 .center,
 .poem,
 .poem p,
-blockquote.center p,
-blockquote.center footer {
+blockquote.center,
+blockquote.center p {
 	text-align: center;
 }
 
 .left,
-blockquote.left p,
-blockquote.left footer {
+blockquote.left,
+blockquote.left p {
 	text-align: left;
 }
 
 .right,
-blockquote.right p,
-blockquote.right footer {
+blockquote.right,
+blockquote.right p {
 	text-align: right;
 }
 
@@ -94,6 +106,7 @@ h2.side-chap + p {
 
 /* ===== PHẦN TỬ CUỐI (LAST-CHILD) ===== */
 .letter p:last-child,
-.poem p:last-child {
+.poem p:last-child,
+.letter-box p:last-child {
 	margin-bottom: 0;
 }

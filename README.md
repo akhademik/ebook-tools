@@ -46,7 +46,7 @@ Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `
   - `@! Tiêu đề` (`@!t`, `@!p`): Tiêu đề phụ, không đưa vào mục lục.
   - `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 trang XHTML độc lập.
   - `[letter] ... [/letter]`, `[letter-box] ... [/letter-box]`, `[poem] ... [/poem]`: Khối định dạng thư từ, hộp viền bọc nội dung (không nối dòng, hỗ trợ lồng thẻ), bài thơ có căn lề và thụt đầu dòng riêng biệt.
-  - `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote và tên tác giả.
+  - `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote (hỗ trợ `~t`, `~p`, `~`) và tên tác giả footer (hỗ trợ căn lề độc lập `>t`, `>p`, `>c` hoặc tự động ăn theo căn lề trích dẫn `>`).
   - Dropcap chữ cái đầu chương `[c]`, tắt tự động dropcap đầu đoạn sau tiêu đề bằng `!D Nội dung`, ảnh minh họa theo thẻ `[hinh-1]`, ngắt phân cảnh lớn `###` (• • •), ngắt phân cảnh nhỏ `##` (*), ngắt phân cảnh trống `#`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_`.
   - Chú thích chân trang tự động: `{n}` trong nội dung liên kết tự động tới khối `Chú thích:` / `{n} Nội dung chú thích` ở cuối sách dạng pop-up footnote EPUB 3 (`<aside epub:type="footnote">`).
 - **Xử lý bìa & Tùy biến Jacket (Trang lót sách)**:
@@ -151,8 +151,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-26 08:20
+- Cập nhật lần cuối: 2026-10-27 16:55
 - Đã hoàn thành:
+  - **Tách biệt Căn lề Độc lập cho Footer Trích dẫn (`>t`, `>p`, `>c`) & Bảo toàn Tính Kế thừa**:
+    - **CSS căn lề độc lập (`quotes.css`)**: Tách `blockquote.* footer` ra khỏi nhóm căn lề chung; gán `text-align` trực tiếp lên `blockquote.center`, `blockquote.left`, `blockquote.right`; thiết lập `text-align: inherit` cho `blockquote footer` để tự động ăn theo căn lề của `~` khi không có hậu tố; bổ sung các luật độc lập với `!important` cho `footer.left`, `footer.right`, `footer.center`.
+    - **Parser hỗ trợ hậu tố (`txt-parser.ts`)**: Cập nhật regex bắt `^>(t|p|c)?\s+(.+)`. Ánh xạ `>t` $\rightarrow$ `class="left"`, `>p` $\rightarrow$ `class="right"`, `>c` $\rightarrow$ `class="center"`, `>` $\rightarrow$ không gán class (kế thừa từ blockquote cha). Áp dụng đồng bộ cho cả khối ngoài lẫn bên trong `[letter]`, `[poem]`, và dòng tác giả đứng độc lập `standaloneAuthorMatch`.
+    - **Dịch ngược 2 chiều bảo toàn căn lề (`epub-to-txt.ts`)**: Tự động nhận diện class của `footer` để dịch ngược thành `>t`, `>p`, `>c` hoặc `>` tương ứng.
+    - **Cập nhật UI & Bảng quy ước (`EpubSyntaxModal.svelte`)**: Bổ sung hướng dẫn chi tiết về các hậu tố căn lề cho dòng tác giả `>`.
+    - Toàn bộ **347/347 unit tests pass 100%**.
   - **Khắc phục lỗi nút tải ZIP rỗng khi lưu ra đĩa & Mở rộng E2E Test Suite cho PDF Splitter**:
     - **Sửa dứt điểm tải ZIP rỗng**: Loại bỏ việc gán `zipBlob = new Blob()` khi đã lưu ra đĩa (`savedToDisk: true`). Trả về `zipBlob: undefined` nếu không có phần nào trong RAM, đồng thời bổ sung chốt chặn `blob.size === 0` trong `triggerDownload` ngăn ngừa triệt để việc tải file rỗng 0 byte.
     - **Đồng bộ hóa trạng thái nút UI & Giải phóng hoàn toàn RAM**: Khi đã ghi thành công vào thư mục trên đĩa (`savedDirectoryName`), nút chuyển thành `"Đã lưu vào đĩa"` và bị vô hiệu hóa hoàn toàn (`disabled`), ngăn chặn tải tệp rỗng hoặc gây hiểu lầm cho người dùng.
@@ -275,6 +281,22 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-10-27 (Independent Alignment for Blockquote Footers: >t, >p, >c & Calibre CSS Specificity Fix)
+
+- Thêm/sửa: Hỗ trợ căn lề độc lập cho thẻ footer trích dẫn (`>t`, `>p`, `>c`) tách biệt khỏi căn lề khối `~`, đồng thời bảo toàn tính kế thừa tự động khi dùng `>` thuần túy, và chuẩn hóa thứ tự độ đặc hiệu CSS (CSS Specificity) theo kiểm định Calibre / Stylelint:
+  - **CSS Căn lề & Thứ tự Đặc hiệu (`quotes.css`)**: Gán `text-align` lên `blockquote.center`, `blockquote.left`, `blockquote.right` và `text-align: inherit` cho `blockquote footer`; bổ sung `footer.left, blockquote footer.left`, `footer.right, blockquote footer.right`, `footer.center, blockquote footer.center` theo đúng thứ tự tăng dần độ đặc hiệu; di chuyển `.letter-box p:last-child` về nhóm `:last-child` ở cuối file, loại bỏ hoàn toàn 9 lỗi `no-descending-specificity` từ Calibre Check Book.
+  - **Parser (`txt-parser.ts`)**: Mở rộng regex nhận diện `^>(t|p|c)?\s+(.+)` sinh thẻ `<footer class="...">` cho `>t`, `>p`, `>c` hoặc `<footer>` kế thừa cho `>`.
+  - **Reverse Parser (`epub-to-txt.ts`)**: Tự động nhận diện class căn lề trên `footer` khi dịch ngược EPUB sang TXT.
+  - **UI Quy ước (`EpubSyntaxModal.svelte`)**: Cập nhật mô tả cú pháp `>t`, `>p`, `>c`.
+- Kết quả pipeline: format ✅ | lint ✅ | type ✅ (0 err, 0 warn) | test ✅ (347/347 pass) | knip ✅ (0 issues) | graphify: [4866 nodes, 10510 edges, 323 communities, không có god node hay circular dependency mới]
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-to-txt.test.ts`
 
 ### 2026-10-26 (PDF Splitter Disk Stream Zero-byte Fix, UI Button State Sync & Playwright E2E Coverage)
 

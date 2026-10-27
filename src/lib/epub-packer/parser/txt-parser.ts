@@ -514,10 +514,20 @@ export function parseTxtToChapters(
 						// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 						break;
 					}
-					const authorMatch = candidateRaw.trim().match(/^>\s*(.+)$/);
+					const authorMatch = candidateRaw.trim().match(/^>(t|p|c)?\s+(.+)$/);
 					if (authorMatch) {
-						const authorFormatted = applyInlineFormatting(authorMatch[1].trim(), customDefinitions);
-						authorFooters.push(`<footer>${authorFormatted}</footer>`);
+						const alignChar = authorMatch[1];
+						const authorRaw = authorMatch[2].trim();
+						const alignClass =
+							alignChar === 't'
+								? ' class="left"'
+								: alignChar === 'p'
+									? ' class="right"'
+									: alignChar === 'c'
+										? ' class="center"'
+										: '';
+						const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+						authorFooters.push(`<footer${alignClass}>${authorFormatted}</footer>`);
 						nextLineIdx++;
 					} else {
 						break;
@@ -534,14 +544,21 @@ export function parseTxtToChapters(
 				continue;
 			}
 
-			const standaloneAuthorMatch = stripped.match(/^>\s*(.+)$/);
+			const standaloneAuthorMatch = stripped.match(/^>(t|p|c)?\s+(.+)$/);
 			if (standaloneAuthorMatch) {
 				const activeChapter = ensureChapterOpen();
-				const authorFormatted = applyInlineFormatting(
-					standaloneAuthorMatch[1].trim(),
-					customDefinitions
-				);
-				activeChapter.html += `  <blockquote class="center"><footer>${authorFormatted}</footer></blockquote>\n`;
+				const alignChar = standaloneAuthorMatch[1];
+				const authorRaw = standaloneAuthorMatch[2].trim();
+				const alignClass =
+					alignChar === 't'
+						? ' class="left"'
+						: alignChar === 'p'
+							? ' class="right"'
+							: alignChar === 'c'
+								? ' class="center"'
+								: '';
+				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+				activeChapter.html += `  <blockquote class="center"><footer${alignClass}>${authorFormatted}</footer></blockquote>\n`;
 				lineIdx++;
 				continue;
 			}
@@ -730,10 +747,20 @@ export function parseTxtToChapters(
 					// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 					break;
 				}
-				const authorMatch = candidateRaw.trim().match(/^>\s*(.+)$/);
+				const authorMatch = candidateRaw.trim().match(/^>(t|p|c)?\s+(.+)$/);
 				if (authorMatch) {
-					const authorFormatted = applyInlineFormatting(authorMatch[1].trim(), customDefinitions);
-					authorFooters.push(`<footer>${authorFormatted}</footer>`);
+					const alignChar = authorMatch[1];
+					const authorRaw = authorMatch[2].trim();
+					const alignClass =
+						alignChar === 't'
+							? ' class="left"'
+							: alignChar === 'p'
+								? ' class="right"'
+								: alignChar === 'c'
+									? ' class="center"'
+									: '';
+					const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+					authorFooters.push(`<footer${alignClass}>${authorFormatted}</footer>`);
 					nextLineIdx++;
 				} else {
 					break;

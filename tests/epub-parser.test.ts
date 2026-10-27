@@ -903,6 +903,55 @@ Tiếp tục lời mở đầu.`;
 			);
 		});
 
+		it('should support independent alignment for footers (>t, >p, >c)', () => {
+			const txt = `@@ Chương 1
+~t Trích dẫn căn trái nhưng tác giả căn phải
+>p Tác giả Phải
+
+~p Trích dẫn căn phải nhưng tác giả căn trái
+>t Tác giả Trái
+
+~ Trích dẫn căn giữa với nhiều tác giả căn lề khác nhau
+>t Tác giả Trái
+>p Tác giả Phải
+>c Tác giả Giữa
+> Tác giả Thứ Tư`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain(
+				'<blockquote class="left"><p>Trích dẫn căn trái nhưng tác giả căn phải</p><footer class="right">Tác giả Phải</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain(
+				'<blockquote class="right"><p>Trích dẫn căn phải nhưng tác giả căn trái</p><footer class="left">Tác giả Trái</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain(
+				'<blockquote class="center"><p>Trích dẫn căn giữa với nhiều tác giả căn lề khác nhau</p><footer class="left">Tác giả Trái</footer><footer class="right">Tác giả Phải</footer><footer class="center">Tác giả Giữa</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain('<p>&gt; Tác giả Thứ Tư</p>');
+		});
+
+		it('should support standalone footers with alignment inside [letter] and [poem]', () => {
+			const txt = `[letter]
+Nội dung thư
+>p Người Ký Tên
+[/letter]
+[poem]
+Câu thơ một
+Câu thơ hai
+>t Tác giả Thơ
+[/poem]`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(chapters).toHaveLength(1);
+			expect(chapters[0].html).toContain(
+				'  <blockquote class="center"><footer class="right">Người Ký Tên</footer></blockquote>'
+			);
+			expect(chapters[0].html).toContain(
+				'  <blockquote class="center"><footer class="left">Tác giả Thơ</footer></blockquote>'
+			);
+		});
+
 		it('should parse nested formatting without tag collision (slash matching issue)', () => {
 			const txt = `@@ Chương 1
 Một câu có *nhiều* từ *in đậm* liên tiếp và cả /nghiêng/ xen kẽ, thử xem regex có bắt đúng từng cặp không: *đậm 1* bình thường /nghiêng 1/ bình thường *đậm 2*.`;

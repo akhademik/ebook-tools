@@ -251,6 +251,17 @@ function isRightAligned(attrs: string): boolean {
 }
 
 /**
+ * Checks if attributes indicate center alignment.
+ */
+function isCenterAligned(attrs: string): boolean {
+	return (
+		/\bcenter\b/i.test(attrs) ||
+		/text-align\s*:\s*center/i.test(attrs) ||
+		/align=["']center["']/i.test(attrs)
+	);
+}
+
+/**
  * Checks if attributes indicate exclusion from TOC (no-toc).
  */
 function isNoToc(attrs: string): boolean {
@@ -463,29 +474,50 @@ export function htmlToCleanText(htmlContent: string): string {
 			const isRight = isRightAligned(attrs);
 			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
 
-			const authors: string[] = [];
-			const footerMatches = [...inner.matchAll(/<footer\b[^>]*>([\s\S]*?)<\/footer>/gi)];
+			const authors: { prefix: string; text: string }[] = [];
+			const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
 			if (footerMatches.length > 0) {
 				for (const fm of footerMatches) {
-					const authorText = processLineContent(fm[1]);
-					if (authorText) authors.push(authorText);
+					const footerAttrs = fm[1];
+					const isFooterLeft = isLeftAligned(footerAttrs);
+					const isFooterRight = isRightAligned(footerAttrs);
+					const isFooterCenter = isCenterAligned(footerAttrs);
+					const authorPrefix = isFooterLeft
+						? '>t'
+						: isFooterRight
+							? '>p'
+							: isFooterCenter
+								? '>c'
+								: '>';
+					const authorText = processLineContent(fm[2]);
+					if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
 				}
 			} else {
-				const citeMatches = [...inner.matchAll(/<cite\b[^>]*>([\s\S]*?)<\/cite>/gi)];
+				const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
 				if (citeMatches.length > 0) {
 					for (const cm of citeMatches) {
-						const authorText = processLineContent(cm[1]);
-						if (authorText) authors.push(authorText);
+						const citeAttrs = cm[1];
+						const isCiteLeft = isLeftAligned(citeAttrs);
+						const isCiteRight = isRightAligned(citeAttrs);
+						const isCiteCenter = isCenterAligned(citeAttrs);
+						const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
+						const authorText = processLineContent(cm[2]);
+						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
 					}
 				} else {
 					const authorMatches = [
 						...inner.matchAll(
-							/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/gi
+							/<p\b([^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*)>([\s\S]*?)<\/p>/gi
 						)
 					];
 					for (const am of authorMatches) {
-						const authorText = processLineContent(am[1]);
-						if (authorText) authors.push(authorText);
+						const pAttrs = am[1];
+						const isPLeft = isLeftAligned(pAttrs);
+						const isPRight = isRightAligned(pAttrs);
+						const isPCenter = isCenterAligned(pAttrs);
+						const authorPrefix = isPLeft ? '>t' : isPRight ? '>p' : isPCenter ? '>c' : '>';
+						const authorText = processLineContent(am[2]);
+						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
 					}
 				}
 			}
@@ -511,7 +543,7 @@ export function htmlToCleanText(htmlContent: string): string {
 			}
 
 			for (const author of authors) {
-				quoteLines.push(`> ${author}`);
+				quoteLines.push(`${author.prefix} ${author.text}`);
 			}
 
 			return `\n\n${quoteLines.join('\n')}\n\n`;
@@ -526,19 +558,35 @@ export function htmlToCleanText(htmlContent: string): string {
 			const isRight = isRightAligned(attrs);
 			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
 
-			const authors: string[] = [];
-			const footerMatches = [...inner.matchAll(/<footer\b[^>]*>([\s\S]*?)<\/footer>/gi)];
+			const authors: { prefix: string; text: string }[] = [];
+			const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
 			if (footerMatches.length > 0) {
 				for (const fm of footerMatches) {
-					const authorText = processLineContent(fm[1]);
-					if (authorText) authors.push(authorText);
+					const footerAttrs = fm[1];
+					const isFooterLeft = isLeftAligned(footerAttrs);
+					const isFooterRight = isRightAligned(footerAttrs);
+					const isFooterCenter = isCenterAligned(footerAttrs);
+					const authorPrefix = isFooterLeft
+						? '>t'
+						: isFooterRight
+							? '>p'
+							: isFooterCenter
+								? '>c'
+								: '>';
+					const authorText = processLineContent(fm[2]);
+					if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
 				}
 			} else {
-				const citeMatches = [...inner.matchAll(/<cite\b[^>]*>([\s\S]*?)<\/cite>/gi)];
+				const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
 				if (citeMatches.length > 0) {
 					for (const cm of citeMatches) {
-						const authorText = processLineContent(cm[1]);
-						if (authorText) authors.push(authorText);
+						const citeAttrs = cm[1];
+						const isCiteLeft = isLeftAligned(citeAttrs);
+						const isCiteRight = isRightAligned(citeAttrs);
+						const isCiteCenter = isCenterAligned(citeAttrs);
+						const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
+						const authorText = processLineContent(cm[2]);
+						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
 					}
 				}
 			}
@@ -560,7 +608,7 @@ export function htmlToCleanText(htmlContent: string): string {
 			}
 
 			for (const author of authors) {
-				quoteLines.push(`> ${author}`);
+				quoteLines.push(`${author.prefix} ${author.text}`);
 			}
 
 			return `\n\n${quoteLines.join('\n')}\n\n`;
