@@ -1,9 +1,9 @@
-# Graph Report - ebook-tools  (2026-10-27)
+# Graph Report - ebook-tools  (2026-11-03)
 
 ## Corpus Check
-- 145 files · ~136,649 words
+- 145 files · ~136,731 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 48 file(s) not represented in the graph (top: .otf 18, .ttf 15, .css 10)
+- Unclassified: 55 file(s) not represented in the graph (top: .otf 22, .ttf 18, .css 10)
 
 ## Summary
 - 4866 nodes · 10510 edges · 323 communities (110 shown, 213 thin omitted)
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6347bde`
+- Built from commit: `090595b5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -816,9 +816,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `appendText()` connect `appendText` to `.add`, `get`, `.a`, `pdf.min.js`, `CanvasGraphics`?**
   _High betweenness centrality (0.097) - this node is a cross-community bridge._
 - **Why does `#ue()` connect `.resolve` to `pdf.min.js`, `has`?**
-  _High betweenness centrality (0.086) - this node is a cross-community bridge._
-- **Why does `XhtmlNamespace` connect `XhtmlNamespace` to `Sub`, `Ul`, `.a`, `has`, `pdf.worker.min.js`, `Html`, `XhtmlObject`, `Br`, `.i`?**
   _High betweenness centrality (0.082) - this node is a cross-community bridge._
+- **Why does `XhtmlNamespace` connect `XhtmlNamespace` to `Sub`, `Ul`, `.a`, `has`, `pdf.worker.min.js`, `Html`, `XhtmlObject`, `Br`, `.i`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `$schema`, `project` to the rest of the system?**
   _239 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `epub-source-parser.ts` be split into smaller, more focused modules?**

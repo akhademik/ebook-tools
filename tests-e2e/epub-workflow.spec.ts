@@ -150,7 +150,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			await fontTrigger.click();
 			const listbox2 = page.locator('[role="listbox"]');
 			await expect(listbox2).toBeVisible();
-			await listbox2.locator('button', { hasText: 'Akashi' }).first().click();
+			await listbox2.locator('button', { hasText: 'UTM_Akashi' }).first().click();
 			await page.waitForTimeout(200);
 			const titleFontM2Akashi = await page
 				.locator('.preview-wrap .title')
@@ -224,7 +224,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await h2SubTrigger.click();
 		const listboxSub = page.locator('[role="listbox"]');
 		await expect(listboxSub).toBeVisible();
-		const akashiOption = listboxSub.locator('button', { hasText: 'Akashi' }).first();
+		const akashiOption = listboxSub.locator('button', { hasText: 'UTM_Akashi' }).first();
 		await expect(akashiOption).toBeVisible();
 		await akashiOption.click();
 		await expect(listboxSub).not.toBeVisible();

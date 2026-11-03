@@ -151,8 +151,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-10-27 16:55
+- Cập nhật lần cuối: 2026-11-03 17:15
 - Đã hoàn thành:
+  - **Bổ sung 7 Phông chữ Mới & Khử Trùng lặp (New Heading Fonts & Duplicate Font Cleanup)**:
+    - **Khử trùng lặp & Chuẩn hóa tệp phông chữ (`src/assets/fonts/`)**: Quét và đối chiếu toàn bộ binary qua mã băm MD5 và fontkit metadata; loại bỏ an toàn 3 tệp trùng lặp (`iCiel-Downtown.otf` trùng 100% với `BCDowntown.otf`, `Batangas-Bold.otf` thực chất là `SVN-Georgia-Bold.otf`, `BebasNeue.otf` trùng với `UTM-Bebas.ttf`). Giữ lại và tích hợp 7 phông chữ mới chất lượng cao: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
+    - **Đồng bộ Metadata (`fonts-metadata.json`)**: Chạy script `generate-fonts-meta.js` trích xuất chính xác font family (`DFVN Takashimura Bold`, `LNTH-DeBorstel Brush Reduced`, `Lourena`, `MJ GeoSlab703 Md BT`, `SVN-Georgia`, `UTM Bebas`), nâng tổng số phông chữ hỗ trợ lên 40 font.
+    - **Tự động hóa hiển thị & Đóng gói EPUB (`fonts.ts`, `FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**: Các phông chữ mới tự động được nạp vào `AVAILABLE_FONTS` qua `import.meta.glob`, hiển thị trực quan trong bộ chọn Heading (H1, H2, H2 Sub, Dropcap) và Modal Jacket với live preview tiếng Việt, đồng thời nhúng trọn vẹn vào gói EPUB khi xuất bản.
+    - Toàn bộ **347/347 unit tests pass 100%**, type check (0 err, 0 warn), build production thành công.
   - **Tách biệt Căn lề Độc lập cho Footer Trích dẫn (`>t`, `>p`, `>c`) & Bảo toàn Tính Kế thừa**:
     - **CSS căn lề độc lập (`quotes.css`)**: Tách `blockquote.* footer` ra khỏi nhóm căn lề chung; gán `text-align` trực tiếp lên `blockquote.center`, `blockquote.left`, `blockquote.right`; thiết lập `text-align: inherit` cho `blockquote footer` để tự động ăn theo căn lề của `~` khi không có hậu tố; bổ sung các luật độc lập với `!important` cho `footer.left`, `footer.right`, `footer.center`.
     - **Parser hỗ trợ hậu tố (`txt-parser.ts`)**: Cập nhật regex bắt `^>(t|p|c)?\s+(.+)`. Ánh xạ `>t` $\rightarrow$ `class="left"`, `>p` $\rightarrow$ `class="right"`, `>c` $\rightarrow$ `class="center"`, `>` $\rightarrow$ không gán class (kế thừa từ blockquote cha). Áp dụng đồng bộ cho cả khối ngoài lẫn bên trong `[letter]`, `[poem]`, và dòng tác giả đứng độc lập `standaloneAuthorMatch`.
@@ -281,6 +286,21 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-03 (Add 7 New Typography Fonts, Clean Duplicate Fonts & Sync Metadata)
+
+- Thêm/sửa: Rà soát 10 phông chữ mới, khử trùng lặp và tích hợp 7 phông chữ mới vào hệ thống:
+  - Khử trùng lặp 3 phông chữ: `iCiel-Downtown.otf` (trùng `BCDowntown.otf`), `Batangas-Bold.otf` (sai tên, trùng `SVN-Georgia-Bold.otf`), `BebasNeue.otf` (trùng `UTM-Bebas.ttf`).
+  - Tích hợp 7 font mới: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
+  - Cập nhật `src/assets/fonts-metadata.json` qua `scripts/generate-fonts-meta.js`, đồng bộ CSS font family cho toàn bộ 40 font trong hệ thống.
+  - Các font mới tự động khả dụng trong `FontSelect` cho H1, H2, H2 Sub, Dropcap và Jacket Preview.
+  - Chuẩn hóa bộ chọn font trong kiểm thử E2E (`tests-e2e/epub-workflow.spec.ts`) khớp chính xác ID phông chữ `UTM_Akashi`, tránh xung đột chuỗi con với `Takashimura`.
+- Kết quả pipeline: format ✅ | lint ✅ | type ✅ (0 err, 0 warn) | test ✅ (347/347 pass) | test e2e ✅ (15/15 pass) | knip ✅ (0 issues) | build production ✅ | graphify: [4866 nodes, 10510 edges, 323 communities]
+- File chính bị ảnh hưởng:
+  - `src/assets/fonts/*`
+  - `src/assets/fonts-metadata.json`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-10-27 (Independent Alignment for Blockquote Footers: >t, >p, >c & Calibre CSS Specificity Fix)
 

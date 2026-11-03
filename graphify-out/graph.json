@@ -52792,14 +52792,14 @@
       "source_location": "L321"
     },
     {
-      "id": "readme_2026_10_27_independent_alignment_for_blockquote_footers_t_p_c",
-      "label": "2026-10-27 (Independent Alignment for Blockquote Footers: >t, >p, >c)",
+      "id": "readme_2026_10_27_independent_alignment_for_blockquote_footers_t_p_c_calibre_css_specificity_fix",
+      "label": "2026-10-27 (Independent Alignment for Blockquote Footers: >t, >p, >c & Calibre CSS Specificity Fix)",
       "_origin": "ast",
       "community": 120,
       "community_name": "Changelog",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "2026-10-27 (independent alignment for blockquote footers: >t, >p, >c)",
+      "norm_label": "2026-10-27 (independent alignment for blockquote footers: >t, >p, >c & calibre css specificity fix)",
       "source_file": "README.md",
       "source_location": "L285"
     },
@@ -130085,7 +130085,7 @@
     },
     {
       "source": "readme_changelog",
-      "target": "readme_2026_10_27_independent_alignment_for_blockquote_footers_t_p_c",
+      "target": "readme_2026_10_27_independent_alignment_for_blockquote_footers_t_p_c_calibre_css_specificity_fix",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -180245,5 +180245,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b6347bde3358a85b97c41b39682160e17a3c98bb"
+  "built_at_commit": "090595b52ca2537455367ca09c58598e0b5ab2fa"
 }
