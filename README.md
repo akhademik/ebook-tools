@@ -151,8 +151,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-03 17:15
+- Cập nhật lần cuối: 2026-11-03 17:28
 - Đã hoàn thành:
+  - **Tự động Cuộn đến Phông chữ Đang Chọn trong Dropdown (`FontSelect.svelte`)**:
+    - Khi mở dropdown bộ chọn phông chữ, danh sách tự động tính toán và cuộn đến phông chữ đang được chọn (`aria-selected="true"`), căn giữa phông chữ trong tầm nhìn thay vì bị reset về vị trí đầu danh sách (vị trí 0).
+    - Giúp người dùng dễ dàng thử liên tiếp các phông chữ kế cận mà không mất thời gian cuộn lại từ đầu.
+    - Tự động cuộn về đầu danh sách khi gõ từ khóa tìm kiếm (`searchQuery`) và dọn sạch query khi đóng dropdown.
+    - Bổ sung kịch bản kiểm thử tự động Playwright E2E xác thực phông chữ đang chọn luôn nằm trong khung nhìn (`toBeInViewport()`).
+    - Toàn bộ **347/347 unit tests** và **15/15 Playwright E2E browser tests pass 100%**.
   - **Bổ sung 7 Phông chữ Mới & Khử Trùng lặp (New Heading Fonts & Duplicate Font Cleanup)**:
     - **Khử trùng lặp & Chuẩn hóa tệp phông chữ (`src/assets/fonts/`)**: Quét và đối chiếu toàn bộ binary qua mã băm MD5 và fontkit metadata; loại bỏ an toàn 3 tệp trùng lặp (`iCiel-Downtown.otf` trùng 100% với `BCDowntown.otf`, `Batangas-Bold.otf` thực chất là `SVN-Georgia-Bold.otf`, `BebasNeue.otf` trùng với `UTM-Bebas.ttf`). Giữ lại và tích hợp 7 phông chữ mới chất lượng cao: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
     - **Đồng bộ Metadata (`fonts-metadata.json`)**: Chạy script `generate-fonts-meta.js` trích xuất chính xác font family (`DFVN Takashimura Bold`, `LNTH-DeBorstel Brush Reduced`, `Lourena`, `MJ GeoSlab703 Md BT`, `SVN-Georgia`, `UTM Bebas`), nâng tổng số phông chữ hỗ trợ lên 40 font.
@@ -287,16 +293,16 @@ pnpm test:e2e
 
 ## Changelog
 
-### 2026-11-03 (Add 7 New Typography Fonts, Clean Duplicate Fonts & Sync Metadata)
+### 2026-11-03 (Dropdown Auto-Scroll to Active Font & 7 New Typography Fonts)
 
-- Thêm/sửa: Rà soát 10 phông chữ mới, khử trùng lặp và tích hợp 7 phông chữ mới vào hệ thống:
-  - Khử trùng lặp 3 phông chữ: `iCiel-Downtown.otf` (trùng `BCDowntown.otf`), `Batangas-Bold.otf` (sai tên, trùng `SVN-Georgia-Bold.otf`), `BebasNeue.otf` (trùng `UTM-Bebas.ttf`).
-  - Tích hợp 7 font mới: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
-  - Cập nhật `src/assets/fonts-metadata.json` qua `scripts/generate-fonts-meta.js`, đồng bộ CSS font family cho toàn bộ 40 font trong hệ thống.
-  - Các font mới tự động khả dụng trong `FontSelect` cho H1, H2, H2 Sub, Dropcap và Jacket Preview.
-  - Chuẩn hóa bộ chọn font trong kiểm thử E2E (`tests-e2e/epub-workflow.spec.ts`) khớp chính xác ID phông chữ `UTM_Akashi`, tránh xung đột chuỗi con với `Takashimura`.
-- Kết quả pipeline: format ✅ | lint ✅ | type ✅ (0 err, 0 warn) | test ✅ (347/347 pass) | test e2e ✅ (15/15 pass) | knip ✅ (0 issues) | build production ✅ | graphify: [4866 nodes, 10510 edges, 323 communities]
+- Thêm/sửa: Cải tiến trải nghiệm chọn phông chữ và tích hợp phông chữ mới:
+  - **Tự động cuộn đến phông chữ đang chọn (`FontSelect.svelte`)**: Khi mở dropdown bộ chọn phông chữ, danh sách tự động cuộn đến phông chữ hiện tại thay vì bị reset về vị trí số 0, giúp việc duyệt và thử liên tiếp các phông chữ kế cận thuận tiện, tiết kiệm thời gian. Tự động reset cuộn khi tìm kiếm.
+  - **Khử trùng lặp & tích hợp 7 font mới**: Khử trùng lặp 3 font thừa (`iCiel-Downtown.otf`, `Batangas-Bold.otf`, `BebasNeue.otf`), tích hợp 7 font mới (`DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`), nâng tổng số lên 40 font.
+  - Cập nhật `src/assets/fonts-metadata.json` qua `scripts/generate-fonts-meta.js`.
+  - Mở rộng kiểm thử E2E (`tests-e2e/epub-workflow.spec.ts`) xác thực khả năng tự động cuộn giữ tầm nhìn (`toBeInViewport()`) và chuẩn hóa bộ chọn `UTM_Akashi`.
+- Kết quả pipeline: format ✅ | lint ✅ | type ✅ (0 err, 0 warn) | test ✅ (347/347 pass) | test e2e ✅ (15/15 pass) | knip ✅ (0 issues) | build production ✅ | graphify: [4868 nodes, 10512 edges, 266 communities]
 - File chính bị ảnh hưởng:
+  - `src/lib/components/FontSelect.svelte`
   - `src/assets/fonts/*`
   - `src/assets/fonts-metadata.json`
   - `tests-e2e/epub-workflow.spec.ts`

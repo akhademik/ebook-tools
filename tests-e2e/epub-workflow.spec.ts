@@ -215,6 +215,17 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(h1Trigger).toContainText('Bookerly');
 		await expect(page.locator('#h1-font-select')).toHaveValue('Bookerly');
 
+		// Re-open H1 font dropdown to verify auto-scroll retains position at selected font
+		await h1Trigger.click();
+		const reOpenedListbox = page.locator('[role="listbox"]');
+		await expect(reOpenedListbox).toBeVisible();
+		const activeOption = reOpenedListbox.locator('[aria-selected="true"]');
+		await expect(activeOption).toContainText('Bookerly');
+		await expect(activeOption).toBeInViewport();
+		// Close dropdown by pressing Escape
+		await page.keyboard.press('Escape');
+		await expect(reOpenedListbox).not.toBeVisible();
+
 		// Select H2 Sub font
 		const h2SubTrigger = page
 			.locator('label[for="h2-sub-font-select"]')

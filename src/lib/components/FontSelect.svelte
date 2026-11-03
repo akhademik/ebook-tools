@@ -13,6 +13,7 @@
 
 	let isOpen = $state(false);
 	let searchQuery = $state('');
+	let listContainerEl = $state<HTMLDivElement | null>(null);
 
 	const activeFont = $derived(value !== 'default' ? findFont(value) : null);
 
@@ -38,8 +39,33 @@
 	function handleKeydown(e: KeyboardEvent) {
 		if (isOpen && e.key === 'Escape') {
 			isOpen = false;
+			searchQuery = '';
 		}
 	}
+
+	function initScroll(node: HTMLElement) {
+		listContainerEl = node as HTMLDivElement;
+		const scrollToActive = () => {
+			const activeEl = node.querySelector<HTMLElement>('[aria-selected="true"]');
+			if (activeEl) {
+				const buttonTop = activeEl.offsetTop;
+				const buttonHeight = activeEl.offsetHeight;
+				const containerHeight = node.clientHeight;
+				if (buttonTop > 0 || containerHeight > 0) {
+					node.scrollTop = Math.max(0, buttonTop - containerHeight / 2 + buttonHeight / 2);
+				}
+			}
+		};
+
+		requestAnimationFrame(scrollToActive);
+		setTimeout(scrollToActive, 20);
+	}
+
+	$effect(() => {
+		if (searchQuery.trim() !== '' && listContainerEl) {
+			listContainerEl.scrollTop = 0;
+		}
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -100,7 +126,10 @@
 	{#if isOpen}
 		<div
 			class="fixed inset-0 z-40"
-			onclick={() => (isOpen = false)}
+			onclick={() => {
+				isOpen = false;
+				searchQuery = '';
+			}}
 			tabindex="-1"
 			aria-hidden="true"
 		></div>
@@ -124,10 +153,12 @@
 			</div>
 
 			<!-- List of fonts with real-time typeface preview -->
-			<div class="max-h-64 overflow-y-auto divide-y divide-border-color/30">
+			<div class="relative max-h-64 overflow-y-auto divide-y divide-border-color/30" use:initScroll>
 				<!-- Default option -->
 				<button
 					type="button"
+					role="option"
+					aria-selected={value === 'default'}
 					class="w-full text-left px-3.5 py-2.5 hover:bg-accent-soft flex items-center justify-between transition-colors cursor-pointer {value ===
 					'default'
 						? 'bg-accent-soft'
@@ -155,10 +186,12 @@
 				</button>
 
 				{#each filteredFonts as font (font.id)}
+					{@const isSelected = value === font.id}
 					<button
 						type="button"
-						class="w-full text-left px-3.5 py-2.5 hover:bg-accent-soft flex items-center justify-between gap-3 transition-colors cursor-pointer {value ===
-						font.id
+						role="option"
+						aria-selected={isSelected}
+						class="w-full text-left px-3.5 py-2.5 hover:bg-accent-soft flex items-center justify-between gap-3 transition-colors cursor-pointer {isSelected
 							? 'bg-accent-soft'
 							: ''}"
 						onclick={() => selectFont(font.id)}
