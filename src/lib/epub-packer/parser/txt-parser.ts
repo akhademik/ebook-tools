@@ -425,7 +425,7 @@ export function parseTxtToChapters(
 		return currentChapter;
 	};
 
-	let currentBlock: string | null = null;
+	const blockStack: string[] = [];
 	let isInsideLetterBox = false;
 	let isInsideNewBlock = false;
 	let isInsideNewCenterBlock = false;
@@ -436,11 +436,11 @@ export function parseTxtToChapters(
 
 		// Handle letter-box closing tag
 		if (/^\[\/letter-box\]$/i.test(stripped)) {
-			if (currentBlock) {
+			while (blockStack.length > 0) {
 				if (currentChapter) {
 					currentChapter.html += `</div>\n`;
 				}
-				currentBlock = null;
+				blockStack.pop();
 			}
 			if (isInsideLetterBox) {
 				if (currentChapter) {
@@ -452,13 +452,23 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		if (currentBlock) {
+		if (blockStack.length > 0) {
+			const currentBlock = blockStack[blockStack.length - 1];
 			const closeBlockMatch = stripped.match(/^\[\/(letter|poem)\]$/i);
 			if (closeBlockMatch && closeBlockMatch[1].toLowerCase() === currentBlock.toLowerCase()) {
 				if (currentChapter) {
 					currentChapter.html += `</div>\n`;
 				}
-				currentBlock = null;
+				blockStack.pop();
+				lineIdx++;
+				continue;
+			}
+
+			// Allow nesting [poem] inside [letter]
+			if (currentBlock === 'letter' && /^\[poem\]$/i.test(stripped)) {
+				blockStack.push('poem');
+				const activeChapter = ensureChapterOpen();
+				activeChapter.html += `<div class="poem">\n`;
 				lineIdx++;
 				continue;
 			}
@@ -655,9 +665,10 @@ export function parseTxtToChapters(
 
 		const openBlockMatch = stripped.match(/^\[(letter|poem)\]$/i);
 		if (openBlockMatch) {
-			currentBlock = openBlockMatch[1].toLowerCase();
+			const blockName = openBlockMatch[1].toLowerCase();
+			blockStack.push(blockName);
 			const activeChapter = ensureChapterOpen();
-			activeChapter.html += `<div class="${currentBlock}">\n`;
+			activeChapter.html += `<div class="${blockName}">\n`;
 			lineIdx++;
 			continue;
 		}
@@ -830,11 +841,12 @@ export function parseTxtToChapters(
 		lineIdx++;
 	}
 
-	if (currentBlock) {
+	while (blockStack.length > 0) {
 		Logger.warn('[epub-parser]', 'thiếu mã đóng block');
 		if (currentChapter) {
 			currentChapter.html += `</div>\n`;
 		}
+		blockStack.pop();
 	}
 
 	if (isInsideLetterBox) {

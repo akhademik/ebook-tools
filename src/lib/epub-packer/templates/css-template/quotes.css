@@ -1,4 +1,3 @@
-/* ===== KHỐI TRÍCH DẪN (BLOCKQUOTE) ===== */
 blockquote {
 	display: block;
 	margin: 1.2em 1.5em;
@@ -34,10 +33,9 @@ blockquote footer.center {
 	text-align: center !important;
 }
 
-/* ===== KHỐI THƯ (LETTER) ===== */
 .letter {
 	margin: 1.5em 1em;
-	padding: 0.3em 1.2em;
+	padding: 0.5em 1.2em;
 	border-left: 2px solid #999;
 }
 
@@ -46,7 +44,6 @@ blockquote footer.center {
 	text-indent: 0;
 }
 
-/* ===== KHỐI THƠ (POEM) ===== */
 .poem {
 	margin: 1.5em auto;
 	text-align: center;
@@ -58,7 +55,6 @@ blockquote footer.center {
 	text-align: center;
 }
 
-/* ===== KHỐI HỘP VIỀN (LETTER-BOX) ===== */
 .letter-box {
 	box-sizing: border-box;
 	border: 3px solid #444444;
@@ -74,7 +70,6 @@ blockquote footer.center {
 	margin: 0 0 0.8em 0;
 }
 
-/* ===== CĂN LỀ TRÍCH DẪN (ALIGNMENT) ===== */
 .center,
 .poem,
 .poem p,
@@ -95,7 +90,6 @@ blockquote.right p {
 	text-align: right;
 }
 
-/* ===== KHOẢNG CÁCH SAU TIÊU ĐỀ ===== */
 h1.main-chap + p {
 	margin-top: 1.5em !important;
 }
@@ -104,9 +98,33 @@ h2.side-chap + p {
 	margin-top: 1.5em;
 }
 
-/* ===== PHẦN TỬ CUỐI (LAST-CHILD) ===== */
+.letter p:first-child,
+.letter-box p:first-child {
+	padding-top: 0;
+}
+
 .letter p:last-child,
 .poem p:last-child,
 .letter-box p:last-child {
 	margin-bottom: 0;
+}
+
+.letter .poem,
+.letter-box .poem {
+	margin: 1.2em auto;
+}
+
+.letter .poem:first-child,
+.letter-box .poem:first-child {
+	margin-top: 0;
+}
+
+.letter .poem:last-child,
+.letter-box .poem:last-child {
+	margin-bottom: 0;
+}
+
+.letter .poem p,
+.letter-box .poem p {
+	margin: 0;
 }

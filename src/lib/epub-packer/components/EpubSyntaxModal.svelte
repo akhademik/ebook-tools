@@ -284,7 +284,8 @@
 								<td class="py-3 px-3">
 									<code>&lt;div class="letter"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;</code><br />
 									<span class="text-[11px] text-text-mute"
-										>Khối thư, mỗi dòng bên trong là 1 đoạn, có thụt lề riêng theo CSS.</span
+										>Khối thư, mỗi dòng bên trong là 1 đoạn, có thụt lề riêng theo CSS. Hỗ trợ lồng
+										bài thơ con (<code>[poem]</code>).</span
 									>
 								</td>
 							</tr>
@@ -306,7 +307,8 @@
 										dùng nhập, không bị ghép tự động.<br />
 										• <strong>Cho phép lồng cú pháp:</strong> Hỗ trợ trích dẫn (<code>~ quote</code
 										>, <code>&gt; author</code>), tiêu đề (<code>@@t</code>, <code>@p</code>), khối
-										thư con (<code>[letter]</code>) và định dạng inline.<br />
+										thư con (<code>[letter]</code>), bài thơ (<code>[poem]</code>) và định dạng
+										inline.<br />
 										• <strong>Quy tắc chia trang:</strong> Có thể đặt trong <code>[new]</code> hoặc
 										<code>[new:center]</code>; không được mở <code>[new]</code> bên trong
 										<code>[letter-box]</code>.

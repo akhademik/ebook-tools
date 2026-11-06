@@ -241,6 +241,51 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 			expect(text).toContain('[letter]\nGửi người phương xa,\nTôi vẫn khỏe.\n[/letter]');
 			expect(text).toContain('[new:center]\nTrang Căn Giữa Độc Lập\n[/new]');
 		});
+
+		it('should convert [poem] nested inside [letter] and [letter-box] accurately', () => {
+			const html = `
+				<div class="letter">
+					<p>Thư gửi em,</p>
+					<div class="poem">
+						<p>Ánh trăng đầu ngõ</p>
+						<p>Gió thổi qua thềm</p>
+					</div>
+					<p>Thương nhớ nhiều,</p>
+				</div>
+				<div class="letter-box">
+					<p>Hộp lời tựa</p>
+					<div class="poem">
+						<p>Bài thơ trong hộp</p>
+					</div>
+					<p>Hộp kết</p>
+				</div>
+			`;
+			const text = htmlToCleanText(html);
+			expect(text).toContain(
+				'[letter]\nThư gửi em,\n\n[poem]\nÁnh trăng đầu ngõ\nGió thổi qua thềm\n[/poem]\n\nThương nhớ nhiều,\n[/letter]'
+			);
+			expect(text).toContain(
+				'[letter-box]\nHộp lời tựa\n\n[poem]\nBài thơ trong hộp\n[/poem]\n\nHộp kết\n[/letter-box]'
+			);
+		});
+
+		it('should convert 3-level nesting [letter-box] -> [letter] -> [poem] accurately', () => {
+			const html = `
+				<div class="letter-box">
+					<p>Đầu hộp</p>
+					<div class="letter">
+						<p>Thư trong hộp</p>
+						<div class="poem">
+							<p>Thơ trong thư</p>
+						</div>
+					</div>
+				</div>
+			`;
+			const text = htmlToCleanText(html);
+			expect(text).toContain(
+				'[letter-box]\nĐầu hộp\n\n[letter]\nThư trong hộp\n\n[poem]\nThơ trong thư\n[/poem]\n[/letter]\n[/letter-box]'
+			);
+		});
 	});
 
 	describe('extractEpubToTxt', () => {

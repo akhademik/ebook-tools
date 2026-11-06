@@ -2070,6 +2070,156 @@ Nội dung chương 1`;
 				expect(chapters[0].hasCustomTitle).toBe(false);
 				expect(warnings.some((w) => w.includes('Khối [new] không chứa tiêu đề'))).toBe(true);
 			});
+
+			describe('nested [poem] inside [letter] and [letter-box] tests', () => {
+				it('should allow [poem] inside [letter] and parse into nested XHTML correctly', () => {
+					const txt = `@@ Chương 1
+[letter]
+Gửi người em phương xa,
+[poem]
+Ánh trăng đầu ngõ
+Gió thổi qua thềm
+[/poem]
+Thương nhớ nhiều,
+[/letter]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+					expect(validation.errors).toHaveLength(0);
+
+					const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+					expect(chapters).toHaveLength(1);
+					const html = chapters[0].html;
+					expect(html).toContain('<div class="letter">');
+					expect(html).toContain('<p>Gửi người em phương xa,</p>');
+					expect(html).toContain('<div class="poem">');
+					expect(html).toContain('<p>Ánh trăng đầu ngõ</p>');
+					expect(html).toContain('<p>Gió thổi qua thềm</p>');
+					expect(html).toContain('</div>');
+					expect(html).toContain('<p>Thương nhớ nhiều,</p>');
+				});
+
+				it('should allow [poem] inside [letter-box] and parse into nested XHTML correctly', () => {
+					const txt = `@@ Chương 1
+[letter-box]
+Lời tựa trong khung hộp
+[poem]
+Rừng thu xào xạc lá rơi
+Trăng non lấp ló sáng ngời trên cao
+[/poem]
+Lời kết trong khung hộp
+[/letter-box]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+					expect(validation.errors).toHaveLength(0);
+
+					const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+					expect(chapters).toHaveLength(1);
+					const html = chapters[0].html;
+					expect(html).toContain('<div class="letter-box">');
+					expect(html).toContain('<p>Lời tựa trong khung hộp</p>');
+					expect(html).toContain('<div class="poem">');
+					expect(html).toContain('<p>Rừng thu xào xạc lá rơi</p>');
+					expect(html).toContain('<p>Trăng non lấp ló sáng ngời trên cao</p>');
+					expect(html).toContain('</div>');
+					expect(html).toContain('<p>Lời kết trong khung hộp</p>');
+				});
+
+				it('should support 3-level nesting: [letter-box] -> [letter] -> [poem]', () => {
+					const txt = `@@ Chương 1
+[letter-box]
+Mở đầu hộp
+[letter]
+Thư trong hộp
+[poem]
+Thơ trong thư trong hộp
+[/poem]
+Cuối thư
+[/letter]
+Kết thúc hộp
+[/letter-box]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+					expect(validation.errors).toHaveLength(0);
+
+					const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+					expect(chapters).toHaveLength(1);
+					const html = chapters[0].html;
+					expect(html).toContain('<div class="letter-box">');
+					expect(html).toContain('<div class="letter">');
+					expect(html).toContain('<div class="poem">');
+					expect(html).toContain('<p>Thơ trong thư trong hộp</p>');
+				});
+
+				it('should catch error when [poem] inside [letter] is unclosed', () => {
+					const txt = `@@ Chương 1
+[letter]
+Gửi em,
+[poem]
+Thơ dở dang không đóng
+[/letter]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(false);
+					expect(
+						validation.errors.some(
+							(e) => e.message.includes('thẻ [poem]') && e.message.includes('chưa được đóng')
+						)
+					).toBe(true);
+				});
+
+				it('should reject nesting [poem] inside another [poem]', () => {
+					const txt = `@@ Chương 1
+[poem]
+Thơ cha
+[poem]
+Thơ con không hợp lệ
+[/poem]
+[/poem]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(false);
+					expect(
+						validation.errors.some((e) => e.message.includes('Mở thẻ [poem] khi thẻ [poem]'))
+					).toBe(true);
+				});
+
+				it('should reject nesting [letter] inside [poem]', () => {
+					const txt = `@@ Chương 1
+[poem]
+Thơ
+[letter]
+Thư không được nằm trong thơ
+[/letter]
+[/poem]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(false);
+					expect(
+						validation.errors.some((e) => e.message.includes('Mở thẻ [letter] khi thẻ [poem]'))
+					).toBe(true);
+				});
+
+				it('should support quotes and headings inside nested [poem] within [letter]', () => {
+					const txt = `@@ Chương 1
+[letter]
+Thư mở đầu
+[poem]
+@! Tiêu Đề Bài Thơ
+~ Trích thơ cổ
+> Danh nhân
+Dòng thơ tiếp
+[/poem]
+Thư kết thúc
+[/letter]`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+
+					const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
+					const html = chapters[0].html;
+					expect(html).toContain('<h2 class="side-chap center no-toc">Tiêu Đề Bài Thơ</h2>');
+					expect(html).toContain(
+						'<blockquote class="center"><p>Trích thơ cổ</p><footer>Danh nhân</footer></blockquote>'
+					);
+					expect(html).toContain('<p>Dòng thơ tiếp</p>');
+				});
+			});
 		});
 	});
 });

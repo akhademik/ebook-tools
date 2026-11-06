@@ -272,6 +272,41 @@ describe('epub-packer tests', () => {
 			expect(html).toContain('<p>Đoạn thơ không bị tự động dropcap.</p>');
 		});
 
+		it('should safely preserve nested [poem] in [letter] and [letter-box] through mergeBrokenParagraphs and dropcap protection', () => {
+			const chapterHtml = [
+				'<h1 class="main-chap center">Chương 1</h1>',
+				'<div class="letter">',
+				'  <p>Dòng mở đầu thư không có dấu chấm</p>',
+				'  <p>Dòng tiếp theo viết thường.</p>',
+				'  <div class="poem">',
+				'    <p>Thơ câu 1</p>',
+				'    <p>Thơ câu 2</p>',
+				'  </div>',
+				'  <p>Dòng cuối thư viết thường.</p>',
+				'</div>',
+				'<p>Đoạn văn sau thư.</p>'
+			].join('\n');
+
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: chapterHtml
+				},
+				false // preserveParagraphs = false -> runs mergeBrokenParagraphs
+			);
+
+			expect(html).toContain('<div class="letter">');
+			expect(html).toContain('<div class="poem">');
+			expect(html).toContain('<p>Thơ câu 1</p>');
+			expect(html).toContain('<p>Thơ câu 2</p>');
+			expect(html).toContain('</div>');
+			expect(html).toContain('<p>Dòng cuối thư viết thường.</p>');
+			expect(html).not.toContain('<span class="dropcap">D</span>òng mở đầu');
+			expect(html).not.toContain('<span class="dropcap">T</span>hơ');
+		});
+
 		it('should inject chapter and subchapter ornaments and ignore break-main-chap and no-toc h1/h2', () => {
 			const ornaments = {
 				chapterOrnament: { fileName: 'pre-chap.png', mimeType: 'image/png' },

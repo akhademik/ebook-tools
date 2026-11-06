@@ -2,20 +2,62 @@
 import { escapeXml, Logger } from '$lib/utils';
 import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from '$lib/types';
 
+function protectSpecialBlocks(html: string): { processedHtml: string; protectedBlocks: string[] } {
+	const protectedBlocks: string[] = [];
+	const OPEN_TAG_REGEX =
+		/<((?:div|section))\b[^>]*\bclass=["'][^"']*(?<![\w-])(?:poem|letter|letter-box|center-page)(?![\w-])[^"']*["'][^>]*>|<((?:blockquote|aside))\b[^>]*>/gi;
+
+	let out = '';
+	let lastIndex = 0;
+	let match: RegExpExecArray | null;
+
+	while ((match = OPEN_TAG_REGEX.exec(html)) !== null) {
+		const startIndex = match.index;
+		const openTagEnd = OPEN_TAG_REGEX.lastIndex;
+		const tagName = (match[1] || match[2]).toLowerCase();
+		out += html.slice(lastIndex, startIndex);
+
+		// Find balanced closing tag </tagName>
+		let depth = 1;
+		const tagRegex = new RegExp(`<\\/?${tagName}\\b[^>]*>`, 'gi');
+		tagRegex.lastIndex = openTagEnd;
+		let closeEnd = -1;
+		let nextMatch: RegExpExecArray | null;
+
+		while ((nextMatch = tagRegex.exec(html)) !== null) {
+			if (nextMatch[0].startsWith('</')) {
+				depth--;
+				if (depth === 0) {
+					closeEnd = tagRegex.lastIndex;
+					lastIndex = closeEnd;
+					OPEN_TAG_REGEX.lastIndex = closeEnd;
+					break;
+				}
+			} else if (!nextMatch[0].endsWith('/>')) {
+				depth++;
+			}
+		}
+
+		if (closeEnd !== -1) {
+			const block = html.slice(startIndex, closeEnd);
+			const idx = protectedBlocks.length;
+			protectedBlocks.push(block);
+			out += `___PROTECTED_BLOCK_${idx}___`;
+		} else {
+			out += html.slice(startIndex, openTagEnd);
+			lastIndex = openTagEnd;
+		}
+	}
+	out += html.slice(lastIndex);
+	return { processedHtml: out, protectedBlocks };
+}
+
 export function mergeBrokenParagraphs(html: string): string {
 	Logger.debug('[EpubPacker]', `mergeBrokenParagraphs called, html length: ${html.length}`);
 	if (!html) return html;
 
 	// Protect special block containers: poem, letter, letter-box, center-page, blockquote, aside (footnotes)
-	const PROTECTED_BLOCKS_REGEX =
-		/<(div|section)\b[^>]*\bclass=["'][^"']*\b(?:poem|letter|letter-box|center-page)\b[^"']*["'][^>]*>[\s\S]*?<\/\1>|<(blockquote|aside)\b[^>]*>[\s\S]*?<\/\2>/gi;
-
-	const protectedBlocks: string[] = [];
-	const processedHtml = html.replace(PROTECTED_BLOCKS_REGEX, (match) => {
-		const idx = protectedBlocks.length;
-		protectedBlocks.push(match);
-		return `___PROTECTED_BLOCK_${idx}___`;
-	});
+	const { processedHtml, protectedBlocks } = protectSpecialBlocks(html);
 
 	// Sentence ending indicators: . ? ! … : ; ) ] } ” " ' » ›
 	const SENTENCE_END_REGEX = /[.!?:;…()\]}"'”’»›]$/u;
@@ -282,13 +324,49 @@ export function buildChapterXhtml(
 		const isCenterPage = !!chapter.features?.hasCenterPage;
 		if (!isCenterPage) {
 			const protectedBlocks: string[] = [];
-			content = content.replace(
-				/<div\s+class=["'](?:letter|poem)["']>[\s\S]*?<\/div>/gi,
-				(match) => {
-					protectedBlocks.push(match);
-					return `<!--PROTECTED_BLOCK_DROPCAP_${protectedBlocks.length - 1}-->`;
+			const DROPCAP_CONTAINER_REGEX =
+				/<div\b[^>]*\bclass=["'][^"']*(?<![\w-])(?:poem|letter|letter-box)(?![\w-])[^"']*["'][^>]*>/gi;
+			let dropcapOut = '';
+			let dropcapLastIdx = 0;
+			let dcMatch: RegExpExecArray | null;
+
+			while ((dcMatch = DROPCAP_CONTAINER_REGEX.exec(content)) !== null) {
+				const dcStart = dcMatch.index;
+				const dcOpenEnd = DROPCAP_CONTAINER_REGEX.lastIndex;
+				dropcapOut += content.slice(dropcapLastIdx, dcStart);
+
+				let depth = 1;
+				const tagRegex = /<\/?div\b[^>]*>/gi;
+				tagRegex.lastIndex = dcOpenEnd;
+				let dcCloseEnd = -1;
+				let nextMatch: RegExpExecArray | null;
+
+				while ((nextMatch = tagRegex.exec(content)) !== null) {
+					if (nextMatch[0].startsWith('</')) {
+						depth--;
+						if (depth === 0) {
+							dcCloseEnd = tagRegex.lastIndex;
+							dropcapLastIdx = dcCloseEnd;
+							DROPCAP_CONTAINER_REGEX.lastIndex = dcCloseEnd;
+							break;
+						}
+					} else if (!nextMatch[0].endsWith('/>')) {
+						depth++;
+					}
 				}
-			);
+
+				if (dcCloseEnd !== -1) {
+					const block = content.slice(dcStart, dcCloseEnd);
+					const idx = protectedBlocks.length;
+					protectedBlocks.push(block);
+					dropcapOut += `<!--PROTECTED_BLOCK_DROPCAP_${idx}-->`;
+				} else {
+					dropcapOut += content.slice(dcStart, dcOpenEnd);
+					dropcapLastIdx = dcOpenEnd;
+				}
+			}
+			dropcapOut += content.slice(dropcapLastIdx);
+			content = dropcapOut;
 
 			content = content.replace(
 				/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,

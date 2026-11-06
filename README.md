@@ -151,8 +151,27 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-03 17:28
+- Cập nhật lần cuối: 2026-11-06 08:54
 - Đã hoàn thành:
+  - **Dọn sạch các comment phân mục thừa (`/* ===== ... ===== */`) trong các mẫu CSS EPUB (`quotes.css`, `cover.css`, `ornaments.css`)**:
+    - Loại bỏ toàn bộ các comment tiêu đề khối dạng `/* ===== ... ===== */` nhằm tinh gọn dung lượng mã nguồn CSS và giữ cho tệp CSS thành phẩm gọn gàng, sạch sẽ.
+  - **Sắp xếp lại thứ tự Selector trong CSS (`quotes.css`) chuẩn hóa Stylelint (`no-descending-specificity`)**:
+    - Di chuyển toàn bộ các bộ chọn lồng ghép có độ ưu tiên cao (`.letter .poem`, `.letter-box .poem`, `.letter .poem:first-child`, `.letter-box .poem:first-child`, `.letter .poem:last-child`, `.letter-box .poem:last-child`, `.letter .poem p`, `.letter-box .poem p`) xuống cuối file sau các bộ chọn đơn (`.poem`, `.poem p`, `.letter-box p`, `blockquote.* p`, `h1/h2 + p`, `:first-child`, `:last-child`).
+    - Triệt tiêu 100% cảnh báo/lỗi `no-descending-specificity` khi kiểm định EPUB với Stylelint / EpubCheck.
+  - **Cân đối khoảng cách trên/dưới cho đường viền `border-left` của `[letter]` và `[letter-box]` (`quotes.css`)**:
+    - Nâng `padding` khối `.letter` lên `0.5em 1.2em` đồng thời triệt tiêu `padding-top: 0` cho phần tử đoạn văn đầu tiên (`.letter p:first-child`, `.letter-box p:first-child`) và `margin-top: 0` cho bài thơ đầu tiên (`.letter .poem:first-child`, `.letter-box .poem:first-child`).
+    - Giúp khoảng cách từ đỉnh viền và đáy viền tới nội dung chữ cân đối đối xứng tuyệt đối (cùng là `0.5em`), chấm dứt hiện tượng viền trên bị nhô cao gấp gần 3 lần viền dưới.
+  - **Triệt tiêu margin cho thẻ p của bài thơ `[poem]` khi lồng trong `[letter]` và `[letter-box]` (`quotes.css`)**:
+    - Bổ sung quy tắc `.letter .poem p, .letter-box .poem p { margin: 0; }` để loại bỏ thuộc tính `margin-bottom: 0.8em` bị kế thừa từ bộ chọn `.letter p` / `.letter-box p`, giúp khoảng cách giữa các dòng thơ luôn sít sao và đồng đều.
+  - **Hỗ trợ Lồng Thẻ Bài Thơ `[poem] ... [/poem]` bên trong Khối Thư `[letter]` và Hộp Viền `[letter-box]`**:
+    - **Bộ kiểm định cú pháp (`txt-syntax-validator.ts`)**: Cho phép mở `[poem]` bên trong khối `[letter]` (vẫn cấm mở `poem` trong `poem`, cấm `letter` trong `poem`). Bắt lỗi thẻ `[poem]` chưa đóng bên trong `[letter]`, bắt lỗi đóng `[/letter]` khi `[poem]` chưa đóng.
+    - **Trình bóc tách văn bản (`txt-parser.ts`)**: Chuyển đổi quản lý khối thẻ từ biến đơn sang ngăn xếp `blockStack: string[]`. Nhận diện và sinh mã HTML lồng nhau chuẩn XML `<div class="letter">\n<div class="poem">...</div>\n</div>` cũng như lồng 3 cấp `[letter-box] -> [letter] -> [poem]`. Hỗ trợ đầy đủ tiêu đề `@!`, `@@!`, trích dẫn `~` và dòng tác giả `>` bên trong bài thơ con lồng thư.
+    - **Bảo vệ toàn vẹn HTML chương (`chapter-builder.ts`)**: Cải tiến thuật toán `protectSpecialBlocks` và vùng miễn nhiễm Dropcap sử dụng cơ chế duyệt cân bằng thẻ đóng-mở (balanced container depth matching) thay vì regex non-greedy đơn giản. Ngăn chặn triệt để hiện tượng ngắt khối sớm khiến các đoạn văn `<p>` sau bài thơ bị `mergeBrokenParagraphs` nối nhầm dòng hoặc bị tiêm dropcap sai lệch.
+    - **Dịch ngược hai chiều EPUB sang TXT (`epub-to-txt.ts`)**: Nâng cấp bóc tách `<div class="letter">` sử dụng `replaceNestedDiv` kết hợp duyệt tuần tự các khối con (poem, blockquote, heading, figure, paragraph). Bảo toàn nguyên vẹn hai chiều 100% cho cấu trúc thơ lồng thư và thơ lồng hộp viền mà không làm mất định dạng ngắt dòng của thư.
+    - **Định dạng hiển thị CSS (`quotes.css`)**: Tinh chỉnh khoảng cách lề `.letter .poem` và `.letter-box .poem` (`margin: 1.2em auto;`), đảm bảo bài thơ hiển thị trang nhã, căn giữa, in nghiêng mà không bị chạm vào viền kẻ xám bên trái của lá thư.
+    - **Cập nhật Bảng tra cứu cú pháp (`EpubSyntaxModal.svelte`)**: Bổ sung ghi chú chi tiết về khả năng lồng cú pháp `[poem]` vào bên trong `[letter]` và `[letter-box]`.
+    - **Mở rộng bộ kiểm thử tự động**: Bổ sung 10 unit tests mới bao phủ toàn diện mọi trường hợp (hợp lệ, lỗi cú pháp, lồng 3 cấp, bảo toàn round-trip hai chiều, dropcap immunity).
+    - Toàn bộ **357/357 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Tự động Cuộn đến Phông chữ Đang Chọn trong Dropdown (`FontSelect.svelte`)**:
     - Khi mở dropdown bộ chọn phông chữ, danh sách tự động tính toán và cuộn đến phông chữ đang được chọn (`aria-selected="true"`), căn giữa phông chữ trong tầm nhìn thay vì bị reset về vị trí đầu danh sách (vị trí 0).
     - Giúp người dùng dễ dàng thử liên tiếp các phông chữ kế cận mà không mất thời gian cuộn lại từ đầu.
@@ -292,6 +311,62 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-06 (Dọn dẹp comment phân mục trong các tệp mẫu CSS template)
+
+- Thêm/sửa: Tìm và xóa toàn bộ các dòng comment phân mục dạng `/* ===== ... ===== */` trong các tệp CSS template (`quotes.css`, `cover.css`, `ornaments.css`), giúp mã nguồn CSS thành phẩm trong sách EPUB tinh gọn, chuyên nghiệp và giảm thiểu dung lượng dư thừa.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | stylelint ✅ (0 warnings) | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `src/lib/epub-packer/templates/css-template/cover.css`
+  - `src/lib/epub-packer/templates/css-template/ornaments.css`
+  - `README.md`
+
+### 2026-11-06 (Chuẩn hóa thứ tự Selector trong quotes.css sửa lỗi Stylelint no-descending-specificity)
+
+- Thêm/sửa: Sắp xếp lại cấu trúc tệp `quotes.css` theo nguyên tắc tăng dần độ đặc hiệu (specificity): đặt các bộ chọn đơn (`.poem`, `.poem p`, `.letter-box p`, căn lề `blockquote.* p`, tiêu đề `h1/h2 + p`, `:first-child`, `:last-child`) lên trước, sau đó mới đến các bộ chọn lồng ghép nhiều cấp (`.letter .poem`, `.letter-box .poem`, `.letter .poem:first-child`, `.letter-box .poem:first-child`, `.letter .poem:last-child`, `.letter-box .poem:last-child`, `.letter .poem p`, `.letter-box .poem p`). Khắc phục triệt để 20 cảnh báo Stylelint `no-descending-specificity` khi kiểm định tệp EPUB thành phẩm.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | stylelint ✅ (0 warnings) | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `README.md`
+
+### 2026-11-06 (Cân đối đối xứng khoảng cách trên/dưới cho border-left của [letter] và [letter-box])
+
+- Thêm/sửa: Điều chỉnh kiểu dáng `.letter` (`padding: 0.5em 1.2em;`), bổ sung các quy tắc `:first-child` (`.letter p:first-child, .letter-box p:first-child { padding-top: 0; }` và `.letter .poem:first-child, .letter-box .poem:first-child { margin-top: 0; }`) trong `quotes.css`. Khắc phục triệt để hiện tượng viền xám `border-left` bị lệch (mép trên 0.8em so với mép dưới 0.3em), mang lại tỉ lệ hiển thị cân xứng chuẩn 0.5em cả hai đầu.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `README.md`
+
+### 2026-11-06 (Triệt tiêu margin cho thẻ p của poem lồng trong letter và letter-box)
+
+- Thêm/sửa: Bổ sung quy tắc CSS `.letter .poem p, .letter-box .poem p { margin: 0; }` trong `quotes.css` nhằm ngăn chặn bộ chọn con cháu `.letter p` và `.letter-box p` áp đặt `margin-bottom: 0.8em` lên các dòng thơ nằm bên trong lá thư/hộp viền, giúp khoảng cách giữa các câu thơ luôn sít sao và đồng đều đúng theo quy cách của thơ.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `README.md`
+
+### 2026-11-06 (Nested Tags Support: [poem] inside [letter] and [letter-box])
+
+- Thêm/sửa: Hỗ trợ cú pháp lồng thẻ bài thơ `[poem] ... [/poem]` vào bên trong khối thư `[letter] ... [/letter]` và hộp viền `[letter-box] ... [/letter-box]`:
+  - `txt-syntax-validator.ts`: Cho phép `[poem]` được mở an toàn bên trong `[letter]`, kiểm soát chặt chẽ thứ tự đóng mở thẻ.
+  - `txt-parser.ts`: Chuyển sang mô hình ngăn xếp `blockStack`, hỗ trợ bóc tách và sinh thẻ `<div>` lồng nhau đa cấp (`letter` $\rightarrow$ `poem`, `letter-box` $\rightarrow$ `letter` $\rightarrow$ `poem`).
+  - `chapter-builder.ts`: Nâng cấp thuật toán bảo vệ khối `mergeBrokenParagraphs` và vùng miễn nhiễm Dropcap bằng balanced tag depth matching.
+  - `epub-to-txt.ts`: Chuyển `letter` sang `replaceNestedDiv` với bộ bóc tách phần tử con theo thứ tự tài liệu, bảo toàn round-trip 100%.
+  - `quotes.css` & `EpubSyntaxModal.svelte`: Căn chỉnh lề CSS `.letter .poem` và cập nhật tài liệu bảng tra cứu.
+  - Bổ sung 10 unit tests mới nâng tổng số lên 357 tests.
+- Kết quả pipeline: format ✅ | lint ✅ | type ✅ (0 err, 0 warn) | test ✅ (357/357 pass) | test e2e ✅ (15/15 pass) | knip ✅ (0 issues) | build production ✅ | graphify: [4871 nodes, 10522 edges, 285 communities]
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`
+  - `src/lib/epub-to-txt/epub-to-txt.ts`
+  - `src/lib/epub-packer/templates/css-template/quotes.css`
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `tests/epub-to-txt.test.ts`
+  - `README.md`
 
 ### 2026-11-03 (Dropdown Auto-Scroll to Active Font & 7 New Typography Fonts)
 

@@ -167,8 +167,18 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 						message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi khối [letter-box] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/letter-box].`
 					});
 				}
+			} else if (tag === 'poem') {
+				// poem: can be opened directly, inside letter-box/new, or inside letter, but cannot be opened inside another poem
+				if (currentTop && currentTop.tag === 'poem') {
+					errors.push({
+						lineNum,
+						lineContent: rawLine,
+						tag: `[${tag}]`,
+						message: `Dòng ${lineNum}: Mở thẻ [${tag}] khi thẻ [${currentTop.tag}] ở dòng ${currentTop.lineNum} chưa được đóng bằng [/${currentTop.closeTag}].`
+					});
+				}
 			} else {
-				// poem or letter: can be opened directly or inside letter-box/new, but cannot be opened inside poem or letter
+				// letter: can be opened directly or inside letter-box/new, but cannot be opened inside poem or letter
 				if (currentTop && (currentTop.tag === 'poem' || currentTop.tag === 'letter')) {
 					errors.push({
 						lineNum,

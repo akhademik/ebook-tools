@@ -315,7 +315,7 @@ function replaceNestedDiv(
 	replacer: (inner: string) => string
 ): string {
 	const openRegex = new RegExp(
-		`<div\\b[^>]*\\bclass=["'][^"']*\\b${targetClass}\\b[^"']*["'][^>]*>`,
+		`<div\\b[^>]*\\bclass=["'][^"']*(?<![\\w-])${targetClass}(?![\\w-])[^"']*["'][^>]*>`,
 		'gi'
 	);
 	let match: RegExpExecArray | null;
@@ -356,6 +356,114 @@ function replaceNestedDiv(
 	}
 	out += html.slice(lastIndex);
 	return out;
+}
+
+function convertHeadingElementToTxt(attrs: string, inner: string, level: 1 | 2): string {
+	const notoc = isNoToc(attrs);
+	const isLeft = isLeftAligned(attrs);
+	const isRight = isRightAligned(attrs);
+
+	const prefix =
+		level === 1
+			? notoc
+				? isLeft
+					? '@@!t'
+					: isRight
+						? '@@!p'
+						: '@@!'
+				: isLeft
+					? '@@t'
+					: isRight
+						? '@@p'
+						: '@@'
+			: notoc
+				? isLeft
+					? '@!t'
+					: isRight
+						? '@!p'
+						: '@!'
+				: isLeft
+					? '@t'
+					: isRight
+						? '@p'
+						: '@';
+
+	const title = processLineContent(inner);
+	return `${prefix} ${title}`;
+}
+
+function convertBlockquoteElementToTxt(attrs: string, inner: string): string {
+	const isLeft = isLeftAligned(attrs);
+	const isRight = isRightAligned(attrs);
+	const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
+
+	const authors: { prefix: string; text: string }[] = [];
+	const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
+	if (footerMatches.length > 0) {
+		for (const fm of footerMatches) {
+			const footerAttrs = fm[1];
+			const isFooterLeft = isLeftAligned(footerAttrs);
+			const isFooterRight = isRightAligned(footerAttrs);
+			const isFooterCenter = isCenterAligned(footerAttrs);
+			const authorPrefix = isFooterLeft ? '>t' : isFooterRight ? '>p' : isFooterCenter ? '>c' : '>';
+			const authorText = processLineContent(fm[2]);
+			if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
+		}
+	} else {
+		const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
+		if (citeMatches.length > 0) {
+			for (const cm of citeMatches) {
+				const citeAttrs = cm[1];
+				const isCiteLeft = isLeftAligned(citeAttrs);
+				const isCiteRight = isRightAligned(citeAttrs);
+				const isCiteCenter = isCenterAligned(citeAttrs);
+				const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
+				const authorText = processLineContent(cm[2]);
+				if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
+			}
+		} else {
+			const authorMatches = [
+				...inner.matchAll(
+					/<p\b([^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*)>([\s\S]*?)<\/p>/gi
+				)
+			];
+			for (const am of authorMatches) {
+				const pAttrs = am[1];
+				const isPLeft = isLeftAligned(pAttrs);
+				const isPRight = isRightAligned(pAttrs);
+				const isPCenter = isCenterAligned(pAttrs);
+				const authorPrefix = isPLeft ? '>t' : isPRight ? '>p' : isPCenter ? '>c' : '>';
+				const authorText = processLineContent(am[2]);
+				if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
+			}
+		}
+	}
+
+	const bodyWithoutFooter = inner
+		.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, '')
+		.replace(/<cite\b[^>]*>[\s\S]*?<\/cite>/gi, '')
+		.replace(
+			/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>[\s\S]*?<\/p>/gi,
+			''
+		);
+
+	const pMatches = [...bodyWithoutFooter.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)];
+	const quoteLines: string[] = [];
+	if (pMatches.length > 0) {
+		for (const p of pMatches) {
+			const text = processLineContent(p[1]);
+			if (text) quoteLines.push(`${prefix} ${text}`);
+		}
+	} else {
+		const text = processLineContent(bodyWithoutFooter);
+		if (text) quoteLines.push(`${prefix} ${text}`);
+	}
+
+	for (const author of authors) {
+		quoteLines.push(`${author.prefix} ${author.text}`);
+	}
+
+	return quoteLines.join('\n');
 }
 
 /**
@@ -422,22 +530,68 @@ export function htmlToCleanText(htmlContent: string): string {
 	);
 
 	// 5. Handle [letter] block: <div class="letter"> (excluding letter-box)
-	content = content.replace(
-		/<div\b[^>]*\bclass=["'][^"']*(?<![\w-])letter(?![\w-])[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
-		(_m, inner) => {
-			const pMatches = inner.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi);
-			const lines: string[] = [];
-			for (const p of pMatches) {
-				const lineText = processLineContent(p[1]);
-				if (lineText) lines.push(lineText);
-			}
-			if (lines.length === 0) {
-				const fallback = processLineContent(inner);
-				if (fallback) lines.push(fallback);
-			}
-			return `\n\n[letter]\n${lines.join('\n')}\n[/letter]\n\n`;
+	content = replaceNestedDiv(content, 'letter', (inner) => {
+		const CHILD_REGEX =
+			/\[poem\][\s\S]*?\[\/poem\]|<blockquote\b([^>]*)>([\s\S]*?)<\/blockquote>|<(h[12])\b([^>]*)>([\s\S]*?)<\/\3>|<figure\b[\s\S]*?<\/figure>|<p\b([^>]*)>([\s\S]*?)<\/p>/gi;
+
+		interface LetterItem {
+			type: 'p' | 'block';
+			text: string;
 		}
-	);
+		const items: LetterItem[] = [];
+		let match: RegExpExecArray | null;
+
+		while ((match = CHILD_REGEX.exec(inner)) !== null) {
+			const full = match[0];
+			if (full.startsWith('[poem]')) {
+				items.push({ type: 'block', text: full.trim() });
+			} else if (full.startsWith('<blockquote')) {
+				const attrs = match[1] || '';
+				const bqContent = match[2] || '';
+				const bqText = convertBlockquoteElementToTxt(attrs, bqContent);
+				if (bqText) items.push({ type: 'block', text: bqText });
+			} else if (/^<h[12]\b/i.test(full)) {
+				const tag = (match[3] || '').toLowerCase();
+				const attrs = match[4] || '';
+				const hContent = match[5] || '';
+				const hText = convertHeadingElementToTxt(attrs, hContent, tag === 'h1' ? 1 : 2);
+				if (hText) items.push({ type: 'block', text: hText });
+			} else if (full.startsWith('<figure')) {
+				const tag = extractIllustrationTag(full);
+				if (tag) items.push({ type: 'block', text: tag });
+			} else if (full.startsWith('<p')) {
+				const attrs = match[6] || '';
+				const pContent = match[7] || '';
+				const isNoDropcap = /\bno-dropcap\b/i.test(attrs);
+				const text = processLineContent(pContent);
+				if (text) {
+					items.push({ type: 'p', text: isNoDropcap ? `!D ${text}` : text });
+				}
+			}
+		}
+
+		if (items.length === 0) {
+			const fallback = processLineContent(inner);
+			return fallback ? `\n\n[letter]\n${fallback}\n[/letter]\n\n` : '';
+		}
+
+		let joined = '';
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			if (i === 0) {
+				joined += item.text;
+			} else {
+				const prev = items[i - 1];
+				if (prev.type === 'p' && item.type === 'p') {
+					joined += '\n' + item.text;
+				} else {
+					joined += '\n\n' + item.text;
+				}
+			}
+		}
+
+		return `\n\n[letter]\n${joined}\n[/letter]\n\n`;
+	});
 
 	// 5. Handle figures and illustrations: <figure class="illust-box">, <figure>, <p class="image">, or <img>
 	content = content.replace(
@@ -469,193 +623,24 @@ export function htmlToCleanText(htmlContent: string): string {
 	// 6. Handle Blockquotes and Citations: <blockquote> or <div class="quote|blockquote|epigraph">
 	content = content.replace(
 		/<(?:blockquote|div)\b([^>]*\b(?:blockquote|quote|epigraph)\b[^>]*)>([\s\S]*?)<\/(?:blockquote|div)>/gi,
-		(_m, attrs, inner) => {
-			const isLeft = isLeftAligned(attrs);
-			const isRight = isRightAligned(attrs);
-			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
-
-			const authors: { prefix: string; text: string }[] = [];
-			const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
-			if (footerMatches.length > 0) {
-				for (const fm of footerMatches) {
-					const footerAttrs = fm[1];
-					const isFooterLeft = isLeftAligned(footerAttrs);
-					const isFooterRight = isRightAligned(footerAttrs);
-					const isFooterCenter = isCenterAligned(footerAttrs);
-					const authorPrefix = isFooterLeft
-						? '>t'
-						: isFooterRight
-							? '>p'
-							: isFooterCenter
-								? '>c'
-								: '>';
-					const authorText = processLineContent(fm[2]);
-					if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-				}
-			} else {
-				const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
-				if (citeMatches.length > 0) {
-					for (const cm of citeMatches) {
-						const citeAttrs = cm[1];
-						const isCiteLeft = isLeftAligned(citeAttrs);
-						const isCiteRight = isRightAligned(citeAttrs);
-						const isCiteCenter = isCenterAligned(citeAttrs);
-						const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
-						const authorText = processLineContent(cm[2]);
-						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-					}
-				} else {
-					const authorMatches = [
-						...inner.matchAll(
-							/<p\b([^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*)>([\s\S]*?)<\/p>/gi
-						)
-					];
-					for (const am of authorMatches) {
-						const pAttrs = am[1];
-						const isPLeft = isLeftAligned(pAttrs);
-						const isPRight = isRightAligned(pAttrs);
-						const isPCenter = isCenterAligned(pAttrs);
-						const authorPrefix = isPLeft ? '>t' : isPRight ? '>p' : isPCenter ? '>c' : '>';
-						const authorText = processLineContent(am[2]);
-						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-					}
-				}
-			}
-
-			const bodyWithoutFooter = inner
-				.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, '')
-				.replace(/<cite\b[^>]*>[\s\S]*?<\/cite>/gi, '')
-				.replace(
-					/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>[\s\S]*?<\/p>/gi,
-					''
-				);
-
-			const pMatches = [...bodyWithoutFooter.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)];
-			const quoteLines: string[] = [];
-			if (pMatches.length > 0) {
-				for (const p of pMatches) {
-					const text = processLineContent(p[1]);
-					if (text) quoteLines.push(`${prefix} ${text}`);
-				}
-			} else {
-				const text = processLineContent(bodyWithoutFooter);
-				if (text) quoteLines.push(`${prefix} ${text}`);
-			}
-
-			for (const author of authors) {
-				quoteLines.push(`${author.prefix} ${author.text}`);
-			}
-
-			return `\n\n${quoteLines.join('\n')}\n\n`;
-		}
+		(_m, attrs, inner) => `\n\n${convertBlockquoteElementToTxt(attrs, inner)}\n\n`
 	);
 
 	// Plain <blockquote> without class
 	content = content.replace(
 		/<blockquote\b([^>]*)>([\s\S]*?)<\/blockquote>/gi,
-		(_m, attrs, inner) => {
-			const isLeft = isLeftAligned(attrs);
-			const isRight = isRightAligned(attrs);
-			const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
-
-			const authors: { prefix: string; text: string }[] = [];
-			const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
-			if (footerMatches.length > 0) {
-				for (const fm of footerMatches) {
-					const footerAttrs = fm[1];
-					const isFooterLeft = isLeftAligned(footerAttrs);
-					const isFooterRight = isRightAligned(footerAttrs);
-					const isFooterCenter = isCenterAligned(footerAttrs);
-					const authorPrefix = isFooterLeft
-						? '>t'
-						: isFooterRight
-							? '>p'
-							: isFooterCenter
-								? '>c'
-								: '>';
-					const authorText = processLineContent(fm[2]);
-					if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-				}
-			} else {
-				const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
-				if (citeMatches.length > 0) {
-					for (const cm of citeMatches) {
-						const citeAttrs = cm[1];
-						const isCiteLeft = isLeftAligned(citeAttrs);
-						const isCiteRight = isRightAligned(citeAttrs);
-						const isCiteCenter = isCenterAligned(citeAttrs);
-						const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
-						const authorText = processLineContent(cm[2]);
-						if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-					}
-				}
-			}
-
-			const bodyWithoutFooter = inner
-				.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, '')
-				.replace(/<cite\b[^>]*>[\s\S]*?<\/cite>/gi, '');
-
-			const pMatches = [...bodyWithoutFooter.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)];
-			const quoteLines: string[] = [];
-			if (pMatches.length > 0) {
-				for (const p of pMatches) {
-					const text = processLineContent(p[1]);
-					if (text) quoteLines.push(`${prefix} ${text}`);
-				}
-			} else {
-				const text = processLineContent(bodyWithoutFooter);
-				if (text) quoteLines.push(`${prefix} ${text}`);
-			}
-
-			for (const author of authors) {
-				quoteLines.push(`${author.prefix} ${author.text}`);
-			}
-
-			return `\n\n${quoteLines.join('\n')}\n\n`;
-		}
+		(_m, attrs, inner) => `\n\n${convertBlockquoteElementToTxt(attrs, inner)}\n\n`
 	);
 
 	// 7. Handle Headings: <h1> and <h2> in general EPUB
 	content = content.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, (_m, attrs, inner) => {
-		const notoc = isNoToc(attrs);
-		const isLeft = isLeftAligned(attrs);
-		const isRight = isRightAligned(attrs);
-
-		const prefix = notoc
-			? isLeft
-				? '@@!t'
-				: isRight
-					? '@@!p'
-					: '@@!'
-			: isLeft
-				? '@@t'
-				: isRight
-					? '@@p'
-					: '@@';
-
-		const title = processLineContent(inner);
-		return `\n\n${prefix} ${title}\n\n`;
+		const text = convertHeadingElementToTxt(attrs, inner, 1);
+		return `\n\n${text}\n\n`;
 	});
 
 	content = content.replace(/<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi, (_m, attrs, inner) => {
-		const notoc = isNoToc(attrs);
-		const isLeft = isLeftAligned(attrs);
-		const isRight = isRightAligned(attrs);
-
-		const prefix = notoc
-			? isLeft
-				? '@!t'
-				: isRight
-					? '@!p'
-					: '@!'
-			: isLeft
-				? '@t'
-				: isRight
-					? '@p'
-					: '@';
-
-		const title = processLineContent(inner);
-		return `\n\n${prefix} ${title}\n\n`;
+		const text = convertHeadingElementToTxt(attrs, inner, 2);
+		return `\n\n${text}\n\n`;
 	});
 
 	// Generic h3..h6 in general EPUB
