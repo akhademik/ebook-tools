@@ -59,7 +59,14 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 
 			const idMatch = attrs.match(/id=["']([^"']*)["']/i);
 			const id = idMatch ? idMatch[1] : '';
-			const plainText = innerContent.replace(/<[^>]+>/g, '').trim();
+			const cleanInner = innerContent
+				.replace(
+					/<a\b[^>]*\b(?:class=["'][^"']*\bnoteref\b[^"']*|epub:type=["']noteref["'])[^>]*>[\s\S]*?<\/a>/gi,
+					''
+				)
+				.replace(/<sup\b[^>]*\bclass=["'][^"']*\bnoteref\b[^"']*["'][^>]*>[\s\S]*?<\/sup>/gi, '')
+				.replace(/\{(\d+)\}/g, '');
+			const plainText = cleanInner.replace(/<[^>]+>/g, '').trim();
 
 			headings.push({
 				level,
@@ -69,15 +76,18 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 		}
 
 		const basePath = 'text/' + c.fileName + '.xhtml';
+		const isGeneratedTitle = c.hasCustomTitle === false || c.title === 'Giới Thiệu';
 
 		if (headings.length === 0) {
-			nodes.push({
-				id: `navPoint-${nodeCounter++}`,
-				title: c.title,
-				href: basePath,
-				level: 1,
-				children: []
-			});
+			if (!isGeneratedTitle) {
+				nodes.push({
+					id: `navPoint-${nodeCounter++}`,
+					title: c.title,
+					href: basePath,
+					level: 1,
+					children: []
+				});
+			}
 		} else {
 			const hasH1 = headings.some((h) => h.level === 1);
 			if (hasH1) {
@@ -135,6 +145,19 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 				}
 			}
 		}
+	}
+
+	if (nodes.length === 0 && processedChapters.length > 0) {
+		const fallbackChap =
+			processedChapters.find((c) => c.fileName !== 'cover' && c.fileName !== 'jacket') ||
+			processedChapters[0];
+		nodes.push({
+			id: `navPoint-${nodeCounter}`,
+			title: fallbackChap.title || 'Nội dung',
+			href: 'text/' + fallbackChap.fileName + '.xhtml',
+			level: 1,
+			children: []
+		});
 	}
 
 	return { nodes };

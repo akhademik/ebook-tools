@@ -58,6 +58,8 @@ import {
 	getTocEntries,
 	getDynamicCss
 } from '../src/lib/epub-packer/epub-packer';
+import { parseTxtToChapters } from '../src/lib/epub-packer/parser/txt-parser';
+import { assignSequentialChapterIds } from '../src/lib/epub-packer/parser/epub-chapter-utils';
 
 describe('epub-packer tests', () => {
 	beforeEach(() => {
@@ -975,6 +977,75 @@ describe('epub-packer tests', () => {
 			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
 			expect(ncx).toContain('<text>Lời Nói Đầu</text>');
 			expect(ncx).not.toContain('<text>Giới Thiệu</text>');
+		});
+
+		it('should strip footnote references from heading titles in TOC while preserving footnote in HTML', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'ANH TÔNG',
+					html: '<h1 class="main-chap center">ANH TÔNG<a class="noteref" epub:type="noteref" id="fnref642" href="notes.xhtml#fn642"><sup>642</sup></a></h1>'
+				}
+			];
+			const nav = buildNavXhtml({ language: 'vi' }, chapters);
+			expect(nav).toContain('<a href="text/chap_01.xhtml">ANH TÔNG</a>');
+			expect(nav).not.toContain('642');
+
+			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
+			expect(ncx).toContain('<text>ANH TÔNG</text>');
+			expect(ncx).not.toContain('642');
+		});
+
+		it('should exclude [new] and [new:center] from TOC when they do not contain headings', () => {
+			const chapters = [
+				{
+					fileName: 'chap_01',
+					title: 'Giới Thiệu',
+					hasCustomTitle: false,
+					html: '<p>Trang lời đề tặng không có tiêu đề</p>'
+				},
+				{
+					fileName: 'chap_02',
+					title: 'Chương 1',
+					hasCustomTitle: true,
+					html: '<h1 class="main-chap center">Chương 1</h1>'
+				}
+			];
+			const nav = buildNavXhtml({ language: 'vi' }, chapters);
+			expect(nav).not.toContain('Giới Thiệu');
+			expect(nav).toContain('<a href="text/chap_02.xhtml">Chương 1</a>');
+
+			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'My Book' }, chapters);
+			expect(ncx).not.toContain('Giới Thiệu');
+			expect(ncx).toContain('<text>Chương 1</text>');
+		});
+
+		it('should handle full scenario: exclude untitled continuation page after [/new] from TOC and ignore {n}', () => {
+			const txt = `[new:center]
+@@ ANH TÔNG{642}
+@! THỰC LỤC
+[/new]
+*[868] Ngày 9 tháng 2 năm Tuyên Đức thứ 10 [8/3/1435]*
+/Chiếu truyền thiên hạ. Chiếu rằng:/
+/“... Trước đây các quan lại văn võ...”/`;
+
+			const rawChapters = parseTxtToChapters(txt, {}, 'MTL Gop');
+			const chapters = assignSequentialChapterIds(rawChapters);
+			expect(chapters).toHaveLength(2);
+			expect(chapters[0].title).toBe('ANH TÔNG');
+			expect(chapters[0].html).toContain('ANH TÔNG<a class="noteref"');
+			expect(chapters[1].hasCustomTitle).toBe(false);
+
+			const nav = buildNavXhtml({ language: 'vi' }, chapters);
+			expect(nav).toContain('<a href="text/chap_01.xhtml">ANH TÔNG</a>');
+			expect(nav).not.toContain('642');
+			expect(nav).not.toContain('>MTL Gop<');
+			expect(nav).not.toContain('THỰC LỤC');
+
+			const ncx = buildTocNcx({ identifier: 'uuid-1234', title: 'MTL Gop' }, chapters);
+			expect(ncx).toContain('<navLabel><text>ANH TÔNG</text></navLabel>');
+			expect(ncx).not.toContain('642');
+			expect(ncx).not.toContain('<navLabel><text>MTL Gop</text></navLabel>');
 		});
 
 		it('should add illustrations to manifest in content.opf and package images to zip', async () => {

@@ -15,8 +15,20 @@ function getClosingTag(openTag: string): string {
 	return match ? `</${match[1]}>` : '';
 }
 
+function stripFootnoteRefs(text: string): string {
+	return text
+		.replace(
+			/<a\b[^>]*\b(?:class=["'][^"']*\bnoteref\b[^"']*|epub:type=["']noteref["'])[^>]*>[\s\S]*?<\/a>/gi,
+			''
+		)
+		.replace(/<sup\b[^>]*\bclass=["'][^"']*\bnoteref\b[^"']*["'][^>]*>[\s\S]*?<\/sup>/gi, '')
+		.replace(/\{(\d+)\}/g, '');
+}
+
 function stripHtmlTags(html: string): string {
-	return html.replace(/<[^>]+>/g, '').trim();
+	return stripFootnoteRefs(html)
+		.replace(/<[^>]+>/g, '')
+		.trim();
 }
 
 function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
@@ -732,7 +744,7 @@ export function parseTxtToChapters(
 			} else {
 				const activeChapter = ensureChapterOpen();
 				activeChapter.html += `<h2 class="side-chap ${align}${tocClass}">${titleFormatted}</h2>\n`;
-				if (!activeChapter.hasCustomTitle && isInsideNewBlock) {
+				if (!isNoToc && !activeChapter.hasCustomTitle && isInsideNewBlock) {
 					activeChapter.title = titlePlain || `Chương ${chapters.length}`;
 					activeChapter.hasCustomTitle = true;
 				}

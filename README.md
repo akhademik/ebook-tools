@@ -151,8 +151,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-06 08:54
+- Cập nhật lần cuối: 2026-11-18 14:30
 - Đã hoàn thành:
+  - **Khử bỏ số chú thích `{...}` khỏi tiêu đề Mục lục (TOC Footnote Reference Stripping)**:
+    - Loại bỏ thẻ chú thích `<a class="noteref"...>...</a>` và ký hiệu thô `{...}` khi trích xuất tiêu đề cho TOC trong cả `txt-parser.ts` (`stripFootnoteRefs`) và `nav-builder.ts`.
+    - Bảo toàn 100% link nhảy chú thích `<sup>{n}</sup>` trong nội dung đọc `<h1>`/`<h2>`, đồng thời giữ cho Mục lục (`nav.xhtml`, `toc.ncx`) hiển thị sạch sẽ (ví dụ `ANH TÔNG` thay vì `ANH TÔNG642`).
+  - **Chặn các khối không tiêu đề (`[new]`, `[new:center]` và trang nội dung tự mở) rò rỉ vào TOC & UI Preview**:
+    - Khi khối `[new]`, `[new:center]` hoặc trang nội dung tiếp nối không chứa bất kỳ heading nào (`headings.length === 0`) và không có tiêu đề tự đặt (`hasCustomTitle === false`), hệ thống tự động bỏ qua không thêm vào TOC, triệt tiêu hoàn toàn các mục rác như `"Giới Thiệu"` hoặc tên tệp ngầm định (ví dụ `"MTL Gop"`).
+    - Cập nhật đồng bộ tab xem trước **"Đầu mục tìm thấy"** trong giao diện [`EpubSourceSection.svelte`](src/lib/epub-packer/components/EpubSourceSection.svelte): sử dụng danh sách `tocChapters` đã lọc, đồng bộ số lượng chương hiển thị và đánh số thứ tự thực tế tương ứng với TOC thay vì hiển thị toàn bộ các file XHTML vật lý (như `MTL gộp chap_27.xhtml`, `MTL gộp chap_29.xhtml`).
+    - Duy trì cơ chế bảo vệ fallback: nếu toàn bộ tài liệu không có bất kỳ mốc phân chương nào, trang đầu tiên vẫn được đưa vào TOC để thỏa mãn quy chuẩn EPUB 2 / EPUB 3.
+  - Toàn bộ **361/361 unit tests pass 100%**, `pnpm check` 0 errors, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Dọn sạch các comment phân mục thừa (`/* ===== ... ===== */`) trong các mẫu CSS EPUB (`quotes.css`, `cover.css`, `ornaments.css`)**:
     - Loại bỏ toàn bộ các comment tiêu đề khối dạng `/* ===== ... ===== */` nhằm tinh gọn dung lượng mã nguồn CSS và giữ cho tệp CSS thành phẩm gọn gàng, sạch sẽ.
   - **Sắp xếp lại thứ tự Selector trong CSS (`quotes.css`) chuẩn hóa Stylelint (`no-descending-specificity`)**:
@@ -311,6 +319,22 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-18 (Khử số chú thích trong TOC & Loại bỏ trang không tiêu đề khỏi Mục lục & Preview UI)
+
+- Thêm/sửa: Chuẩn hóa bóc tách mục lục TOC cho các tệp TXT đóng gói EPUB:
+  - `txt-parser.ts`: Thêm hàm `stripFootnoteRefs`, loại bỏ khối thẻ chú thích footnote `<a class="noteref"...>...</a>`, `<sup>...</sup>` và `{n}` khỏi `titlePlain`. Ngăn chặn việc số chú thích bị dính liền vào tên chương khi dùng `@@ Tiêu đề{n}`. Đồng thời chỉ đánh dấu `hasCustomTitle = true` cho `@` khi không có cờ `isNoToc`.
+  - `nav-builder.ts`: Khử bỏ chú thích footnote trong `innerContent` trước khi tạo `plainText` cho `headings`. Đối với các chương không có heading (`headings.length === 0`), kiểm tra `isGeneratedTitle` (`hasCustomTitle === false` hoặc `title === 'Giới Thiệu'`) để không đưa vào TOC, triệt tiêu hoàn toàn việc chèn các trang không tên, trang `[new]`/`[new:center]` không heading hoặc tên tệp fallback (`MTL Gop`) vào mục lục. Bổ sung fallback an toàn đảm bảo luôn có ít nhất 1 mục TOC khi tài liệu hoàn toàn không có tiêu đề nào.
+  - `EpubSourceSection.svelte`: Đồng bộ danh sách hiển thị xem trước tab "Đầu mục tìm thấy" bằng `$derived.by tocChapters`, lọc bỏ các trang phụ/trang tiếp nối không tên để preview khớp chính xác 1:1 với mục lục trong sách EPUB hoàn thiện.
+  - Bổ sung 4 unit tests mới bao phủ: khử số chú thích trong TOC, không đưa `[new]` không heading vào TOC, và quy trình thực tế với trang căn giữa `[new:center]` kèm trang nội dung tiếp nối không có heading.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | graphify ✅ (4877 nodes, 10536 edges, 283 communities)
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `src/lib/epub-packer/xml-builders/nav-builder.ts`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `tests/epub-parser.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
 
 ### 2026-11-06 (Dọn dẹp comment phân mục trong các tệp mẫu CSS template)
 

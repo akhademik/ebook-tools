@@ -1906,6 +1906,15 @@ Chú thích:
 				expect(chapters[1].title).toBe('Lời Mở Đầu Tác Giả');
 			});
 
+			it('should strip footnote references from chapter title when @@ or @ contains {n}', () => {
+				const txt = `[new:center]\n@@ ANH TÔNG{642}\n@! THỰC LỤC\n[/new]`;
+				const chapters = parseTxtToChapters(txt, {}, 'MTL Gop');
+				expect(chapters[0].title).toBe('ANH TÔNG');
+				expect(chapters[0].html).toContain(
+					'ANH TÔNG<a class="noteref" epub:type="noteref" id="fnref642"'
+				);
+			});
+
 			it('should support @@! to apply h1 main-chap style and no-toc without splitting into a new chapter page', () => {
 				const txt = `@@ Chương 1
 Nội dung phần 1

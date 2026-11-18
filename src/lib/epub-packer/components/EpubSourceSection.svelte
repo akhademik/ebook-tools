@@ -9,6 +9,33 @@
 	}
 
 	let { epubState, onOpenSyntaxModal }: Props = $props();
+
+	const tocChapters = $derived.by(() => {
+		const chapters = epubState.source.epubChapters;
+		if (chapters.length === 0) return [];
+
+		const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
+
+		const filtered = chapters.filter((c) => {
+			if (c.fileName === 'notes' || c.isNotes) return true;
+			const html = c.html || '';
+			headingRegex.lastIndex = 0;
+			let match;
+			let hasValidHeading = false;
+			while ((match = headingRegex.exec(html)) !== null) {
+				if (!/\bno-toc\b/i.test(match[2])) {
+					hasValidHeading = true;
+					break;
+				}
+			}
+			if (hasValidHeading) return true;
+
+			const isGenerated = c.hasCustomTitle === false || c.title === 'Giới Thiệu';
+			return !isGenerated;
+		});
+
+		return filtered.length > 0 ? filtered : chapters.slice(0, 1);
+	});
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6">
@@ -181,7 +208,7 @@
 					: 'border-transparent text-text-mute hover:text-text-color'}"
 				onclick={() => {
 					epubState.source.activeTab = 'toc';
-				}}>Đầu mục tìm thấy: ({epubState.source.epubChapters.length} chương)</button
+				}}>Đầu mục tìm thấy: ({tocChapters.length} chương)</button
 			>
 
 			{#if epubState.source.fileType === 'zip'}
@@ -205,12 +232,14 @@
 			<div
 				class="mt-5 border border-border-color rounded-xl max-h-75 overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in"
 			>
-				{#each epubState.source.epubChapters as chap (chap.fileName)}
+				{#each tocChapters as chap, idx (chap.fileName)}
 					<div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
 						<div class="flex justify-between items-start gap-4">
 							<span class="font-semibold text-text-color">
-								{#if chap.isChapter}
-									{chap.chapterIndex}: {chap.title}
+								{#if chap.fileName === 'notes' || chap.isNotes}
+									: {chap.title}
+								{:else if chap.isChapter}
+									{idx + 1}: {chap.title}
 								{:else}
 									{chap.title}
 								{/if}
