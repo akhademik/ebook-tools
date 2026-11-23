@@ -12,6 +12,7 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+	<h2 class="text-base font-semibold text-text-color mb-4">Đóng gói và tải về</h2>
 	<div class="mb-5">
 		<Input
 			bind:value={epubState.metadata.epubOutName}

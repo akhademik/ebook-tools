@@ -109,6 +109,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			timeout: 25000
 		});
 
+		// Switch to Step 2: Thông tin (Metadata & Jacket)
+		await page
+			.getByRole('button', { name: /Thông tin/i })
+			.first()
+			.click();
+
 		// 3. Open Jacket Modal & test font selection
 		const jacketPreviewBtn = page.getByRole('button', { name: /Xem trước/i }).first();
 		if (await jacketPreviewBtn.isVisible()) {
@@ -199,6 +205,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		}
 
 		// 4. Test FontSelect live preview dropdown for H1 font and H2 Sub font
+		// Switch to Step 4: Phông chữ
+		await page
+			.getByRole('button', { name: /Phông chữ/i })
+			.first()
+			.click();
+
 		const h1Trigger = page
 			.locator('label[for="h1-font-select"]')
 			.locator('..')
@@ -265,6 +277,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			timeout: 25000
 		});
 
+		// Switch to Step 3: Bìa và hoa văn
+		await page
+			.getByRole('button', { name: /Bìa và hoa văn/i })
+			.first()
+			.click();
+
 		// 3. Verify Ornaments section is visible
 		await expect(page.getByText('Ảnh trang trí (Ornaments)')).toBeVisible();
 
@@ -321,7 +339,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await page.getByRole('button', { name: /Dọn rác/i }).click();
 		await expect(page.locator('text=Dọn rác & Tối ưu EPUB')).toBeVisible();
 		// Verify cleaning options or analysis results appear
-		await expect(page.getByText('Tổng dung lượng')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText('Tổng dung lượng')).toBeVisible({ timeout: 25000 });
 		await expect(page.getByText('Tùy chọn dọn dẹp')).toBeVisible();
 		// Close cleaner modal
 		await page

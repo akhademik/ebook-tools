@@ -11,9 +11,7 @@
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
 	<div class="flex items-center justify-between mb-3">
-		<span class="font-mono text-xs tracking-wider text-text-mute uppercase font-semibold"
-			>Ảnh minh họa nội dung (Illustrations)</span
-		>
+		<h2 class="text-base font-semibold text-text-color">Ảnh minh họa nội dung (Illustrations)</h2>
 		{#if epubState.images.illustrationFiles.length > 0}
 			<button
 				type="button"

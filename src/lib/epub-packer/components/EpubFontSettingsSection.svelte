@@ -24,9 +24,9 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-4 block font-semibold"
-		>Cấu hình phông chữ nội dung & Xem trước chương</span
-	>
+	<h2 class="text-base font-semibold text-text-color mb-4">
+		Cấu hình phông chữ nội dung & Xem trước chương
+	</h2>
 
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap) -->
@@ -63,12 +63,12 @@
 
 		<!-- Cột 2: Khung Xem trước hiển thị nội dung chương -->
 		<div class="flex flex-col h-full">
-			<span class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold">
-				Xem trước hiển thị nội dung chương (Preview)
+			<span class="text-xs font-semibold text-text-mute mb-2 block font-sans">
+				Xem trước trang sách (Preview)
 			</span>
 			<div
-				class="border border-border-color rounded-xl p-6 bg-white shadow-inner w-full flex-1"
-				style="color: #000000; font-family: sans-serif;"
+				class="border border-border-color rounded-2xl p-6 shadow-inner w-full flex-1"
+				style="background-color: #fbf8ef; color: #073642; font-family: sans-serif;"
 			>
 				<h1
 					class="text-2xl font-bold mb-2 text-center"

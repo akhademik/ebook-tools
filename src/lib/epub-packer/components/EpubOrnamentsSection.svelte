@@ -10,10 +10,8 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-	<div class="flex items-center justify-between mb-3">
-		<span class="font-mono text-xs tracking-wider text-text-mute uppercase font-semibold">
-			Ảnh trang trí (Ornaments)
-		</span>
+	<div class="flex items-center justify-between mb-4">
+		<h2 class="text-base font-semibold text-text-color">Ảnh trang trí (Ornaments)</h2>
 	</div>
 
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

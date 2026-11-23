@@ -16,9 +16,7 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block"
-		>Metadata & Trang giới thiệu</span
-	>
+	<h2 class="text-base font-semibold text-text-color mb-4">Thông tin sách & Trang giới thiệu</h2>
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 		<div>
 			<Input bind:value={epubState.metadata.title} label="Tác phẩm" placeholder="Mật Mã Da Vinci" />
@@ -71,7 +69,7 @@
 		<div>
 			<button
 				type="button"
-				class="w-full sm:w-auto bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-10.5 flex items-center justify-center gap-2"
+				class="w-full sm:w-auto bg-accent-color text-on-accent font-sans text-[14px] font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-11 flex items-center justify-center gap-2 shadow-sm"
 				onclick={() => onOpenJacketModal()}
 			>
 				<svg

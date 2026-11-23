@@ -84,7 +84,7 @@
 		{disabled}
 		class="w-full bg-panel-2 text-text-color border border-field-border hover:border-accent-color focus:border-accent-color focus:outline-none rounded-xl font-sans transition-all flex items-center justify-between cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed text-left {compact
 			? 'h-9 py-1.5 px-3 text-xs'
-			: 'h-[52px] py-1.5 px-3.5 text-sm'}"
+			: 'h-13 py-1.5 px-3.5 text-sm'}"
 		onclick={() => (isOpen = !isOpen)}
 		aria-expanded={isOpen}
 		aria-haspopup="listbox"

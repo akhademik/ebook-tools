@@ -11,9 +11,7 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block"
-		>Ảnh bìa sách (Book Cover)</span
-	>
+	<h2 class="text-base font-semibold text-text-color mb-3">Ảnh bìa sách (Book Cover)</h2>
 
 	<DropZone
 		accept=".pdf,.png,.jpg,.jpeg,.webp"
@@ -65,28 +63,28 @@
 
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
 				<div>
-					<span class="font-mono text-xs text-text-mute uppercase mb-2 block"
+					<span class="text-xs font-semibold text-text-mute mb-2 block font-sans"
 						>Cắt lề trên / dưới (px)</span
 					>
 					<div class="flex items-center gap-2">
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('top', -20)}
 							type="button">T −20</button
 						>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('top', 20)}
 							type="button">T +20</button
 						>
 						<div class="flex-1"></div>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('bottom', -20)}
 							type="button">B −20</button
 						>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('bottom', 20)}
 							type="button">B +20</button
 						>
@@ -112,28 +110,28 @@
 				</div>
 
 				<div>
-					<span class="font-mono text-xs text-text-mute uppercase mb-2 block"
+					<span class="text-xs font-semibold text-text-mute mb-2 block font-sans"
 						>Cắt lề trái / phải (px)</span
 					>
 					<div class="flex items-center gap-2">
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('left', -20)}
 							type="button">L −20</button
 						>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('left', 20)}
 							type="button">L +20</button
 						>
 						<div class="flex-1"></div>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('right', -20)}
 							type="button">R −20</button
 						>
 						<button
-							class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-xs font-medium h-10 px-3.5 rounded-xl cursor-pointer transition-colors"
 							onclick={() => epubState.images.adjustCoverCrop('right', 20)}
 							type="button">R +20</button
 						>

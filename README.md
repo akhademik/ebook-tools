@@ -151,8 +151,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 11:00
+- Cập nhật lần cuối: 2026-11-23 11:35
 - Đã hoàn thành:
+  - **Giai đoạn 5 Làm mới Giao diện — Trang Đóng gói EPUB: Thanh 5 Bước & Cột Tóm Tắt Cố Định (`src/routes/epub-packer/+page.svelte`) (`UI_DIRECTION.md`)**:
+    - Tái cấu trúc trang Đóng gói EPUB thành quy trình 5 bước liền mạch kết hợp cột tóm tắt thông tin sách luôn hiển thị bên phải:
+      - Thanh điều hướng 5 bước trên cùng (`<ol>` với `aria-current="step"`, hiển thị số thứ tự, tên bước, huy hiệu trạng thái động: Đã tải / Tùy chọn / Mặc định / Hoàn tất). Cho phép bấm tự do giữa các bước khi đã có chương nguồn.
+      - Bảo toàn 100% state và vòng đời của 7 component section thông qua việc ẩn/hiện bằng `class="hidden"`, tuyệt đối không unmount bằng `{#if}`.
+      - Bổ sung nút điều hướng "Tiếp: ..." và "Quay lại: ..." ở chân mỗi bước để dẫn dắt trải nghiệm.
+      - Cột tóm tắt sách (Persistent Summary Column) cố định bên phải (sticky trên desktop): hiển thị ảnh bìa trực quan (hoặc khung placeholder đứt nét), tên tác phẩm, tác giả, số mục lục, phông chữ H1, tên tệp xuất.
+      - Hai nút thao tác chính luôn sẵn sàng trên cột tóm tắt: "Đóng gói file EPUB" và "Tải file .EPUB" (disabled khi chưa có blob), không cần cuộn tìm ở cuối trang.
+      - Khung xem trước typography ở bước 4 sử dụng nền giấy màu kem `#fbf8ef` với chữ `#073642`.
+      - Các nút chỉnh lề bìa sách ở bước 3 chuẩn hóa chiều cao 40px, font mono cho số pixel.
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 4 Làm mới Giao diện — Tái Cấu Trúc Trang Tổng Quan (`src/routes/+page.svelte`) (`UI_DIRECTION.md`)**:
     - Thiết kế lại trang Tổng quan theo định hướng giao diện mới:
       - Header: Tiêu đề "Bàn làm việc", mô tả tinh gọn, huy hiệu trạng thái bảo mật "Tệp không rời khỏi máy bạn" với màu `--color-ok`.
@@ -348,6 +358,27 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 5: Trang Đóng gói EPUB — Thanh 5 Bước & Cột Tóm Tắt Cố Định)
+
+- Thêm/sửa: Triển khai Giai đoạn 5 theo `UI_DIRECTION.md`:
+  - `src/routes/epub-packer/+page.svelte`: Tái cấu trúc thành giao diện chia 5 bước (1: Nguồn, 2: Thông tin, 3: Bìa và hoa văn, 4: Phông chữ, 5: Đóng gói) với thanh bước danh sách `<ol>` có `aria-current="step"` và trạng thái động.
+  - Sử dụng cơ chế `class="hidden"` thay vì `{#if}` unmount để giữ nguyên vẹn 100% state cục bộ, preview blob URL và listener của tất cả 7 section components.
+  - Xây dựng Cột tóm tắt sách (Persistent Summary Column) cố định bên phải (sticky trên desktop, tự xuống dưới ở mobile), luôn hiển thị ảnh bìa, siêu dữ liệu sách và 2 nút hành động chính "Đóng gói file EPUB" và "Tải file .EPUB" mà không cần cuộn trang.
+  - Nâng cấp `EpubFontSettingsSection.svelte` với nền giấy màu kem `#fbf8ef`, `EpubCoverSection.svelte` với các nút căn lề 40px, chuẩn hóa các tiêu đề section bằng font Inter.
+  - Cập nhật ca kiểm thử `tests-e2e/epub-workflow.spec.ts` hỗ trợ chuyển đổi giữa các bước tab wizard theo đúng quy định tại Section 1 Điều 3 `UI_DIRECTION.md`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `src/lib/epub-packer/components/EpubPackSection.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `README.md`
 
 ### 2026-11-23 (Giai đoạn 4: Tái Cấu Trúc Trang Tổng Quan Bàn Làm Việc)
 
