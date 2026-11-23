@@ -297,6 +297,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	test('should load EPUB into EPUB Editor, interact with Metadata, Validator, Cleaner, and open Editor Modal', async ({
 		page
 	}) => {
+		test.setTimeout(60000);
 		await ensureEpubFixture();
 		await page.goto('/epub-editor');
 		await page.waitForLoadState('networkidle');

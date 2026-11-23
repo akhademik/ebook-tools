@@ -13,7 +13,24 @@
 		<!-- Introduction Card -->
 		<div class="modern-card rounded-2xl p-7 flex flex-col gap-4">
 			<div class="flex items-center gap-3">
-				<div class="text-2xl">💻</div>
+				<div
+					class="w-10 h-10 rounded-xl bg-accent-soft text-accent-color flex items-center justify-center shrink-0"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.75"
+						stroke="currentColor"
+						class="w-5 h-5"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"
+						/>
+					</svg>
+				</div>
 				<h2 class="text-xl font-bold text-text-color">Giới thiệu Công cụ</h2>
 			</div>
 			<p class="text-text-color text-base leading-relaxed">
@@ -32,13 +49,47 @@
 		<!-- Features Grid -->
 		<div class="modern-card rounded-2xl p-7 flex flex-col gap-5">
 			<div class="flex items-center gap-3 mb-2">
-				<div class="text-2xl">⚡</div>
+				<div
+					class="w-10 h-10 rounded-xl bg-amber-soft text-amber-color flex items-center justify-center shrink-0"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.75"
+						stroke="currentColor"
+						class="w-5 h-5"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"
+						/>
+					</svg>
+				</div>
 				<h2 class="text-xl font-bold text-text-color">Tính năng Nổi bật</h2>
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">🔍</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Tự nhận diện Encoding</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -49,7 +100,24 @@
 				</div>
 
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">🧩</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.522 1.455 2.7 3.018 2.7h.004c.484 0 .937-.156 1.309-.422a2.25 2.25 0 0 1 2.986 0c.372.266.825.422 1.309.422h.004c1.563 0 2.832-1.178 3.018-2.7a48.39 48.39 0 0 1-4.163.3.64.64 0 0 1-.657-.643v0Z"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Xử lý ký tự PUA hiếm</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -60,7 +128,24 @@
 				</div>
 
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">🔤</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Font CJK Nhúng Sẵn</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -71,7 +156,29 @@
 				</div>
 
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">⚙️</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.27.1.06-.12l-.773.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.15.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.27-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.527-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z"
+							/>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Xuất PDF Đa Chế Độ</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -82,7 +189,24 @@
 				</div>
 
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">📊</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Phân tích trước khi tạo</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -93,7 +217,24 @@
 				</div>
 
 				<div class="flex gap-3">
-					<div class="text-accent-color text-lg shrink-0 mt-0.5">🛑</div>
+					<div
+						class="w-8 h-8 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0 mt-0.5"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z"
+							/>
+						</svg>
+					</div>
 					<div>
 						<h4 class="font-semibold text-text-color mb-1">Kiểm soát Tiến trình</h4>
 						<p class="text-text-mute text-sm leading-relaxed">
@@ -113,9 +254,22 @@
 			class="modern-card rounded-2xl p-7 flex flex-col gap-6 text-center border border-accent-color/30 bg-accent-soft/5"
 		>
 			<div
-				class="mx-auto w-16 h-16 rounded-2xl bg-accent-soft border border-accent-color/30 flex items-center justify-center text-accent-color text-3xl shadow-xs"
+				class="mx-auto w-16 h-16 rounded-2xl bg-accent-soft border border-accent-color/30 flex items-center justify-center text-accent-color shadow-xs"
 			>
-				💾
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.75"
+					stroke="currentColor"
+					class="w-8 h-8"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+					/>
+				</svg>
 			</div>
 			<div>
 				<h3 class="text-xl font-bold text-text-color mb-1">Tải xuống Phần mềm</h3>

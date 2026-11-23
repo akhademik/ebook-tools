@@ -18,9 +18,7 @@
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block">
-		Tệp sách điện tử (.epub)
-	</span>
+	<h2 class="text-base font-semibold text-text-color mb-3">Tệp sách điện tử (.epub)</h2>
 	<DropZone
 		accept=".epub,application/epub+zip"
 		onSelect={(file) => state.handleFile(file)}

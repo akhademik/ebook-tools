@@ -56,22 +56,39 @@
 		>
 			<!-- Header -->
 			<div
-				class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-color flex justify-between items-center bg-sidebar-bg"
+				class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-color flex justify-between items-center bg-panel-2"
 			>
 				<div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
-					<span class="text-xl shrink-0">🛡️</span>
+					<div
+						class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.75"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
+							/>
+						</svg>
+					</div>
 					<div class="min-w-0">
-						<h3 class="font-mono text-sm sm:text-base font-bold text-text-color truncate">
+						<h3 class="font-sans text-sm sm:text-base font-bold text-text-color truncate">
 							Kiểm định EPUB & Kobo
 						</h3>
-						<p class="text-xs text-text-mute font-mono truncate hidden sm:block">
+						<p class="text-xs text-text-mute truncate hidden sm:block">
 							Kiểm tra cấu trúc, thẻ XHTML, TOC, Font và độ tương thích máy đọc sách
 						</p>
 					</div>
 				</div>
 				<button
 					type="button"
-					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-hover-bg text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
+					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
 					onclick={handleClose}
 					aria-label="Đóng modal"
 				>
@@ -84,28 +101,28 @@
 				class="px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 border-b border-border-color bg-panel/50 flex items-center gap-2 flex-wrap"
 			>
 				<span
-					class="font-mono text-xs text-text-mute uppercase font-semibold mr-1 w-full sm:w-auto mb-1 sm:mb-0"
+					class="text-xs text-text-mute uppercase font-semibold mr-1 w-full sm:w-auto mb-1 sm:mb-0"
 					>Hồ sơ kiểm định:</span
 				>
 				<button
 					type="button"
-					class="px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-colors {selectedProfile ===
+					class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium cursor-pointer transition-colors {selectedProfile ===
 					'kobo'
 						? 'bg-accent-soft text-accent-color font-bold border border-accent-color/30'
-						: 'bg-sidebar-bg text-text-mute hover:text-text-color border border-border-color'}"
+						: 'bg-panel-2 text-text-mute hover:text-text-color border border-border-color'}"
 					onclick={() => handleProfileChange('kobo')}
 				>
-					📖 Kobo Compatibility
+					Kobo Compatibility
 				</button>
 				<button
 					type="button"
-					class="px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-colors {selectedProfile ===
+					class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium cursor-pointer transition-colors {selectedProfile ===
 					'epub3'
 						? 'bg-accent-soft text-accent-color font-bold border border-accent-color/30'
-						: 'bg-sidebar-bg text-text-mute hover:text-text-color border border-border-color'}"
+						: 'bg-panel-2 text-text-mute hover:text-text-color border border-border-color'}"
 					onclick={() => handleProfileChange('epub3')}
 				>
-					⚡ EPUB 3.0
+					EPUB 3.0
 				</button>
 				<button
 					type="button"

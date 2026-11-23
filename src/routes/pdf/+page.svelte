@@ -19,9 +19,7 @@
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block"
-		>Tệp PDF nguồn</span
-	>
+	<h2 class="text-base font-semibold text-text-color mb-3">Tệp PDF nguồn</h2>
 	<DropZone
 		accept="application/pdf"
 		onSelect={(f) => state.handleFile(f)}
@@ -36,7 +34,20 @@
 		<div
 			class="mb-6 p-4 rounded-xl border border-amber-color/40 bg-accent-soft text-text-color flex items-start gap-3"
 		>
-			<span class="text-amber-color text-xl leading-none">⚠️</span>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.75"
+				stroke="currentColor"
+				class="w-5 h-5 text-amber-color shrink-0 mt-0.5"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+				/>
+			</svg>
 			<div class="text-sm">
 				<strong class="font-semibold block mb-0.5">
 					{state.isMobile ? 'Thiết bị di động / RAM giới hạn' : 'Tệp PDF dung lượng lớn'}
@@ -54,9 +65,7 @@
 	{/if}
 
 	<div class="modern-card rounded-2xl p-7 mb-6">
-		<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block"
-			>Cắt xén Header / Footer</span
-		>
+		<h2 class="text-base font-semibold text-text-color mb-3">Cắt xén Header / Footer</h2>
 
 		<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
 			<span class="text-sm font-medium text-text-mute">Trang xem trước</span>

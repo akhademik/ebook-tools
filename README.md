@@ -151,8 +151,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 11:35
+- Cập nhật lần cuối: 2026-11-23 11:55
 - Đã hoàn thành:
+  - **Giai đoạn 6 Làm mới Giao diện — Các Trang Còn Lại (EPUB Editor, PDF Splitter, MD Fixer, EPUB to TXT, TXT to PDF) (`UI_DIRECTION.md`)**:
+    - Nâng cấp đồng bộ diện mạo các công cụ còn lại:
+      - `src/routes/epub-editor/+page.svelte` & components (`EpubMetadataModal`, `EpubValidatorModal`, `EpubCleanerModal`): Thay thế hoàn toàn hàng nút emoji bằng các nút phụ chuẩn với icon SVG stroke inline (Lucide style) và nhãn Inter rõ ràng (Thông tin, Kiểm định, Dọn rác EPUB, Mở trình chỉnh sửa); chuẩn hóa header các modal với bo góc `rounded-2xl` và màu Solarized chuẩn.
+      - `src/routes/pdf/+page.svelte`: Chuẩn hóa tiêu đề section sang Inter, thay emoji cảnh báo và mũi tên bằng icon SVG stroke, giữ nguyên 100% logic tách trang và xử lý bộ nhớ.
+      - `src/routes/md/+page.svelte`: Chuẩn hóa tiêu đề sang Inter, thẻ `modern-card`, bảo toàn cú pháp và logic chuẩn hóa Markdown.
+      - `src/routes/epub-to-txt/+page.svelte`: Chuẩn hóa tiêu đề sang Inter, nút chuyển đổi với SVG icon, thanh tiến độ Solarized.
+      - `src/routes/txt-to-pdf/+page.svelte`: Thay thế toàn bộ 9 emoji tính năng và tải xuống bằng hệ thống icon SVG stroke chuyên nghiệp.
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 5 Làm mới Giao diện — Trang Đóng gói EPUB: Thanh 5 Bước & Cột Tóm Tắt Cố Định (`src/routes/epub-packer/+page.svelte`) (`UI_DIRECTION.md`)**:
     - Tái cấu trúc trang Đóng gói EPUB thành quy trình 5 bước liền mạch kết hợp cột tóm tắt thông tin sách luôn hiển thị bên phải:
       - Thanh điều hướng 5 bước trên cùng (`<ol>` với `aria-current="step"`, hiển thị số thứ tự, tên bước, huy hiệu trạng thái động: Đã tải / Tùy chọn / Mặc định / Hoàn tất). Cho phép bấm tự do giữa các bước khi đã có chương nguồn.
@@ -358,6 +366,26 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 6: Áp Dụng Phong Cách Mới Lên Các Công Cụ Còn Lại)
+
+- Thêm/sửa: Triển khai Giai đoạn 6 theo `UI_DIRECTION.md`:
+  - `src/routes/epub-editor/+page.svelte` & modal components: Thay thế emoji ở các nút Thông tin, Kiểm định, Dọn rác EPUB, Mở trình chỉnh sửa bằng icon SVG stroke inline (Lucide style) trên nền nút phụ chuẩn `h-11`, bo góc `rounded-2xl` và màu Solarized chuẩn.
+  - `src/routes/pdf/+page.svelte`: Thay emoji bằng icon SVG stroke, chuẩn hóa tiêu đề và các nút thao tác.
+  - `src/routes/md/+page.svelte`: Chuẩn hóa tiêu đề, thẻ `modern-card`, bảo toàn logic xử lý Markdown.
+  - `src/routes/epub-to-txt/+page.svelte`: Nâng cấp giao diện với tiêu đề và thanh tiến trình Solarized.
+  - `src/routes/txt-to-pdf/+page.svelte`: Thay toàn bộ 9 emoji minh họa tính năng và tải xuống bằng hệ thống icon SVG stroke chuyên nghiệp.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/epub-editor/+page.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/lib/epub-editor/components/EpubValidatorModal.svelte`
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/routes/md/+page.svelte`
+  - `src/routes/epub-to-txt/+page.svelte`
+  - `src/routes/txt-to-pdf/+page.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Giai đoạn 5: Trang Đóng gói EPUB — Thanh 5 Bước & Cột Tóm Tắt Cố Định)
 

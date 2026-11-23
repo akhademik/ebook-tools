@@ -24,9 +24,7 @@
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-3 block"
-		>Tệp .ZIP chứa các tệp Markdown (.md)</span
-	>
+	<h2 class="text-base font-semibold text-text-color mb-3">Tệp .ZIP chứa các tệp Markdown (.md)</h2>
 	<DropZone
 		accept=".zip,application/zip"
 		onSelect={(f) => state.handleFile(f)}
