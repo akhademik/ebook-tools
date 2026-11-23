@@ -13,7 +13,7 @@
 </script>
 
 {#if label}
-	<label class="text-[13px] font-semibold text-text-color mb-1.5 block">{label}</label>
+	<span class="text-[13px] font-semibold text-text-color mb-1.5 block">{label}</span>
 {/if}
 <input
 	{type}

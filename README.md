@@ -151,8 +151,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 10:28
+- Cập nhật lần cuối: 2026-11-23 10:48
 - Đã hoàn thành:
+  - **Giai đoạn 3 Làm mới Giao diện — Khung Ứng Dụng & Sidebar Tự Thu Gọn 72px (`UI_DIRECTION.md`)**:
+    - Nâng cấp layout ứng dụng trong [`src/routes/+layout.svelte`](src/routes/+layout.svelte):
+      - Cơ chế thu gọn 2 trạng thái: mở rộng 232px (`w-[232px]`) ở trang chủ `/`, tự động thu gọn 72px (`w-[72px]`) khi chuyển vào các công cụ để mở rộng không gian làm việc.
+      - Nút điều khiển thu gọn/mở rộng ở đầu Sidebar (`aria-expanded`, icon mũi tên, ghi nhớ lựa chọn người dùng vào `localStorage ('sidebar-collapsed')`).
+      - Thay thế toàn bộ emoji thành icon SVG stroke inline (Lucide style) màu `currentColor`: layout-grid, package, pencil, image, type, file-text, monitor, book open logo.
+      - Phân nhóm điều hướng rõ ràng 4 mục: Tổng quan, Tạo và tinh chỉnh, Tiền xử lý, Mở rộng.
+      - Giữ nguyên 100% cơ chế drawer mobile trên màn hình `< md` và logic chuyển đổi Dark/Light theme.
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 2 Làm mới Giao diện — Chuẩn hóa Thành phần Dùng chung (`UI_DIRECTION.md`)**:
     - Nâng cấp 5 components dùng chung trong `src/lib/components/` theo đúng thiết kế mới mà không làm thay đổi props hoặc phá vỡ các selector phục vụ kiểm thử tự động:
       - `Button.svelte`: Chuẩn hóa chiều cao 44px (`h-11`), bo góc `rounded-xl`, typography Inter 15px 600/500, hỗ trợ kiểu `secondary` (viền `field-border`, nền trong suốt), primary dùng `bg-accent-color text-on-accent`, disabled opacity 70%.
@@ -333,6 +341,18 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 3: Khung Ứng Dụng & Sidebar Tự Thu Gọn 72px)
+
+- Thêm/sửa: Triển khai Giai đoạn 3 theo `UI_DIRECTION.md`:
+  - `src/routes/+layout.svelte`: Hỗ trợ 2 trạng thái sidebar desktop: mở rộng 232px ở trang chủ, tự động thu gọn 72px khi vào các công cụ. Bổ sung nút chuyển đổi thu gọn/mở rộng lưu tùy chọn vào `localStorage ('sidebar-collapsed')`. Thay thế emoji bằng hệ thống icon SVG stroke inline (Lucide style).
+  - Phân nhóm điều hướng theo chuẩn mới: Tổng quan, Tạo & tinh chỉnh (Packer, Editor), Tiền xử lý (PDF, MD Fixer, EPUB to TXT), Mở rộng (TXT to PDF CJK).
+  - Bảo toàn 100% drawer mobile `< md` và chức năng toggle theme Solarized.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/+layout.svelte`
+  - `src/lib/components/Input.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Giai đoạn 2: Chuẩn hóa Thành phần Dùng chung Button, Input, DropZone, PageHeader, FontSelect)
 
