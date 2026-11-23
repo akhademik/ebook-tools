@@ -59,7 +59,7 @@ Trong Tailwind v4, các biến trên được tích hợp qua `@theme`:
   - Chú thích / Nhãn phụ: 13–14px, màu `text-text-mute`
   - Nút bấm: Inter 15px, font-semibold (600) cho primary, medium (500) cho nút phụ (không dùng font-mono)
 - **Font Mono**: `'Space Mono', monospace` (`font-mono`) — **chỉ dùng cho giá trị kỹ thuật**:
-  - Tên file, phần mở rộng tệp, phiên bản (version badge), chỉ số số học, tọa độ px, mã nguồn.
+  - Tên file, phần mở rộng file, phiên bản (version badge), chỉ số số học, tọa độ px, mã nguồn.
 
 ---
 
@@ -85,12 +85,12 @@ Trong Tailwind v4, các biến trên được tích hợp qua `@theme`:
 - **Nhãn**: Nằm phía trên ô nhập, Inter 13px, đậm 600 (`font-semibold`).
 - **Placeholder**: Màu `text-text-mute`.
 
-### 4.3 Khu vực Kéo thả Tệp (`DropZone.svelte`)
+### 4.3 Khu vực Kéo thả file (`DropZone.svelte`)
 
 - **Vị trí**: `src/lib/components/DropZone.svelte`
 - **Kiểu dáng**: Đường viền đứt nét `border-2 border-dashed border-border-color rounded-2xl p-6 sm:p-10 text-center`.
 - **Icon**: SVG stroke upload inline thay vì emoji.
-- **Trạng thái kéo tệp (Drag-Over)**: Đổi viền sang `border-accent-color bg-accent-soft`.
+- **Trạng thái kéo file (Drag-Over)**: Đổi viền sang `border-accent-color bg-accent-soft`.
 
 ### 4.4 Bộ chọn Phông chữ (`FontSelect.svelte`)
 

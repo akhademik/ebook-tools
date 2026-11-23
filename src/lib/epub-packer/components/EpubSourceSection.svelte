@@ -39,7 +39,7 @@
 </script>
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<h2 class="text-base font-semibold text-text-color mb-3">Chọn tệp nguồn (.ZIP hoặc .TXT)</h2>
+	<h2 class="text-base font-semibold text-text-color mb-3">Chọn file nguồn (.ZIP hoặc .TXT)</h2>
 	<DropZone
 		accept=".zip,.txt,application/zip,text/plain"
 		onSelect={(f) => epubState.source.handleFile(f)}
@@ -70,7 +70,7 @@
 				bind:value={epubState.source.mergePattern}
 				oninput={() => epubState.source.applyGrouping()}
 				label="Từ khóa nhận diện tiêu đề chương mới"
-				placeholder="Ví dụ: chương — để trống nếu mỗi tệp là 1 chương"
+				placeholder="Ví dụ: chương — để trống nếu mỗi file là 1 chương"
 			/>
 		</div>
 

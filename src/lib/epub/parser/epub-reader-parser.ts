@@ -432,7 +432,9 @@ export async function parseEpub(zipInput: JSZip | Blob | File | ArrayBuffer): Pr
 	// 1. Container & OPF location
 	const opfPath = await findOpfPath(zip);
 	if (!opfPath) {
-		throw new Error('Không tìm thấy tệp OPF trong EPUB (thiếu META-INF/container.xml hoặc *.opf).');
+		throw new Error(
+			'Không tìm thấy file OPF trong EPUB (thiếu META-INF/container.xml hoặc *.opf).'
+		);
 	}
 
 	const container: EpubContainer = {
@@ -442,7 +444,7 @@ export async function parseEpub(zipInput: JSZip | Blob | File | ArrayBuffer): Pr
 	// 2. Read and parse OPF content
 	const opfFile = zip.file(opfPath);
 	if (!opfFile) {
-		throw new Error(`Tệp OPF được khai báo "${opfPath}" không tồn tại trong file zip.`);
+		throw new Error(`File OPF được khai báo "${opfPath}" không tồn tại trong file zip.`);
 	}
 	const opfText = await opfFile.async('text');
 

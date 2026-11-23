@@ -24,9 +24,9 @@
 	</div>
 
 	<p class="text-xs text-text-mute mb-4">
-		Hỗ trợ tải lên 1 hoặc nhiều ảnh (<code>.jpg, .png, .webp, .gif, .svg</code>), tệp
+		Hỗ trợ tải lên 1 hoặc nhiều ảnh (<code>.jpg, .png, .webp, .gif, .svg</code>), file
 		<code>.pdf</code>
-		hoặc tệp nén <code>.zip</code> chứa các ảnh / tệp PDF. Tên file ảnh/PDF cần trùng với tên thẻ
+		hoặc file nén <code>.zip</code> chứa các ảnh / file PDF. Tên file ảnh/PDF cần trùng với tên thẻ
 		trong file TXT (Ví dụ: cú pháp
 		<code>[hinh-1]</code>
 		sẽ tự liên kết với file <code>hinh-1.jpg</code> / <code>hinh-1.png</code> /
@@ -39,7 +39,7 @@
 		onSelectMultiple={(files) => epubState.images.handleIllustrationFiles(files)}
 		onSelect={(file) => epubState.images.handleIllustrationFiles(file)}
 		title="Chọn ảnh minh họa, file PDF hoặc file ZIP"
-		subtitle="Kéo thả nhiều ảnh, file PDF hoặc tệp .zip tại đây"
+		subtitle="Kéo thả nhiều ảnh, file PDF hoặc file .zip tại đây"
 		selectedCount={epubState.images.illustrationFiles.length}
 	/>
 

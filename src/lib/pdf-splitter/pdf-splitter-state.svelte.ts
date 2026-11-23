@@ -68,12 +68,12 @@ export class PdfSplitterState {
 	handleFile(file: File | null): void {
 		if (!file) return;
 		if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
-			this.status = 'Vui lòng chọn một tệp PDF hợp lệ.';
+			this.status = 'Vui lòng chọn một file PDF hợp lệ.';
 			this.isError = true;
 			return;
 		}
 		if (file.size > MAX_PDF_FILE_SIZE) {
-			this.status = 'Dung lượng tệp PDF vượt quá giới hạn cho phép (tối đa 1GB).';
+			this.status = 'Dung lượng file PDF vượt quá giới hạn cho phép (tối đa 1GB).';
 			this.isError = true;
 			return;
 		}
@@ -203,7 +203,7 @@ export class PdfSplitterState {
 		this.failedPages = [];
 		this.degradedPages = [];
 		this.savedDirectoryName = '';
-		this.status = 'Đang bắt đầu xử lý tệp PDF...';
+		this.status = 'Đang bắt đầu xử lý file PDF...';
 		this.isError = false;
 		this.progressPercent = 0;
 

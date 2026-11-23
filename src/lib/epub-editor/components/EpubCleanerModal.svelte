@@ -133,7 +133,7 @@
 						<div class="text-3xl mb-2">🎉</div>
 						<h4 class="font-mono text-base font-bold text-emerald-400">Dọn dẹp thành công!</h4>
 						<p class="text-xs text-text-mute font-mono mt-1">
-							Đã tối ưu hóa và cập nhật lại tệp EPUB
+							Đã tối ưu hóa và cập nhật lại file EPUB
 						</p>
 
 						<div class="grid grid-cols-3 gap-3 my-4">
@@ -239,14 +239,14 @@
 									🖼️ Xóa hình ảnh không dùng
 									{#if a.unusedImages.length > 0}
 										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
-											{a.unusedImages.length} tệp (~{formatByteSize(
+											{a.unusedImages.length} file (~{formatByteSize(
 												a.unusedImages.reduce((s, i) => s + i.byteSize, 0)
 											)})
 										</span>
 									{/if}
 								</div>
 								<p class="text-[11px] text-text-mute mt-0.5">
-									Xóa các tệp ảnh không được trang nào tham chiếu (ngoại trừ ảnh bìa cover).
+									Xóa các file ảnh không được trang nào tham chiếu (ngoại trừ ảnh bìa cover).
 								</p>
 							</div>
 						</label>
@@ -264,7 +264,7 @@
 									🔤 Xóa fonts nhúng không dùng
 									{#if a.unusedFonts.length > 0}
 										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
-											{a.unusedFonts.length} tệp (~{formatByteSize(
+											{a.unusedFonts.length} file (~{formatByteSize(
 												a.unusedFonts.reduce((s, f) => s + f.byteSize, 0)
 											)})
 										</span>
@@ -289,7 +289,7 @@
 									🎨 Xóa file CSS mồ côi
 									{#if a.unusedStyles.length > 0}
 										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
-											{a.unusedStyles.length} tệp
+											{a.unusedStyles.length} file
 										</span>
 									{/if}
 								</div>

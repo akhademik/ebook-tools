@@ -181,7 +181,7 @@ export async function loadPdfPreview(
 	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'loadPdfPreview error: no file or pdfjsLib missing');
-		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+		throw new Error('Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.');
 	}
 	Logger.debug(
 		'[pdf-splitter]',
@@ -266,7 +266,7 @@ export async function processPdfToJpg(
 	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
-		throw new Error('Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.');
+		throw new Error('Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.');
 	}
 
 	const isMobile = isMobileOrLowMemoryDevice();

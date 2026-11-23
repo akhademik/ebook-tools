@@ -772,12 +772,12 @@ export async function extractEpubToTxt(
 
 	const opfPath = await findOpfPath(zip);
 	if (!opfPath) {
-		throw new Error('Không tìm thấy tệp content.opf trong EPUB.');
+		throw new Error('Không tìm thấy file content.opf trong EPUB.');
 	}
 
 	const opfFile = zip.file(opfPath);
 	if (!opfFile) {
-		throw new Error(`Không thể mở tệp OPF tại đường dẫn: ${opfPath}`);
+		throw new Error(`Không thể mở file OPF tại đường dẫn: ${opfPath}`);
 	}
 
 	const opfXml = await opfFile.async('text');

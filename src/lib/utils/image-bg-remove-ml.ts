@@ -208,7 +208,7 @@ export function canvasToBlob(
 		canvas.toBlob(
 			(blob) => {
 				if (blob) resolve(blob);
-				else reject(new Error('Không thể chuyển đổi canvas thành tệp Blob'));
+				else reject(new Error('Không thể chuyển đổi canvas thành file Blob'));
 			},
 			type,
 			quality

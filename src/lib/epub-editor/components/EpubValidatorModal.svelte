@@ -143,7 +143,7 @@
 						<div
 							class="w-8 h-8 border-2 border-accent-color border-t-transparent rounded-full animate-spin mb-3"
 						></div>
-						<p class="font-mono text-sm text-text-color">Đang kiểm định toàn diện tệp EPUB...</p>
+						<p class="font-mono text-sm text-text-color">Đang kiểm định toàn diện file EPUB...</p>
 					</div>
 				{:else if validationResult}
 					{@const res = validationResult}
@@ -164,7 +164,7 @@
 											: 'text-red-400'}"
 									>
 										{res.passed
-											? 'Tệp EPUB đạt chuẩn kiểm định!'
+											? 'File EPUB đạt chuẩn kiểm định!'
 											: `Phát hiện ${res.errorCount} lỗi cần khắc phục`}
 									</h4>
 									<p class="text-xs text-text-mute font-mono">
@@ -274,7 +274,7 @@
 												</div>
 												{#if issue.file}
 													<div class="text-[11px] text-text-mute">
-														Tệp: <span class="text-text-color">{issue.file}</span>
+														file: <span class="text-text-color">{issue.file}</span>
 													</div>
 												{/if}
 												{#if issue.suggestion}

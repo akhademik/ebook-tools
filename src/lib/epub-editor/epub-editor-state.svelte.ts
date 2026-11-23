@@ -87,13 +87,13 @@ export class EpubEditorState {
 		this.fileName = file.name;
 
 		if (file.size > MAX_EPUB_FILE_SIZE) {
-			this.statusMessage = 'Dung lượng tệp EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
+			this.statusMessage = 'Dung lượng file EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.isError = true;
 			return;
 		}
 
 		this.isLoading = true;
-		this.statusMessage = 'Đang giải nén tệp EPUB...';
+		this.statusMessage = 'Đang giải nén file EPUB...';
 		this.isError = false;
 
 		try {
@@ -106,7 +106,7 @@ export class EpubEditorState {
 			Logger.info('[EpubEditorState]', `Loaded ${this.files.length} entries from ${file.name}`);
 
 			if (this.files.length === 0) {
-				throw new Error('Tệp EPUB không chứa file nào hợp lệ.');
+				throw new Error('File EPUB không chứa file nào hợp lệ.');
 			}
 
 			// Automatically select first page item
@@ -129,7 +129,7 @@ export class EpubEditorState {
 		} catch (err: unknown) {
 			const msg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubEditorState]', 'Error loading EPUB file', err);
-			this.statusMessage = `Lỗi nạp tệp EPUB: ${msg}`;
+			this.statusMessage = `Lỗi nạp file EPUB: ${msg}`;
 			this.isError = true;
 		} finally {
 			this.isLoading = false;

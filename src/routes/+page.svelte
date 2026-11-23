@@ -3,26 +3,9 @@
 		<h1 class="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-text-color">
 			Bàn làm việc
 		</h1>
-		<span
-			class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-ok/10 text-ok border border-ok/20 font-sans"
-		>
-			<svg
-				class="w-3.5 h-3.5"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-			</svg>
-			Tệp không rời khỏi máy bạn
-		</span>
 	</div>
 	<p class="text-text-mute font-sans text-sm sm:text-base max-w-2xl leading-relaxed">
-		Bộ công cụ chuyên nghiệp chế bản và tối ưu sách điện tử — 100% xử lý ngoại tuyến trong trình
-		duyệt.
+		Bộ công cụ làm ebook trong trình duyệt.
 	</p>
 </div>
 
@@ -74,36 +57,12 @@
 					<h3
 						class="text-xl font-bold mb-2 text-text-color group-hover:text-accent-color transition-colors font-sans"
 					>
-						Đóng gói EPUB (EPUB Packer)
+						Đóng gói EPUB
 					</h3>
 					<p class="text-text-mute text-sm leading-relaxed mb-5 font-sans">
-						Chuyển đổi tệp Markdown hoặc Text thành sách điện tử EPUB 3.0 tiêu chuẩn với bìa, trang
+						Chuyển đổi file Markdown hoặc Text thành sách điện tử EPUB 3.0 tiêu chuẩn với bìa, trang
 						lót jacket, font nhúng và mục lục tự động.
 					</p>
-
-					<!-- Feature Chips -->
-					<div class="flex flex-wrap gap-1.5 mb-6">
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Phân chương tự động
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							10 mẫu Jacket
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Cắt chỉnh bìa
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Tẩy hoa văn AI
-						</span>
-					</div>
 				</div>
 
 				<div
@@ -155,30 +114,6 @@
 						Mở và tinh chỉnh trực tiếp mã XHTML/CSS với Live Preview hai chiều, kiểm định tương
 						thích máy đọc Kobo và dọn dẹp tài nguyên mồ côi.
 					</p>
-
-					<!-- Feature Chips -->
-					<div class="flex flex-wrap gap-1.5 mb-6">
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Live Preview song song
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Sync-Scroll & Highlight
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Chuẩn Kobo / EPUB3
-						</span>
-						<span
-							class="text-xs px-2.5 py-1 rounded-md bg-panel-2 border border-border-color text-text-color font-sans"
-						>
-							Dọn tài nguyên mồ côi
-						</span>
-					</div>
 				</div>
 
 				<div
@@ -187,82 +122,6 @@
 					<span>Mở công cụ</span>
 					<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
 				</div>
-			</a>
-		</div>
-	</section>
-
-	<!-- 2. Quy trình gợi ý cho sách quét (Suggested Workflow) -->
-	<section>
-		<div class="flex items-center gap-2.5 mb-2">
-			<h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute font-sans">
-				Quy trình gợi ý cho sách quét
-			</h2>
-			<div class="h-px flex-1 bg-border-color/60"></div>
-		</div>
-		<p class="text-xs text-text-mute font-sans mb-4">
-			Các bước khuyến nghị để chuyển đổi tài liệu scan sang sách điện tử chất lượng cao (tham khảo):
-		</p>
-
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-			<!-- Bước 1: PDF -> JPG -->
-			<a
-				href="/pdf"
-				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
-			>
-				<div>
-					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 1
-					</span>
-					<h4 class="font-sans text-sm font-bold text-text-color mb-1">PDF → JPG</h4>
-					<p class="text-xs text-text-mute font-sans">Tách trang & tối ưu tương phản đen trắng</p>
-				</div>
-				<div class="mt-3 text-right text-accent-color text-xs font-semibold font-sans">Mở →</div>
-			</a>
-
-			<!-- Bước 2: OCR ngoài -->
-			<div
-				class="p-4 rounded-xl border border-dashed border-border-color bg-panel-2/50 flex flex-col justify-between"
-			>
-				<div>
-					<span class="font-mono text-[11px] text-text-mute font-semibold mb-1 block">
-						Bước 2
-					</span>
-					<h4 class="font-sans text-sm font-bold text-text-color mb-1">Nhận dạng OCR</h4>
-					<p class="text-xs text-text-mute font-sans">
-						Thực hiện bên ngoài ứng dụng (ABBYY, Google Docs...)
-					</p>
-				</div>
-				<div class="mt-3 text-xs text-text-mute font-sans italic">Ứng dụng ngoài</div>
-			</div>
-
-			<!-- Bước 3: Đóng gói EPUB -->
-			<a
-				href="/epub-packer"
-				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
-			>
-				<div>
-					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 3
-					</span>
-					<h4 class="font-sans text-sm font-bold text-text-color mb-1">Đóng gói EPUB</h4>
-					<p class="text-xs text-text-mute font-sans">Nhúng bìa, jacket, font và xuất file .epub</p>
-				</div>
-				<div class="mt-3 text-right text-accent-color text-xs font-semibold font-sans">Mở →</div>
-			</a>
-
-			<!-- Bước 4: EPUB Editor -->
-			<a
-				href="/epub-editor"
-				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
-			>
-				<div>
-					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 4
-					</span>
-					<h4 class="font-sans text-sm font-bold text-text-color mb-1">EPUB Editor</h4>
-					<p class="text-xs text-text-mute font-sans">Soát lỗi hiển thị, kiểm định và tối ưu</p>
-				</div>
-				<div class="mt-3 text-right text-accent-color text-xs font-semibold font-sans">Mở →</div>
 			</a>
 		</div>
 	</section>

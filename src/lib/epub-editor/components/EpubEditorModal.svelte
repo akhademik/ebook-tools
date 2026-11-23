@@ -118,7 +118,7 @@
 					type="button"
 					class="h-9 px-2.5 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-mono text-xs cursor-pointer transition-colors flex items-center gap-1.5 shrink-0"
 					onclick={() => (isSidebarOpen = !isSidebarOpen)}
-					title={isSidebarOpen ? 'Ẩn danh sách tệp' : 'Hiện danh sách tệp'}
+					title={isSidebarOpen ? 'Ẩn danh sách file' : 'Hiện danh sách file'}
 				>
 					<span>{isSidebarOpen ? '◀' : '▶'}</span>
 					<span class="hidden sm:inline">{isSidebarOpen ? 'Ẩn Files' : 'Hiện Files'}</span>
@@ -208,7 +208,7 @@
 					class="h-9 sm:h-10 w-9 sm:w-10 rounded-xl bg-accent-color hover:bg-accent-color/90 text-white font-mono text-base font-bold cursor-pointer transition-colors flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
 					onclick={() => handleExport(false)}
 					disabled={editorState.isExporting}
-					title={editorState.isExporting ? 'Đang xuất .EPUB...' : 'Xuất tệp .EPUB (Download)'}
+					title={editorState.isExporting ? 'Đang xuất .EPUB...' : 'Xuất file .EPUB (Download)'}
 				>
 					<span>{editorState.isExporting ? '⏳' : '📥'}</span>
 				</button>
@@ -384,7 +384,7 @@
 							</h3>
 							<p id="confirm-desc" class="text-xs text-text-mute mt-1">
 								Bạn có <span class="text-amber-500 font-bold font-mono"
-									>{editorState.dirtyPaths.size} tệp</span
+									>{editorState.dirtyPaths.size} file</span
 								> đã chỉnh sửa nhưng chưa được xuất ra file .EPUB.
 							</p>
 						</div>

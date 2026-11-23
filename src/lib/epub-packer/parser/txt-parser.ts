@@ -427,7 +427,7 @@ export function parseTxtToChapters(
 			currentChapter = {
 				title: `${fallbackTitle}`,
 				html: '',
-				sources: ['Tệp TXT'],
+				sources: ['File TXT'],
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
 				hasCustomTitle: false
@@ -618,7 +618,7 @@ export function parseTxtToChapters(
 			currentChapter = {
 				title: 'Giới Thiệu',
 				html: '',
-				sources: ['Tệp TXT'],
+				sources: ['File TXT'],
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
 				hasCustomTitle: false,
@@ -635,7 +635,7 @@ export function parseTxtToChapters(
 			currentChapter = {
 				title: 'Giới Thiệu',
 				html: '<section class="center-page">\n  <div class="center-page-content">\n',
-				sources: ['Tệp TXT'],
+				sources: ['File TXT'],
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
 				hasCustomTitle: false,
@@ -734,7 +734,7 @@ export function parseTxtToChapters(
 					currentChapter = {
 						title: titlePlain || `Chương ${chapters.length + 1}`,
 						html: `<h1 class="main-chap ${align}">${titleFormatted}</h1>\n`,
-						sources: ['Tệp TXT'],
+						sources: ['File TXT'],
 						isChapter: true,
 						firstSourcePageNum: chapters.length + 1,
 						hasCustomTitle: true
@@ -885,7 +885,7 @@ export function parseTxtToChapters(
 		chapters.push({
 			title: fallbackTitle,
 			html: '',
-			sources: ['Tệp TXT'],
+			sources: ['File TXT'],
 			isChapter: true,
 			firstSourcePageNum: 1
 		});
@@ -895,7 +895,7 @@ export function parseTxtToChapters(
 		const notesChapter = {
 			title: 'Chú thích',
 			html: notesHtml,
-			sources: ['Tệp TXT'],
+			sources: ['File TXT'],
 			isChapter: true,
 			fileName: 'notes',
 			isNotes: true,

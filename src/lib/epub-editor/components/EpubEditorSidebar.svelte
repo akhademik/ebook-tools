@@ -61,7 +61,7 @@
 	<div class="p-3.5 border-b border-border-color">
 		<div class="flex items-center justify-between mb-2">
 			<span class="font-mono text-xs font-bold uppercase tracking-wider text-text-mute">
-				Cấu trúc tệp ({editorState.files.length})
+				Cấu trúc file ({editorState.files.length})
 			</span>
 			{#if editorState.dirtyPaths.size > 0}
 				<span
@@ -143,7 +143,7 @@
 	<div class="flex-1 overflow-y-auto p-2 space-y-0.5">
 		{#if filteredFiles.length === 0}
 			<div class="p-6 text-center text-xs font-mono text-text-mute">
-				Không có tệp nào trong mục này.
+				Không có file nào trong mục này.
 			</div>
 		{:else}
 			{#each filteredFiles as file (file.path)}

@@ -27,7 +27,7 @@
 		{
 			id: 1,
 			title: 'Nguồn',
-			subtitle: hasChapters ? `${epubState.source.epubChapters.length} chương` : 'Chờ tải tệp',
+			subtitle: hasChapters ? `${epubState.source.epubChapters.length} chương` : 'Chờ tải file',
 			badge: hasChapters ? 'Đã tải' : 'Chờ tải',
 			isCompleted: hasChapters
 		},
@@ -56,7 +56,7 @@
 		{
 			id: 5,
 			title: 'Đóng gói',
-			subtitle: epubState.epubBlob ? 'Sẵn sàng tải về' : 'Xuất tệp hoàn chỉnh',
+			subtitle: epubState.epubBlob ? 'Sẵn sàng tải về' : 'Xuất file hoàn chỉnh',
 			badge: epubState.epubBlob ? 'Hoàn tất' : 'Chưa xuất',
 			isCompleted: Boolean(epubState.epubBlob)
 		}
@@ -111,7 +111,7 @@
 
 <PageHeader
 	title="Đóng gói EPUB"
-	description="Chuyển đổi văn bản TXT hoặc tệp nén ZIP chứa Markdown thành sách điện tử EPUB chuẩn mực"
+	description="Chuyển đổi văn bản TXT hoặc file nén ZIP chứa Markdown thành sách điện tử EPUB chuẩn mực"
 />
 
 <!-- 5-step navigation bar -->
@@ -263,7 +263,7 @@
 					</span>
 				{:else}
 					<span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-bg text-text-mute">
-						Chờ tải tệp
+						Chờ tải file
 					</span>
 				{/if}
 			</div>
@@ -346,7 +346,7 @@
 						</span>
 					</div>
 					<div>
-						<span class="text-text-mute block text-[11px]">Tệp xuất</span>
+						<span class="text-text-mute block text-[11px]">File xuất</span>
 						<span
 							class="text-text-color font-mono text-[11px] truncate block mt-0.5"
 							title={epubState.metadata.epubOutNamePreview}

@@ -266,8 +266,8 @@ export class EpubImagesState {
 		if (!file) return;
 		this.cancelChapterOrnamentProcessing();
 		if (file.size > MAX_IMAGE_FILE_SIZE) {
-			this.chapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
-			this.chapterOrnamentStatus = 'Lỗi tệp quá lớn';
+			this.chapterOrnamentError = 'Dung lượng file họa tiết vượt quá giới hạn (tối đa 30MB).';
+			this.chapterOrnamentStatus = 'Lỗi file quá lớn';
 			return;
 		}
 		this.chapterOrnamentFile = file;
@@ -326,8 +326,8 @@ export class EpubImagesState {
 		if (!file) return;
 		this.cancelSubchapterOrnamentProcessing();
 		if (file.size > MAX_IMAGE_FILE_SIZE) {
-			this.subchapterOrnamentError = 'Dung lượng tệp họa tiết vượt quá giới hạn (tối đa 30MB).';
-			this.subchapterOrnamentStatus = 'Lỗi tệp quá lớn';
+			this.subchapterOrnamentError = 'Dung lượng file họa tiết vượt quá giới hạn (tối đa 30MB).';
+			this.subchapterOrnamentStatus = 'Lỗi file quá lớn';
 			return;
 		}
 		this.subchapterOrnamentFile = file;
@@ -405,7 +405,7 @@ export class EpubImagesState {
 		const maxAllowed = isPdf ? MAX_PDF_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
 		if (file.size > maxAllowed) {
 			this.coverStatus = isPdf
-				? 'Dung lượng tệp PDF bìa vượt quá giới hạn (tối đa 300MB).'
+				? 'Dung lượng file PDF bìa vượt quá giới hạn (tối đa 300MB).'
 				: 'Dung lượng ảnh bìa vượt quá giới hạn (tối đa 30MB).';
 			this.coverIsError = true;
 			return;
@@ -420,10 +420,10 @@ export class EpubImagesState {
 				return;
 			}
 			try {
-				this.coverStatus = 'Đang trích xuất trang bìa từ tệp PDF...';
+				this.coverStatus = 'Đang trích xuất trang bìa từ file PDF...';
 				const blob = await renderPdfPageToBlob(file, 1, 2.0, 0.9);
 				if (!blob) {
-					throw new Error('Không thể tạo ảnh từ trang đầu của tệp PDF.');
+					throw new Error('Không thể tạo ảnh từ trang đầu của file PDF.');
 				}
 				if (this.coverOriginalUrl && this.coverOriginalUrl.startsWith('blob:')) {
 					URL.revokeObjectURL(this.coverOriginalUrl);

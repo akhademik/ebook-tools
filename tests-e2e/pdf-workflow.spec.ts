@@ -112,7 +112,7 @@ startxref
 		await fileInput.setInputFiles(fixturePdfPath);
 
 		// Download button should be initially disabled
-		const downloadBtn = page.getByRole('button', { name: /Tải tệp \.ZIP/i });
+		const downloadBtn = page.getByRole('button', { name: /Tải file \.ZIP/i });
 		await expect(downloadBtn).toBeDisabled();
 
 		// Click Start Splitting

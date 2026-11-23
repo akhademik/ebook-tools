@@ -366,7 +366,7 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 			lineNum: unclosed.lineNum,
 			lineContent: unclosed.lineContent,
 			tag: `[${unclosed.tag}]`,
-			message: `Dòng ${unclosed.lineNum}: Thẻ [${unclosed.tag}] đã mở nhưng chưa có thẻ đóng [/${unclosed.closeTag}] trước khi kết thúc tệp.`
+			message: `Dòng ${unclosed.lineNum}: Thẻ [${unclosed.tag}] đã mở nhưng chưa có thẻ đóng [/${unclosed.closeTag}] trước khi kết thúc file.`
 		});
 	}
 

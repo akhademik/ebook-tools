@@ -354,8 +354,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await openEditorBtn.click();
 
 		// Verify Editor modal elements (File structure sidebar, view switcher, export button)
-		await expect(page.getByText('Cấu trúc tệp')).toBeVisible({ timeout: 10000 });
-		await expect(page.getByTitle('Xuất tệp .EPUB (Download)')).toBeVisible();
+		await expect(page.getByText('Cấu trúc file')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByTitle('Xuất file .EPUB (Download)')).toBeVisible();
 		await expect(page.getByRole('button', { name: 'Code' })).toBeVisible();
 	});
 
@@ -372,6 +372,6 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 	test('should open EPUB to TXT page and verify interface', async ({ page }) => {
 		await page.goto('/epub-to-txt');
 		await expect(page.getByRole('heading', { name: /EPUB → TXT/i })).toBeVisible();
-		await expect(page.locator('text=Kéo thả hoặc click để chọn tệp .EPUB')).toBeVisible();
+		await expect(page.locator('text=Kéo thả hoặc click để chọn file .EPUB')).toBeVisible();
 	});
 });

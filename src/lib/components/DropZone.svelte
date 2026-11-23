@@ -7,7 +7,7 @@
 		disabled = false,
 		onSelect,
 		onSelectMultiple,
-		title = 'Kéo thả hoặc click để chọn tệp',
+		title = 'Kéo thả hoặc click để chọn file',
 		subtitle = '',
 		selectedFile = null,
 		selectedCount = 0
@@ -109,7 +109,7 @@
 			<div
 				class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-panel border border-border-color"
 			>
-				<span class="font-mono text-xs text-accent-color">Đã chọn {selectedCount} tệp ảnh</span>
+				<span class="font-mono text-xs text-accent-color">Đã chọn {selectedCount} file ảnh</span>
 			</div>
 		{/if}
 	</div>

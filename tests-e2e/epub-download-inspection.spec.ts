@@ -160,7 +160,7 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 		await startBtn.click();
 
 		// 3. Wait for download TXT button
-		const downloadTxtBtn = page.getByRole('button', { name: /Tải tệp \.TXT/i });
+		const downloadTxtBtn = page.getByRole('button', { name: /Tải file \.TXT/i });
 		await expect(downloadTxtBtn).toBeVisible({ timeout: 25000 });
 
 		// 4. Intercept download
@@ -195,10 +195,10 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 		await openEditorBtn.click();
 
 		// 3. Verify Editor modal is open
-		await expect(page.getByText('Cấu trúc tệp')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByText('Cấu trúc file')).toBeVisible({ timeout: 10000 });
 
 		// 4. Trigger Export Download from Editor toolbar
-		const exportBtn = page.getByTitle('Xuất tệp .EPUB (Download)');
+		const exportBtn = page.getByTitle('Xuất file .EPUB (Download)');
 		await expect(exportBtn).toBeVisible();
 
 		const downloadPromise = page.waitForEvent('download');

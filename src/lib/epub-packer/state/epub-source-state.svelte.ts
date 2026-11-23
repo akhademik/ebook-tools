@@ -122,7 +122,7 @@ export class EpubSourceState {
 		const mergedCount = this.epubRawFiles.length - grouped.length;
 		this.parseStatus =
 			mergedCount > 0
-				? `Có ${this.epubRawFiles.length} tệp Markdown, gộp thành ${grouped.length} chương.`
+				? `Có ${this.epubRawFiles.length} file Markdown, gộp thành ${grouped.length} chương.`
 				: `Tìm thấy ${grouped.length} chương — kiểm tra thứ tự & tiêu đề bên trên trước khi đóng gói.`;
 		this.parseIsError = false;
 	}
@@ -219,21 +219,21 @@ export class EpubSourceState {
 
 		if (!isZip && !isTxt) {
 			Logger.warn('[EpubSourceState]', 'Invalid file type selected', file.name);
-			this.parseStatus = 'Vui lòng chọn một tệp .ZIP hoặc .TXT hợp lệ.';
+			this.parseStatus = 'Vui lòng chọn một file .ZIP hoặc .TXT hợp lệ.';
 			this.parseIsError = true;
 			this.parseWarnings = [];
 			return;
 		}
 
 		if (isTxt && file.size > MAX_TXT_FILE_SIZE) {
-			this.parseStatus = 'Dung lượng tệp .TXT vượt quá giới hạn cho phép (tối đa 50MB).';
+			this.parseStatus = 'Dung lượng file .TXT vượt quá giới hạn cho phép (tối đa 50MB).';
 			this.parseIsError = true;
 			this.parseWarnings = [];
 			return;
 		}
 
 		if (isZip && file.size > MAX_ZIP_FILE_SIZE) {
-			this.parseStatus = 'Dung lượng tệp .ZIP vượt quá giới hạn cho phép (tối đa 250MB).';
+			this.parseStatus = 'Dung lượng file .ZIP vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.parseIsError = true;
 			this.parseWarnings = [];
 			return;
@@ -251,7 +251,7 @@ export class EpubSourceState {
 
 		if (isTxt) {
 			this.fileType = 'txt';
-			this.parseStatus = 'Đang đọc tệp văn bản .TXT...';
+			this.parseStatus = 'Đang đọc file văn bản .TXT...';
 			const base = slugify(file.name.replace(/\.txt$/i, ''));
 			this.deps.onFileLoaded?.(base);
 			try {
@@ -267,12 +267,12 @@ export class EpubSourceState {
 			} catch (err: unknown) {
 				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubSourceState]', 'Error reading TXT file', err);
-				this.parseStatus = 'Lỗi khi đọc tệp .TXT: ' + errorMsg;
+				this.parseStatus = 'Lỗi khi đọc file .TXT: ' + errorMsg;
 				this.parseIsError = true;
 			}
 		} else {
 			this.fileType = 'zip';
-			this.parseStatus = 'Đang đọc các chương Markdown trong tệp .ZIP...';
+			this.parseStatus = 'Đang đọc các chương Markdown trong file .ZIP...';
 			const base = slugify(file.name.replace(/\.zip$/i, ''));
 			this.deps.onFileLoaded?.(base);
 			await this.loadZipContent(file);
@@ -302,7 +302,7 @@ export class EpubSourceState {
 
 			if (files.length === 0) {
 				Logger.warn('[EpubSourceState]', 'No .md files found in zip');
-				this.parseStatus = 'Không tìm thấy tệp .md nào trong tệp .ZIP.';
+				this.parseStatus = 'Không tìm thấy file .md nào trong file .ZIP.';
 				this.parseIsError = true;
 				return;
 			}
@@ -312,7 +312,7 @@ export class EpubSourceState {
 		} catch (err: unknown) {
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubSourceState]', 'Error loading ZIP', err);
-			this.parseStatus = 'Lỗi khi đọc tệp .ZIP: ' + errorMsg;
+			this.parseStatus = 'Lỗi khi đọc file .ZIP: ' + errorMsg;
 			this.parseIsError = true;
 		}
 	}

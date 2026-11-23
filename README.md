@@ -1,6 +1,6 @@
 # ⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử
 
-> **Ebook Forge**: Bộ công cụ chuẩn hóa, đóng gói, biên tập và kiểm định sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn — tệp được xử lý cục bộ và không tải lên bất kỳ máy chủ nào.
+> **Ebook Forge**: Bộ công cụ chuẩn hóa, đóng gói, biên tập và kiểm định sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn — file được xử lý cục bộ và không tải lên bất kỳ máy chủ nào.
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### 1. ✏️ Chỉnh sửa & Kiểm định EPUB Trực quan (EPUB Editor & Validator Suite)
 
-Bộ công cụ biên tập, tối ưu và xem trước tệp `.epub` toàn diện ngay trên trình duyệt web:
+Bộ công cụ biên tập, tối ưu và xem trước file `.epub` toàn diện ngay trên trình duyệt web:
 
 - **Trình soạn thảo mã nguồn chuyên nghiệp**: Tích hợp CodeMirror 6 với syntax highlighting cho HTML, XHTML và CSS, hỗ trợ tự động căn lề, đóng mở thẻ thông minh và phím tắt chuẩn.
 - **Xem trước thời gian thực (Live Preview)**: Khung xem trước song song hiển thị tức thì các thay đổi về bố cục, kiểu dáng CSS và hình ảnh.
@@ -19,10 +19,10 @@ Bộ công cụ biên tập, tối ưu và xem trước tệp `.epub` toàn di�
 - **Không gian làm việc linh hoạt**:
   - Thanh phân chia kéo thả (Resizable Split Pane) tùy biến tỷ lệ Editor / Preview.
   - Chế độ xem **100% Real View**
-  - Thanh điều hướng cây tệp (File Tree Sidebar) có thể thu gọn tối đa để mở rộng không gian làm việc.
+  - Thanh điều hướng cây file (File Tree Sidebar) có thể thu gọn tối đa để mở rộng không gian làm việc.
 - **Dọn rác & Tối ưu dung lượng (EPUB Optimizer / Cleaner)**:
   - Tự động quét toàn bộ cây tài nguyên sách để lập kế hoạch tối ưu (**Optimization Plan**) chi tiết.
-  - Phát hiện hình ảnh, font chữ, tệp CSS và trang XHTML mồ côi (không được tham chiếu trong OPF spine/manifest hoặc HTML).
+  - Phát hiện hình ảnh, font chữ, file CSS và trang XHTML mồ côi (không được tham chiếu trong OPF spine/manifest hoặc HTML).
   - Phát hiện tài nguyên trùng lặp nội dung dựa trên mã băm SHA-1 (Duplicate Detection).
   - Ước tính dung lượng tiết kiệm (Potential Savings) và dọn sạch an toàn chỉ với 1 cú click.
 - **Kiểm định & Tương thích máy đọc sách (EPUB Validator)**:
@@ -32,13 +32,13 @@ Bộ công cụ biên tập, tối ưu và xem trước tệp `.epub` toàn di�
 - **Quản lý Thông tin sách & Tái tạo Mục lục Tự động (Book Operations)**:
   - Chỉnh sửa trực tiếp Metadata sách (Tiêu đề, Tác giả, Ngôn ngữ, Nhà xuất bản, Identifier/ISBN, Ngày phát hành) trong `content.opf`.
   - 1-click tự động tái tạo đồng bộ mục lục thông qua mô hình trung gian **TocTree** thống nhất giữa `nav.xhtml` (EPUB 3) và `toc.ncx` (EPUB 2 / Kobo).
-- **Kiểm tra cú pháp & Đóng gói an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi lưu/xuất, cảnh báo khi đóng tab chưa lưu và đóng gói tải về tệp `.epub` hoàn chỉnh chuẩn kỹ thuật.
+- **Kiểm tra cú pháp & Đóng gói an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi lưu/xuất, cảnh báo khi đóng tab chưa lưu và đóng gói tải về file `.epub` hoàn chỉnh chuẩn kỹ thuật.
 
 ---
 
 ### 2. 📦 Đóng gói EPUB (EPUB Packer)
 
-Tự động chuyển đổi văn bản thô `.txt` hoặc gói tệp Markdown `.zip` thành sách điện tử định dạng `.epub` tiêu chuẩn:
+Tự động chuyển đổi văn bản thô `.txt` hoặc gói file Markdown `.zip` thành sách điện tử định dạng `.epub` tiêu chuẩn:
 
 - **Hỗ trợ cú pháp quy ước nhanh cho file `.txt`**:
   - `@@ Tiêu đề` (`@@t`, `@@p`): Tiêu đề chính / tách chương thành file XHTML riêng, tự động đưa vào mục lục (TOC).
@@ -71,7 +71,7 @@ Công cụ xử lý hoa văn, họa tiết đầu chương và phân đoạn tra
 
 ### 4. 📄 Tách trang PDF → JPG (PDF Processor)
 
-- Trích xuất các trang từ tệp tài liệu PDF thành bộ ảnh JPG độc lập đóng gói dạng `.zip`.
+- Trích xuất các trang từ file tài liệu PDF thành bộ ảnh JPG độc lập đóng gói dạng `.zip`.
 - Chuyển đổi ảnh sang thang độ xám (Grayscale) và tăng độ tương phản, tối ưu hóa cho các phần mềm nhận dạng chữ OCR.
 - Xem trước trực quan và thiết lập vùng cắt bỏ **Header / Footer** hàng loạt cho toàn bộ trang sách với xử lý song song đa luồng.
 
@@ -79,7 +79,7 @@ Công cụ xử lý hoa văn, họa tiết đầu chương và phân đoạn tra
 
 ### 5. 💻 Desktop App: TXT → PDF CJK
 
-- Ứng dụng desktop độc lập dành cho Windows chuyên xử lý văn bản chữ Hán / Nôm / CJK sang tệp PDF chất lượng cao.
+- Ứng dụng desktop độc lập dành cho Windows chuyên xử lý văn bản chữ Hán / Nôm / CJK sang file PDF chất lượng cao.
 - Tự động phát hiện và sửa lỗi các ký tự PUA (chữ hiếm bị mã hóa sai) sang ký tự chuẩn.
 - Nhúng sẵn font chữ toàn diện (Noto Serif CJK + HanaMin) đảm bảo hiển thị đầy đủ mọi ký tự cổ/hiếm, tương thích tối đa với máy đọc sách và làm tài liệu đầu vào chuẩn cho NotebookLM.
 
@@ -137,15 +137,21 @@ pnpm test:e2e
 
 ## 🛡️ Quyền riêng tư & Bảo mật
 
-- **100% Client-Side**: Toàn bộ quá trình đọc, giải nén, bóc tách AI, chỉnh sửa và đóng gói tệp PDF, EPUB, TXT diễn ra hoàn toàn trong bộ nhớ trình duyệt máy tính của bạn.
-- **An toàn dữ liệu**: Tệp được xử lý trực tiếp trên thiết bị của bạn và tuyệt đối không tải lên bất kỳ máy chủ bên ngoài nào.
+- **100% Client-Side**: Toàn bộ quá trình đọc, giải nén, bóc tách AI, chỉnh sửa và đóng gói file PDF, EPUB, TXT diễn ra hoàn toàn trong bộ nhớ trình duyệt máy tính của bạn.
+- **An toàn dữ liệu**: file được xử lý trực tiếp trên thiết bị của bạn và tuyệt đối không tải lên bất kỳ máy chủ bên ngoài nào.
 
 ---
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 12:35
+- Cập nhật lần cuối: 2026-11-23 15:45
 - Đã hoàn thành:
+  - **Chuẩn hóa nhãn "File", viết hoa đầu câu/nhãn & Dọn dẹp Layout Sidebar**:
+    - Rà soát toàn bộ thay đổi sau khi chuẩn hóa thuật ngữ giao diện từ "tệp" sang "file".
+    - Viết hoa chữ cái đầu cho các danh từ/nhãn/tiêu đề và thông báo lỗi: `File xuất`, `File PDF dung lượng lớn`, `File tải về:`, `File EPUB đạt chuẩn kiểm định!`, `File EPUB không chứa file nào hợp lệ.`, `File "${filePath}"...`, `File OPF...`.
+    - Chuẩn hóa nguồn định dạng `sources: ['File TXT']` trong `txt-parser.ts`.
+    - Dọn sạch thẻ `div` rỗng mồ côi trong `src/routes/+layout.svelte` sau khi bỏ version badge ở sidebar.
+    - Toàn bộ **350/350 unit tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Chuẩn hóa toàn bộ các lớp CSS Tailwind theo gợi ý của `suggestCanonicalClasses`**:
     - Thay thế toàn bộ arbitrary values sang utility tokens chuẩn của Tailwind CSS: `h-[100dvh]` -> `h-dvh`, `w-[270px]` -> `w-67.5`, `w-[72px]` -> `w-18`, `w-[232px]` -> `w-58`, `h-[56px]` -> `h-14`, `max-w-[220px]` -> `max-w-55`, `max-w-[110px]` -> `max-w-27.5`, `min-w-[200px]` -> `min-w-50`, `min-w-[160px]` -> `min-w-40`, `min-w-[170px]` -> `min-w-42.5`, `min-h-[76px]` -> `min-h-19`, `break-words` -> `wrap-break-word`, `text-[14px]` -> `text-sm`, `sm:text-[30px]` -> `sm:text-3xl`.
     - Kết quả kiểm tra `@laststance/tailwind-suggest-canonical-classes` đạt 0 cảnh báo.
@@ -167,14 +173,14 @@ pnpm test:e2e
       - Thanh điều hướng 5 bước trên cùng (`<ol>` với `aria-current="step"`, hiển thị số thứ tự, tên bước, huy hiệu trạng thái động: Đã tải / Tùy chọn / Mặc định / Hoàn tất). Cho phép bấm tự do giữa các bước khi đã có chương nguồn.
       - Bảo toàn 100% state và vòng đời của 7 component section thông qua việc ẩn/hiện bằng `class="hidden"`, tuyệt đối không unmount bằng `{#if}`.
       - Bổ sung nút điều hướng "Tiếp: ..." và "Quay lại: ..." ở chân mỗi bước để dẫn dắt trải nghiệm.
-      - Cột tóm tắt sách (Persistent Summary Column) cố định bên phải (sticky trên desktop): hiển thị ảnh bìa trực quan (hoặc khung placeholder đứt nét), tên tác phẩm, tác giả, số mục lục, phông chữ H1, tên tệp xuất.
+      - Cột tóm tắt sách (Persistent Summary Column) cố định bên phải (sticky trên desktop): hiển thị ảnh bìa trực quan (hoặc khung placeholder đứt nét), tên tác phẩm, tác giả, số mục lục, phông chữ H1, tên file xuất.
       - Hai nút thao tác chính luôn sẵn sàng trên cột tóm tắt: "Đóng gói file EPUB" và "Tải file .EPUB" (disabled khi chưa có blob), không cần cuộn tìm ở cuối trang.
       - Khung xem trước typography ở bước 4 sử dụng nền giấy màu kem `#fbf8ef` với chữ `#073642`.
       - Các nút chỉnh lề bìa sách ở bước 3 chuẩn hóa chiều cao 40px, font mono cho số pixel.
     - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 4 Làm mới Giao diện — Tái Cấu Trúc Trang Tổng Quan (`src/routes/+page.svelte`) (`UI_DIRECTION.md`)**:
     - Thiết kế lại trang Tổng quan theo định hướng giao diện mới:
-      - Header: Tiêu đề "Bàn làm việc", mô tả tinh gọn, huy hiệu trạng thái bảo mật "Tệp không rời khỏi máy bạn" với màu `--color-ok`.
+      - Header: Tiêu đề "Bàn làm việc", mô tả tinh gọn, huy hiệu trạng thái bảo mật "file không rời khỏi máy bạn" với màu `--color-ok`.
       - Khối "Bắt đầu với": 2 thẻ lớn (Đóng gói EPUB & EPUB Editor & Validator) với icon SVG nổi bật, chip tính năng chi tiết, loại bỏ nút lặp (thẻ chính là liên kết với mũi tên điều hướng).
       - Khối "Quy trình gợi ý cho sách quét": Mô hình 5 bước trực quan (PDF → JPG, OCR ngoài viền đứt, Markdown Fixer, Đóng gói EPUB, EPUB Editor) với hướng dẫn rõ ràng.
       - Khối "Công cụ lẻ & Mở rộng": Danh sách thẻ ngang gọn gàng (EPUB → TXT, PDF → JPG, Markdown Fixer, TXT → PDF CJK gắn tag Desktop).
@@ -191,7 +197,7 @@ pnpm test:e2e
     - Nâng cấp 5 components dùng chung trong `src/lib/components/` theo đúng thiết kế mới mà không làm thay đổi props hoặc phá vỡ các selector phục vụ kiểm thử tự động:
       - `Button.svelte`: Chuẩn hóa chiều cao 44px (`h-11`), bo góc `rounded-xl`, typography Inter 15px 600/500, hỗ trợ kiểu `secondary` (viền `field-border`, nền trong suốt), primary dùng `bg-accent-color text-on-accent`, disabled opacity 70%.
       - `Input.svelte`: Chiều cao 44px (`h-11`), bo góc `rounded-[10px]`, viền `field-border`, nhãn phía trên Inter 13px đậm 600 (không uppercase), placeholder `text-mute`.
-      - `DropZone.svelte`: Bo góc `rounded-2xl`, bổ sung icon upload inline SVG stroke chuẩn thay thế emoji, chữ mô tả rõ ràng, hiển thị badge tệp tin đã chọn.
+      - `DropZone.svelte`: Bo góc `rounded-2xl`, bổ sung icon upload inline SVG stroke chuẩn thay thế emoji, chữ mô tả rõ ràng, hiển thị badge file tin đã chọn.
       - `PageHeader.svelte`: Tiêu đề Inter 700 28–30px responsive (`text-2xl sm:text-[30px]`), mô tả phụ `text-text-mute` thoáng rộng.
       - `FontSelect.svelte`: Chiều cao 52px (chế độ chuẩn), hiển thị 2 dòng (tên font và kiểu dáng thực tế kèm mẫu tiếng Việt "Chương 1: Bình minh"), nhãn 13px đậm, dropdown bo `rounded-2xl`, bảo toàn 100% selector và hành vi kiểm thử tự động.
     - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
@@ -205,12 +211,12 @@ pnpm test:e2e
     - Loại bỏ thẻ chú thích `<a class="noteref"...>...</a>` và ký hiệu thô `{...}` khi trích xuất tiêu đề cho TOC trong cả `txt-parser.ts` (`stripFootnoteRefs`) và `nav-builder.ts`.
     - Bảo toàn 100% link nhảy chú thích `<sup>{n}</sup>` trong nội dung đọc `<h1>`/`<h2>`, đồng thời giữ cho Mục lục (`nav.xhtml`, `toc.ncx`) hiển thị sạch sẽ (ví dụ `ANH TÔNG` thay vì `ANH TÔNG642`).
   - **Chặn các khối không tiêu đề (`[new]`, `[new:center]` và trang nội dung tự mở) rò rỉ vào TOC & UI Preview**:
-    - Khi khối `[new]`, `[new:center]` hoặc trang nội dung tiếp nối không chứa bất kỳ heading nào (`headings.length === 0`) và không có tiêu đề tự đặt (`hasCustomTitle === false`), hệ thống tự động bỏ qua không thêm vào TOC, triệt tiêu hoàn toàn các mục rác như `"Giới Thiệu"` hoặc tên tệp ngầm định (ví dụ `"MTL Gop"`).
+    - Khi khối `[new]`, `[new:center]` hoặc trang nội dung tiếp nối không chứa bất kỳ heading nào (`headings.length === 0`) và không có tiêu đề tự đặt (`hasCustomTitle === false`), hệ thống tự động bỏ qua không thêm vào TOC, triệt tiêu hoàn toàn các mục rác như `"Giới Thiệu"` hoặc tên file ngầm định (ví dụ `"MTL Gop"`).
     - Cập nhật đồng bộ tab xem trước **"Đầu mục tìm thấy"** trong giao diện [`EpubSourceSection.svelte`](src/lib/epub-packer/components/EpubSourceSection.svelte): sử dụng danh sách `tocChapters` đã lọc, đồng bộ số lượng chương hiển thị và đánh số thứ tự thực tế tương ứng với TOC thay vì hiển thị toàn bộ các file XHTML vật lý (như `MTL gộp chap_27.xhtml`, `MTL gộp chap_29.xhtml`).
     - Duy trì cơ chế bảo vệ fallback: nếu toàn bộ tài liệu không có bất kỳ mốc phân chương nào, trang đầu tiên vẫn được đưa vào TOC để thỏa mãn quy chuẩn EPUB 2 / EPUB 3.
   - Toàn bộ **361/361 unit tests pass 100%**, `pnpm check` 0 errors, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Dọn sạch các comment phân mục thừa (`/* ===== ... ===== */`) trong các mẫu CSS EPUB (`quotes.css`, `cover.css`, `ornaments.css`)**:
-    - Loại bỏ toàn bộ các comment tiêu đề khối dạng `/* ===== ... ===== */` nhằm tinh gọn dung lượng mã nguồn CSS và giữ cho tệp CSS thành phẩm gọn gàng, sạch sẽ.
+    - Loại bỏ toàn bộ các comment tiêu đề khối dạng `/* ===== ... ===== */` nhằm tinh gọn dung lượng mã nguồn CSS và giữ cho file CSS thành phẩm gọn gàng, sạch sẽ.
   - **Sắp xếp lại thứ tự Selector trong CSS (`quotes.css`) chuẩn hóa Stylelint (`no-descending-specificity`)**:
     - Di chuyển toàn bộ các bộ chọn lồng ghép có độ ưu tiên cao (`.letter .poem`, `.letter-box .poem`, `.letter .poem:first-child`, `.letter-box .poem:first-child`, `.letter .poem:last-child`, `.letter-box .poem:last-child`, `.letter .poem p`, `.letter-box .poem p`) xuống cuối file sau các bộ chọn đơn (`.poem`, `.poem p`, `.letter-box p`, `blockquote.* p`, `h1/h2 + p`, `:first-child`, `:last-child`).
     - Triệt tiêu 100% cảnh báo/lỗi `no-descending-specificity` khi kiểm định EPUB với Stylelint / EpubCheck.
@@ -235,7 +241,7 @@ pnpm test:e2e
     - Bổ sung kịch bản kiểm thử tự động Playwright E2E xác thực phông chữ đang chọn luôn nằm trong khung nhìn (`toBeInViewport()`).
     - Toàn bộ **347/347 unit tests** và **15/15 Playwright E2E browser tests pass 100%**.
   - **Bổ sung 7 Phông chữ Mới & Khử Trùng lặp (New Heading Fonts & Duplicate Font Cleanup)**:
-    - **Khử trùng lặp & Chuẩn hóa tệp phông chữ (`src/assets/fonts/`)**: Quét và đối chiếu toàn bộ binary qua mã băm MD5 và fontkit metadata; loại bỏ an toàn 3 tệp trùng lặp (`iCiel-Downtown.otf` trùng 100% với `BCDowntown.otf`, `Batangas-Bold.otf` thực chất là `SVN-Georgia-Bold.otf`, `BebasNeue.otf` trùng với `UTM-Bebas.ttf`). Giữ lại và tích hợp 7 phông chữ mới chất lượng cao: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
+    - **Khử trùng lặp & Chuẩn hóa file phông chữ (`src/assets/fonts/`)**: Quét và đối chiếu toàn bộ binary qua mã băm MD5 và fontkit metadata; loại bỏ an toàn 3 file trùng lặp (`iCiel-Downtown.otf` trùng 100% với `BCDowntown.otf`, `Batangas-Bold.otf` thực chất là `SVN-Georgia-Bold.otf`, `BebasNeue.otf` trùng với `UTM-Bebas.ttf`). Giữ lại và tích hợp 7 phông chữ mới chất lượng cao: `DFVN-Takashimura-Bold.otf`, `DeBorstel-Brush.ttf`, `Font-Lourena-Viet-Hoa.ttf`, `MJ-GeometricSlab703BT-Medium.otf`, `SVN-Georgia-Bold.otf`, `SVN-Georgia-Regular.otf`, `UTM-Bebas.ttf`.
     - **Đồng bộ Metadata (`fonts-metadata.json`)**: Chạy script `generate-fonts-meta.js` trích xuất chính xác font family (`DFVN Takashimura Bold`, `LNTH-DeBorstel Brush Reduced`, `Lourena`, `MJ GeoSlab703 Md BT`, `SVN-Georgia`, `UTM Bebas`), nâng tổng số phông chữ hỗ trợ lên 40 font.
     - **Tự động hóa hiển thị & Đóng gói EPUB (`fonts.ts`, `FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**: Các phông chữ mới tự động được nạp vào `AVAILABLE_FONTS` qua `import.meta.glob`, hiển thị trực quan trong bộ chọn Heading (H1, H2, H2 Sub, Dropcap) và Modal Jacket với live preview tiếng Việt, đồng thời nhúng trọn vẹn vào gói EPUB khi xuất bản.
     - Toàn bộ **347/347 unit tests pass 100%**, type check (0 err, 0 warn), build production thành công.
@@ -247,7 +253,7 @@ pnpm test:e2e
     - Toàn bộ **347/347 unit tests pass 100%**.
   - **Khắc phục lỗi nút tải ZIP rỗng khi lưu ra đĩa & Mở rộng E2E Test Suite cho PDF Splitter**:
     - **Sửa dứt điểm tải ZIP rỗng**: Loại bỏ việc gán `zipBlob = new Blob()` khi đã lưu ra đĩa (`savedToDisk: true`). Trả về `zipBlob: undefined` nếu không có phần nào trong RAM, đồng thời bổ sung chốt chặn `blob.size === 0` trong `triggerDownload` ngăn ngừa triệt để việc tải file rỗng 0 byte.
-    - **Đồng bộ hóa trạng thái nút UI & Giải phóng hoàn toàn RAM**: Khi đã ghi thành công vào thư mục trên đĩa (`savedDirectoryName`), nút chuyển thành `"Đã lưu vào đĩa"` và bị vô hiệu hóa hoàn toàn (`disabled`), ngăn chặn tải tệp rỗng hoặc gây hiểu lầm cho người dùng.
+    - **Đồng bộ hóa trạng thái nút UI & Giải phóng hoàn toàn RAM**: Khi đã ghi thành công vào thư mục trên đĩa (`savedDirectoryName`), nút chuyển thành `"Đã lưu vào đĩa"` và bị vô hiệu hóa hoàn toàn (`disabled`), ngăn chặn tải file rỗng hoặc gây hiểu lầm cho người dùng.
     - **Dọn dẹp mã nguồn thừa & Ẩn khối FSA trên trình duyệt không hỗ trợ**: Đồng bộ sử dụng hằng số `DEFAULT_DPI` (200 DPI), loại bỏ biến `selectedDpi` dư thừa khỏi `PdfSplitterState`. Ẩn hoàn toàn thông báo kỹ thuật "Trình duyệt không hỗ trợ File System API" trên Safari/Firefox/Mobile để giao diện tinh gọn, tự nhiên cho người dùng thông thường. Bổ sung mẹo hướng dẫn tải từng phần an toàn trên các trình duyệt chặn download liên tiếp (Safari, Chrome).
     - **Mở rộng kiểm thử Playwright E2E cho PDF Splitter**: Bổ sung kịch bản kiểm thử E2E tự động hoàn chỉnh (`tests-e2e/pdf-workflow.spec.ts` gồm 3 workflows: Xem trước & Cắt lề, Tách trang & Tải ZIP thật không rỗng, Giả lập File System Access API ghi đĩa & Xác thực nút disabled).
     - Toàn bộ **344/344 unit tests** và **15/15 Playwright E2E browser tests** pass 100%.
@@ -255,7 +261,7 @@ pnpm test:e2e
     - **Mặc định chuẩn 200 DPI**: Đặt mặc định 200 DPI ($scale \approx 2.778$, kích thước trang A4 đạt $\approx 1654 \times 2339$px) đồng nhất trên cả Desktop và Mobile/Touch device, đảm bảo độ phân giải sắc nét tối ưu cho Google Vision OCR và các công cụ OCR nhận diện chuẩn xác dấu tiếng Việt, chữ nhỏ.
     - **Cố định chuẩn 200 DPI**: Khóa cứng mặc định 200 DPI tối ưu cho OCR, loại bỏ hoàn toàn bộ chọn DPI thủ công trên UI để đảm bảo chất lượng xuất ảnh đồng nhất và đơn giản hóa giao diện.
     - **Tách biệt điều kiện Mobile với DPI**: Điều kiện `isMobileOrLowMemoryDevice()` chỉ dùng để giảm trần dung lượng phần ZIP (`40MB` thay vì `80MB`) nhằm bảo toàn RAM, tuyệt đối không ép giảm ngầm DPI chất lượng ảnh. Tinh chỉnh nhận diện mobile để không gán nhầm laptop màn hình cảm ứng thành thiết bị di động.
-    - **Đệm số 0 tên tệp (`page0001.jpg`)**: Tự động đệm số 0 theo tổng số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo thứ tự từ điển (lexicographical order) luôn tuần tự chuẩn xác cho các script OCR (`page0001.jpg`, `page0002.jpg`, ..., `page0010.jpg`).
+    - **Đệm số 0 tên file (`page0001.jpg`)**: Tự động đệm số 0 theo tổng số trang sách (`Math.max(4, String(totalDocPages).length)`), đảm bảo thứ tự từ điển (lexicographical order) luôn tuần tự chuẩn xác cho các script OCR (`page0001.jpg`, `page0002.jpg`, ..., `page0010.jpg`).
     - **Cơ chế Retry giữ chuẩn chất lượng & Minh bạch Trang giảm độ phân giải (`degradedPages`)**:
       - Khi trang gặp lỗi canvas/bộ nhớ, cơ chế thử lại chỉ hạ tỷ lệ scale, bảo toàn chất lượng nén ảnh JPEG tối thiểu 85% (`JPEG_QUALITY = 0.85`).
       - Tự động ghi nhận danh sách các trang phải giảm độ phân giải do giới hạn bộ nhớ/canvas (`degradedPages`) và hiển thị cảnh báo chi tiết trên giao diện hoàn tất kèm hướng dẫn tách lại độc lập dải trang nếu cần.
@@ -368,6 +374,23 @@ pnpm test:e2e
 
 ## Changelog
 
+### 2026-11-23 (Chuẩn hóa viết hoa nhãn File & Dọn dẹp Layout)
+
+- Thêm/sửa:
+  - Viết hoa đầu câu/tiêu đề/nhãn cho "File": `File xuất` (epub-packer), `File PDF dung lượng lớn`, `File tải về:` (pdf), `File EPUB đạt chuẩn kiểm định!` (EpubValidatorModal), `File EPUB không chứa file nào hợp lệ.` (epub-editor-state), `File "${filePath}"...` (structure-rules), `File OPF...` (epub-reader-parser), `File TXT` (txt-parser).
+  - Loại bỏ thẻ `div` rỗng mồ côi trong `src/routes/+layout.svelte` sau khi gỡ bỏ version badge.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | build production ✅
+- File chính bị ảnh hưởng:
+  - `src/routes/+layout.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/lib/epub-editor/components/EpubValidatorModal.svelte`
+  - `src/lib/epub-editor/epub-editor-state.svelte.ts`
+  - `src/lib/epub-editor/validator/structure-rules.ts`
+  - `src/lib/epub/parser/epub-reader-parser.ts`
+  - `src/lib/epub-packer/parser/txt-parser.ts`
+  - `README.md`
+
 ### 2026-11-23 (Sửa lỗi suggestCanonicalClasses Tailwind & Gỡ bỏ tính năng Markdown Fixer)
 
 - Thêm/sửa:
@@ -436,7 +459,7 @@ pnpm test:e2e
 ### 2026-11-23 (Giai đoạn 4: Tái Cấu Trúc Trang Tổng Quan Bàn Làm Việc)
 
 - Thêm/sửa: Triển khai Giai đoạn 4 theo `UI_DIRECTION.md`:
-  - `src/routes/+page.svelte`: Thiết kế lại trang Tổng quan với tiêu đề Bàn làm việc, huy hiệu "Tệp không rời khỏi máy bạn", 2 thẻ lớn bắt đầu nhanh với chips tính năng, sơ đồ 5 bước quy trình gợi ý cho sách quét, và danh sách thẻ ngang công cụ lẻ.
+  - `src/routes/+page.svelte`: Thiết kế lại trang Tổng quan với tiêu đề Bàn làm việc, huy hiệu "file không rời khỏi máy bạn", 2 thẻ lớn bắt đầu nhanh với chips tính năng, sơ đồ 5 bước quy trình gợi ý cho sách quét, và danh sách thẻ ngang công cụ lẻ.
   - Bảo toàn 100% các đường dẫn liên kết (`href`) và khả năng điều hướng.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
 - File chính bị ảnh hưởng:
@@ -485,9 +508,9 @@ pnpm test:e2e
 
 ### 2026-11-18 (Khử số chú thích trong TOC & Loại bỏ trang không tiêu đề khỏi Mục lục & Preview UI)
 
-- Thêm/sửa: Chuẩn hóa bóc tách mục lục TOC cho các tệp TXT đóng gói EPUB:
+- Thêm/sửa: Chuẩn hóa bóc tách mục lục TOC cho các file TXT đóng gói EPUB:
   - `txt-parser.ts`: Thêm hàm `stripFootnoteRefs`, loại bỏ khối thẻ chú thích footnote `<a class="noteref"...>...</a>`, `<sup>...</sup>` và `{n}` khỏi `titlePlain`. Ngăn chặn việc số chú thích bị dính liền vào tên chương khi dùng `@@ Tiêu đề{n}`. Đồng thời chỉ đánh dấu `hasCustomTitle = true` cho `@` khi không có cờ `isNoToc`.
-  - `nav-builder.ts`: Khử bỏ chú thích footnote trong `innerContent` trước khi tạo `plainText` cho `headings`. Đối với các chương không có heading (`headings.length === 0`), kiểm tra `isGeneratedTitle` (`hasCustomTitle === false` hoặc `title === 'Giới Thiệu'`) để không đưa vào TOC, triệt tiêu hoàn toàn việc chèn các trang không tên, trang `[new]`/`[new:center]` không heading hoặc tên tệp fallback (`MTL Gop`) vào mục lục. Bổ sung fallback an toàn đảm bảo luôn có ít nhất 1 mục TOC khi tài liệu hoàn toàn không có tiêu đề nào.
+  - `nav-builder.ts`: Khử bỏ chú thích footnote trong `innerContent` trước khi tạo `plainText` cho `headings`. Đối với các chương không có heading (`headings.length === 0`), kiểm tra `isGeneratedTitle` (`hasCustomTitle === false` hoặc `title === 'Giới Thiệu'`) để không đưa vào TOC, triệt tiêu hoàn toàn việc chèn các trang không tên, trang `[new]`/`[new:center]` không heading hoặc tên file fallback (`MTL Gop`) vào mục lục. Bổ sung fallback an toàn đảm bảo luôn có ít nhất 1 mục TOC khi tài liệu hoàn toàn không có tiêu đề nào.
   - `EpubSourceSection.svelte`: Đồng bộ danh sách hiển thị xem trước tab "Đầu mục tìm thấy" bằng `$derived.by tocChapters`, lọc bỏ các trang phụ/trang tiếp nối không tên để preview khớp chính xác 1:1 với mục lục trong sách EPUB hoàn thiện.
   - Bổ sung 4 unit tests mới bao phủ: khử số chú thích trong TOC, không đưa `[new]` không heading vào TOC, và quy trình thực tế với trang căn giữa `[new:center]` kèm trang nội dung tiếp nối không có heading.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | graphify ✅ (4877 nodes, 10536 edges, 283 communities)
@@ -499,9 +522,9 @@ pnpm test:e2e
   - `tests/epub-packer.test.ts`
   - `README.md`
 
-### 2026-11-06 (Dọn dẹp comment phân mục trong các tệp mẫu CSS template)
+### 2026-11-06 (Dọn dẹp comment phân mục trong các file mẫu CSS template)
 
-- Thêm/sửa: Tìm và xóa toàn bộ các dòng comment phân mục dạng `/* ===== ... ===== */` trong các tệp CSS template (`quotes.css`, `cover.css`, `ornaments.css`), giúp mã nguồn CSS thành phẩm trong sách EPUB tinh gọn, chuyên nghiệp và giảm thiểu dung lượng dư thừa.
+- Thêm/sửa: Tìm và xóa toàn bộ các dòng comment phân mục dạng `/* ===== ... ===== */` trong các file CSS template (`quotes.css`, `cover.css`, `ornaments.css`), giúp mã nguồn CSS thành phẩm trong sách EPUB tinh gọn, chuyên nghiệp và giảm thiểu dung lượng dư thừa.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | stylelint ✅ (0 warnings) | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
 - File chính bị ảnh hưởng:
   - `src/lib/epub-packer/templates/css-template/quotes.css`
@@ -511,7 +534,7 @@ pnpm test:e2e
 
 ### 2026-11-06 (Chuẩn hóa thứ tự Selector trong quotes.css sửa lỗi Stylelint no-descending-specificity)
 
-- Thêm/sửa: Sắp xếp lại cấu trúc tệp `quotes.css` theo nguyên tắc tăng dần độ đặc hiệu (specificity): đặt các bộ chọn đơn (`.poem`, `.poem p`, `.letter-box p`, căn lề `blockquote.* p`, tiêu đề `h1/h2 + p`, `:first-child`, `:last-child`) lên trước, sau đó mới đến các bộ chọn lồng ghép nhiều cấp (`.letter .poem`, `.letter-box .poem`, `.letter .poem:first-child`, `.letter-box .poem:first-child`, `.letter .poem:last-child`, `.letter-box .poem:last-child`, `.letter .poem p`, `.letter-box .poem p`). Khắc phục triệt để 20 cảnh báo Stylelint `no-descending-specificity` khi kiểm định tệp EPUB thành phẩm.
+- Thêm/sửa: Sắp xếp lại cấu trúc file `quotes.css` theo nguyên tắc tăng dần độ đặc hiệu (specificity): đặt các bộ chọn đơn (`.poem`, `.poem p`, `.letter-box p`, căn lề `blockquote.* p`, tiêu đề `h1/h2 + p`, `:first-child`, `:last-child`) lên trước, sau đó mới đến các bộ chọn lồng ghép nhiều cấp (`.letter .poem`, `.letter-box .poem`, `.letter .poem:first-child`, `.letter-box .poem:first-child`, `.letter .poem:last-child`, `.letter-box .poem:last-child`, `.letter .poem p`, `.letter-box .poem p`). Khắc phục triệt để 20 cảnh báo Stylelint `no-descending-specificity` khi kiểm định file EPUB thành phẩm.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (357/357 pass) | knip ✅ | stylelint ✅ (0 warnings) | graphify ✅ (4861 nodes, 10377 edges, 256 communities)
 - File chính bị ảnh hưởng:
   - `src/lib/epub-packer/templates/css-template/quotes.css`
@@ -589,7 +612,7 @@ pnpm test:e2e
 ### 2026-10-26 (PDF Splitter Disk Stream Zero-byte Fix, UI Button State Sync & Playwright E2E Coverage)
 
 - Thêm/sửa: Sửa triệt để lỗi nút "Đã lưu vào đĩa" tải ZIP 0-byte, dọn dẹp state và mở rộng E2E test suite:
-  - **Sửa lỗi tải ZIP rỗng (`pdf-splitter.ts` & `download.ts`)**: `processPdfToJpg` trả về `zipBlob: undefined` khi toàn bộ các phần đã lưu trực tiếp ra đĩa (loại bỏ fallback `?? new Blob()` tạo đối tượng 0-byte). Bổ sung điều kiện `blob.size === 0` trong `triggerDownload` để không bao giờ kích hoạt tải tệp rỗng.
+  - **Sửa lỗi tải ZIP rỗng (`pdf-splitter.ts` & `download.ts`)**: `processPdfToJpg` trả về `zipBlob: undefined` khi toàn bộ các phần đã lưu trực tiếp ra đĩa (loại bỏ fallback `?? new Blob()` tạo đối tượng 0-byte). Bổ sung điều kiện `blob.size === 0` trong `triggerDownload` để không bao giờ kích hoạt tải file rỗng.
   - **Vô hiệu hóa nút khi đã lưu đĩa (`+page.svelte` & `pdf-splitter-state.svelte.ts`)**: Thêm thuộc tính derived `isSavedToDisk` và `canDownloadZip`. Nút hiển thị `"Đã lưu vào đĩa"` và tự động vô hiệu hóa (`disabled`) khi đã lưu xong vào thư mục trên đĩa.
   - **Hướng dẫn cho trình duyệt chặn tải liên tiếp**: Thêm lưu ý gợi ý tải từng phần riêng biệt cho Safari và Chrome khi tài liệu gồm nhiều phần.
   - **Dọn dẹp code thừa**: Loại bỏ `selectedDpi` dư thừa khỏi `PdfSplitterState`, đồng bộ hằng số `DEFAULT_DPI` từ thư viện.
@@ -659,10 +682,10 @@ pnpm test:e2e
       - Trích xuất ảnh minh họa PDF (`handleIllustrationFiles`): Loại bỏ `file.arrayBuffer()`, truyền trực tiếp `file` hoặc `zip.files[name].async('blob')` cho `renderPdfPageToBlob`.
   - **Smart Split ZIP (Khắc phục JSZip gom hết ảnh trong RAM)**:
     - `src/lib/types/pdf-splitter.type.ts`: Bổ sung interface `PdfZipPart` và mở rộng `ProcessPdfResult` gồm `zipBlob: Blob` (tương thích ngược) và `zipParts: PdfZipPart[]`.
-    - `src/lib/pdf-splitter/pdf-splitter.ts`: Thiết lập giới hạn `MAX_PAGES_PER_ZIP_PART = 200`. Khi tệp có nhiều trang (>200 trang), tiến trình tự động đóng gói từng phần ZIP độc lập và tái tạo `currentZip = new JSZip()`, giải phóng toàn bộ ảnh JPEG của phần trước khỏi heap JavaScript, khống chế đỉnh RAM dưới 100MB cho tài liệu scan hàng trăm trang.
+    - `src/lib/pdf-splitter/pdf-splitter.ts`: Thiết lập giới hạn `MAX_PAGES_PER_ZIP_PART = 200`. Khi file có nhiều trang (>200 trang), tiến trình tự động đóng gói từng phần ZIP độc lập và tái tạo `currentZip = new JSZip()`, giải phóng toàn bộ ảnh JPEG của phần trước khỏi heap JavaScript, khống chế đỉnh RAM dưới 100MB cho tài liệu scan hàng trăm trang.
   - **Cảnh báo thiết bị di động & Giao diện tải đa phần (UI/UX)**:
     - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`: Bổ sung `pdfZipParts`, `pagesPerPart`, `isLargeFile`, `isMobile`, `hasMultipleParts`, cùng phương thức `downloadPart(index)` và `downloadAllParts()`.
-    - `src/routes/pdf/+page.svelte`: Bổ sung banner cảnh báo tệp PDF lớn / thiết bị di động theo phong cách Solarized Glassmorphism, và hiển thị giao diện tải từng phần ZIP hoặc tải toàn bộ liên tiếp khi sách được chia thành nhiều phần.
+    - `src/routes/pdf/+page.svelte`: Bổ sung banner cảnh báo file PDF lớn / thiết bị di động theo phong cách Solarized Glassmorphism, và hiển thị giao diện tải từng phần ZIP hoặc tải toàn bộ liên tiếp khi sách được chia thành nhiều phần.
   - **Kiểm thử**: Bổ sung unit tests cho multi-part ZIP splitting, `renderPdfPageToBlob` (zero-copy streaming & error handling), `PdfSplitterState` (download helpers & large-file detection) và trích xuất bìa PDF.
 - Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (338/338 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (4845 nodes, 10458 edges, 276 communities)
 - File chính bị ảnh hưởng:
@@ -687,7 +710,7 @@ pnpm test:e2e
   - **Mục 3 (Bảo vệ Canvas & Minh bạch lỗi)**:
     - `src/lib/pdf-splitter/pdf-splitter.ts`: Tích hợp hàm tính toán tỉ lệ thích ứng `getClampedViewport`, tự động giới hạn `MAX_CANVAS_DIMENSION = 4096px` và `MAX_CANVAS_PIXELS = 16M pixels`, ngăn chặn việc tràn bộ nhớ hoặc crash canvas trên Safari iOS / thiết bị di động khi gặp trang scan khổ lớn.
     - Giải phóng lập tức bộ nhớ texture/GPU bằng `canvas.width = 0; canvas.height = 0` sau khi hoàn tất render / crop / toBlob mỗi trang.
-    - Minh bạch lỗi: Ném ngoại lệ chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được context 2D, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến tệp ZIP thiếu trang.
+    - Minh bạch lỗi: Ném ngoại lệ chi tiết khi `canvas.toBlob` trả về `null` hoặc không khởi tạo được context 2D, chấm dứt hoàn toàn tình trạng âm thầm bỏ qua trang lỗi khiến file ZIP thiếu trang.
   - **Mục 4 (100% Ngoại tuyến / Offline hoàn toàn)**:
     - Vendor trực tiếp thư viện `pdf.min.js` (313 KB) và `pdf.worker.min.js` (1.1 MB) vào `static/vendor/pdfjs/`.
     - `src/app.html`: Chuyển sang tải script cục bộ `/vendor/pdfjs/pdf.min.js` kèm cơ chế fallback sang CDN khi cần.
@@ -758,7 +781,7 @@ pnpm test:e2e
 
 - Thêm/sửa: Bổ sung bộ chọn phông chữ cho tiêu đề phụ H2 Sub và tái cấu trúc giao diện cài đặt phông:
   - `src/lib/types/epub.type.ts`: Bổ sung thuộc tính `h2SubFont?: string;` vào `EpubFontsConfig`.
-  - `src/lib/epub-packer/state/epub-fonts-state.svelte.ts` & `src/lib/epub-packer/epub-state.svelte.ts`: Bổ sung `h2SubFont` vào state quản lý phông, danh sách phông cần tải và đóng gói vào tệp EPUB (`neededFonts`).
+  - `src/lib/epub-packer/state/epub-fonts-state.svelte.ts` & `src/lib/epub-packer/epub-state.svelte.ts`: Bổ sung `h2SubFont` vào state quản lý phông, danh sách phông cần tải và đóng gói vào file EPUB (`neededFonts`).
   - `src/lib/epub-packer/builders/asset-builder.ts`: Phân giải active fonts bao gồm `h2SubFont`.
   - `src/lib/epub-packer/builders/stylesheet-builder.ts`: Đăng ký `@font-face` khử trùng lặp cho `h2SubFont` và thêm quy tắc CSS `h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }` (khi có `<p>` xen giữa, H2 tiếp theo tự động quay về font H2 chính).
   - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`: Chuyển đổi giao diện thành lưới 2 cột: Cột 1 chứa 4 bộ chọn `FontSelect` dọc (Font cho Tiêu đề lớn H1, Font cho Tiêu đề nhỏ H2, Font cho H2 Sub, Font cho Chữ hoa đầu đoạn Dropcap); Cột 2 chứa khung Preview trực tiếp chương sách với H1, H2, H2 Sub và Dropcap.
@@ -911,7 +934,7 @@ pnpm test:e2e
 ### 2026-10-16 (CI/CD Pipeline Hardening & Knip Resolution)
 
 - Thêm/sửa: Chuẩn hóa toàn bộ quy trình xác thực CI/CD và giải quyết nợ kỹ thuật:
-  - Khắc phục lỗi GitHub Actions `Code formatting check (Prettier)`: chỉnh sửa `scripts/generate-fonts-meta.js` xuất định dạng `src/assets/fonts-metadata.json` bằng tab (`\t`) và ký tự ngắt dòng cuối tệp (`\n`) đúng chuẩn `.prettierrc`.
+  - Khắc phục lỗi GitHub Actions `Code formatting check (Prettier)`: chỉnh sửa `scripts/generate-fonts-meta.js` xuất định dạng `src/assets/fonts-metadata.json` bằng tab (`\t`) và ký tự ngắt dòng cuối file (`\n`) đúng chuẩn `.prettierrc`.
   - Xử lý triệt để lỗi `knip` (do `oxc-parser` cố gắng cấp phát 6 GiB ArrayBuffer trên Linux): cấu hình script `"knip": "KNIP_DISABLE_RAW_TRANSFER=1 knip"` trong `package.json`, knip quét thành công 100% không phát hiện file rác / dead code.
   - Cập nhật [AI_WORKFLOW.md](AI_WORKFLOW.md) mục 2: thiết lập Chu trình kiểm tra cục bộ và Pipeline Chốt Chặn CI/CD bắt buộc 100% pass trước khi commit/push (bao gồm `pnpm format:check`, `pnpm build`, `pnpm test:e2e`).
 - Kết quả pipeline: format:check ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (300/300 pass) | knip ✅ (0 issues) | build production ✅ | test e2e ✅ (12/12 pass) | graphify ✅ (887 nodes, 2024 edges)
@@ -1043,7 +1066,7 @@ pnpm test:e2e
 
 ### 2026-10-15 (letter-box wrapper)
 
-- Thêm/sửa: Bổ sung cặp thẻ hộp viền `[letter-box]` ... `[/letter-box]` (`<div class="letter-box">`) khi đóng gói EPUB từ tệp TXT và chuyển đổi ngược EPUB sang TXT. Định nghĩa CSS viền 3px, padding và margin chuẩn. Bảo vệ khối hộp khỏi thuật toán gộp đoạn vỡ dòng `mergeBrokenParagraphs`. Cập nhật validator kiểm tra lỗi mở thẻ và quy tắc cấp bậc bọc thẻ (yêu cầu `[new]` bọc ngoài `[letter-box]`). Cập nhật hướng dẫn cú pháp trên UI Modal.
+- Thêm/sửa: Bổ sung cặp thẻ hộp viền `[letter-box]` ... `[/letter-box]` (`<div class="letter-box">`) khi đóng gói EPUB từ file TXT và chuyển đổi ngược EPUB sang TXT. Định nghĩa CSS viền 3px, padding và margin chuẩn. Bảo vệ khối hộp khỏi thuật toán gộp đoạn vỡ dòng `mergeBrokenParagraphs`. Cập nhật validator kiểm tra lỗi mở thẻ và quy tắc cấp bậc bọc thẻ (yêu cầu `[new]` bọc ngoài `[letter-box]`). Cập nhật hướng dẫn cú pháp trên UI Modal.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (276/276 pass) | test e2e ✅ (12/12 pass) | graphify ✅ (859 nodes, 1979 edges)
 - File chính bị ảnh hưởng:
   - `src/lib/epub-packer/templates/css-template/quotes.css`
@@ -1058,7 +1081,7 @@ pnpm test:e2e
 
 ### 2026-10-15
 
-- Thêm/sửa: Sửa lỗi kiểm thử E2E Playwright trên CI/CD (`epub-download-inspection.spec.ts` & `epub-workflow.spec.ts`), khớp chính xác thông báo kết quả đọc file `Đã xử lý file .TXT thành công`. Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho tệp TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Mở rộng kiểm tra lỗi chú thích `{n}` thiếu ngoặc nhọn đóng và cảnh báo rút gọn rớt cặp định dạng inline (`*`, `/`, `_`), loại bỏ false flag cho các ký tự độc lập. Hỗ trợ khối chú thích footnote nhiều dòng (Multi-line Footnote Block) gom trọn vẹn vào thẻ `<aside>`. Tách riêng khu vực hiển thị cảnh báo trên UI.
+- Thêm/sửa: Sửa lỗi kiểm thử E2E Playwright trên CI/CD (`epub-download-inspection.spec.ts` & `epub-workflow.spec.ts`), khớp chính xác thông báo kết quả đọc file `Đã xử lý file .TXT thành công`. Bổ sung tính năng kiểm định cú pháp thẻ mở/đóng cho file TXT đóng gói EPUB (`txt-syntax-validator.ts`), báo chính xác số dòng vi phạm và dừng tiến trình khi phát hiện lỗi thẻ chưa đóng. Mở rộng kiểm tra lỗi chú thích `{n}` thiếu ngoặc nhọn đóng và cảnh báo rút gọn rớt cặp định dạng inline (`*`, `/`, `_`), loại bỏ false flag cho các ký tự độc lập. Hỗ trợ khối chú thích footnote nhiều dòng (Multi-line Footnote Block) gom trọn vẹn vào thẻ `<aside>`. Tách riêng khu vực hiển thị cảnh báo trên UI.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (272/272 pass) | test e2e ✅ (12/12 pass) | graphify ✅ (847 nodes, 1936 edges)
 - File chính bị ảnh hưởng:
   - `src/lib/types/epub.type.ts`
@@ -1072,7 +1095,7 @@ pnpm test:e2e
 
 ### 2026-09-27
 
-- Thêm/sửa: Nâng cấp Reverse Engine **EPUB to TXT** mở rộng hỗ trợ cho các tệp EPUB thông thường (nhận diện mọi `<h1>` &rarr; `@@`, `<h2>` &rarr; `@`, `<b>`/`<strong>` &rarr; `*bold*`, `<i>`/`<em>` &rarr; `/italic/`, tự động phát hiện mọi biến thể ngắt phân cảnh `***`, `* * *`, `• • •`, `---`, `*`, `hr` &rarr; `###`, `##`, `#`).
+- Thêm/sửa: Nâng cấp Reverse Engine **EPUB to TXT** mở rộng hỗ trợ cho các file EPUB thông thường (nhận diện mọi `<h1>` &rarr; `@@`, `<h2>` &rarr; `@`, `<b>`/`<strong>` &rarr; `*bold*`, `<i>`/`<em>` &rarr; `/italic/`, tự động phát hiện mọi biến thể ngắt phân cảnh `***`, `* * *`, `• • •`, `---`, `*`, `hr` &rarr; `###`, `##`, `#`).
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test ✅ (262/262 pass) | knip ✅ | graphify ✅
 - File chính bị ảnh hưởng:
   - `src/lib/epub-to-txt/epub-to-txt.ts`

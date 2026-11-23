@@ -19,12 +19,12 @@
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<h2 class="text-base font-semibold text-text-color mb-3">Tệp PDF nguồn</h2>
+	<h2 class="text-base font-semibold text-text-color mb-3">File PDF nguồn</h2>
 	<DropZone
 		accept="application/pdf"
 		onSelect={(f) => state.handleFile(f)}
-		title="Kéo thả hoặc click để chọn tệp PDF"
-		subtitle="Mỗi trang sẽ được xuất thành một tệp ảnh .JPG riêng biệt"
+		title="Kéo thả hoặc click để chọn file PDF"
+		subtitle="Mỗi trang sẽ được xuất thành một file ảnh .JPG riêng biệt"
 		selectedFile={state.pdfSelectedFile}
 	/>
 </div>
@@ -50,13 +50,13 @@
 			</svg>
 			<div class="text-sm">
 				<strong class="font-semibold block mb-0.5">
-					{state.isMobile ? 'Thiết bị di động / RAM giới hạn' : 'Tệp PDF dung lượng lớn'}
+					{state.isMobile ? 'Thiết bị di động / RAM giới hạn' : 'File PDF dung lượng lớn'}
 					{#if state.deviceMemoryGb}
 						· RAM: ~{state.deviceMemoryGb}GB
 					{/if}
 				</strong>
 				<span class="text-text-mute">
-					Dung lượng tệp: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
+					Dung lượng file: {(state.pdfSelectedFile.size / (1024 * 1024)).toFixed(1)}MB. Hệ thống tự
 					động đặt trần bộ nhớ cố định {Math.round(state.maxPartBytes / (1024 * 1024))}MB/phần ({DEFAULT_DPI}
 					DPI chuẩn OCR) để tránh sự cố tràn bộ nhớ RAM.
 				</span>
@@ -212,7 +212,7 @@
 		<div class="mb-5">
 			<Input bind:value={state.bookName} label="Tên bộ ảnh xuất (.zip)" placeholder="ten-sach" />
 			<p class="text-sm text-text-mute mt-2">
-				Tệp tải về: <span class="text-text-color font-mono">{state.zipNamePreview}</span>
+				File tải về: <span class="text-text-color font-mono">{state.zipNamePreview}</span>
 			</p>
 		</div>
 
@@ -269,7 +269,7 @@
 						? 'Đã lưu vào đĩa'
 						: state.hasMultipleParts
 							? 'Tải toàn bộ ZIP'
-							: 'Tải tệp .ZIP'}
+							: 'Tải file .ZIP'}
 				</Button>
 			</div>
 		</div>

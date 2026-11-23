@@ -459,15 +459,6 @@
 					Đổi
 				</span>
 			</button>
-
-			<div
-				class="items-center justify-between text-xs text-text-mute font-mono px-1 {isCollapsed
-					? 'md:hidden flex'
-					: 'flex'}"
-			>
-				<span>v1.2.0</span>
-				<span class="text-emerald-500 font-medium">Offline</span>
-			</div>
 		</div>
 	</aside>
 

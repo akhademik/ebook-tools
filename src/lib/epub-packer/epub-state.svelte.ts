@@ -52,7 +52,7 @@ export class EpubState {
 		);
 		if (this.source.epubChapters.length === 0) {
 			Logger.warn('[EpubState]', 'processEpub aborted: epubChapters is empty');
-			this.status = 'Không có chương nào để đóng gói. Vui lòng chọn tệp hợp lệ.';
+			this.status = 'Không có chương nào để đóng gói. Vui lòng chọn file hợp lệ.';
 			this.isError = true;
 			return;
 		}
@@ -113,7 +113,7 @@ export class EpubState {
 					this.status = `Đang tải phông chữ ${font.name}...`;
 					const res = await fetch(font.url);
 					if (!res.ok) {
-						throw new Error(`Không thể tải tệp phông chữ cho ${font.name}`);
+						throw new Error(`Không thể tải file phông chữ cho ${font.name}`);
 					}
 					const fontBlob = await res.blob();
 					fontBlobs[fontName] = fontBlob;
@@ -162,7 +162,7 @@ export class EpubState {
 			);
 			Logger.info('[EpubState]', 'buildEpubBlob returned blob successfully');
 			this.epubBlob = blob;
-			this.status = `Hoàn tất — ${this.source.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải tệp .EPUB' để tải về.`;
+			this.status = `Hoàn tất — ${this.source.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải file .EPUB' để tải về.`;
 		} catch (err: unknown) {
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubState]', 'ERROR in processEpub', err);

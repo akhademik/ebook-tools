@@ -172,7 +172,7 @@ Cột này chỉ **đọc** state để hiển thị; không ghi vào state. `Ep
 
 ### 5.1 Tổng quan (`src/routes/+page.svelte`)
 
-- Tiêu đề "Bàn làm việc" + dòng mô tả + huy hiệu "Tệp không rời khỏi máy bạn".
+- Tiêu đề "Bàn làm việc" + dòng mô tả + huy hiệu "file không rời khỏi máy bạn".
 - **Bắt đầu với**: 2 thẻ lớn (Đóng gói EPUB, EPUB Editor và Validator), mỗi thẻ có icon, mô tả 1–2 dòng, vài chip tính năng, và dòng "Mở công cụ →" (bản thân thẻ là liên kết, bỏ nút lặp).
 - **Quy trình gợi ý cho sách quét**: 5 ô nối bằng mũi tên: PDF → JPG, OCR (viền đứt, "thực hiện bên ngoài ứng dụng"), Markdown Fixer, Đóng gói EPUB, EPUB Editor. Ghi rõ đây chỉ là gợi ý.
 - **Công cụ lẻ**: danh sách thẻ ngang gọn (icon, tên, 1 dòng mô tả, mũi tên): EPUB → TXT, PDF → JPG, Markdown Fixer, TXT → PDF CJK (nhãn "Desktop").
@@ -181,7 +181,7 @@ Cột này chỉ **đọc** state để hiển thị; không ghi vào state. `Ep
 ### 5.2 EPUB Editor (`src/routes/epub-editor/+page.svelte` và `src/lib/epub-editor/components/*`)
 
 - Trang ngoài: áp dụng thẻ, nút, DropZone mới. Hàng nút (Thông tin / Kiểm định / Dọn rác / Mở trình chỉnh sửa) dùng kiểu nút phụ chuẩn, bỏ emoji, thay icon SVG.
-- Modal toàn màn hình: **chỉ đổi màu, bo góc, icon, chữ** theo token mới. Không đổi bố cục chia đôi, thanh kéo, sidebar tệp, đồng bộ cuộn, cơ chế xác nhận chưa lưu.
+- Modal toàn màn hình: **chỉ đổi màu, bo góc, icon, chữ** theo token mới. Không đổi bố cục chia đôi, thanh kéo, sidebar file, đồng bộ cuộn, cơ chế xác nhận chưa lưu.
 
 ### 5.3 PDF → JPG, Markdown Fixer, EPUB → TXT, TXT → PDF CJK
 

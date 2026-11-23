@@ -418,7 +418,7 @@ describe('image background removal and ornament optimization', () => {
 
 			await state.handleChapterOrnamentFile(hugeFile);
 			expect(state.chapterOrnamentError).toContain('Dung lượng');
-			expect(state.chapterOrnamentStatus).toBe('Lỗi tệp quá lớn');
+			expect(state.chapterOrnamentStatus).toBe('Lỗi file quá lớn');
 		});
 
 		it('should cancel ornament processing when AbortSignal is triggered', async () => {

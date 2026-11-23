@@ -14,16 +14,15 @@
 
 <PageHeader
 	title="EPUB → TXT"
-	description="Trích xuất toàn bộ nội dung sách EPUB thành văn bản thô (.TXT) sạch sẽ, loại bỏ dòng trống kép và chuẩn hóa khoảng trắng."
+	description="Trích xuất toàn bộ nội dung sách EPUB thành văn bản thô (.TXT)"
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
-	<h2 class="text-base font-semibold text-text-color mb-3">Tệp sách điện tử (.epub)</h2>
+	<h2 class="text-base font-semibold text-text-color mb-3">File sách (.epub)</h2>
 	<DropZone
 		accept=".epub,application/epub+zip"
 		onSelect={(file) => state.handleFile(file)}
-		title="Kéo thả hoặc click để chọn tệp .EPUB"
-		subtitle="Trích xuất toàn bộ chương sách theo đúng thứ tự đọc và lưu thành file .TXT"
+		title="Kéo thả hoặc click để chọn file .EPUB"
 		selectedFile={state.selectedFile}
 	/>
 
@@ -43,7 +42,7 @@
 
 			{#if state.result}
 				<div class="w-full md:w-auto md:flex-1 max-w-65 min-w-47.5 shrink-0">
-					<Button onclick={() => state.downloadTxt()} variant="primary">Tải tệp .TXT</Button>
+					<Button onclick={() => state.downloadTxt()} variant="primary">Tải file .TXT</Button>
 				</div>
 			{/if}
 		</div>

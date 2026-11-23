@@ -168,7 +168,7 @@ describe('pdf-splitter tests', () => {
 
 		it('should throw an error if no file is provided', async () => {
 			await expect(loadPdfPreview(null, 3, false)).rejects.toThrow(
-				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+				'Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.'
 			);
 		});
 
@@ -176,7 +176,7 @@ describe('pdf-splitter tests', () => {
 			const originalPdfjs = (globalThis as any).window.pdfjsLib;
 			(globalThis as any).window.pdfjsLib = undefined;
 			await expect(loadPdfPreview(fakeFile, 3, false)).rejects.toThrow(
-				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+				'Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.'
 			);
 			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
@@ -224,7 +224,7 @@ describe('pdf-splitter tests', () => {
 
 		it('should throw an error if no file is provided', async () => {
 			await expect(processPdfToJpg(null, false, 0, 0)).rejects.toThrow(
-				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+				'Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.'
 			);
 		});
 
@@ -232,7 +232,7 @@ describe('pdf-splitter tests', () => {
 			const originalPdfjs = (globalThis as any).window.pdfjsLib;
 			(globalThis as any).window.pdfjsLib = undefined;
 			await expect(processPdfToJpg(fakeFile, false, 0, 0)).rejects.toThrow(
-				'Chưa chọn tệp PDF hoặc thư viện PDF.js chưa tải.'
+				'Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.'
 			);
 			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});

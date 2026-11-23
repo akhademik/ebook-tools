@@ -17,7 +17,7 @@ export class EpubToTxtState {
 		if (!this.result?.text) return '';
 		// Show first 15000 chars for preview
 		return this.result.text.length > 15000
-			? this.result.text.slice(0, 15000) + '\n\n... [Văn bản còn tiếp trong tệp tải về] ...'
+			? this.result.text.slice(0, 15000) + '\n\n... [Văn bản còn tiếp trong file tải về] ...'
 			: this.result.text;
 	});
 
@@ -25,13 +25,13 @@ export class EpubToTxtState {
 		if (!file) return;
 
 		if (!/\.epub$/i.test(file.name) && file.type !== 'application/epub+zip') {
-			this.status = 'Vui lòng chọn một tệp .EPUB hợp lệ.';
+			this.status = 'Vui lòng chọn một file .EPUB hợp lệ.';
 			this.isError = true;
 			return;
 		}
 
 		if (file.size > MAX_EPUB_FILE_SIZE) {
-			this.status = 'Dung lượng tệp EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
+			this.status = 'Dung lượng file EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.isError = true;
 			return;
 		}
@@ -52,7 +52,7 @@ export class EpubToTxtState {
 		this.isError = false;
 		this.status = 'Đang tiến hành chuyển đổi...';
 		this.progressPercent = 5;
-		this.progressLabel = 'Bắt đầu đọc tệp EPUB...';
+		this.progressLabel = 'Bắt đầu đọc file EPUB...';
 
 		try {
 			const res = await extractEpubToTxt(this.selectedFile, {

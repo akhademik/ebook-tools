@@ -278,7 +278,7 @@
 					</span>
 				{/if}
 			{:else}
-				<span class="text-text-mute italic">Chưa chọn tệp</span>
+				<span class="text-text-mute italic">Chưa chọn file</span>
 			{/if}
 		</div>
 
@@ -307,7 +307,7 @@
 				class="flex-1 flex flex-col items-center justify-center text-text-mute p-8 text-center font-mono text-sm"
 			>
 				<span class="text-4xl mb-3">📝</span>
-				<p>Chọn một tệp từ danh sách bên trái để bắt đầu chỉnh sửa HTML hoặc CSS.</p>
+				<p>Chọn một file từ danh sách bên trái để bắt đầu chỉnh sửa HTML hoặc CSS.</p>
 			</div>
 		{/if}
 

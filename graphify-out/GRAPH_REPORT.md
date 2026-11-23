@@ -800,7 +800,7 @@ Nodes (7): Jbig2Stream, parseChunks(), processSegment(), processSegments(), read
 
 ### Community 189 - "4. Quy chuẩn Thành phần Giao diện (Components)"
 Cohesion: 0.29
-Nodes (7): 4.1 Nút bấm (`Button.svelte`), 4.2 Ô nhập liệu (`Input.svelte`), 4.3 Khu vực Kéo thả Tệp (`DropZone.svelte`), 4.4 Bộ chọn Phông chữ (`FontSelect.svelte`), 4.5 Thẻ Card Hiện Đại (`.modern-card`), 4.6 Icon, 4. Quy chuẩn Thành phần Giao diện (Components)
+Nodes (7): 4.1 Nút bấm (`Button.svelte`), 4.2 Ô nhập liệu (`Input.svelte`), 4.3 Khu vực Kéo thả file (`DropZone.svelte`), 4.4 Bộ chọn Phông chữ (`FontSelect.svelte`), 4.5 Thẻ Card Hiện Đại (`.modern-card`), 4.6 Icon, 4. Quy chuẩn Thành phần Giao diện (Components)
 
 ### Community 218 - "2. Định hướng thiết kế"
 Cohesion: 0.50

@@ -14,8 +14,8 @@ export const StructureRule: ValidationRule = {
 			ctx.report({
 				severity: 'error',
 				category: 'structure',
-				message: 'Thiếu tệp mimetype ở thư mục gốc của EPUB.',
-				suggestion: 'Tạo tệp mimetype với nội dung: application/epub+zip'
+				message: 'Thiếu file mimetype ở thư mục gốc của EPUB.',
+				suggestion: 'Tạo file mimetype với nội dung: application/epub+zip'
 			});
 		} else {
 			const mimeText = (await mimetypeFile.async('text')).trim();
@@ -34,8 +34,8 @@ export const StructureRule: ValidationRule = {
 			ctx.report({
 				severity: 'error',
 				category: 'structure',
-				message: 'Thiếu tệp META-INF/container.xml.',
-				suggestion: 'Thêm tệp container.xml khai báo đường dẫn tới file OPF.'
+				message: 'Thiếu file META-INF/container.xml.',
+				suggestion: 'Thêm file container.xml khai báo đường dẫn tới file OPF.'
 			});
 		} else {
 			const containerText = await containerFile.async('text');
@@ -84,7 +84,7 @@ export const StructureRule: ValidationRule = {
 			ctx.report({
 				severity: 'error',
 				category: 'structure',
-				message: 'Không tìm thấy tệp OPF Package Document trong EPUB.'
+				message: 'Không tìm thấy file OPF Package Document trong EPUB.'
 			});
 		}
 	}
@@ -210,7 +210,7 @@ export const OpfPackageRule: ValidationRule = {
 							severity: 'error',
 							category: 'manifest',
 							file: ctx.opfPath,
-							message: `Mục manifest id="${id}" trỏ tới tệp không tồn tại: "${resolved}".`
+							message: `Mục manifest id="${id}" trỏ tới file không tồn tại: "${resolved}".`
 						});
 					}
 				}
@@ -262,7 +262,7 @@ export const OpfPackageRule: ValidationRule = {
 							severity: 'error',
 							category: 'manifest',
 							file: ctx.opfPath,
-							message: `Mục manifest id="${id}" trỏ tới tệp không tồn tại: "${resolved}".`
+							message: `Mục manifest id="${id}" trỏ tới file không tồn tại: "${resolved}".`
 						});
 					}
 				}
@@ -286,7 +286,7 @@ export const OpfPackageRule: ValidationRule = {
 					severity: 'warning',
 					category: 'manifest',
 					file: filePath,
-					message: `Tệp "${filePath}" có trong EPUB nhưng không được khai báo trong <manifest>.`
+					message: `File "${filePath}" có trong EPUB nhưng không được khai báo trong <manifest>.`
 				});
 			}
 		}

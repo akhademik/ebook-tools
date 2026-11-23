@@ -25,16 +25,16 @@
 
 <PageHeader
 	title="EPUB Editor"
-	description="Xem và tinh chỉnh trực tiếp HTML / CSS bên trong tệp EPUB bất kỳ với Live Preview."
+	description="Xem và tinh chỉnh trực tiếp HTML / CSS bên trong file EPUB bất kỳ với Live Preview."
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
-	<h2 class="text-base font-semibold text-text-color mb-3">Tệp sách điện tử (.epub)</h2>
+	<h2 class="text-base font-semibold text-text-color mb-3">File sách điện tử (.epub)</h2>
 
 	<DropZone
 		accept=".epub,application/epub+zip"
 		onSelect={handleFileSelected}
-		title="Kéo thả hoặc click để chọn tệp .EPUB"
+		title="Kéo thả hoặc click để chọn file .EPUB"
 		subtitle="Hỗ trợ mọi file EPUB hợp lệ để xem và sửa HTML/CSS"
 		{selectedFile}
 	/>
