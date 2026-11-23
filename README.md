@@ -144,7 +144,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 12:30
+- Cập nhật lần cuối: 2026-11-23 12:35
 - Đã hoàn thành:
   - **Chuẩn hóa toàn bộ các lớp CSS Tailwind theo gợi ý của `suggestCanonicalClasses`**:
     - Thay thế toàn bộ arbitrary values sang utility tokens chuẩn của Tailwind CSS: `h-[100dvh]` -> `h-dvh`, `w-[270px]` -> `w-67.5`, `w-[72px]` -> `w-18`, `w-[232px]` -> `w-58`, `h-[56px]` -> `h-14`, `max-w-[220px]` -> `max-w-55`, `max-w-[110px]` -> `max-w-27.5`, `min-w-[200px]` -> `min-w-50`, `min-w-[160px]` -> `min-w-40`, `min-w-[170px]` -> `min-w-42.5`, `min-h-[76px]` -> `min-h-19`, `break-words` -> `wrap-break-word`, `text-[14px]` -> `text-sm`, `sm:text-[30px]` -> `sm:text-3xl`.
@@ -371,7 +371,7 @@ pnpm test:e2e
 ### 2026-11-23 (Sửa lỗi suggestCanonicalClasses Tailwind & Gỡ bỏ tính năng Markdown Fixer)
 
 - Thêm/sửa:
-  - Thay thế toàn bộ các lớp arbitrary brackets không chuẩn của Tailwind bằng canonical utility tokens theo chẩn đoán của `suggestCanonicalClasses`: `h-dvh`, `w-67.5`, `w-18`, `w-58`, `h-14`, `max-w-55`, `max-w-27.5`, `min-w-50`, `min-w-40`, `min-w-42.5`, `min-h-19`, `wrap-break-word`, `text-sm`, `sm:text-3xl`.
+  - Thay thế toàn bộ các lớp arbitrary brackets không chuẩn của Tailwind bằng canonical utility tokens theo chẩn đoán của `suggestCanonicalClasses`: `h-dvh`, `w-67.5`, `w-18`, `w-58`, `h-14`, `max-w-55`, `max-w-27.5`, `min-w-50`, `min-w-40`, `min-w-42.5`, `min-h-19`, `wrap-break-word`, `text-sm`, `sm:text-3xl`, đồng thời loại bỏ xung đột lớp `h-screen h-dvh` tại `+layout.svelte`.
   - Gỡ bỏ hoàn toàn tính năng Markdown Fixer: xóa `src/routes/md/`, `src/lib/markdown-fixer/`, `src/lib/types/markdown-fixer.type.ts`, `tests/markdown-fixer.test.ts`, loại bỏ các mục liên quan trong sidebar, trang tổng quan và e2e specs.
   - Tối ưu sơ đồ quy trình gợi ý tại trang chủ thành 4 bước trực quan.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | e2e ✅ (14/14 browser workflows pass) | graphify ✅

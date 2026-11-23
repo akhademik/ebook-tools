@@ -80,7 +80,7 @@
 	}
 </script>
 
-<div class="flex h-screen h-dvh w-screen bg-brand-bg md:flex-row flex-col overflow-hidden relative">
+<div class="flex h-dvh w-screen bg-brand-bg md:flex-row flex-col overflow-hidden relative">
 	<!-- Backdrop for mobile drawer -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
