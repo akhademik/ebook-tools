@@ -88,11 +88,19 @@
 				</div>
 				<button
 					type="button"
-					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
+					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center cursor-pointer transition-colors shrink-0"
 					onclick={handleClose}
 					aria-label="Đóng modal"
 				>
-					✕
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
 				</button>
 			</div>
 
@@ -100,8 +108,7 @@
 			<div
 				class="px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 border-b border-border-color bg-panel/50 flex items-center gap-2 flex-wrap"
 			>
-				<span
-					class="text-xs text-text-mute uppercase font-semibold mr-1 w-full sm:w-auto mb-1 sm:mb-0"
+				<span class="text-xs text-text-mute font-semibold mr-1 w-full sm:w-auto mb-1 sm:mb-0"
 					>Hồ sơ kiểm định:</span
 				>
 				<button
@@ -126,13 +133,26 @@
 				</button>
 				<button
 					type="button"
-					class="px-3 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-colors {selectedProfile ===
+					class="px-3 py-1.5 rounded-lg text-xs font-sans font-medium cursor-pointer transition-colors inline-flex items-center gap-1.5 {selectedProfile ===
 					'generic'
 						? 'bg-accent-soft text-accent-color font-bold border border-accent-color/30'
 						: 'bg-sidebar-bg text-text-mute hover:text-text-color border border-border-color'}"
 					onclick={() => handleProfileChange('generic')}
 				>
-					🌐 Generic EPUB
+					<svg
+						class="w-3.5 h-3.5 shrink-0"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="12" cy="12" r="10" />
+						<line x1="2" x2="22" y1="12" y2="12" />
+						<path
+							d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+						/>
+					</svg>
+					<span>Generic EPUB</span>
 				</button>
 			</div>
 
@@ -143,7 +163,9 @@
 						<div
 							class="w-8 h-8 border-2 border-accent-color border-t-transparent rounded-full animate-spin mb-3"
 						></div>
-						<p class="font-mono text-sm text-text-color">Đang kiểm định toàn diện file EPUB...</p>
+						<p class="text-sm text-text-color font-sans font-medium">
+							Đang kiểm định toàn diện file EPUB...
+						</p>
 					</div>
 				{:else if validationResult}
 					{@const res = validationResult}
@@ -155,11 +177,47 @@
 							: 'bg-red-500/10 border-red-500/30'}"
 					>
 						<div class="flex items-center justify-between mb-3">
-							<div class="flex items-center gap-2">
-								<span class="text-xl">{res.passed ? '✅' : '⚠️'}</span>
+							<div class="flex items-center gap-2.5">
+								{#if res.passed}
+									<span
+										class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0"
+									>
+										<svg
+											class="w-4 h-4"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2.5"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="m4.5 12.75 6 6 9-13.5"
+											/>
+										</svg>
+									</span>
+								{:else}
+									<span
+										class="w-7 h-7 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0"
+									>
+										<svg
+											class="w-4 h-4"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+											/>
+										</svg>
+									</span>
+								{/if}
 								<div>
 									<h4
-										class="font-mono text-sm font-bold {res.passed
+										class="text-sm font-bold font-sans {res.passed
 											? 'text-emerald-400'
 											: 'text-red-400'}"
 									>
@@ -167,7 +225,7 @@
 											? 'File EPUB đạt chuẩn kiểm định!'
 											: `Phát hiện ${res.errorCount} lỗi cần khắc phục`}
 									</h4>
-									<p class="text-xs text-text-mute font-mono">
+									<p class="text-xs text-text-mute font-sans">
 										{res.warningCount} cảnh báo • {res.infoCount} lưu ý
 									</p>
 								</div>
@@ -175,16 +233,29 @@
 
 							<button
 								type="button"
-								class="px-3 py-1 bg-panel border border-border-color text-text-color hover:bg-hover-bg rounded-lg font-mono text-xs cursor-pointer"
+								class="px-3 py-1.5 bg-panel border border-border-color text-text-color hover:bg-hover-bg rounded-lg text-xs font-sans font-medium cursor-pointer inline-flex items-center gap-1.5 transition-colors"
 								onclick={runValidation}
 							>
-								🔄 Quét lại
+								<svg
+									class="w-3.5 h-3.5 text-accent-color shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+									/>
+								</svg>
+								<span>Quét lại</span>
 							</button>
 						</div>
 
 						<!-- Categories status badges -->
 						<div
-							class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-border-color/40 text-xs font-mono"
+							class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-border-color/40 text-xs font-sans"
 						>
 							<div
 								class="flex items-center gap-1.5 {res.summary.structure === 'pass'
@@ -226,14 +297,14 @@
 									? 'text-emerald-400'
 									: 'text-amber-400'}"
 							>
-								<span>{res.summary.fonts === 'pass' ? '✓' : '⚠'}</span> Phông chữ
+								<span>{res.summary.fonts === 'pass' ? '✓' : '!'}</span> Phông chữ
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.cover === 'pass'
 									? 'text-emerald-400'
 									: 'text-amber-400'}"
 							>
-								<span>{res.summary.cover === 'pass' ? '✓' : '⚠'}</span> Ảnh bìa Cover
+								<span>{res.summary.cover === 'pass' ? '✓' : '!'}</span> Ảnh bìa Cover
 							</div>
 						</div>
 					</div>
@@ -241,30 +312,30 @@
 					<!-- Issues Details List -->
 					{#if res.issues.length > 0}
 						<div class="space-y-2">
-							<span class="font-mono text-xs text-text-mute uppercase block font-semibold">
+							<span class="text-xs text-text-mute uppercase block font-semibold font-sans">
 								Chi tiết vấn đề ({res.issues.length}):
 							</span>
 
 							<div class="space-y-2 max-h-72 overflow-y-auto pr-1">
 								{#each res.issues as issue, idx (issue.category + '-' + (issue.file || '') + '-' + idx)}
 									<div
-										class="p-3 rounded-xl border text-xs font-mono {issue.severity === 'error'
+										class="p-3 rounded-xl border text-xs {issue.severity === 'error'
 											? 'bg-red-500/10 border-red-500/30'
 											: issue.severity === 'warning'
 												? 'bg-amber-500/10 border-amber-500/30'
 												: 'bg-blue-500/10 border-blue-500/30'}"
 									>
 										<div class="flex items-start gap-2">
-											<span class="shrink-0"
-												>{issue.severity === 'error'
-													? '🔴'
-													: issue.severity === 'warning'
-														? '🟡'
-														: 'ℹ️'}</span
-											>
+											{#if issue.severity === 'error'}
+												<span class="w-2 h-2 rounded-full bg-red-400 mt-1 shrink-0"></span>
+											{:else if issue.severity === 'warning'}
+												<span class="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0"></span>
+											{:else}
+												<span class="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0"></span>
+											{/if}
 											<div class="space-y-1 min-w-0">
 												<div
-													class="font-semibold {issue.severity === 'error'
+													class="font-semibold font-sans {issue.severity === 'error'
 														? 'text-red-400'
 														: issue.severity === 'warning'
 															? 'text-amber-400'
@@ -274,12 +345,27 @@
 												</div>
 												{#if issue.file}
 													<div class="text-[11px] text-text-mute">
-														file: <span class="text-text-color">{issue.file}</span>
+														file: <span class="text-text-color font-mono">{issue.file}</span>
 													</div>
 												{/if}
 												{#if issue.suggestion}
-													<div class="text-[11px] text-emerald-400/90">
-														💡 Gợi ý: {issue.suggestion}
+													<div
+														class="text-[11px] text-emerald-400/90 flex items-start gap-1 font-sans"
+													>
+														<svg
+															class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"
+															viewBox="0 0 24 24"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="2"
+														>
+															<path
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																d="M12 18v-5.25m0 0a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 1 4 0v2.091c1.554.743 2.766 2.08 3.25 3.734m-3.25-.575v.001ZM12 18a2.25 2.25 0 0 0 2.25-2.25H9.75A2.25 2.25 0 0 0 12 18Z"
+															/>
+														</svg>
+														<span>Gợi ý: {issue.suggestion}</span>
 													</div>
 												{/if}
 											</div>

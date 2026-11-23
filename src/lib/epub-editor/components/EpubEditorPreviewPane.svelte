@@ -124,14 +124,37 @@
 	<div
 		class="h-10 px-3 md:px-4 border-b border-border-color flex items-center justify-between bg-panel-2 shrink-0 select-none gap-2"
 	>
-		<div class="flex items-center gap-2 min-w-0 font-mono text-xs">
-			<span class="text-emerald-500 font-semibold shrink-0">👁️ Preview:</span>
+		<div class="flex items-center gap-2 min-w-0 text-xs">
+			<span class="text-emerald-500 font-semibold shrink-0 flex items-center gap-1 font-sans">
+				<svg
+					class="w-3.5 h-3.5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+					/>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+					/>
+				</svg>
+				<span>Preview:</span>
+			</span>
 			{#if editorState.previewTarget}
-				<span class="font-bold truncate text-text-color" title={editorState.previewTarget}>
+				<span
+					class="font-bold truncate text-text-color font-mono"
+					title={editorState.previewTarget}
+				>
 					{editorState.previewTarget}
 				</span>
 			{:else}
-				<span class="text-text-mute italic">Chưa chọn trang để xem trước</span>
+				<span class="text-text-mute italic font-sans">Chưa chọn trang để xem trước</span>
 			{/if}
 		</div>
 	</div>
@@ -141,8 +164,21 @@
 		class="flex-1 bg-panel flex items-center justify-center overflow-auto px-3 py-3 sm:px-6 sm:py-4"
 	>
 		{#if !editorState.previewTarget}
-			<div class="text-center text-text-mute font-mono text-xs p-6">
-				<span class="text-3xl block mb-2">📖</span>
+			<div class="text-center text-text-mute font-sans text-xs p-6">
+				<div
+					class="w-12 h-12 rounded-xl bg-panel-2 border border-border-color flex items-center justify-center text-text-mute mx-auto mb-3"
+				>
+					<svg
+						class="w-6 h-6"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+					>
+						<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+						<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+					</svg>
+				</div>
 				Double-click vào một trang (.xhtml) ở danh sách bên trái để xem trước.
 			</div>
 		{:else}

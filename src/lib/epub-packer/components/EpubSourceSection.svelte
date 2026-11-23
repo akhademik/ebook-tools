@@ -52,12 +52,10 @@
 	<div
 		class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex justify-between items-center gap-4"
 	>
-		<span class="font-mono text-xs font-semibold text-text-color uppercase tracking-wider"
-			>Bảng quy ước</span
-		>
+		<span class="text-sm font-semibold text-text-color">Bảng quy ước</span>
 		<button
 			type="button"
-			class="bg-brand-bg border border-border-color hover:border-text-color text-text-color font-mono text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
+			class="bg-brand-bg border border-border-color hover:border-text-color text-text-color text-xs font-semibold py-1.5 px-3 rounded-lg active:scale-[0.98] transition-all cursor-pointer"
 			onclick={() => onOpenSyntaxModal()}
 		>
 			Xem
@@ -117,21 +115,21 @@
 				class="flex items-center gap-3 mt-4 flex-wrap animate-fade-in bg-panel-2 p-4 rounded-xl border border-border-color"
 			>
 				<div class="flex items-center gap-3 w-full flex-wrap">
-					<span class="font-mono text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
+					<span class="text-sm text-text-mute">Giới hạn Heuristic từ trang</span>
 					<input
 						type="number"
 						bind:value={epubState.source.heuristicStart}
 						oninput={() => epubState.source.applyGrouping()}
-						class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
+						class="bg-panel-2 border border-field-border text-text-color font-mono text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
 						min="1"
 						placeholder="Đầu"
 					/>
-					<span class="font-mono text-sm text-text-mute">đến trang</span>
+					<span class="text-sm text-text-mute">đến trang</span>
 					<input
 						type="number"
 						bind:value={epubState.source.heuristicEnd}
 						oninput={() => epubState.source.applyGrouping()}
-						class="bg-brand-bg border border-border-color text-text-color font-mono text-sm py-1.5 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
+						class="bg-panel-2 border border-field-border text-text-color font-mono text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
 						min="1"
 						placeholder="Cuối"
 					/>
@@ -139,7 +137,7 @@
 				<div
 					class="flex items-center gap-3 w-full mt-4 flex-wrap border-t border-border-color pt-4"
 				>
-					<span class="font-mono text-sm text-text-mute">Ngưỡng điểm (Threshold):</span>
+					<span class="text-sm text-text-mute">Ngưỡng điểm (Threshold):</span>
 					<input
 						type="range"
 						min="1"
@@ -162,19 +160,19 @@
 
 		<div class="mt-5 bg-panel-2 p-4 rounded-xl border border-border-color flex flex-col gap-3">
 			<div>
-				<span class="font-mono text-xs text-text-mute uppercase mb-1.5 block"
+				<span class="text-xs font-semibold text-text-mute mb-1.5 block"
 					>Lọc Header/Footer (Tùy chọn)</span
 				>
 				<input
 					type="text"
 					bind:value={epubState.source.cleanKeywords}
 					oninput={() => epubState.source.applyGrouping()}
-					class="w-full bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2.5 px-3.5 rounded-xl outline-none focus:border-accent-color"
+					class="w-full bg-panel-2 border border-field-border text-text-color text-sm h-11 px-3.5 rounded-xl outline-none focus:border-accent-color"
 					placeholder="Tên sách, Nhà xuất bản"
 				/>
 			</div>
 			<div class="flex items-center gap-3 mt-1.5 flex-wrap border-t border-border-color pt-3">
-				<span class="font-mono text-sm text-text-mute">Số dòng quét đầu/cuối trang:</span>
+				<span class="text-sm text-text-mute">Số dòng quét đầu/cuối trang:</span>
 				<input
 					type="range"
 					min="1"
@@ -197,7 +195,7 @@
 
 	{#if epubState.source.epubChapters.length > 0}
 		<!-- Tab Navigation -->
-		<div class="flex border-b border-border-color mt-6 font-mono text-xs">
+		<div class="flex border-b border-border-color mt-6 text-xs font-medium">
 			<button
 				type="button"
 				class="py-2.5 px-4 font-semibold transition-colors border-b-2 cursor-pointer {epubState
@@ -228,7 +226,7 @@
 		<!-- Tab Contents -->
 		{#if epubState.source.activeTab === 'toc'}
 			<div
-				class="mt-5 border border-border-color rounded-xl max-h-75 overflow-y-auto bg-brand-bg p-4 font-mono text-sm divide-y divide-border-color animate-fade-in"
+				class="mt-5 border border-border-color rounded-xl max-h-75 overflow-y-auto bg-brand-bg p-4 text-sm divide-y divide-border-color animate-fade-in"
 			>
 				{#each tocChapters as chap, idx (chap.fileName)}
 					<div class="py-3 first:pt-0 last:pb-0 flex flex-col gap-1.5">
@@ -242,7 +240,7 @@
 									{chap.title}
 								{/if}
 							</span>
-							<span class="text-text-mute text-xs shrink-0">{chap.fileName}.xhtml</span>
+							<span class="text-text-mute text-xs shrink-0 font-mono">{chap.fileName}.xhtml</span>
 						</div>
 						<div class="text-[11px] text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
 							<span class="text-accent-color font-semibold">Nguồn:</span>
@@ -258,7 +256,7 @@
 				class="mt-5 flex flex-col gap-4 animate-fade-in max-h-100 overflow-y-auto bg-brand-bg p-4 rounded-xl border border-border-color"
 			>
 				{#if epubState.source.cleanedLinesReport.length === 0}
-					<p class="text-sm text-text-mute font-mono text-center py-6">
+					<p class="text-sm text-text-mute text-center py-6">
 						Không phát hiện Header/Footer nào khớp bộ lọc.
 					</p>
 				{:else}
@@ -315,20 +313,32 @@
 	{#if epubState.source.parseStatus}
 		{#if epubState.source.parseIsError}
 			<div
-				class="font-mono text-xs mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-start gap-2.5 animate-fade-in"
+				class="text-xs mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-start gap-2.5 animate-fade-in"
 			>
-				<span class="text-sm shrink-0 leading-none">⚠️</span>
+				<svg
+					class="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+					/>
+				</svg>
 				<div class="flex-1 wrap-break-word whitespace-pre-line leading-relaxed font-medium">
 					{epubState.source.parseStatus}
 				</div>
 			</div>
 		{:else}
-			<div class="font-mono text-sm mt-3 flex items-center justify-between gap-2 text-text-mute">
+			<div class="text-sm mt-3 flex items-center justify-between gap-2 text-text-mute">
 				<span>{epubState.source.parseStatus}</span>
 				{#if epubState.source.parseStatus.includes('Đang') || epubState.source.parseStatus.includes('xếp hàng')}
 					<button
 						type="button"
-						class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
+						class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
 						onclick={() => epubState.source.cancelParseTask()}
 					>
 						Hủy
@@ -340,15 +350,27 @@
 
 	{#if epubState.source.parseWarnings.length > 0}
 		<div
-			class="font-mono text-xs mt-3.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex flex-col gap-1.5 animate-fade-in"
+			class="text-xs mt-3.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex flex-col gap-1.5 animate-fade-in"
 		>
 			<div class="flex items-center gap-2 font-semibold">
-				<span class="text-sm leading-none">⚠️</span>
+				<svg
+					class="w-4 h-4 text-amber-500 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+					/>
+				</svg>
 				<span>Cảnh báo định dạng ({epubState.source.parseWarnings.length}):</span>
 			</div>
 			<div class="pl-6 flex flex-col gap-1 max-h-36 overflow-y-auto">
 				{#each epubState.source.parseWarnings as warn, wIdx (wIdx)}
-					<div class="leading-relaxed">{warn}</div>
+					<div class="leading-relaxed font-mono text-[11px]">{warn}</div>
 				{/each}
 			</div>
 		</div>

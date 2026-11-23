@@ -5,6 +5,8 @@
 <PageHeader
 	title="TXT → PDF CJK"
 	description="Giới thiệu và tải xuống công cụ chuyển đổi tài liệu chữ Hán chuyên dụng cho Desktop."
+	breadcrumb="Mở rộng"
+	badge="Ứng dụng Desktop"
 />
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.1s;">
@@ -322,7 +324,20 @@
 		<!-- Instructions Card -->
 		<div class="modern-card rounded-2xl p-7 flex flex-col gap-4">
 			<h4 class="font-bold text-text-color flex items-center gap-2">
-				<span>💡</span> Hướng dẫn nhanh
+				<svg
+					class="w-4 h-4 text-accent-color shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M12 18v-5.25m0 0a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 1 4 0v2.091c1.554.743 2.766 2.08 3.25 3.734m-3.25-.575v.001ZM12 18a2.25 2.25 0 0 0 2.25-2.25H9.75A2.25 2.25 0 0 0 12 18Z"
+					/>
+				</svg>
+				<span>Hướng dẫn nhanh</span>
 			</h4>
 			<ol class="list-decimal pl-5 text-sm text-text-mute flex flex-col gap-2">
 				<li>Tải file <strong>txt-to-pdf.zip</strong> về máy tính.</li>

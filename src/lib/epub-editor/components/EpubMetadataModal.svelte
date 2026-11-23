@@ -122,11 +122,19 @@
 				</div>
 				<button
 					type="button"
-					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors"
+					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center cursor-pointer transition-colors"
 					onclick={handleClose}
 					aria-label="Đóng modal"
 				>
-					✕
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
 				</button>
 			</div>
 
@@ -181,11 +189,11 @@
 
 				<div>
 					<!-- svelte-ignore a11y_label_has_associated_control -->
-					<label class="block font-mono text-xs text-text-mute mb-1.5 font-semibold">
+					<label class="block font-sans text-xs text-text-mute mb-1.5 font-semibold">
 						Mô tả / Tóm tắt nội dung (Description)
 					</label>
 					<textarea
-						class="w-full bg-sidebar-bg border border-border-color rounded-xl p-3 text-xs font-mono text-text-color focus:border-accent-color focus:outline-none resize-y min-h-17.5"
+						class="w-full bg-panel-2 border border-field-border rounded-xl p-3 text-xs font-sans text-text-color focus:border-accent-color focus:outline-none resize-y min-h-17.5"
 						placeholder="Tóm tắt ngắn gọn nội dung cuốn sách..."
 						bind:value={formMeta.description}></textarea>
 				</div>
@@ -195,8 +203,21 @@
 					class="bg-sidebar-bg p-4 rounded-xl border border-border-color flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
 				>
 					<div>
-						<div class="font-mono text-xs font-bold text-text-color flex items-center gap-1.5">
-							📑 Tự động Tái tạo Mục lục (Auto Rebuild TOC)
+						<div class="font-sans text-xs font-bold text-text-color flex items-center gap-1.5">
+							<svg
+								class="w-4 h-4 text-accent-color shrink-0"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"
+								/>
+							</svg>
+							<span>Tự động Tái tạo Mục lục (Auto Rebuild TOC)</span>
 						</div>
 						<p class="text-[11px] text-text-mute mt-0.5">
 							Quét lại toàn bộ các thẻ &lt;h1&gt;, &lt;h2&gt; trong các chương để đồng bộ lại mục
@@ -205,7 +226,7 @@
 					</div>
 					<button
 						type="button"
-						class="px-3.5 py-2 bg-panel hover:bg-hover-bg border border-border-color text-accent-color font-mono text-xs font-semibold rounded-xl cursor-pointer transition-colors shrink-0 disabled:opacity-50"
+						class="px-3.5 py-2 bg-panel hover:bg-hover-bg border border-border-color text-accent-color font-sans text-xs font-semibold rounded-xl cursor-pointer transition-colors shrink-0 disabled:opacity-50"
 						onclick={handleRebuildToc}
 						disabled={isRebuildingToc}
 					>

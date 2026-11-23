@@ -17,9 +17,7 @@
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 		<!-- Chapter Ornament (H1) -->
 		<div class="flex flex-col gap-2">
-			<span class="font-mono text-xs text-text-mute uppercase font-semibold"
-				>Trang trí chương lớn</span
-			>
+			<span class="text-xs text-text-mute font-semibold">Trang trí chương lớn</span>
 			<DropZone
 				accept=".png,.jpg,.jpeg,.webp"
 				onSelect={(f) => epubState.images.handleChapterOrnamentFile(f)}
@@ -30,7 +28,7 @@
 
 			{#if epubState.images.chapterOrnamentStatus}
 				<div
-					class="flex items-center justify-between gap-2 text-xs font-mono {epubState.images
+					class="flex items-center justify-between gap-2 text-xs {epubState.images
 						.chapterOrnamentError
 						? 'text-red-400'
 						: 'text-accent-color'}"
@@ -46,7 +44,7 @@
 					{#if epubState.images.chapterOrnamentIsProcessing}
 						<button
 							type="button"
-							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+							class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
 							onclick={() => epubState.images.cancelChapterOrnamentProcessing()}
 						>
 							Hủy
@@ -75,7 +73,7 @@
 						</div>
 					</div>
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
 						onclick={() => epubState.images.removeChapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -83,7 +81,7 @@
 			{:else if epubState.images.chapterOrnamentError}
 				<div class="flex justify-end mt-1">
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
 						onclick={() => epubState.images.removeChapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -93,9 +91,7 @@
 
 		<!-- Subchapter Ornament (H2) -->
 		<div class="flex flex-col gap-2">
-			<span class="font-mono text-xs text-text-mute uppercase font-semibold"
-				>Trang trí chương phụ</span
-			>
+			<span class="text-xs text-text-mute font-semibold">Trang trí chương phụ</span>
 			<DropZone
 				accept=".png,.jpg,.jpeg,.webp"
 				onSelect={(f) => epubState.images.handleSubchapterOrnamentFile(f)}
@@ -106,7 +102,7 @@
 
 			{#if epubState.images.subchapterOrnamentStatus}
 				<div
-					class="flex items-center justify-between gap-2 text-xs font-mono {epubState.images
+					class="flex items-center justify-between gap-2 text-xs {epubState.images
 						.subchapterOrnamentError
 						? 'text-red-400'
 						: 'text-accent-color'}"
@@ -122,7 +118,7 @@
 					{#if epubState.images.subchapterOrnamentIsProcessing}
 						<button
 							type="button"
-							class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+							class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
 							onclick={() => epubState.images.cancelSubchapterOrnamentProcessing()}
 						>
 							Hủy
@@ -151,7 +147,7 @@
 						</div>
 					</div>
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
 						onclick={() => epubState.images.removeSubchapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -159,7 +155,7 @@
 			{:else if epubState.images.subchapterOrnamentError}
 				<div class="flex justify-end mt-1">
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
+						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2.5 rounded cursor-pointer transition-colors"
 						onclick={() => epubState.images.removeSubchapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>

@@ -16,6 +16,8 @@
 <PageHeader
 	title="Tách trang PDF → JPG"
 	description="Tách ảnh xám tối ưu cho OCR và cắt lề header/footer hàng loạt."
+	breadcrumb="Tiền xử lý"
+	badge={true}
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">
@@ -218,20 +220,33 @@
 
 		{#if state.supportsFSA}
 			<div class="mb-5 pt-4 border-t border-border-color">
-				<span class="font-mono text-xs tracking-wider text-text-mute uppercase mb-2 block">
+				<span class="text-xs font-semibold text-text-mute mb-2 block">
 					Ghi trực tiếp ra ổ đĩa
 				</span>
 				{#if state.dirName}
 					<div class="flex items-center gap-2">
 						<span
-							class="text-xs font-mono text-accent-color truncate max-w-75"
+							class="text-xs text-accent-color truncate max-w-75 flex items-center gap-1.5"
 							title={state.dirName}
 						>
-							📁 {state.dirName}
+							<svg
+								class="w-4 h-4 shrink-0 text-accent-color"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+								/>
+							</svg>
+							<span class="font-mono">{state.dirName}</span>
 						</span>
 						<button
 							type="button"
-							class="text-xs font-mono text-red-500 hover:underline cursor-pointer"
+							class="text-xs text-red-500 hover:underline cursor-pointer font-medium"
 							onclick={() => state.clearOutputDirectory()}
 						>
 							Hủy
@@ -240,10 +255,23 @@
 				{:else}
 					<button
 						type="button"
-						class="bg-panel-2 border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-2 px-3 rounded-xl cursor-pointer transition-colors"
+						class="bg-panel-2 border border-field-border hover:border-accent-color text-text-color text-xs font-medium py-2 px-3.5 rounded-xl cursor-pointer transition-colors inline-flex items-center gap-2"
 						onclick={() => state.selectOutputDirectory()}
 					>
-						📁 Chọn thư mục lưu (Giải phóng RAM)
+						<svg
+							class="w-4 h-4 text-accent-color shrink-0"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+							/>
+						</svg>
+						<span>Chọn thư mục lưu (Giải phóng RAM)</span>
 					</button>
 				{/if}
 			</div>
@@ -275,7 +303,7 @@
 		</div>
 
 		{#if state.status}
-			<div class="font-mono text-sm mt-4 {state.isError ? 'text-red-500' : 'text-text-mute'}">
+			<div class="text-sm mt-4 font-sans {state.isError ? 'text-red-500' : 'text-text-mute'}">
 				{state.status}
 			</div>
 		{/if}
@@ -287,7 +315,7 @@
 		{#if state.processing || state.progressPercent > 0}
 			<div class="mt-5 animate-fade-in">
 				<div class="flex items-center justify-between gap-2 mb-2">
-					<p class="font-mono text-xs text-text-mute">{state.progressLabel}</p>
+					<p class="text-xs text-text-mute">{state.progressLabel}</p>
 				</div>
 				<div class="h-2 bg-panel-2 rounded-full overflow-hidden">
 					<div
@@ -302,7 +330,15 @@
 			<div
 				class="mt-4 p-3.5 rounded-xl bg-accent-soft border border-accent-color/40 text-text-color text-sm flex items-center gap-2.5 animate-fade-in"
 			>
-				<span>✅</span>
+				<svg
+					class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+				</svg>
 				<span>
 					Đã lưu thành công các phần ZIP vào thư mục <strong>{state.savedDirectoryName}</strong> trên
 					máy tính. Bộ nhớ RAM được giải phóng hoàn toàn!
@@ -314,7 +350,19 @@
 			<div
 				class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
 			>
-				<span class="text-amber-color text-lg leading-none">⚠️</span>
+				<svg
+					class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+					/>
+				</svg>
 				<div class="text-xs">
 					<strong class="font-semibold block mb-0.5 text-amber-color">
 						Chú ý: {state.degradedPages.length} trang tự động giảm độ phân giải do giới hạn bộ nhớ
@@ -332,7 +380,19 @@
 			<div
 				class="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
 			>
-				<span class="text-red-500 text-lg leading-none">❌</span>
+				<svg
+					class="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+					/>
+				</svg>
 				<div class="text-xs">
 					<strong class="font-semibold block mb-0.5 text-red-500">
 						Lỗi: {state.failedPages.length} trang không thể xuất hình ảnh
@@ -350,19 +410,34 @@
 			<div class="mt-6 pt-5 border-t border-border-color animate-fade-in">
 				<div class="flex items-center justify-between mb-3 flex-wrap gap-2">
 					<div>
-						<span class="font-mono text-xs uppercase tracking-wider text-text-mute block">
+						<span class="text-xs font-semibold text-text-mute block">
 							Các phần ZIP đã hoàn tất ({state.pdfZipParts.length} phần)
 						</span>
 						{#if !state.savedDirectoryName}
-							<span class="text-xs text-text-mute mt-0.5 block">
-								💡 Mẹo: Bấm "Tải phần N" bên dưới nếu trình duyệt chặn tải nhiều file liên tiếp.
+							<span class="text-xs text-text-mute mt-0.5 flex items-center gap-1.5">
+								<svg
+									class="w-3.5 h-3.5 text-accent-color shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 18v-5.25m0 0a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 1 4 0v2.091c1.554.743 2.766 2.08 3.25 3.734m-3.25-.575v.001ZM12 18a2.25 2.25 0 0 0 2.25-2.25H9.75A2.25 2.25 0 0 0 12 18Z"
+									/>
+								</svg>
+								<span
+									>Mẹo: Bấm "Tải phần N" bên dưới nếu trình duyệt chặn tải nhiều file liên tiếp.</span
+								>
 							</span>
 						{/if}
 					</div>
 					{#if !state.savedDirectoryName}
 						<button
 							type="button"
-							class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+							class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
 							onclick={() => state.downloadAllParts()}
 							disabled={state.processing}
 						>
@@ -376,7 +451,7 @@
 							class="p-3 rounded-xl bg-panel-2 border border-border-color flex items-center justify-between gap-3"
 						>
 							<div class="min-w-0">
-								<span class="font-mono text-sm font-semibold text-text-color block truncate">
+								<span class="font-sans text-sm font-semibold text-text-color block truncate">
 									Phần {part.partIndex}: Trang {part.startPage}–{part.endPage}
 								</span>
 								<span class="font-mono text-xs text-text-mute">
@@ -392,7 +467,7 @@
 								<div class="flex items-center gap-1.5 shrink-0">
 									<button
 										type="button"
-										class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color font-mono text-xs py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
+										class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
 										onclick={() => state.downloadPart(idx)}
 										disabled={state.processing}
 									>
@@ -400,7 +475,7 @@
 									</button>
 									<button
 										type="button"
-										class="text-text-mute hover:text-red-500 font-mono text-xs py-1 px-1.5 rounded cursor-pointer"
+										class="text-text-mute hover:text-red-500 text-xs py-1 px-1.5 rounded cursor-pointer"
 										onclick={() => state.releasePartBlob(idx)}
 										title="Giải phóng bộ nhớ phần này khỏi RAM"
 									>

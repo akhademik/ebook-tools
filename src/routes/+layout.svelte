@@ -113,11 +113,15 @@
 		</button>
 
 		<!-- Header & Logo -->
-		<div class="flex items-center justify-between mb-6">
+		<div
+			class="flex {isCollapsed
+				? 'md:flex-col md:gap-3 md:items-center'
+				: 'items-center justify-between'} mb-6"
+		>
 			<a
 				href="/"
 				onclick={closeMenu}
-				class="flex items-center gap-3 min-w-0 group"
+				class="flex items-center gap-3 min-w-0 group {isCollapsed ? 'md:justify-center' : ''}"
 				title="Ebook Forge"
 				aria-label="Trang chủ Ebook Forge"
 			>

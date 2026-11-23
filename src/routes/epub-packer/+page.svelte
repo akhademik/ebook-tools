@@ -112,55 +112,69 @@
 <PageHeader
 	title="Đóng gói EPUB"
 	description="Chuyển đổi văn bản TXT hoặc file nén ZIP chứa Markdown thành sách điện tử EPUB chuẩn mực"
+	breadcrumb="Tạo và tinh chỉnh"
+	badge={true}
 />
 
 <!-- 5-step navigation bar -->
-<nav aria-label="Các bước đóng gói EPUB" class="mb-8">
-	<ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-		{#each steps as step (step.id)}
+<nav aria-label="Các bước đóng gói EPUB" class="mb-8 pb-4 border-b border-border-color/60">
+	<ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 relative">
+		{#each steps as step, idx (step.id)}
 			{@const isActive = currentStep === step.id}
 			{@const isDisabled = step.id > 1 && !hasChapters}
-			<li>
+			{@const isDone = step.isCompleted || currentStep > step.id}
+			<li class="relative">
+				<!-- Connecting line between steps on desktop -->
+				{#if idx < steps.length - 1}
+					<div
+						class="hidden lg:block absolute top-4 left-[calc(50%+16px)] right-[calc(-50%+16px)] h-0.5 z-0 {isDone
+							? 'bg-accent-color'
+							: 'bg-border-color'}"
+						aria-hidden="true"
+					></div>
+				{/if}
 				<button
 					type="button"
 					disabled={isDisabled}
 					onclick={() => goToStep(step.id)}
 					aria-current={isActive ? 'step' : undefined}
-					class="w-full text-left p-3.5 rounded-2xl border transition-all flex flex-col justify-between h-full min-h-19 cursor-pointer {isActive
-						? 'bg-panel border-accent-color shadow-sm ring-1 ring-accent-color/30'
-						: isDisabled
-							? 'bg-panel-2/40 border-border-color/50 opacity-50 cursor-not-allowed'
-							: 'bg-panel-2/70 border-border-color hover:border-accent-color/50 hover:bg-panel'}"
+					class="w-full text-left group flex items-start gap-3 relative z-10 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-opacity"
 				>
-					<div class="flex items-center justify-between gap-1 w-full mb-1.5">
-						<span
-							class="text-xs font-mono font-bold {isActive
-								? 'text-accent-color'
-								: 'text-text-mute'}"
-						>
-							0{step.id}
-						</span>
-						<span
-							class="text-[11px] font-medium px-2 py-0.5 rounded-full {isActive
-								? 'bg-accent-soft text-accent-color font-semibold'
-								: step.isCompleted
-									? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-medium'
-									: 'bg-brand-bg text-text-mute border border-border-color'}"
-						>
-							{step.badge}
-						</span>
-					</div>
-					<div>
+					<!-- Circle: Number or Checkmark -->
+					<span
+						class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold transition-all {isActive
+							? 'bg-accent-color text-on-accent ring-4 ring-accent-soft'
+							: isDone
+								? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+								: 'bg-panel-2 text-text-mute border border-field-border'}"
+					>
+						{#if isDone && !isActive}
+							<svg
+								class="w-4 h-4"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+							</svg>
+						{:else}
+							{step.id}
+						{/if}
+					</span>
+
+					<!-- Title & Subtitle (1 line each) -->
+					<div class="min-w-0 flex-1">
 						<div
-							class="text-sm font-semibold truncate {isActive
-								? 'text-text-color font-bold'
+							class="text-sm font-semibold truncate transition-colors {isActive
+								? 'text-accent-color font-bold'
 								: isDisabled
 									? 'text-text-mute'
-									: 'text-text-color'}"
+									: 'text-text-color group-hover:text-accent-color'}"
 						>
 							{step.title}
 						</div>
-						<div class="text-[11px] text-text-mute truncate mt-0.5 font-normal">
+						<div class="text-xs text-text-mute truncate mt-0.5">
 							{step.subtitle}
 						</div>
 					</div>
@@ -252,9 +266,7 @@
 	<aside class="w-full lg:col-span-4 lg:sticky lg:top-6 shrink-0">
 		<div class="modern-card rounded-2xl p-6 shadow-sm border border-border-color">
 			<div class="flex items-center justify-between mb-4 pb-3 border-b border-border-color">
-				<h3 class="text-xs font-bold text-text-color uppercase tracking-wider font-mono">
-					Tóm tắt sách
-				</h3>
+				<h3 class="text-base font-bold text-text-color font-sans">Tóm tắt sách</h3>
 				{#if hasChapters}
 					<span
 						class="text-xs px-2.5 py-0.5 rounded-full bg-accent-soft text-accent-color font-semibold"
@@ -312,60 +324,60 @@
 				{/if}
 			</div>
 
-			<!-- Metadata overview -->
-			<div class="space-y-3 mb-6 text-xs">
-				<div>
-					<span class="text-text-mute block text-[11px] font-medium">Tên tác phẩm</span>
-					<span class="text-text-color font-semibold text-sm line-clamp-2 mt-0.5">
+			<!-- Metadata overview: Label-value list (13-14px) -->
+			<div class="space-y-2.5 mb-6 text-[13px] sm:text-sm">
+				<div class="flex items-start justify-between gap-2 pb-2 border-b border-border-color">
+					<span class="text-text-mute shrink-0">Tên tác phẩm</span>
+					<span class="text-text-color font-semibold text-right line-clamp-2">
 						{epubState.metadata.title || 'Chưa đặt tiêu đề'}
 					</span>
 				</div>
 
-				<div class="grid grid-cols-2 gap-2 pt-2 border-t border-border-color">
-					<div>
-						<span class="text-text-mute block text-[11px]">Tác giả</span>
-						<span class="text-text-color font-medium truncate block mt-0.5">
-							{epubState.metadata.author || 'Chưa đặt'}
-						</span>
-					</div>
-					<div>
-						<span class="text-text-mute block text-[11px]">Mục lục</span>
-						<span class="text-text-color font-medium block mt-0.5">
-							{hasChapters
-								? `${epubState.source.epubChapters.filter((c) => c.isChapter !== false).length} mục`
-								: '0 mục'}
-						</span>
-					</div>
+				<div class="flex items-center justify-between gap-2 pb-2 border-b border-border-color">
+					<span class="text-text-mute shrink-0">Tác giả</span>
+					<span class="text-text-color font-medium text-right truncate">
+						{epubState.metadata.author || 'Chưa đặt'}
+					</span>
 				</div>
 
-				<div class="grid grid-cols-2 gap-2 pt-2 border-t border-border-color">
-					<div>
-						<span class="text-text-mute block text-[11px]">Phông H1</span>
-						<span class="text-text-color font-medium truncate block mt-0.5">
-							{epubState.fonts.h1Font !== 'default' ? epubState.fonts.h1Font : 'Mặc định'}
-						</span>
-					</div>
-					<div>
-						<span class="text-text-mute block text-[11px]">File xuất</span>
-						<span
-							class="text-text-color font-mono text-[11px] truncate block mt-0.5"
-							title={epubState.metadata.epubOutNamePreview}
-						>
-							{epubState.metadata.epubOutNamePreview}
-						</span>
-					</div>
+				<div class="flex items-center justify-between gap-2 pb-2 border-b border-border-color">
+					<span class="text-text-mute shrink-0">Mục lục</span>
+					<span class="text-text-color font-medium text-right">
+						{hasChapters
+							? `${epubState.source.epubChapters.filter((c) => c.isChapter !== false).length} mục`
+							: '0 mục'}
+					</span>
+				</div>
+
+				<div class="flex items-center justify-between gap-2 pb-2 border-b border-border-color">
+					<span class="text-text-mute shrink-0">Phông H1</span>
+					<span class="text-text-color font-medium text-right truncate">
+						{epubState.fonts.h1Font !== 'default' ? epubState.fonts.h1Font : 'Mặc định'}
+					</span>
+				</div>
+
+				<div class="flex items-center justify-between gap-2">
+					<span class="text-text-mute shrink-0">File xuất</span>
+					<span
+						class="text-text-color font-mono text-xs text-right truncate max-w-[180px]"
+						title={epubState.metadata.epubOutNamePreview}
+					>
+						{epubState.metadata.epubOutNamePreview}
+					</span>
 				</div>
 			</div>
 
 			<!-- Quick Actions: Always visible on desktop -->
 			<div class="space-y-3 pt-4 border-t border-border-color">
-				<Button
-					variant="primary"
-					onclick={() => epubState.processEpub()}
-					disabled={!hasChapters || epubState.processing}
-				>
-					{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
-				</Button>
+				<div class="[&>button]:!h-12">
+					<Button
+						variant="primary"
+						onclick={() => epubState.processEpub()}
+						disabled={!hasChapters || epubState.processing}
+					>
+						{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
+					</Button>
+				</div>
 
 				<Button variant="secondary" onclick={downloadEpub} disabled={!epubState.epubBlob}>
 					Tải file .EPUB
@@ -373,7 +385,7 @@
 
 				{#if epubState.status}
 					<div
-						class="text-xs font-mono p-2.5 rounded-xl bg-panel-2 border border-border-color mt-2 {epubState.isError
+						class="text-xs font-sans p-2.5 rounded-xl bg-panel-2 border border-border-color mt-2 {epubState.isError
 							? 'text-red-500'
 							: 'text-text-mute'}"
 					>

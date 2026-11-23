@@ -15,6 +15,8 @@
 <PageHeader
 	title="EPUB → TXT"
 	description="Trích xuất toàn bộ nội dung sách EPUB thành văn bản thô (.TXT)"
+	breadcrumb="Tiền xử lý"
+	badge={true}
 />
 
 <div class="modern-card rounded-2xl p-7 mb-6">

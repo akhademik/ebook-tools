@@ -144,8 +144,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 15:45
+- Cập nhật lần cuối: 2026-11-23 16:35
 - Đã hoàn thành:
+  - **Làm mới toàn diện giao diện (UI Refinement Suite)**:
+    - Làm mới các section bên trong EPUB Packer (EpubSourceSection, EpubCoverSection, EpubOrnamentsSection, EpubIllustrationsSection, EpubMetadataSection, EpubPackSection): loại bỏ font-mono và uppercase ở các nhãn/tiêu đề, chuẩn hóa ô nhập `bg-panel-2 border-field-border h-11`, nút cắt lề cao 40px viền `border-field-border`.
+    - Thanh tiến trình 5 bước mảnh mai (Slender step bar) tại `epub-packer/+page.svelte`: đường kẻ nối, vòng tròn số/dấu ✓ 32px, tiêu đề bước và dòng phụ mô tả ngắn gọn, loại bỏ viền thẻ thô cứng và badge.
+    - PageHeader: bổ sung breadcrumb nhóm công cụ và huy hiệu "Xử lý ngay trên máy bạn" (kèm icon khiên SVG) dạng prop tùy chọn.
+    - Trang Tổng quan (+page.svelte): bổ sung khối "Quy trình gợi ý cho sách quét" (PDF → JPG → OCR ngoài → Đóng gói EPUB → EPUB Editor với thẻ OCR viền nét đứt "Thực hiện bên ngoài ứng dụng"), thêm chip tính năng nổi bật vào 2 thẻ công cụ lớn, chuyển "Công cụ lẻ & Mở rộng" thành lưới 2 cột hiển thị trọn vẹn mô tả không cắt cụt.
+    - Sidebar thu gọn: khi ở kích thước 72px (`md:w-18`), logo và nút thu/mở xếp dọc (`md:flex-col md:gap-3 md:items-center`), không bị ép chật chội.
+    - Cột tóm tắt cố định: trình bày dạng danh sách nhãn–giá trị 13–14px gọn gàng, nút Đóng gói EPUB cao 48px (`h-12`), tiêu đề không dùng font-mono/uppercase.
+    - Thay thế toàn bộ emoji (⚠️ 💡 📁 ✅ ❌ 🎉 🧹 🖼 👁 📥…) trong các modal biên tập (EpubValidatorModal, EpubCleanerModal, EpubEditorModal, EpubMetadataModal), các trang công cụ (pdf, txt-to-pdf) và các section bằng hệ thống SVG stroke chuẩn nét; giảm thiểu font-mono không cần thiết.
+    - Toàn bộ **350/350 unit tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Chuẩn hóa nhãn "File", viết hoa đầu câu/nhãn & Dọn dẹp Layout Sidebar**:
     - Rà soát toàn bộ thay đổi sau khi chuẩn hóa thuật ngữ giao diện từ "tệp" sang "file".
     - Viết hoa chữ cái đầu cho các danh từ/nhãn/tiêu đề và thông báo lỗi: `File xuất`, `File PDF dung lượng lớn`, `File tải về:`, `File EPUB đạt chuẩn kiểm định!`, `File EPUB không chứa file nào hợp lệ.`, `File "${filePath}"...`, `File OPF...`.
@@ -373,6 +382,43 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Làm mới giao diện UI: Packer Sections, Slender Steps, Overview, Sidebar & SVG Icons)
+
+- Thêm/sửa:
+  - Nâng cấp đồng bộ giao diện người dùng theo thứ tự yêu cầu:
+    1. Làm mới các section packer (`EpubSourceSection`, `EpubCoverSection`, `EpubOrnamentsSection`, `EpubIllustrationsSection`, `EpubMetadataSection`, `EpubPackSection`): bỏ font-mono/uppercase ở nhãn/tiêu đề; ô nhập dùng `bg-panel-2 border-field-border h-11`; nút cắt lề bìa cao 40px viền `field-border`.
+    2. Đổi thanh 5 bước ở `epub-packer` sang kiểu thanh mảnh (vạch nối + vòng tròn số/dấu ✓ + tên + 1 dòng phụ), bỏ badge và viền thẻ.
+    3. Cập nhật `PageHeader`: thêm breadcrumb và huy hiệu "Xử lý ngay trên máy bạn" dạng prop tùy chọn.
+    4. Cập nhật Trang Tổng quan: thêm khối "Quy trình gợi ý" (OCR ngoài viền nét đứt), thêm chip tính năng vào 2 thẻ lớn, đổi "Công cụ lẻ" sang lưới 2 cột không cắt mô tả.
+    5. Sidebar thu gọn: tối ưu bố cục logo và nút thu/mở ở trạng thái 72px xếp dọc, không bị chèn ép.
+    6. Cột tóm tắt: định dạng danh sách nhãn–giá trị 13–14px, nút Đóng gói cao 48px (`h-12`), tiêu đề font-sans không uppercase.
+    7. Thay thế toàn bộ emoji bằng SVG stroke trong editor modals, pdf, txt-to-pdf, các section packer; giảm font-mono tại các modal và trang pdf.
+  - Tuyệt đối không thay đổi logic xử lý hay bất kỳ file `.ts` nào trong `src/` (0 file `.ts` bị ảnh hưởng).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | build production ✅ | graphify ✅ (4882 nodes, 10357 edges)
+- File chính bị ảnh hưởng:
+  - `src/lib/components/PageHeader.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/routes/+page.svelte`
+  - `src/routes/+layout.svelte`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubPackSection.svelte`
+  - `src/lib/epub-editor/components/EpubValidatorModal.svelte`
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorSidebar.svelte`
+  - `src/lib/epub-editor/components/EpubEditorCodePane.svelte`
+  - `src/lib/epub-editor/components/EpubEditorPreviewPane.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/routes/epub-editor/+page.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/routes/epub-to-txt/+page.svelte`
+  - `src/routes/txt-to-pdf/+page.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Chuẩn hóa viết hoa nhãn File & Dọn dẹp Layout)
 

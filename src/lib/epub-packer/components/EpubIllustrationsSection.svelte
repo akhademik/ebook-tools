@@ -15,7 +15,7 @@
 		{#if epubState.images.illustrationFiles.length > 0}
 			<button
 				type="button"
-				class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs cursor-pointer"
+				class="bg-transparent text-red-500 hover:text-red-600 font-sans text-xs font-medium cursor-pointer transition-colors"
 				onclick={() => epubState.images.clearIllustrationFiles()}
 			>
 				Xóa tất cả ({epubState.images.illustrationFiles.length})
@@ -53,8 +53,21 @@
 	{/if}
 
 	{#if epubState.images.illustrationError}
-		<div class="mt-3 text-xs text-red-500 font-mono">
-			⚠️ {epubState.images.illustrationError}
+		<div class="mt-3 text-xs text-red-500 flex items-center gap-1.5 font-medium">
+			<svg
+				class="w-4 h-4 text-red-500 shrink-0"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+				/>
+			</svg>
+			<span>{epubState.images.illustrationError}</span>
 		</div>
 	{/if}
 

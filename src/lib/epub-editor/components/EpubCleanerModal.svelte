@@ -95,11 +95,19 @@
 				</div>
 				<button
 					type="button"
-					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center font-mono cursor-pointer transition-colors shrink-0"
+					class="w-8 h-8 rounded-lg border border-border-color bg-panel hover:bg-panel-2 text-text-mute hover:text-text-color flex items-center justify-center cursor-pointer transition-colors shrink-0"
 					onclick={handleClose}
 					aria-label="Đóng modal"
 				>
-					✕
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
 				</button>
 			</div>
 
@@ -110,47 +118,59 @@
 						<div
 							class="w-8 h-8 border-2 border-accent-color border-t-transparent rounded-full animate-spin mb-3"
 						></div>
-						<p class="font-mono text-sm text-text-color">
+						<p class="text-sm text-text-color font-medium">
 							Đang phân tích cấu trúc EPUB & quét tài nguyên thừa...
 						</p>
 						{#if editorState.statusMessage}
-							<p class="font-mono text-xs text-text-mute mt-1">{editorState.statusMessage}</p>
+							<p class="text-xs text-text-mute mt-1">{editorState.statusMessage}</p>
 						{/if}
 						<button
 							type="button"
-							class="mt-4 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-mono cursor-pointer transition-colors"
+							class="mt-4 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-sans cursor-pointer transition-colors"
 							onclick={() => {
 								editorState.cancelCleanupTask();
 								isAnalyzing = false;
 							}}
 						>
-							✕ Dừng phân tích
+							Dừng phân tích
 						</button>
 					</div>
 				{:else if editorState.cleanReport}
 					<!-- Success Cleaning Report -->
 					<div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
-						<div class="text-3xl mb-2">🎉</div>
-						<h4 class="font-mono text-base font-bold text-emerald-400">Dọn dẹp thành công!</h4>
-						<p class="text-xs text-text-mute font-mono mt-1">
+						<div
+							class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto mb-3"
+						>
+							<svg
+								class="w-6 h-6"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+							</svg>
+						</div>
+						<h4 class="text-base font-bold text-emerald-400 font-sans">Dọn dẹp thành công!</h4>
+						<p class="text-xs text-text-mute mt-1 font-sans">
 							Đã tối ưu hóa và cập nhật lại file EPUB
 						</p>
 
 						<div class="grid grid-cols-3 gap-3 my-4">
 							<div class="bg-panel/80 rounded-lg p-3 border border-border-color">
-								<span class="text-xs text-text-mute block font-mono">Trước</span>
+								<span class="text-xs text-text-mute block font-sans">Trước</span>
 								<span class="font-mono text-sm font-bold text-text-color">
 									{formatByteSize(editorState.cleanReport.beforeBytes)}
 								</span>
 							</div>
 							<div class="bg-panel/80 rounded-lg p-3 border border-border-color">
-								<span class="text-xs text-text-mute block font-mono">Sau</span>
+								<span class="text-xs text-text-mute block font-sans">Sau</span>
 								<span class="font-mono text-sm font-bold text-emerald-400">
 									{formatByteSize(editorState.cleanReport.afterBytes)}
 								</span>
 							</div>
 							<div class="bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/40">
-								<span class="text-xs text-emerald-300 block font-mono">Tiết kiệm</span>
+								<span class="text-xs text-emerald-300 block font-sans">Tiết kiệm</span>
 								<span class="font-mono text-sm font-bold text-emerald-400">
 									-{formatByteSize(editorState.cleanReport.savedBytes)}
 								</span>
@@ -234,11 +254,24 @@
 							/>
 							<div>
 								<div
-									class="font-mono text-xs font-semibold text-text-color flex items-center gap-1.5"
+									class="font-sans text-xs font-semibold text-text-color flex items-center gap-1.5"
 								>
-									🖼️ Xóa hình ảnh không dùng
+									<svg
+										class="w-4 h-4 text-accent-color shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+									>
+										<rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+										<circle cx="9" cy="9" r="2" />
+										<path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+									</svg>
+									<span>Xóa hình ảnh không dùng</span>
 									{#if a.unusedImages.length > 0}
-										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
+										<span
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+										>
 											{a.unusedImages.length} file (~{formatByteSize(
 												a.unusedImages.reduce((s, i) => s + i.byteSize, 0)
 											)})
@@ -259,11 +292,24 @@
 							/>
 							<div>
 								<div
-									class="font-mono text-xs font-semibold text-text-color flex items-center gap-1.5"
+									class="font-sans text-xs font-semibold text-text-color flex items-center gap-1.5"
 								>
-									🔤 Xóa fonts nhúng không dùng
+									<svg
+										class="w-4 h-4 text-accent-color shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+									>
+										<polyline points="4 7 4 4 20 4 20 7" />
+										<line x1="9" x2="15" y1="20" y2="20" />
+										<line x1="12" x2="12" y1="4" y2="20" />
+									</svg>
+									<span>Xóa fonts nhúng không dùng</span>
 									{#if a.unusedFonts.length > 0}
-										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
+										<span
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+										>
 											{a.unusedFonts.length} file (~{formatByteSize(
 												a.unusedFonts.reduce((s, f) => s + f.byteSize, 0)
 											)})
@@ -284,11 +330,28 @@
 							/>
 							<div>
 								<div
-									class="font-mono text-xs font-semibold text-text-color flex items-center gap-1.5"
+									class="font-sans text-xs font-semibold text-text-color flex items-center gap-1.5"
 								>
-									🎨 Xóa file CSS mồ côi
+									<svg
+										class="w-4 h-4 text-accent-color shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+									>
+										<circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+										<circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+										<circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+										<circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+										<path
+											d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2Z"
+										/>
+									</svg>
+									<span>Xóa file CSS mồ côi</span>
 									{#if a.unusedStyles.length > 0}
-										<span class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded">
+										<span
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+										>
 											{a.unusedStyles.length} file
 										</span>
 									{/if}
@@ -301,13 +364,24 @@
 					</div>
 
 					{#if a.missingReferences.length > 0}
-						<div
-							class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs font-mono"
-						>
-							<div class="text-amber-400 font-semibold mb-1">
-								⚠️ Phát hiện {a.missingReferences.length} liên kết hỏng trong sách:
+						<div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs">
+							<div class="text-amber-400 font-semibold mb-1 flex items-center gap-1.5">
+								<svg
+									class="w-4 h-4 text-amber-400 shrink-0"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+									/>
+								</svg>
+								<span>Phát hiện {a.missingReferences.length} liên kết hỏng trong sách:</span>
 							</div>
-							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute">
+							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute font-mono text-[11px]">
 								{#each a.missingReferences.slice(0, 5) as ref (ref.sourceFile + '-' + ref.targetRef)}
 									<div>
 										• {ref.sourceFile} ➔ <span class="text-amber-300">{ref.targetRef}</span> (không tìm
@@ -327,7 +401,7 @@
 				{#if isOptimizing}
 					<button
 						type="button"
-						class="text-xs font-mono text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0"
+						class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 font-sans"
 						onclick={() => {
 							editorState.cancelCleanupTask();
 							isOptimizing = false;
@@ -352,7 +426,7 @@
 								editorState.cleanAnalysis?.unusedFonts.length === 0 &&
 								editorState.cleanAnalysis?.unusedStyles.length === 0)}
 					>
-						{isOptimizing ? 'Đang tối ưu hóa...' : '🧹 Dọn dẹp & Tối ưu ngay'}
+						{isOptimizing ? 'Đang tối ưu hóa...' : 'Dọn dẹp & Tối ưu ngay'}
 					</Button>
 				{/if}
 			</div>

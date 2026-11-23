@@ -126,14 +126,22 @@
 				</button>
 
 				<div
-					class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center font-bold text-sm sm:text-base shrink-0"
+					class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center shrink-0"
 				>
-					✏️
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+					>
+						<path d="m18 2 4 4-12 12H6v-4L18 2z" />
+					</svg>
 				</div>
 
 				<div class="flex items-center gap-1.5 min-w-0 truncate">
 					<h2
-						class="font-mono text-xs sm:text-sm font-bold text-text-color truncate max-w-27.5 sm:max-w-55"
+						class="text-xs sm:text-sm font-bold text-text-color truncate max-w-27.5 sm:max-w-55 font-sans"
 					>
 						{editorState.fileName || 'EPUB Editor'}
 					</h2>
@@ -150,53 +158,104 @@
 			<!-- Center: Responsive Layout View Switcher & Sync Toggle -->
 			<div class="flex items-center gap-1.5 sm:gap-2">
 				<div
-					class="flex items-center bg-panel rounded-xl p-0.5 sm:p-1 border border-border-color font-mono text-xs"
+					class="flex items-center bg-panel rounded-xl p-0.5 sm:p-1 border border-border-color text-xs font-sans font-medium"
 				>
 					<button
 						type="button"
-						class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView ===
+						class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 {activeView ===
 						'code'
 							? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
 							: 'text-text-mute hover:text-text-color'}"
 						onclick={() => (activeView = 'code')}
 						title="Xem mã nguồn Code"
 					>
-						💻 <span class="hidden md:inline">Code</span>
+						<svg
+							class="w-3.5 h-3.5 shrink-0"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<polyline points="16 18 22 12 16 6" />
+							<polyline points="8 6 2 12 8 18" />
+						</svg>
+						<span class="hidden md:inline">Code</span>
 					</button>
 					<button
 						type="button"
-						class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView ===
+						class="px-2.5 sm:px-3 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 {activeView ===
 						'preview'
 							? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
 							: 'text-text-mute hover:text-text-color'}"
 						onclick={() => (activeView = 'preview')}
 						title="Xem trước Live Preview"
 					>
-						👁️ <span class="hidden md:inline">Xem</span>
+						<svg
+							class="w-3.5 h-3.5 shrink-0"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
+							/>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+							/>
+						</svg>
+						<span class="hidden md:inline">Xem</span>
 					</button>
 					<button
 						type="button"
-						class="hidden md:inline-flex px-3 py-1 rounded-lg transition-colors cursor-pointer {activeView ===
+						class="hidden md:inline-flex px-3 py-1 rounded-lg transition-colors cursor-pointer items-center gap-1.5 {activeView ===
 						'split'
 							? 'bg-accent-soft text-accent-color font-semibold shadow-xs'
 							: 'text-text-mute hover:text-text-color'}"
 						onclick={() => (activeView = 'split')}
 						title="Chế độ Song song Code & Preview"
 					>
-						⬛|⬛ Song song
+						<svg
+							class="w-3.5 h-3.5 shrink-0"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+						>
+							<rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+							<line x1="12" x2="12" y1="3" y2="21" />
+						</svg>
+						<span>Song song</span>
 					</button>
 				</div>
 
 				{#if activeView === 'split'}
 					<button
 						type="button"
-						class="hidden lg:flex h-8 px-2.5 rounded-xl border border-border-color bg-panel font-mono text-xs cursor-pointer transition-colors items-center gap-1.5 {editorState.syncViewEnabled
+						class="hidden lg:flex h-8 px-2.5 rounded-xl border border-border-color bg-panel text-xs cursor-pointer transition-colors items-center gap-1.5 font-sans {editorState.syncViewEnabled
 							? 'text-accent-color border-accent-color/30 bg-accent-soft/40 font-semibold'
 							: 'text-text-mute hover:text-text-color'}"
 						onclick={() => (editorState.syncViewEnabled = !editorState.syncViewEnabled)}
 						title="Đồng bộ cuộn & highlight chọn văn bản hai chiều giữa Code Editor và Preview"
 					>
-						🔄 Sync: {editorState.syncViewEnabled ? 'Bật' : 'Tắt'}
+						<svg
+							class="w-3.5 h-3.5 shrink-0"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+							/>
+						</svg>
+						<span>Sync: {editorState.syncViewEnabled ? 'Bật' : 'Tắt'}</span>
 					</button>
 				{/if}
 			</div>
@@ -205,21 +264,48 @@
 			<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
 				<button
 					type="button"
-					class="h-9 sm:h-10 w-9 sm:w-10 rounded-xl bg-accent-color hover:bg-accent-color/90 text-white font-mono text-base font-bold cursor-pointer transition-colors flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+					class="h-9 sm:h-10 w-9 sm:w-10 rounded-xl bg-accent-color hover:bg-accent-color/90 text-on-accent text-base font-bold cursor-pointer transition-colors flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
 					onclick={() => handleExport(false)}
 					disabled={editorState.isExporting}
 					title={editorState.isExporting ? 'Đang xuất .EPUB...' : 'Xuất file .EPUB (Download)'}
 				>
-					<span>{editorState.isExporting ? '⏳' : '📥'}</span>
+					{#if editorState.isExporting}
+						<span
+							class="inline-block w-4 h-4 border-2 border-on-accent border-t-transparent rounded-full animate-spin"
+						></span>
+					{:else}
+						<svg
+							class="w-4 h-4"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+							/>
+						</svg>
+					{/if}
 				</button>
 
 				<button
 					type="button"
-					class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1"
+					class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute text-xs font-semibold font-sans cursor-pointer transition-colors flex items-center gap-1.5"
 					onclick={requestClose}
 					title="Đóng Editor"
 				>
-					✕ <span class="hidden sm:inline">Đóng</span>
+					<svg
+						class="w-3.5 h-3.5 shrink-0"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+					<span class="hidden sm:inline">Đóng</span>
 				</button>
 			</div>
 		</header>
@@ -227,10 +313,19 @@
 		<!-- Mobile Landscape Suggestion Hint Banner -->
 		{#if showLandscapeHint && isMobilePortrait}
 			<div
-				class="bg-accent-soft/90 border-b border-accent-color/30 px-3.5 py-2 flex items-center justify-between gap-3 text-xs font-mono text-text-color shrink-0 animate-fade-in"
+				class="bg-accent-soft/90 border-b border-accent-color/30 px-3.5 py-2 flex items-center justify-between gap-3 text-xs text-text-color shrink-0 animate-fade-in font-sans"
 			>
 				<div class="flex items-center gap-2 min-w-0">
-					<span class="text-base">📱🔄</span>
+					<svg
+						class="w-4 h-4 text-accent-color shrink-0"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+					>
+						<rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+						<path d="M12 18h.01" />
+					</svg>
 					<span class="truncate"
 						>Mẹo: Xoay ngang màn hình (Landscape) để vừa soạn thảo vừa xem trước!</span
 					>
@@ -239,21 +334,44 @@
 					type="button"
 					class="text-text-mute hover:text-text-color p-1 cursor-pointer font-bold shrink-0"
 					onclick={() => (showLandscapeHint = false)}
-					title="Đóng gợi ý">✕</button
+					title="Đóng gợi ý"
 				>
+					<svg
+						class="w-3.5 h-3.5"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
 			</div>
 		{/if}
 
 		<!-- Validation Errors Warning Banner -->
 		{#if editorState.validationErrors.length > 0}
 			<div
-				class="bg-red-500/10 border-b border-red-500/30 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 text-xs font-mono text-red-500 shrink-0"
+				class="bg-red-500/10 border-b border-red-500/30 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 text-xs text-red-500 shrink-0 font-sans"
 			>
 				<div class="flex items-center gap-2 min-w-0">
-					<span class="font-bold shrink-0"
-						>⚠️ Lỗi XML/XHTML ({editorState.validationErrors.length}):</span
+					<svg
+						class="w-4 h-4 text-red-500 shrink-0"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
 					>
-					<div class="truncate">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+						/>
+					</svg>
+					<span class="font-bold shrink-0"
+						>Lỗi XML/XHTML ({editorState.validationErrors.length}):</span
+					>
+					<div class="truncate font-mono text-[11px]">
 						{#each editorState.validationErrors as err (err.path)}
 							<span class="underline mr-2">[{err.path}: {err.error}]</span>
 						{/each}
@@ -374,15 +492,27 @@
 					<!-- Header -->
 					<div class="flex items-start gap-4">
 						<div
-							class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center text-2xl shrink-0"
+							class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0"
 						>
-							⚠️
+							<svg
+								class="w-6 h-6"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+								/>
+							</svg>
 						</div>
 						<div class="flex-1 min-w-0">
-							<h3 id="confirm-title" class="font-mono text-base font-bold text-text-color">
+							<h3 id="confirm-title" class="font-sans text-base font-bold text-text-color">
 								Chưa lưu thay đổi
 							</h3>
-							<p id="confirm-desc" class="text-xs text-text-mute mt-1">
+							<p id="confirm-desc" class="text-xs text-text-mute mt-1 font-sans">
 								Bạn có <span class="text-amber-500 font-bold font-mono"
 									>{editorState.dirtyPaths.size} file</span
 								> đã chỉnh sửa nhưng chưa được xuất ra file .EPUB.
@@ -402,7 +532,7 @@
 						{/each}
 					</div>
 
-					<p class="text-xs text-text-mute">
+					<p class="text-xs text-text-mute font-sans">
 						Nếu đóng ngay bây giờ, các thay đổi trên sẽ bị hủy bỏ và không thể khôi phục.
 					</p>
 
@@ -410,24 +540,37 @@
 					<div class="flex flex-col-reverse sm:flex-row items-center justify-center gap-2 pt-2">
 						<button
 							type="button"
-							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-mono text-xs font-semibold cursor-pointer transition-colors"
+							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-sans text-xs font-semibold cursor-pointer transition-colors"
 							onclick={() => (showUnsavedConfirm = false)}
 						>
 							Tiếp tục
 						</button>
 						<button
 							type="button"
-							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-mono text-xs font-semibold cursor-pointer transition-colors"
+							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-sans text-xs font-semibold cursor-pointer transition-colors"
 							onclick={actuallyClose}
 						>
 							Bỏ qua
 						</button>
 						<button
 							type="button"
-							class="w-full sm:w-auto px-4 py-2 rounded-xl bg-accent-color hover:bg-accent-color/90 text-white font-mono text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+							class="w-full sm:w-auto px-4 py-2 rounded-xl bg-accent-color hover:bg-accent-hover text-on-accent font-sans text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-sm"
 							onclick={handleExportAndClose}
 						>
-							📥 Export
+							<svg
+								class="w-4 h-4"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+								/>
+							</svg>
+							<span>Xuất EPUB</span>
 						</button>
 					</div>
 				</div>

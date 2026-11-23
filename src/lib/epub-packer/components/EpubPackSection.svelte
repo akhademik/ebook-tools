@@ -44,7 +44,7 @@
 	</div>
 
 	{#if epubState.status}
-		<div class="font-mono text-sm mt-4 {epubState.isError ? 'text-red-500' : 'text-text-mute'}">
+		<div class="text-sm mt-4 {epubState.isError ? 'text-red-500' : 'text-text-mute'}">
 			{epubState.status}
 		</div>
 	{/if}

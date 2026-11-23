@@ -54,14 +54,12 @@
 		class="mt-6 pt-5 border-t border-border-color flex flex-col sm:flex-row sm:items-center justify-between gap-4"
 	>
 		<div>
-			<p class="font-mono text-xs text-text-mute uppercase tracking-wider font-semibold">
-				Trang giới thiệu sách (Mặc định được tạo)
-			</p>
+			<p class="text-xs text-text-mute font-semibold">Trang giới thiệu sách (Mặc định được tạo)</p>
 			{#if selectedTemplateName}
-				<p class="text-xs text-text-mute font-mono mt-1">
+				<p class="text-xs text-text-mute mt-1">
 					Mẫu đang chọn: <span class="text-accent-color font-semibold">{selectedTemplateName}</span>
 					{#if epubState.fonts.jacketFont !== 'default'}
-						<span class="text-text-mute">({epubState.fonts.jacketFont})</span>
+						<span class="text-text-mute font-mono">({epubState.fonts.jacketFont})</span>
 					{/if}
 				</p>
 			{/if}

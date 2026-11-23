@@ -264,27 +264,39 @@
 	<div
 		class="h-10 px-4 border-b border-border-color flex items-center justify-between bg-panel-2 shrink-0 select-none"
 	>
-		<div class="flex items-center gap-2 min-w-0 font-mono text-xs">
-			<span class="text-accent-color font-semibold shrink-0">💻 Editor:</span>
+		<div class="flex items-center gap-2 min-w-0 text-xs">
+			<span class="text-accent-color font-semibold shrink-0 flex items-center gap-1 font-sans">
+				<svg
+					class="w-3.5 h-3.5"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<polyline points="16 18 22 12 16 6" />
+					<polyline points="8 6 2 12 8 18" />
+				</svg>
+				<span>Editor:</span>
+			</span>
 			{#if editorState.editorTarget}
-				<span class="font-bold truncate text-text-color" title={editorState.editorTarget}>
+				<span class="font-bold truncate text-text-color font-mono" title={editorState.editorTarget}>
 					{editorState.editorTarget}
 				</span>
 				{#if isDirty}
 					<span
-						class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 text-[10px] font-bold shrink-0"
+						class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 text-[10px] font-bold shrink-0 font-sans"
 					>
 						Đã sửa
 					</span>
 				{/if}
 			{:else}
-				<span class="text-text-mute italic">Chưa chọn file</span>
+				<span class="text-text-mute italic font-sans">Chưa chọn file</span>
 			{/if}
 		</div>
 
 		<!-- Actions -->
-		<div class="flex items-center gap-3 font-mono text-xs shrink-0">
-			<span class="text-text-mute text-[11px]">
+		<div class="flex items-center gap-3 text-xs shrink-0 font-sans">
+			<span class="text-text-mute text-[11px] font-mono">
 				{currentLineCount} dòng · {currentLength} ký tự
 			</span>
 			<button
@@ -304,9 +316,25 @@
 	<div class="flex-1 relative flex overflow-hidden bg-brand-bg">
 		{#if !editorState.editorTarget}
 			<div
-				class="flex-1 flex flex-col items-center justify-center text-text-mute p-8 text-center font-mono text-sm"
+				class="flex-1 flex flex-col items-center justify-center text-text-mute p-8 text-center font-sans text-sm"
 			>
-				<span class="text-4xl mb-3">📝</span>
+				<div
+					class="w-12 h-12 rounded-xl bg-panel-2 border border-border-color flex items-center justify-center text-text-mute mb-3"
+				>
+					<svg
+						class="w-6 h-6"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.8"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+						/>
+					</svg>
+				</div>
 				<p>Chọn một file từ danh sách bên trái để bắt đầu chỉnh sửa HTML hoặc CSS.</p>
 			</div>
 		{/if}

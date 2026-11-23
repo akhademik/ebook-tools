@@ -159,12 +159,12 @@
 
 			<div class="mt-5 flex justify-between items-center">
 				<button
-					class="bg-transparent text-text-mute hover:text-text-color font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+					class="bg-transparent text-text-mute hover:text-text-color font-sans text-xs py-1.5 px-3 rounded cursor-pointer transition-colors"
 					onclick={() => epubState.images.resetCoverCrop()}
 					type="button">Khôi phục lề</button
 				>
 				<button
-					class="bg-transparent text-red-500 hover:text-red-600 font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+					class="bg-transparent text-red-500 hover:text-red-600 font-sans text-xs py-1.5 px-3 rounded cursor-pointer transition-colors"
 					onclick={() => epubState.images.removeCoverFile()}
 					type="button">Xóa ảnh bìa</button
 				>
@@ -174,7 +174,7 @@
 
 	{#if epubState.images.coverStatus}
 		<div
-			class="font-mono text-sm mt-3 {epubState.images.coverIsError
+			class="text-sm mt-3 font-sans {epubState.images.coverIsError
 				? 'text-red-500'
 				: 'text-text-mute'}"
 		>
