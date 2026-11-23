@@ -157,7 +157,7 @@
 			</div>
 
 			<!-- Body Content -->
-			<div class="p-6 overflow-y-auto space-y-5">
+			<div class="p-4 sm:p-6 overflow-y-auto space-y-5">
 				{#if isValidating}
 					<div class="py-12 flex flex-col items-center justify-center text-center">
 						<div
@@ -380,7 +380,7 @@
 
 			<!-- Footer Buttons -->
 			<div
-				class="px-6 py-4 border-t border-border-color bg-sidebar-bg flex justify-end items-center"
+				class="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-border-color bg-sidebar-bg flex justify-end items-center"
 			>
 				<Button variant="primary" onclick={handleClose}>Đóng</Button>
 			</div>

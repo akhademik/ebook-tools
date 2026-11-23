@@ -20,7 +20,7 @@
 	badge={true}
 />
 
-<div class="modern-card rounded-2xl p-7 mb-6">
+<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">
 	<h2 class="text-base font-semibold text-text-color mb-3">File PDF nguồn</h2>
 	<DropZone
 		accept="application/pdf"
@@ -66,7 +66,7 @@
 		</div>
 	{/if}
 
-	<div class="modern-card rounded-2xl p-7 mb-6">
+	<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">
 		<h2 class="text-base font-semibold text-text-color mb-3">Cắt xén Header / Footer</h2>
 
 		<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
@@ -210,7 +210,7 @@
 		{/if}
 	</div>
 
-	<div class="modern-card rounded-2xl p-7 mb-6">
+	<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">
 		<div class="mb-5">
 			<Input bind:value={state.bookName} label="Tên bộ ảnh xuất (.zip)" placeholder="ten-sach" />
 			<p class="text-sm text-text-mute mt-2">

@@ -144,8 +144,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 16:35
+- Cập nhật lần cuối: 2026-11-23 17:25
 - Đã hoàn thành:
+  - **Khắc phục triệt để lỗi vỡ giao diện trên Mobile View (Mobile Responsive Fixes)**:
+    - Sửa lỗi nghiêm trọng tại Drawer Menu Sidebar (`src/routes/+layout.svelte`): Khi vào các trang công cụ, trạng thái `isCollapsed` tự động kích hoạt khiến các nút điều hướng và nút đổi theme trên drawer di động bị co thành hình vuông 44px (`w-11`), trong khi chữ nhãn không ẩn trên mobile dẫn đến tràn chữ và vỡ bố cục; đã chuẩn hóa các nút luôn đạt `w-full` trên mobile và chỉ co nhỏ trên màn hình desktop (`md:`). Đồng thời khôi phục tiêu đề các nhóm chuyên mục và căn chỉnh header logo trên drawer di động.
+    - Chuẩn hóa container layout từ `w-screen` sang `w-full max-w-full` để ngăn hiện tượng thanh cuộn ngang gây giật màn hình trên thiết bị di động; giảm padding đệm từ `p-6` xuống `p-4 sm:p-6 md:p-10` để mở rộng không gian nội dung trên màn hình hẹp.
+    - Thanh điều hướng 5 bước tại `epub-packer/+page.svelte`: chuyển đổi từ lưới 2 cột ngắt quãng sang thanh cuộn ngang mượt mà (`flex overflow-x-auto gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-5`), các bước hiển thị trọn vẹn theo hàng ngang mà không bị cô lập bước 5 ở dòng 3.
+    - Chuẩn hóa padding các thẻ card (`modern-card`) trên toàn bộ các section packer, trang pdf, epub-to-txt, txt-to-pdf và các modal sang `p-5 sm:p-7` (và `p-4 sm:p-6` cho modal content), đồng thời tinh chỉnh các nút cắt lề bìa `px-2.5 sm:px-3.5` chống tràn ngang.
+    - Toàn bộ **350/350 unit tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Làm mới toàn diện giao diện (UI Refinement Suite)**:
     - Làm mới các section bên trong EPUB Packer (EpubSourceSection, EpubCoverSection, EpubOrnamentsSection, EpubIllustrationsSection, EpubMetadataSection, EpubPackSection): loại bỏ font-mono và uppercase ở các nhãn/tiêu đề, chuẩn hóa ô nhập `bg-panel-2 border-field-border h-11`, nút cắt lề cao 40px viền `border-field-border`.
     - Thanh tiến trình 5 bước mảnh mai (Slender step bar) tại `epub-packer/+page.svelte`: đường kẻ nối, vòng tròn số/dấu ✓ 32px, tiêu đề bước và dòng phụ mô tả ngắn gọn, loại bỏ viền thẻ thô cứng và badge.
@@ -382,6 +388,35 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Sửa lỗi vỡ layout trên Mobile View & Tối ưu Responsive Drawer/Cards)
+
+- Thêm/sửa:
+  - Khắc phục lỗi vỡ drawer navigation menu trên điện thoại (`+layout.svelte`): Khi người dùng đang ở các route công cụ, trạng thái `isCollapsed` kích hoạt khiến các nút tab bị gán nhầm kích thước `w-11` (44px) trên mobile trong khi nhãn chữ vẫn hiển thị; đã chuyển `w-11`, `justify-center`, `p-0`, `mx-auto` sang phạm vi `md:` để mobile drawer luôn hiển thị trọn vẹn icon và text label.
+  - Phục hồi hiển thị tiêu đề các nhóm công cụ ("Tạo và tinh chỉnh", "Tiền xử lý", "Mở rộng") trên mobile drawer, sửa căn chỉnh header logo.
+  - Thay thế `w-screen` thành `w-full max-w-full` chống giật và tràn ngang trên mobile; giảm padding container chính từ `p-6` xuống `p-4 sm:p-6 md:p-10` tối ưu diện tích hiển thị.
+  - Cải tiến thanh điều hướng 5 bước tại `epub-packer/+page.svelte` trên di động thành dải cuộn ngang mượt mà (`flex overflow-x-auto min-w-max sm:min-w-0`), tránh tình trạng 5 bước bị chia thành 3 dòng cụt lủn với bước 5 lẻ loi.
+  - Tối ưu hóa padding của các thẻ card `modern-card` trên toàn bộ section packer (`EpubCoverSection`, `EpubSourceSection`, `EpubOrnamentsSection`, `EpubIllustrationsSection`, `EpubMetadataSection`, `EpubFontSettingsSection`, `EpubPackSection`), các trang `pdf`, `epub-to-txt`, `txt-to-pdf`, `epub-editor` và modal về mức `p-5 sm:p-7`, các nút cắt lề `px-2.5 sm:px-3.5` chống tràn giao diện trên màn hình nhỏ.
+  - Tuyệt đối bảo toàn 100% logic và không can thiệp vào bất kỳ file `.ts` nào trong `src/` (0 file `.ts` bị ảnh hưởng).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | build production ✅ | graphify ✅ (4884 nodes, 10359 edges)
+- File chính bị ảnh hưởng:
+  - `src/routes/+layout.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `src/lib/epub-packer/components/EpubPackSection.svelte`
+  - `src/routes/epub-editor/+page.svelte`
+  - `src/lib/epub-editor/components/EpubValidatorModal.svelte`
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/routes/epub-to-txt/+page.svelte`
+  - `src/routes/txt-to-pdf/+page.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Làm mới giao diện UI: Packer Sections, Slender Steps, Overview, Sidebar & SVG Icons)
 

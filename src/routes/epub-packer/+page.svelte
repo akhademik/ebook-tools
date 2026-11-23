@@ -117,13 +117,18 @@
 />
 
 <!-- 5-step navigation bar -->
-<nav aria-label="Các bước đóng gói EPUB" class="mb-8 pb-4 border-b border-border-color/60">
-	<ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 relative">
+<nav
+	aria-label="Các bước đóng gói EPUB"
+	class="mb-8 pb-4 border-b border-border-color/60 overflow-x-auto"
+>
+	<ol
+		class="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative min-w-max sm:min-w-0"
+	>
 		{#each steps as step, idx (step.id)}
 			{@const isActive = currentStep === step.id}
 			{@const isDisabled = step.id > 1 && !hasChapters}
 			{@const isDone = step.isCompleted || currentStep > step.id}
-			<li class="relative">
+			<li class="relative shrink-0 sm:shrink min-w-[140px] sm:min-w-0">
 				<!-- Connecting line between steps on desktop -->
 				{#if idx < steps.length - 1}
 					<div
@@ -264,7 +269,7 @@
 
 	<!-- Right column: Persistent Summary Column (sticky on desktop) -->
 	<aside class="w-full lg:col-span-4 lg:sticky lg:top-6 shrink-0">
-		<div class="modern-card rounded-2xl p-6 shadow-sm border border-border-color">
+		<div class="modern-card rounded-2xl p-5 sm:p-6 shadow-sm border border-border-color">
 			<div class="flex items-center justify-between mb-4 pb-3 border-b border-border-color">
 				<h3 class="text-base font-bold text-text-color font-sans">Tóm tắt sách</h3>
 				{#if hasChapters}

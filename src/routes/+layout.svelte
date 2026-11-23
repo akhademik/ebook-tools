@@ -80,7 +80,7 @@
 	}
 </script>
 
-<div class="flex h-dvh w-screen bg-brand-bg md:flex-row flex-col overflow-hidden relative">
+<div class="flex h-dvh w-full max-w-full bg-brand-bg md:flex-row flex-col overflow-hidden relative">
 	<!-- Backdrop for mobile drawer -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -114,9 +114,9 @@
 
 		<!-- Header & Logo -->
 		<div
-			class="flex {isCollapsed
-				? 'md:flex-col md:gap-3 md:items-center'
-				: 'items-center justify-between'} mb-6"
+			class="flex items-center justify-between {isCollapsed
+				? 'md:flex-col md:gap-3 md:items-center md:justify-center'
+				: ''} mb-6"
 		>
 			<a
 				href="/"
@@ -181,9 +181,9 @@
 				aria-current={isHome ? 'page' : undefined}
 				title="Tổng quan"
 				aria-label="Tổng quan"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isHome
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isHome
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -207,18 +207,17 @@
 			</a>
 
 			<!-- 2. Nhóm: Tạo và tinh chỉnh -->
-			{#if isCollapsed}
-				<div
-					class="h-px bg-border-color my-1.5 w-6 mx-auto hidden md:block"
-					aria-hidden="true"
-				></div>
-			{:else}
-				<div
-					class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3"
-				>
-					Tạo và tinh chỉnh
-				</div>
-			{/if}
+			<div
+				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+					? 'md:hidden'
+					: 'block'}"
+			>
+				Tạo và tinh chỉnh
+			</div>
+			<div
+				class="h-px bg-border-color my-1.5 w-6 mx-auto hidden {isCollapsed ? 'md:block' : ''}"
+				aria-hidden="true"
+			></div>
 
 			<!-- Đóng gói EPUB -->
 			<a
@@ -227,9 +226,9 @@
 				aria-current={isPacker ? 'page' : undefined}
 				title="Đóng gói EPUB"
 				aria-label="Đóng gói EPUB"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isPacker
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isPacker
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -261,9 +260,9 @@
 				aria-current={isEditor ? 'page' : undefined}
 				title="EPUB Editor"
 				aria-label="EPUB Editor"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isEditor
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isEditor
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -287,18 +286,17 @@
 			</a>
 
 			<!-- 3. Nhóm: Tiền xử lý -->
-			{#if isCollapsed}
-				<div
-					class="h-px bg-border-color my-1.5 w-6 mx-auto hidden md:block"
-					aria-hidden="true"
-				></div>
-			{:else}
-				<div
-					class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3"
-				>
-					Tiền xử lý
-				</div>
-			{/if}
+			<div
+				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+					? 'md:hidden'
+					: 'block'}"
+			>
+				Tiền xử lý
+			</div>
+			<div
+				class="h-px bg-border-color my-1.5 w-6 mx-auto hidden {isCollapsed ? 'md:block' : ''}"
+				aria-hidden="true"
+			></div>
 
 			<!-- PDF → JPG -->
 			<a
@@ -307,9 +305,9 @@
 				aria-current={isPdf ? 'page' : undefined}
 				title="PDF → JPG"
 				aria-label="PDF → JPG"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isPdf
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isPdf
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -338,9 +336,9 @@
 				aria-current={isEpubToTxt ? 'page' : undefined}
 				title="EPUB → TXT"
 				aria-label="EPUB → TXT"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isEpubToTxt
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isEpubToTxt
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -364,18 +362,17 @@
 			</a>
 
 			<!-- 4. Nhóm: Mở rộng -->
-			{#if isCollapsed}
-				<div
-					class="h-px bg-border-color my-1.5 w-6 mx-auto hidden md:block"
-					aria-hidden="true"
-				></div>
-			{:else}
-				<div
-					class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3"
-				>
-					Mở rộng
-				</div>
-			{/if}
+			<div
+				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+					? 'md:hidden'
+					: 'block'}"
+			>
+				Mở rộng
+			</div>
+			<div
+				class="h-px bg-border-color my-1.5 w-6 mx-auto hidden {isCollapsed ? 'md:block' : ''}"
+				aria-hidden="true"
+			></div>
 
 			<!-- TXT → PDF CJK -->
 			<a
@@ -384,9 +381,9 @@
 				aria-current={isTxtToPdf ? 'page' : undefined}
 				title="TXT → PDF CJK"
 				aria-label="TXT → PDF CJK"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isTxtToPdf
+				class="tab-btn rounded-xl flex items-center transition-all duration-150 border h-11 px-3.5 gap-3 w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''} {isTxtToPdf
 					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
 					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
 			>
@@ -415,9 +412,9 @@
 				onclick={toggleTheme}
 				aria-label={isDark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
 				title={isDark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
-				class="flex items-center rounded-xl border border-field-border bg-panel-2 hover:border-accent-color text-text-color cursor-pointer transition-all duration-150 {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3 justify-between w-full'}"
+				class="flex items-center rounded-xl border border-field-border bg-panel-2 hover:border-accent-color text-text-color cursor-pointer transition-all duration-150 h-11 px-3 justify-between w-full {isCollapsed
+					? 'md:w-11 md:justify-center md:p-0 md:mx-auto'
+					: ''}"
 			>
 				<span class="flex items-center gap-2.5">
 					{#if isDark}
@@ -509,7 +506,7 @@
 		</header>
 
 		<!-- ROUTER PANELS -->
-		<div class="flex-1 overflow-y-auto p-6 md:p-10 pb-24 md:pb-10">
+		<div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 pb-24 md:pb-10">
 			{@render children?.()}
 		</div>
 	</main>

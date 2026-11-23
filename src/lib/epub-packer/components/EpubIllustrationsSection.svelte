@@ -9,7 +9,7 @@
 	let { epubState }: Props = $props();
 </script>
 
-<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
 	<div class="flex items-center justify-between mb-3">
 		<h2 class="text-base font-semibold text-text-color">Ảnh minh họa nội dung (Illustrations)</h2>
 		{#if epubState.images.illustrationFiles.length > 0}

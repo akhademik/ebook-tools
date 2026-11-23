@@ -30,7 +30,7 @@
 	badge={true}
 />
 
-<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
 	<h2 class="text-base font-semibold text-text-color mb-3">File sách điện tử (.epub)</h2>
 
 	<DropZone

@@ -13,7 +13,7 @@
 	<!-- Left 2 columns: Description & Features -->
 	<div class="lg:col-span-2 flex flex-col gap-6">
 		<!-- Introduction Card -->
-		<div class="modern-card rounded-2xl p-7 flex flex-col gap-4">
+		<div class="modern-card rounded-2xl p-5 sm:p-7 flex flex-col gap-4">
 			<div class="flex items-center gap-3">
 				<div
 					class="w-10 h-10 rounded-xl bg-accent-soft text-accent-color flex items-center justify-center shrink-0"
@@ -322,7 +322,7 @@
 		</div>
 
 		<!-- Instructions Card -->
-		<div class="modern-card rounded-2xl p-7 flex flex-col gap-4">
+		<div class="modern-card rounded-2xl p-5 sm:p-7 flex flex-col gap-4">
 			<h4 class="font-bold text-text-color flex items-center gap-2">
 				<svg
 					class="w-4 h-4 text-accent-color shrink-0"

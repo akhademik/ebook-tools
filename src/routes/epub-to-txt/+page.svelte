@@ -19,7 +19,7 @@
 	badge={true}
 />
 
-<div class="modern-card rounded-2xl p-7 mb-6">
+<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">
 	<h2 class="text-base font-semibold text-text-color mb-3">File sách (.epub)</h2>
 	<DropZone
 		accept=".epub,application/epub+zip"
@@ -31,7 +31,7 @@
 	{#if state.selectedFile}
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
 			{#if !state.result}
-				<div class="w-full md:w-auto md:flex-1 max-w-65 min-w-47.5 shrink-0">
+				<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
 					<Button
 						onclick={() => state.processEpub()}
 						disabled={state.isProcessing}
@@ -43,7 +43,7 @@
 			{/if}
 
 			{#if state.result}
-				<div class="w-full md:w-auto md:flex-1 max-w-65 min-w-47.5 shrink-0">
+				<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
 					<Button onclick={() => state.downloadTxt()} variant="primary">Tải file .TXT</Button>
 				</div>
 			{/if}

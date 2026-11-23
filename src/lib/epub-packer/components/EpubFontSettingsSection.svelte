@@ -23,7 +23,7 @@
 	);
 </script>
 
-<div class="modern-card rounded-2xl p-7 mb-6 animate-fade-in">
+<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
 	<h2 class="text-base font-semibold text-text-color mb-4">
 		Cấu hình phông chữ nội dung & Xem trước chương
 	</h2>
@@ -67,7 +67,7 @@
 				Xem trước trang sách (Preview)
 			</span>
 			<div
-				class="border border-border-color rounded-2xl p-6 shadow-inner w-full flex-1"
+				class="border border-border-color rounded-2xl p-4 sm:p-6 shadow-inner w-full flex-1"
 				style="background-color: #fbf8ef; color: #073642; font-family: sans-serif;"
 			>
 				<h1

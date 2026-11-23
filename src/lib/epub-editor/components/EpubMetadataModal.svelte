@@ -89,7 +89,7 @@
 		>
 			<!-- Header -->
 			<div
-				class="px-6 py-4 border-b border-border-color flex justify-between items-center bg-panel-2"
+				class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-color flex justify-between items-center bg-panel-2"
 			>
 				<div class="flex items-center gap-2.5">
 					<div
@@ -139,7 +139,7 @@
 			</div>
 
 			<!-- Body Content -->
-			<div class="p-6 overflow-y-auto space-y-5">
+			<div class="p-4 sm:p-6 overflow-y-auto space-y-5">
 				{#if saveSuccessMessage}
 					<div
 						class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-mono text-emerald-500 flex items-center gap-2"
@@ -236,7 +236,9 @@
 			</div>
 
 			<!-- Footer Buttons -->
-			<div class="px-6 py-4 border-t border-border-color bg-panel-2 flex justify-end items-center">
+			<div
+				class="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-border-color bg-panel-2 flex justify-end items-center"
+			>
 				<div class="w-full sm:w-auto min-w-40">
 					<Button
 						variant="primary"

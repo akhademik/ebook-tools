@@ -112,7 +112,7 @@
 			</div>
 
 			<!-- Body Content -->
-			<div class="p-6 overflow-y-auto space-y-5">
+			<div class="p-4 sm:p-6 overflow-y-auto space-y-5">
 				{#if isAnalyzing}
 					<div class="py-12 flex flex-col items-center justify-center text-center">
 						<div
