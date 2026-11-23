@@ -13,6 +13,9 @@
 	--color-text-mute: var(--color-text-mute);
 	--color-border-color: var(--color-border-color);
 	--color-border-soft: var(--color-border-soft);
+	--color-field-border: var(--color-field-border);
+	--color-on-accent: var(--color-on-accent);
+	--color-ok: var(--color-ok);
 	--font-mono: 'Space Mono', monospace;
 	--font-sans: 'Inter', sans-serif;
 }
@@ -20,18 +23,21 @@
 :root {
 	/* Solarized Light Theme (Warm Cream / Sand - No pure white) */
 	--color-brand-bg: #fdf6e3; /* Solarized base3 warm cream background */
-	--color-sidebar-bg: #eee8d5; /* Solarized base2 soft porcelain sidebar */
+	--color-sidebar-bg: #f3ecd8; /* Solarized base2 soft porcelain sidebar */
 	--color-panel: #eee8d5; /* Solarized base2 panel cards */
 	--color-panel-2: #fdf6e3; /* Solarized base3 inset inputs */
-	--color-accent-color: #268bd2; /* Solarized Blue */
-	--color-accent-soft: rgba(38, 139, 210, 0.1);
-	--color-accent-hover: #1d75b8;
+	--color-accent-color: #1d6fa8; /* Accessible Solarized Blue */
+	--color-accent-soft: rgba(29, 111, 168, 0.1);
+	--color-accent-hover: #165886;
 	--color-amber-color: #b58900; /* Solarized Yellow/Amber */
 	--color-text-color: #073642; /* Solarized base02 deep teal navy text */
-	--color-text-mute: #586e75; /* Solarized base01 slate text */
-	--color-border-color: #d3cbb7; /* Solarized soft border */
-	--color-border-soft: #b58900; /* Input border */
-	--card-shadow: 0 4px 20px -2px rgba(7, 54, 66, 0.08);
+	--color-text-mute: #4a6168; /* Contrast >= 4.5:1 text-mute */
+	--color-border-color: #d9d1bb; /* Soft border between blocks */
+	--color-border-soft: #b58900; /* Input focus border */
+	--color-field-border: #8a8168; /* Input/secondary button border (>= 3:1) */
+	--color-on-accent: #fdf6e3; /* Text on accent button */
+	--color-ok: #3f6a10; /* Success state */
+	--card-shadow: 0 4px 20px -2px rgba(7, 54, 66, 0.06);
 
 	--font-mono: 'Space Mono', monospace;
 	--font-sans: 'Inter', sans-serif;
@@ -40,17 +46,20 @@
 html.dark {
 	/* Solarized Dark Theme (Deep Cyan / Navy Teal - No pure black) */
 	--color-brand-bg: #002b36; /* Solarized base03 deep teal navy background */
-	--color-sidebar-bg: #073642; /* Solarized base02 navy teal sidebar */
+	--color-sidebar-bg: #00222b; /* Slightly darker sidebar than bg */
 	--color-panel: #073642; /* Solarized base02 cards */
 	--color-panel-2: #002129; /* Solarized darker inset inputs */
-	--color-accent-color: #2aa198; /* Solarized Cyan */
-	--color-accent-soft: rgba(42, 161, 152, 0.15);
-	--color-accent-hover: #35b6ab;
+	--color-accent-color: #35b6ab; /* Accessible Solarized Cyan */
+	--color-accent-soft: rgba(53, 182, 171, 0.14);
+	--color-accent-hover: #2da399;
 	--color-amber-color: #b58900; /* Solarized Yellow/Amber */
-	--color-text-color: #93a1a1; /* Solarized base1 light teal text */
-	--color-text-mute: #657b83; /* Solarized base0 muted text */
-	--color-border-color: #586e75; /* Solarized base01 border */
-	--color-border-soft: #073642; /* Input border */
+	--color-text-color: #eee8d5; /* Solarized base2 light text for contrast */
+	--color-text-mute: #93a1a1; /* Contrast >= 4.5:1 on dark bg/panel */
+	--color-border-color: #1b4653; /* Soft border between blocks */
+	--color-border-soft: #073642; /* Input focus border */
+	--color-field-border: #5b7f87; /* Input/secondary button border (>= 3:1) */
+	--color-on-accent: #002b36; /* Text on accent button */
+	--color-ok: #7bb661; /* Success state */
 	--card-shadow: 0 10px 30px -8px rgba(0, 33, 41, 0.7);
 }
 
@@ -72,24 +81,15 @@ body {
 .modern-card {
 	background-color: var(--color-panel);
 	border: 1px solid var(--color-border-color);
+	border-radius: 1rem; /* rounded-2xl */
 	box-shadow: var(--card-shadow);
 	transition:
-		transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
 		border-color 0.2s ease,
 		box-shadow 0.2s ease,
 		background-color 0.25s ease;
 }
 .modern-card:hover {
 	border-color: var(--color-accent-color);
-	box-shadow:
-		0 10px 25px -5px rgba(38, 139, 210, 0.25),
-		0 8px 10px -6px rgba(38, 139, 210, 0.2);
-}
-
-html.dark .modern-card:hover {
-	box-shadow:
-		0 10px 30px -5px rgba(42, 161, 152, 0.35),
-		0 8px 15px -6px rgba(42, 161, 152, 0.3);
 }
 
 /* Sidebar Tab Buttons Hover & Active States */
@@ -103,13 +103,13 @@ html.dark .modern-card:hover {
 }
 
 .tab-btn:hover {
-	border-color: rgba(38, 139, 210, 0.3);
-	box-shadow: 0 4px 12px rgba(38, 139, 210, 0.08);
+	border-color: rgba(29, 111, 168, 0.25);
+	box-shadow: 0 2px 8px rgba(29, 111, 168, 0.06);
 }
 
 html.dark .tab-btn:hover {
-	border-color: rgba(42, 161, 152, 0.3);
-	box-shadow: 0 4px 12px rgba(42, 161, 152, 0.12);
+	border-color: rgba(53, 182, 171, 0.25);
+	box-shadow: 0 2px 8px rgba(53, 182, 171, 0.08);
 }
 
 /* Form Inputs & Buttons readable font size */

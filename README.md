@@ -151,8 +151,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-18 14:30
+- Cập nhật lần cuối: 2026-11-23 10:15
 - Đã hoàn thành:
+  - **Giai đoạn 1 Làm mới Giao diện — Token màu Solarized & Typography chuẩn WCAG AA (`UI_DIRECTION.md`)**:
+    - Cập nhật toàn bộ bảng màu CSS theme variables trong [`src/routes/layout.css`](src/routes/layout.css) đạt tỷ lệ tương phản tối thiểu 4.5:1 cho văn bản và 3:1 cho đường viền ô nhập: `--color-accent-color` (`#1d6fa8` / `#35b6ab`), `--color-text-mute` (`#4a6168` / `#93a1a1`), `--color-text-color` (`#073642` / `#eee8d5`), `--color-border-color` (`#d9d1bb` / `#1b4653`), `--color-sidebar-bg` (`#f3ecd8` / `#00222b`).
+    - Bổ sung 3 biến theme mới: `--color-field-border` (viền ô nhập/nút phụ `#8a8168` / `#5b7f87`), `--color-on-accent` (màu chữ trên nút accent `#fdf6e3` / `#002b36`), `--color-ok` (trạng thái thành công `#3f6a10` / `#7bb661`).
+    - Tinh chỉnh `.modern-card`: bo góc `rounded-2xl` (`border-radius: 1rem`), loại bỏ hiệu ứng phát sáng quá mạnh, chỉ đổi viền nhẹ khi hover.
+    - Đồng bộ hóa tài liệu quy chuẩn [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) theo định hướng UI mới.
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Khử bỏ số chú thích `{...}` khỏi tiêu đề Mục lục (TOC Footnote Reference Stripping)**:
     - Loại bỏ thẻ chú thích `<a class="noteref"...>...</a>` và ký hiệu thô `{...}` khi trích xuất tiêu đề cho TOC trong cả `txt-parser.ts` (`stripFootnoteRefs`) và `nav-builder.ts`.
     - Bảo toàn 100% link nhảy chú thích `<sup>{n}</sup>` trong nội dung đọc `<h1>`/`<h2>`, đồng thời giữ cho Mục lục (`nav.xhtml`, `toc.ncx`) hiển thị sạch sẽ (ví dụ `ANH TÔNG` thay vì `ANH TÔNG642`).
@@ -319,6 +325,17 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 1: Nâng cấp Token màu Solarized & Typography Inter WCAG AA)
+
+- Thêm/sửa: Triển khai Giai đoạn 1 làm mới giao diện theo `UI_DIRECTION.md`:
+  - `src/routes/layout.css`: Cập nhật bảng màu Solarized đạt chuẩn tương phản cao (WCAG AA ≥ 4.5:1 đối với text và ≥ 3:1 đối với viền input). Bổ sung các biến CSS theme: `--color-field-border`, `--color-on-accent`, `--color-ok`. Tinh chỉnh `.modern-card` bo góc `rounded-2xl` và hiệu ứng hover tinh tế.
+  - `DESIGN_SYSTEM.md`: Đồng bộ tài liệu quy chuẩn thiết kế, bảng ánh xạ Tailwind v4, quy chuẩn typography Inter cho toàn bộ UI và button variants.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/layout.css`
+  - `DESIGN_SYSTEM.md`
+  - `README.md`
 
 ### 2026-11-18 (Khử số chú thích trong TOC & Loại bỏ trang không tiêu đề khỏi Mục lục & Preview UI)
 
