@@ -151,8 +151,15 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 10:48
+- Cập nhật lần cuối: 2026-11-23 11:00
 - Đã hoàn thành:
+  - **Giai đoạn 4 Làm mới Giao diện — Tái Cấu Trúc Trang Tổng Quan (`src/routes/+page.svelte`) (`UI_DIRECTION.md`)**:
+    - Thiết kế lại trang Tổng quan theo định hướng giao diện mới:
+      - Header: Tiêu đề "Bàn làm việc", mô tả tinh gọn, huy hiệu trạng thái bảo mật "Tệp không rời khỏi máy bạn" với màu `--color-ok`.
+      - Khối "Bắt đầu với": 2 thẻ lớn (Đóng gói EPUB & EPUB Editor & Validator) với icon SVG nổi bật, chip tính năng chi tiết, loại bỏ nút lặp (thẻ chính là liên kết với mũi tên điều hướng).
+      - Khối "Quy trình gợi ý cho sách quét": Mô hình 5 bước trực quan (PDF → JPG, OCR ngoài viền đứt, Markdown Fixer, Đóng gói EPUB, EPUB Editor) với hướng dẫn rõ ràng.
+      - Khối "Công cụ lẻ & Mở rộng": Danh sách thẻ ngang gọn gàng (EPUB → TXT, PDF → JPG, Markdown Fixer, TXT → PDF CJK gắn tag Desktop).
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 3 Làm mới Giao diện — Khung Ứng Dụng & Sidebar Tự Thu Gọn 72px (`UI_DIRECTION.md`)**:
     - Nâng cấp layout ứng dụng trong [`src/routes/+layout.svelte`](src/routes/+layout.svelte):
       - Cơ chế thu gọn 2 trạng thái: mở rộng 232px (`w-[232px]`) ở trang chủ `/`, tự động thu gọn 72px (`w-[72px]`) khi chuyển vào các công cụ để mở rộng không gian làm việc.
@@ -341,6 +348,16 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 4: Tái Cấu Trúc Trang Tổng Quan Bàn Làm Việc)
+
+- Thêm/sửa: Triển khai Giai đoạn 4 theo `UI_DIRECTION.md`:
+  - `src/routes/+page.svelte`: Thiết kế lại trang Tổng quan với tiêu đề Bàn làm việc, huy hiệu "Tệp không rời khỏi máy bạn", 2 thẻ lớn bắt đầu nhanh với chips tính năng, sơ đồ 5 bước quy trình gợi ý cho sách quét, và danh sách thẻ ngang công cụ lẻ.
+  - Bảo toàn 100% các đường dẫn liên kết (`href`) và khả năng điều hướng.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/+page.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Giai đoạn 3: Khung Ứng Dụng & Sidebar Tự Thu Gọn 72px)
 
