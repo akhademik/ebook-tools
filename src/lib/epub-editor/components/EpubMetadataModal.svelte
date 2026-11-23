@@ -142,7 +142,7 @@
 			<div class="p-4 sm:p-6 overflow-y-auto space-y-5">
 				{#if saveSuccessMessage}
 					<div
-						class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-mono text-emerald-500 flex items-center gap-2"
+						class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-sans text-emerald-500 flex items-center gap-2"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

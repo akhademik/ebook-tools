@@ -178,25 +178,25 @@
 						</div>
 
 						<div
-							class="text-left text-xs font-mono space-y-1 text-text-mute bg-panel/60 p-3 rounded-lg border border-border-color"
+							class="text-left text-xs font-sans space-y-1 text-text-mute bg-panel/60 p-3 rounded-lg border border-border-color"
 						>
 							<div>
-								• Ảnh đã xóa: <span class="text-text-color font-semibold"
+								• Ảnh đã xóa: <span class="text-text-color font-mono font-semibold"
 									>{editorState.cleanReport.removedImages.length}</span
 								>
 							</div>
 							<div>
-								• Font đã xóa: <span class="text-text-color font-semibold"
+								• Font đã xóa: <span class="text-text-color font-mono font-semibold"
 									>{editorState.cleanReport.removedFonts.length}</span
 								>
 							</div>
 							<div>
-								• CSS đã xóa: <span class="text-text-color font-semibold"
+								• CSS đã xóa: <span class="text-text-color font-mono font-semibold"
 									>{editorState.cleanReport.removedStyles.length}</span
 								>
 							</div>
 							<div>
-								• Mục Manifest đã cập nhật: <span class="text-text-color font-semibold"
+								• Mục Manifest đã cập nhật: <span class="text-text-color font-mono font-semibold"
 									>{editorState.cleanReport.removedManifestEntries.length}</span
 								>
 							</div>
@@ -207,13 +207,13 @@
 					<!-- Analysis Stats -->
 					<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
-							<span class="text-xs text-text-mute block font-mono">Tổng dung lượng</span>
+							<span class="text-xs text-text-mute block font-sans">Tổng dung lượng</span>
 							<span class="font-mono text-sm font-bold text-text-color"
 								>{formatByteSize(a.totalBytes)}</span
 							>
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
-							<span class="text-xs text-text-mute block font-mono">Ảnh không dùng</span>
+							<span class="text-xs text-text-mute block font-sans">Ảnh không dùng</span>
 							<span
 								class="font-mono text-sm font-bold {a.unusedImages.length > 0
 									? 'text-amber-400'
@@ -223,7 +223,7 @@
 							</span>
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
-							<span class="text-xs text-text-mute block font-mono">Font không dùng</span>
+							<span class="text-xs text-text-mute block font-sans">Font không dùng</span>
 							<span
 								class="font-mono text-sm font-bold {a.unusedFonts.length > 0
 									? 'text-amber-400'
@@ -233,7 +233,7 @@
 							</span>
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
-							<span class="text-xs text-text-mute block font-mono">Có thể giảm</span>
+							<span class="text-xs text-text-mute block font-sans">Có thể giảm</span>
 							<span class="font-mono text-sm font-bold text-emerald-400">
 								~{formatByteSize(a.estimatedSavingsBytes)}
 							</span>
@@ -242,7 +242,7 @@
 
 					<!-- Options -->
 					<div class="space-y-3 bg-sidebar-bg p-4 rounded-xl border border-border-color">
-						<span class="font-mono text-xs text-text-mute uppercase block font-semibold"
+						<span class="font-sans text-xs text-text-mute block font-semibold"
 							>Tùy chọn dọn dẹp</span
 						>
 

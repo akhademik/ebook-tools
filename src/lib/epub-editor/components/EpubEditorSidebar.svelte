@@ -47,7 +47,7 @@
 	<!-- Sidebar Header -->
 	<div class="p-3.5 border-b border-border-color">
 		<div class="flex items-center justify-between mb-2">
-			<span class="font-mono text-xs font-bold uppercase tracking-wider text-text-mute">
+			<span class="font-sans text-xs font-semibold uppercase tracking-wider text-text-mute">
 				Cấu trúc file ({editorState.files.length})
 			</span>
 			{#if editorState.dirtyPaths.size > 0}

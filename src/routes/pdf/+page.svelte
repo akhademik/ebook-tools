@@ -70,23 +70,23 @@
 		<h2 class="text-base font-semibold text-text-color mb-3">Cắt xén Header / Footer</h2>
 
 		<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-			<span class="text-sm font-medium text-text-mute">Trang xem trước</span>
+			<span class="text-sm font-medium text-text-mute font-sans">Trang xem trước</span>
 			<div class="flex gap-2">
 				<button
-					class="bg-panel-2 border border-border-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
+					class="bg-panel-2 border border-field-border font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					10
-						? 'text-amber-color hover:border-amber-color'
-						: 'border-accent-color text-accent-color bg-accent-soft'}"
+						? 'text-amber-color border-amber-color bg-amber-500/10'
+						: 'border-field-border text-text-color hover:border-accent-color'}"
 					onclick={() => {
 						state.selectedPreviewCount = 10;
 					}}
 					type="button">10 trang</button
 				>
 				<button
-					class="bg-panel-2 border border-border-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
+					class="bg-panel-2 border border-field-border font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					20
-						? 'text-amber-color hover:border-amber-color'
-						: 'border-accent-color text-accent-color bg-accent-soft'}"
+						? 'text-amber-color border-amber-color bg-amber-500/10'
+						: 'border-field-border text-text-color hover:border-accent-color'}"
 					onclick={() => {
 						state.selectedPreviewCount = 20;
 					}}
@@ -97,7 +97,7 @@
 
 		<div class="flex justify-center mb-5">
 			<button
-				class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2.5 px-6 rounded-xl cursor-pointer transition-colors w-full md:w-auto"
+				class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-11 px-6 rounded-xl cursor-pointer transition-colors w-full md:w-auto"
 				onclick={() => state.loadPreview()}
 				disabled={state.loadingPreview}
 				type="button"
@@ -114,16 +114,19 @@
 			<div class="mt-5 pt-5 border-t border-border-color animate-fade-in">
 				<div class="flex items-center justify-center gap-4 mb-5">
 					<button
-						class="bg-panel-2 text-text-color border border-border-color hover:border-amber-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer"
+						class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
 						onclick={() => state.prevPreviewPage()}
 						type="button">‹ Trước</button
 					>
-					<span class="font-mono text-sm text-text-mute"
-						>Trang {state.previewPages[state.currentPreviewIndex]?.pageNum} ({state.currentPreviewIndex +
-							1} / {state.previewPages.length})</span
+					<span class="font-sans text-sm text-text-mute"
+						>Trang <span class="font-mono text-text-color font-medium"
+							>{state.previewPages[state.currentPreviewIndex]?.pageNum}</span
+						>
+						(<span class="font-mono">{state.currentPreviewIndex + 1}</span> /
+						<span class="font-mono">{state.previewPages.length}</span>)</span
 					>
 					<button
-						class="bg-panel-2 text-text-color border border-border-color hover:border-amber-color font-mono text-sm py-2 px-4 rounded-xl cursor-pointer"
+						class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
 						onclick={() => state.nextPreviewPage()}
 						type="button">Sau ›</button
 					>
@@ -157,42 +160,46 @@
 
 				<div class="flex items-center justify-center gap-8 mt-5 flex-wrap">
 					<div>
-						<span class="font-mono text-xs text-text-mute uppercase mb-2 block">Header (px)</span>
+						<span class="font-sans text-xs font-semibold text-text-mute mb-2 block"
+							>Header (px)</span
+						>
 						<div class="flex items-center gap-2">
 							<button
-								class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+								class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-sm h-10 px-3.5 rounded-xl cursor-pointer transition-colors flex items-center justify-center"
 								onclick={() => state.adjustCrop('top', -10)}
 								type="button">−10</button
 							>
 							<input
 								type="number"
 								bind:value={state.cropTopPx}
-								class="w-20 bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2 px-3 rounded-xl text-center outline-none focus:border-accent-color"
+								class="w-20 bg-panel-2 border border-field-border text-text-color font-mono text-sm h-10 px-3 rounded-xl text-center outline-none focus:border-accent-color"
 								min="0"
 							/>
 							<button
-								class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+								class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-sm h-10 px-3.5 rounded-xl cursor-pointer transition-colors flex items-center justify-center"
 								onclick={() => state.adjustCrop('top', 10)}
 								type="button">+10</button
 							>
 						</div>
 					</div>
 					<div>
-						<span class="font-mono text-xs text-text-mute uppercase mb-2 block">Footer (px)</span>
+						<span class="font-sans text-xs font-semibold text-text-mute mb-2 block"
+							>Footer (px)</span
+						>
 						<div class="flex items-center gap-2">
 							<button
-								class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+								class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-sm h-10 px-3.5 rounded-xl cursor-pointer transition-colors flex items-center justify-center"
 								onclick={() => state.adjustCrop('bottom', -10)}
 								type="button">−10</button
 							>
 							<input
 								type="number"
 								bind:value={state.cropBottomPx}
-								class="w-20 bg-brand-bg border border-border-color text-text-color font-mono text-sm py-2 px-3 rounded-xl text-center outline-none focus:border-accent-color"
+								class="w-20 bg-panel-2 border border-field-border text-text-color font-mono text-sm h-10 px-3 rounded-xl text-center outline-none focus:border-accent-color"
 								min="0"
 							/>
 							<button
-								class="bg-panel-2 text-text-color border border-border-color hover:border-accent-color font-mono text-sm py-2 px-3.5 rounded-xl cursor-pointer"
+								class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-mono text-sm h-10 px-3.5 rounded-xl cursor-pointer transition-colors flex items-center justify-center"
 								onclick={() => state.adjustCrop('bottom', 10)}
 								type="button">+10</button
 							>
@@ -201,7 +208,7 @@
 				</div>
 				<div class="mt-5 flex justify-end">
 					<button
-						class="bg-transparent text-text-mute hover:text-text-color font-mono text-xs py-1.5 px-3 rounded cursor-pointer"
+						class="bg-transparent text-text-mute hover:text-text-color font-sans text-xs py-1.5 px-3 rounded cursor-pointer transition-colors"
 						onclick={() => state.resetCrop()}
 						type="button">Mặc định (Không cắt)</button
 					>
@@ -437,7 +444,7 @@
 					{#if !state.savedDirectoryName}
 						<button
 							type="button"
-							class="bg-panel-2 border border-border-color hover:border-accent-color text-accent-color text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
+							class="bg-panel-2 border border-field-border hover:border-accent-color text-accent-color text-xs font-semibold py-1.5 px-3 rounded-lg cursor-pointer transition-colors"
 							onclick={() => state.downloadAllParts()}
 							disabled={state.processing}
 						>
@@ -467,7 +474,7 @@
 								<div class="flex items-center gap-1.5 shrink-0">
 									<button
 										type="button"
-										class="bg-brand-bg border border-border-color hover:border-accent-color text-text-color text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
+										class="bg-panel-2 border border-field-border hover:border-accent-color text-text-color text-xs font-medium py-1.5 px-3 rounded-lg cursor-pointer transition-colors shrink-0"
 										onclick={() => state.downloadPart(idx)}
 										disabled={state.processing}
 									>

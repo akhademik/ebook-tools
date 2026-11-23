@@ -144,8 +144,23 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 17:25
+- Cập nhật lần cuối: 2026-11-23 17:55
 - Đã hoàn thành:
+  - **Làm mới triệt để giao diện theo phản hồi chi tiết (Comprehensive UI Polish & Refinement)**:
+    - **Trang PDF → JPG (`src/routes/pdf/+page.svelte`)**: Loại bỏ hoàn toàn font-mono trên các nhãn và nút ("10 trang", "20 trang", "Tải ảnh xem trước", "‹ Trước", "Sau ›", "Mặc định (Không cắt)"), bỏ uppercase trên nhãn "Header (px)" và "Footer (px)"; chuẩn hóa toàn bộ nút và ô nhập liệu sang `border-field-border` cao 40–44px và nền `bg-panel-2` theo đúng mockup thiết kế.
+    - **Giảm thiểu font-mono trên các modal editor**:
+      - `EpubCleanerModal.svelte`: Chuyển nhãn thống kê ("Tổng dung lượng", "Ảnh không dùng", "Font không dùng", "Có thể giảm", "Tùy chọn dọn dẹp") sang `font-sans`, bỏ uppercase; giữ font-mono chỉ cho số liệu, kích thước byte và đường dẫn file.
+      - `EpubJacketModal.svelte`: Chuyển đổi toàn bộ tiêu đề, nhãn mẫu, nhãn phông chữ, các nút chuyển mẫu và nút chọn sang `font-sans`, cao 40px viền `border-field-border`.
+      - `EpubSyntaxModal.svelte`: Bảng quy ước và các nút/nhãn chuyển sang `font-sans`, chỉ giữ font-mono trong thẻ `<code>` cú pháp kỹ thuật.
+      - `EpubEditorModal.svelte`, `EpubEditorSidebar.svelte`, `EpubMetadataModal.svelte`: Chuẩn hóa nút toggle file và tiêu đề sidebar sang `font-sans`.
+    - **Bước Thông tin sách (`EpubMetadataSection.svelte`)**: Bổ sung hàng thẻ chọn mẫu jacket trực quan (Mẫu 1–4 + Thẻ mở rộng "Xem cả 10 mẫu →" kích hoạt modal) với trạng thái active chuẩn; đổi nút "Xem trước & Tùy biến" từ accent đặc sang nút phụ viền mảnh `border-field-border` chuẩn mockup.
+    - **Tinh giản thẻ "Quy trình gợi ý cho sách quét" (`src/routes/+page.svelte`)**: Gỡ bỏ badge cồng kềnh "Nội bộ/Bên ngoài" và dòng footer "Mở… →"; giữ giao diện thanh thoát chỉ gồm "Bước N", tiêu đề và 1 dòng mô tả; bổ sung mũi tên nối liền mạch giữa các ô trên desktop; thẻ Bước 2 (OCR ngoài) giữ viền nét đứt tinh tế.
+    - **Bỏ chữ hoa (uppercase) trên các tiêu đề nhóm**: Chuyển "BẮT ĐẦU VỚI", "QUY TRÌNH GỢI Ý CHO SÁCH QUÉT", "CÔNG CỤ LẺ & MỞ RỘNG" sang câu thường `font-sans font-semibold`; bỏ font-mono ở dòng phụ "Desk" logo sidebar (`src/routes/+layout.svelte`).
+    - **Chuẩn hóa chi tiết nhỏ**:
+      - Bổ sung prop `size="lg"` (h-12) vào `Button.svelte`, loại bỏ hoàn toàn cú pháp ghi đè `[&>button]:!h-12` tại cột tóm tắt sách của packer.
+      - Bỏ huy hiệu "Chế bản chính" không cần thiết trên thẻ Đóng gói EPUB.
+      - Đồng bộ huy hiệu "Xử lý 100% ngoại tuyến" tại `PageHeader.svelte` và `+page.svelte` sang token thiết kế `bg-ok/10 text-ok border-ok/20` chuẩn WCAG.
+    - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ | build Cloudflare ✅
   - **Khắc phục triệt để lỗi vỡ giao diện trên Mobile View (Mobile Responsive Fixes)**:
     - Sửa lỗi nghiêm trọng tại Drawer Menu Sidebar (`src/routes/+layout.svelte`): Khi vào các trang công cụ, trạng thái `isCollapsed` tự động kích hoạt khiến các nút điều hướng và nút đổi theme trên drawer di động bị co thành hình vuông 44px (`w-11`), trong khi chữ nhãn không ẩn trên mobile dẫn đến tràn chữ và vỡ bố cục; đã chuẩn hóa các nút luôn đạt `w-full` trên mobile và chỉ co nhỏ trên màn hình desktop (`md:`). Đồng thời khôi phục tiêu đề các nhóm chuyên mục và căn chỉnh header logo trên drawer di động.
     - Chuẩn hóa container layout từ `w-screen` sang `w-full max-w-full` để ngăn hiện tượng thanh cuộn ngang gây giật màn hình trên thiết bị di động; giảm padding đệm từ `p-6` xuống `p-4 sm:p-6 md:p-10` để mở rộng không gian nội dung trên màn hình hẹp.
@@ -388,6 +403,40 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Hoàn thiện giao diện chi tiết: PDF Splitter, Jacket Selector, Suggestion Flow & Token Ok)
+
+- Thêm/sửa:
+  - Trang `PDF → JPG` (`src/routes/pdf/+page.svelte`): Loại bỏ ~20 vị trí dùng `font-mono` ở các nhãn và nút ("10 trang", "20 trang", "Tải ảnh xem trước", "‹ Trước", "Sau ›", "Mặc định (Không cắt)"), bỏ uppercase trên nhãn "Header (px)" và "Footer (px)"; cập nhật toàn bộ nút điều chỉnh và ô số sang viền `border-field-border`, nền `bg-panel-2`, chiều cao 40–44px chuẩn mockup.
+  - Tinh giảm `font-mono` trên các modal:
+    - `EpubCleanerModal.svelte`: Chuyển nhãn thống kê ("Tổng dung lượng", "Ảnh không dùng", "Font không dùng", "Có thể giảm", "Tùy chọn dọn dẹp") sang `font-sans`, bỏ uppercase; chỉ giữ font-mono cho số liệu và đường dẫn file.
+    - `EpubJacketModal.svelte`: Chuyển toàn bộ tiêu đề, nhãn mẫu, phông chữ và các nút sang `font-sans`, cao 40px viền `field-border`.
+    - `EpubSyntaxModal.svelte`: Bảng quy ước và nút Đồng ý chuyển sang `font-sans`, chỉ giữ font-mono trong thẻ `<code>`.
+    - `EpubEditorModal.svelte`, `EpubEditorSidebar.svelte`, `EpubMetadataModal.svelte`: Chuyển nút toggle files và tiêu đề sang `font-sans`.
+  - Bước Thông tin sách (`EpubMetadataSection.svelte`): Thêm hàng thẻ chọn mẫu jacket trực quan (Mẫu 1–4 + Thẻ "Xem cả 10 mẫu →" kích hoạt modal), đổi nút "Xem trước & Tùy biến" sang nút phụ viền mảnh `border-field-border`.
+  - Khối "Quy trình gợi ý cho sách quét" (`src/routes/+page.svelte`): Gỡ bỏ badge "Nội bộ/Bên ngoài" và dòng footer "Mở… →"; giữ giao diện thanh thoát với "Bước N", tiêu đề và 1 dòng mô tả; bổ sung mũi tên nối liền giữa các ô trên desktop.
+  - Bỏ uppercase ở các tiêu đề nhóm trên trang chủ ("Bắt đầu với", "Quy trình gợi ý cho sách quét", "Công cụ lẻ & Mở rộng"); đổi dòng phụ "Desk" logo sidebar sang `font-sans`.
+  - Chuẩn hóa Button và Token:
+    - Bổ sung `size="lg"` (h-12) vào `Button.svelte`, thay thế cách ghi đè `[&>button]:!h-12` tại packer summary column.
+    - Bỏ huy hiệu "Chế bản chính" trên thẻ Đóng gói EPUB.
+    - Đồng bộ màu huy hiệu "Xử lý 100% ngoại tuyến" sang token `bg-ok/10 text-ok border-ok/20`.
+  - Bảo toàn 100% logic: 0 file `.ts` bị ảnh hưởng trong `src/` (chỉ sửa các component `.svelte`).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | build production ✅
+- File chính bị ảnh hưởng:
+  - `src/lib/components/Button.svelte`
+  - `src/lib/components/PageHeader.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubJacketModal.svelte`
+  - `src/lib/epub-packer/components/EpubSyntaxModal.svelte`
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorSidebar.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/routes/+layout.svelte`
+  - `src/routes/+page.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Sửa lỗi vỡ layout trên Mobile View & Tối ưu Responsive Drawer/Cards)
 

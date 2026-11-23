@@ -77,10 +77,11 @@
 		>
 			<!-- Header -->
 			<div class="p-4 border-b border-border-color flex justify-between items-center bg-panel-2">
-				<span class="font-mono text-sm font-bold text-text-color">Xem trước trang giới thiệu</span>
+				<span class="font-sans text-base font-bold text-text-color">Xem trước trang giới thiệu</span
+				>
 				<button
 					type="button"
-					class="text-text-mute hover:text-text-color transition-colors font-mono text-xs font-bold cursor-pointer"
+					class="text-text-mute hover:text-text-color transition-colors font-sans text-xs font-semibold cursor-pointer"
 					onclick={() => (show = false)}
 				>
 					Đóng
@@ -91,13 +92,13 @@
 			<div
 				class="px-5 py-3 border-b border-border-color bg-panel-2 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0"
 			>
-				<span class="font-mono text-xs text-text-mute uppercase tracking-wider font-semibold">
+				<span class="font-sans text-xs text-text-mute font-semibold">
 					{JACKET_TEMPLATES[currentPreviewTemplateIdx].name} ({currentPreviewTemplateIdx +
 						1}/{JACKET_TEMPLATES.length})
 				</span>
 
 				<div class="flex items-center gap-2 w-full sm:w-auto">
-					<span class="font-mono text-xs text-text-mute uppercase font-semibold whitespace-nowrap">
+					<span class="font-sans text-xs text-text-mute font-semibold whitespace-nowrap">
 						Phông chữ:
 					</span>
 					<div class="w-full sm:w-52">
@@ -137,14 +138,14 @@
 				<div class="flex gap-2">
 					<button
 						type="button"
-						class="bg-brand-bg border border-border-color text-text-color hover:border-text-color font-mono text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
+						class="bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold h-10 px-3.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
 						onclick={() => prevTemplate()}
 					>
 						Trước
 					</button>
 					<button
 						type="button"
-						class="bg-brand-bg border border-border-color text-text-color hover:border-text-color font-mono text-xs font-semibold py-2 px-3 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
+						class="bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold h-10 px-3.5 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
 						onclick={() => nextTemplate()}
 					>
 						Tiếp
@@ -153,7 +154,7 @@
 
 				<button
 					type="button"
-					class="bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
+					class="bg-accent-color text-on-accent font-sans text-sm font-semibold h-10 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
 					onclick={() => selectTemplate()}
 				>
 					Chọn mẫu này

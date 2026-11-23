@@ -145,7 +145,7 @@
 					<span class="font-sans text-base font-bold text-text-color truncate leading-tight">
 						Ebook Forge
 					</span>
-					<span class="text-[11px] font-mono text-text-mute truncate">Desk</span>
+					<span class="text-[11px] font-sans text-text-mute truncate">Desk</span>
 				</div>
 			</a>
 

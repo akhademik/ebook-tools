@@ -4,7 +4,7 @@
 			Bàn làm việc
 		</h1>
 		<span
-			class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
+			class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-ok/10 text-ok border border-ok/20"
 		>
 			<svg
 				class="w-3.5 h-3.5 shrink-0"
@@ -31,9 +31,7 @@
 	<!-- 1. Bắt đầu với (2 thẻ lớn) -->
 	<section>
 		<div class="flex items-center gap-2.5 mb-4">
-			<h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute font-sans">
-				Bắt đầu với
-			</h2>
+			<h2 class="text-sm font-semibold text-text-mute font-sans">Bắt đầu với</h2>
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
 
@@ -65,11 +63,6 @@
 								<path d="M12 22V12" />
 							</svg>
 						</div>
-						<span
-							class="text-xs text-accent-color bg-accent-soft border border-accent-color/20 px-2.5 py-1 rounded-lg font-semibold font-sans"
-						>
-							Chế bản chính
-						</span>
 					</div>
 
 					<h3
@@ -187,131 +180,130 @@
 	<!-- 2. Quy trình gợi ý cho sách quét -->
 	<section>
 		<div class="flex items-center gap-2.5 mb-4">
-			<h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute font-sans">
-				Quy trình gợi ý cho sách quét
-			</h2>
+			<h2 class="text-sm font-semibold text-text-mute font-sans">Quy trình gợi ý cho sách quét</h2>
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
 
 		<div class="modern-card p-5 sm:p-6 rounded-2xl">
-			<p class="text-xs text-text-mute mb-4">
+			<p class="text-xs text-text-mute mb-4 font-sans">
 				Quy trình gợi ý 4 bước để chuyển hóa tài liệu quét / sách scan thành file EPUB chuẩn mực:
 			</p>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+			<div class="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-row items-stretch gap-3">
 				<!-- Bước 1: Tách PDF -> JPG -->
 				<a
 					href="/pdf"
-					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
+					class="flex-1 p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
 				>
 					<div>
-						<div class="flex items-center justify-between mb-2">
-							<span class="text-[11px] font-mono text-accent-color font-semibold">Bước 1</span>
-							<span
-								class="text-[11px] text-text-mute font-medium bg-brand-bg px-2 py-0.5 rounded border border-border-color"
-								>Nội bộ</span
-							>
-						</div>
-						<div
-							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1"
+						<span class="text-xs font-semibold text-accent-color font-sans block mb-1">Bước 1</span>
+						<h3
+							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1 font-sans"
 						>
 							PDF → JPG
-						</div>
-						<p class="text-xs text-text-mute leading-relaxed">
-							Tách trang PDF thành bộ ảnh xám tương phản cao phục vụ nhận diện quang học.
+						</h3>
+						<p class="text-xs text-text-mute leading-relaxed font-sans">
+							Tách trang PDF thành bộ ảnh xám tương phản cao phục vụ OCR.
 						</p>
-					</div>
-					<div
-						class="mt-3 pt-2 border-t border-border-color/50 text-accent-color text-xs font-semibold flex items-center justify-between"
-					>
-						<span>Mở tách PDF</span>
-						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
 					</div>
 				</a>
 
-				<!-- Bước 2: Nhận diện OCR ngoài (viền đứt) -->
+				<!-- Desktop Connector Arrow 1 -->
 				<div
-					class="p-4 rounded-xl bg-panel-2/50 border-2 border-dashed border-border-color flex flex-col justify-between"
+					class="hidden lg:flex items-center justify-center text-text-mute/60 shrink-0 select-none px-0.5"
+					aria-hidden="true"
+				>
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+					</svg>
+				</div>
+
+				<!-- Bước 2: Nhận diện OCR (viền đứt) -->
+				<div
+					class="flex-1 p-4 rounded-xl bg-panel-2/50 border-2 border-dashed border-field-border flex flex-col justify-between"
 				>
 					<div>
-						<div class="flex items-center justify-between mb-2">
-							<span class="text-[11px] font-mono text-amber-600 dark:text-amber-400 font-semibold"
-								>Bước 2</span
-							>
-							<span
-								class="text-[11px] text-amber-600 dark:text-amber-400 font-medium bg-amber-500/10 px-2 py-0.5 rounded"
-							>
-								Bên ngoài
-							</span>
-						</div>
-						<div class="font-bold text-sm text-text-color mb-1">Nhận diện OCR</div>
-						<p class="text-xs text-text-mute leading-relaxed">
-							Dùng công cụ OCR (Abbyy, Google Drive, v.v.) để chuyển ảnh JPG thành văn bản .txt.
+						<span
+							class="text-xs font-semibold text-amber-600 dark:text-amber-400 font-sans block mb-1"
+							>Bước 2</span
+						>
+						<h3 class="font-bold text-sm text-text-color mb-1 font-sans">Nhận diện OCR</h3>
+						<p class="text-xs text-text-mute leading-relaxed font-sans">
+							Thực hiện bên ngoài: dùng Abbyy/Drive chuyển ảnh thành .txt.
 						</p>
 					</div>
-					<div
-						class="mt-3 pt-2 border-t border-border-color/50 text-[11px] text-amber-600 dark:text-amber-400 font-medium"
+				</div>
+
+				<!-- Desktop Connector Arrow 2 -->
+				<div
+					class="hidden lg:flex items-center justify-center text-text-mute/60 shrink-0 select-none px-0.5"
+					aria-hidden="true"
+				>
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
 					>
-						Thực hiện bên ngoài ứng dụng
-					</div>
+						<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+					</svg>
 				</div>
 
 				<!-- Bước 3: Đóng gói EPUB -->
 				<a
 					href="/epub-packer"
-					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
+					class="flex-1 p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
 				>
 					<div>
-						<div class="flex items-center justify-between mb-2">
-							<span class="text-[11px] font-mono text-accent-color font-semibold">Bước 3</span>
-							<span
-								class="text-[11px] text-text-mute font-medium bg-brand-bg px-2 py-0.5 rounded border border-border-color"
-								>Nội bộ</span
-							>
-						</div>
-						<div
-							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1"
+						<span class="text-xs font-semibold text-accent-color font-sans block mb-1">Bước 3</span>
+						<h3
+							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1 font-sans"
 						>
 							Đóng gói EPUB
-						</div>
-						<p class="text-xs text-text-mute leading-relaxed">
-							Nhận diện chương, thêm ảnh bìa, hoa văn, nhúng font và đóng gói file EPUB.
+						</h3>
+						<p class="text-xs text-text-mute leading-relaxed font-sans">
+							Phân chương, thêm bìa, nhúng font và tạo file .epub hoàn chỉnh.
 						</p>
 					</div>
-					<div
-						class="mt-3 pt-2 border-t border-border-color/50 text-accent-color text-xs font-semibold flex items-center justify-between"
-					>
-						<span>Mở đóng gói</span>
-						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
-					</div>
 				</a>
+
+				<!-- Desktop Connector Arrow 3 -->
+				<div
+					class="hidden lg:flex items-center justify-center text-text-mute/60 shrink-0 select-none px-0.5"
+					aria-hidden="true"
+				>
+					<svg
+						class="w-4 h-4"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+					</svg>
+				</div>
 
 				<!-- Bước 4: EPUB Editor -->
 				<a
 					href="/epub-editor"
-					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
+					class="flex-1 p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-colors flex flex-col justify-between group"
 				>
 					<div>
-						<div class="flex items-center justify-between mb-2">
-							<span class="text-[11px] font-mono text-accent-color font-semibold">Bước 4</span>
-							<span
-								class="text-[11px] text-text-mute font-medium bg-brand-bg px-2 py-0.5 rounded border border-border-color"
-								>Nội bộ</span
-							>
-						</div>
-						<div
-							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1"
+						<span class="text-xs font-semibold text-accent-color font-sans block mb-1">Bước 4</span>
+						<h3
+							class="font-bold text-sm text-text-color group-hover:text-accent-color transition-colors mb-1 font-sans"
 						>
 							EPUB Editor
-						</div>
-						<p class="text-xs text-text-mute leading-relaxed">
-							Xem trước thời gian thực, tinh chỉnh HTML/CSS, dọn rác và kiểm định chuẩn Kobo.
+						</h3>
+						<p class="text-xs text-text-mute leading-relaxed font-sans">
+							Xem trước 2 chiều, tinh chỉnh mã, dọn rác và kiểm định Kobo.
 						</p>
-					</div>
-					<div
-						class="mt-3 pt-2 border-t border-border-color/50 text-accent-color text-xs font-semibold flex items-center justify-between"
-					>
-						<span>Mở biên tập</span>
-						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
 					</div>
 				</a>
 			</div>
@@ -321,9 +313,7 @@
 	<!-- 3. Công cụ lẻ (danh sách 2 cột không cắt mô tả) -->
 	<section>
 		<div class="flex items-center gap-2.5 mb-4">
-			<h2 class="text-xs font-semibold uppercase tracking-wider text-text-mute font-sans">
-				Công cụ lẻ & Mở rộng
-			</h2>
+			<h2 class="text-sm font-semibold text-text-mute font-sans">Công cụ lẻ & Mở rộng</h2>
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
 

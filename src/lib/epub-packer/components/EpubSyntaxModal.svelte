@@ -18,10 +18,10 @@
 		>
 			<!-- Header -->
 			<div class="p-4 border-b border-border-color flex justify-between items-center bg-panel-2">
-				<span class="font-mono text-sm font-bold text-text-color">Bảng quy ước</span>
+				<span class="font-sans text-base font-bold text-text-color">Bảng quy ước</span>
 				<button
 					type="button"
-					class="text-text-mute hover:text-text-color transition-colors font-mono text-xs font-bold"
+					class="text-text-mute hover:text-text-color transition-colors font-sans text-xs font-semibold cursor-pointer"
 					onclick={() => (show = false)}
 				>
 					Đóng
@@ -31,7 +31,7 @@
 			<!-- Body -->
 			<div class="p-6 overflow-y-auto flex-1 bg-brand-bg flex flex-col gap-4">
 				<div class="overflow-x-auto">
-					<table class="w-full text-left font-mono text-xs border-collapse text-text-color">
+					<table class="w-full text-left font-sans text-xs border-collapse text-text-color">
 						<thead>
 							<tr class="border-b border-border-color text-text-mute">
 								<th class="py-2.5 px-3 whitespace-nowrap">Cú pháp trong TXT</th>
@@ -393,7 +393,7 @@
 			<div class="p-4 border-t border-border-color flex justify-end bg-panel-2">
 				<button
 					type="button"
-					class="bg-accent-color text-white font-mono text-xs font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
+					class="bg-accent-color text-on-accent font-sans text-sm font-semibold h-10 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer"
 					onclick={() => (show = false)}
 				>
 					Đồng ý

@@ -116,7 +116,7 @@
 			<div class="flex items-center gap-2 sm:gap-3 min-w-0">
 				<button
 					type="button"
-					class="h-9 px-2.5 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-mono text-xs cursor-pointer transition-colors flex items-center gap-1.5 shrink-0"
+					class="h-9 px-2.5 rounded-xl border border-border-color bg-panel hover:text-text-color text-text-mute font-sans text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shrink-0"
 					onclick={() => (isSidebarOpen = !isSidebarOpen)}
 					title={isSidebarOpen ? 'Ẩn danh sách file' : 'Hiện danh sách file'}
 				>

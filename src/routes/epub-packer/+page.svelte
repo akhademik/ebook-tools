@@ -150,7 +150,7 @@
 						class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-semibold transition-all {isActive
 							? 'bg-accent-color text-on-accent ring-4 ring-accent-soft'
 							: isDone
-								? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+								? 'bg-ok/15 text-ok border border-ok/30'
 								: 'bg-panel-2 text-text-mute border border-field-border'}"
 					>
 						{#if isDone && !isActive}
@@ -374,15 +374,14 @@
 
 			<!-- Quick Actions: Always visible on desktop -->
 			<div class="space-y-3 pt-4 border-t border-border-color">
-				<div class="[&>button]:!h-12">
-					<Button
-						variant="primary"
-						onclick={() => epubState.processEpub()}
-						disabled={!hasChapters || epubState.processing}
-					>
-						{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
-					</Button>
-				</div>
+				<Button
+					variant="primary"
+					size="lg"
+					onclick={() => epubState.processEpub()}
+					disabled={!hasChapters || epubState.processing}
+				>
+					{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
+				</Button>
 
 				<Button variant="secondary" onclick={downloadEpub} disabled={!epubState.epubBlob}>
 					Tải file .EPUB
