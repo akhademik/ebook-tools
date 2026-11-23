@@ -72,7 +72,7 @@
 
 <div class="relative w-full">
 	{#if label}
-		<label for={id} class="font-mono text-xs text-text-mute uppercase mb-2 block font-semibold">
+		<label for={id} class="text-[13px] font-semibold text-text-color mb-1.5 block">
 			{label}
 		</label>
 	{/if}
@@ -82,29 +82,54 @@
 		type="button"
 		id={id ? `${id}-btn` : undefined}
 		{disabled}
-		class="w-full bg-brand-bg text-text-color border border-border-color hover:border-accent-color focus:border-accent-color focus:outline-none rounded-xl font-sans transition-all flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-left {compact
+		class="w-full bg-panel-2 text-text-color border border-field-border hover:border-accent-color focus:border-accent-color focus:outline-none rounded-xl font-sans transition-all flex items-center justify-between cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed text-left {compact
 			? 'h-9 py-1.5 px-3 text-xs'
-			: 'h-11.5 py-2 px-3.5 text-sm'}"
+			: 'h-[52px] py-1.5 px-3.5 text-sm'}"
 		onclick={() => (isOpen = !isOpen)}
 		aria-expanded={isOpen}
 		aria-haspopup="listbox"
 	>
-		<div class="flex items-center min-w-0 mr-2">
-			{#if !activeFont || value === 'default'}
-				<span class="font-sans {compact ? 'text-xs' : 'text-sm'} text-text-mute">{placeholder}</span
-				>
-			{:else}
-				<span
-					class="{compact ? 'text-xs' : 'text-base'} truncate font-normal"
-					style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
-				>
-					{activeFont.name}
-				</span>
-				<span class="font-mono text-[11px] text-text-mute ml-2 shrink-0 hidden sm:inline">
-					({activeFont.id})
-				</span>
-			{/if}
-		</div>
+		{#if compact}
+			<div class="flex items-center min-w-0 mr-2">
+				{#if !activeFont || value === 'default'}
+					<span class="font-sans text-xs text-text-mute">{placeholder}</span>
+				{:else}
+					<span
+						class="text-xs truncate font-normal"
+						style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
+					>
+						{activeFont.name}
+					</span>
+					<span class="font-mono text-[10px] text-text-mute ml-1.5 shrink-0 hidden sm:inline">
+						({activeFont.id})
+					</span>
+				{/if}
+			</div>
+		{:else}
+			<div class="flex flex-col justify-center min-w-0 mr-2 text-left">
+				{#if !activeFont || value === 'default'}
+					<span class="font-sans text-sm text-text-mute">{placeholder}</span>
+				{:else}
+					<div class="flex items-center gap-2 leading-none mb-1">
+						<span
+							class="text-base truncate font-normal"
+							style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
+						>
+							{activeFont.name}
+						</span>
+						<span class="font-mono text-[11px] text-text-mute shrink-0 hidden sm:inline">
+							• {activeFont.id}
+						</span>
+					</div>
+					<span
+						class="text-xs text-text-mute truncate"
+						style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
+					>
+						Chương 1: Bình minh
+					</span>
+				{/if}
+			</div>
+		{/if}
 
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +161,7 @@
 
 		<!-- Dropdown Panel -->
 		<div
-			class="absolute top-full mt-1.5 z-50 bg-panel border border-border-color rounded-xl shadow-2xl overflow-hidden flex flex-col animate-slide-up {compact
+			class="absolute top-full mt-1.5 z-50 bg-panel border border-border-color rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-slide-up {compact
 				? 'right-0 w-64 sm:w-72'
 				: 'left-0 right-0'}"
 			role="listbox"
@@ -147,7 +172,7 @@
 					type="text"
 					bind:value={searchQuery}
 					placeholder="Tìm kiếm phông chữ..."
-					class="w-full bg-brand-bg text-text-color border border-border-color focus:border-accent-color rounded-lg px-3 py-1.5 text-xs font-sans outline-none transition-colors"
+					class="w-full bg-brand-bg text-text-color border border-field-border focus:border-accent-color rounded-lg px-3 py-1.5 text-xs font-sans outline-none transition-colors"
 					onclick={(e) => e.stopPropagation()}
 				/>
 			</div>

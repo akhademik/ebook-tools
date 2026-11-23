@@ -151,8 +151,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 10:15
+- Cập nhật lần cuối: 2026-11-23 10:28
 - Đã hoàn thành:
+  - **Giai đoạn 2 Làm mới Giao diện — Chuẩn hóa Thành phần Dùng chung (`UI_DIRECTION.md`)**:
+    - Nâng cấp 5 components dùng chung trong `src/lib/components/` theo đúng thiết kế mới mà không làm thay đổi props hoặc phá vỡ các selector phục vụ kiểm thử tự động:
+      - `Button.svelte`: Chuẩn hóa chiều cao 44px (`h-11`), bo góc `rounded-xl`, typography Inter 15px 600/500, hỗ trợ kiểu `secondary` (viền `field-border`, nền trong suốt), primary dùng `bg-accent-color text-on-accent`, disabled opacity 70%.
+      - `Input.svelte`: Chiều cao 44px (`h-11`), bo góc `rounded-[10px]`, viền `field-border`, nhãn phía trên Inter 13px đậm 600 (không uppercase), placeholder `text-mute`.
+      - `DropZone.svelte`: Bo góc `rounded-2xl`, bổ sung icon upload inline SVG stroke chuẩn thay thế emoji, chữ mô tả rõ ràng, hiển thị badge tệp tin đã chọn.
+      - `PageHeader.svelte`: Tiêu đề Inter 700 28–30px responsive (`text-2xl sm:text-[30px]`), mô tả phụ `text-text-mute` thoáng rộng.
+      - `FontSelect.svelte`: Chiều cao 52px (chế độ chuẩn), hiển thị 2 dòng (tên font và kiểu dáng thực tế kèm mẫu tiếng Việt "Chương 1: Bình minh"), nhãn 13px đậm, dropdown bo `rounded-2xl`, bảo toàn 100% selector và hành vi kiểm thử tự động.
+    - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 1 Làm mới Giao diện — Token màu Solarized & Typography chuẩn WCAG AA (`UI_DIRECTION.md`)**:
     - Cập nhật toàn bộ bảng màu CSS theme variables trong [`src/routes/layout.css`](src/routes/layout.css) đạt tỷ lệ tương phản tối thiểu 4.5:1 cho văn bản và 3:1 cho đường viền ô nhập: `--color-accent-color` (`#1d6fa8` / `#35b6ab`), `--color-text-mute` (`#4a6168` / `#93a1a1`), `--color-text-color` (`#073642` / `#eee8d5`), `--color-border-color` (`#d9d1bb` / `#1b4653`), `--color-sidebar-bg` (`#f3ecd8` / `#00222b`).
     - Bổ sung 3 biến theme mới: `--color-field-border` (viền ô nhập/nút phụ `#8a8168` / `#5b7f87`), `--color-on-accent` (màu chữ trên nút accent `#fdf6e3` / `#002b36`), `--color-ok` (trạng thái thành công `#3f6a10` / `#7bb661`).
@@ -325,6 +333,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Giai đoạn 2: Chuẩn hóa Thành phần Dùng chung Button, Input, DropZone, PageHeader, FontSelect)
+
+- Thêm/sửa: Triển khai Giai đoạn 2 theo `UI_DIRECTION.md`:
+  - `src/lib/components/Button.svelte`: Chuẩn hóa chiều cao 44px (`h-11`), bo `rounded-xl`, chữ Inter 15px font-semibold/font-medium, hỗ trợ variant `secondary` (viền `field-border`), primary dùng `bg-accent-color text-on-accent`, disabled opacity 70%.
+  - `src/lib/components/Input.svelte`: Chiều cao 44px (`h-11`), bo `rounded-[10px]`, viền `field-border`, nền `panel-2`, nhãn Inter 13px font-semibold không uppercase.
+  - `src/lib/components/DropZone.svelte`: Bo `rounded-2xl`, bổ sung icon SVG upload stroke inline, bảo toàn 100% `input[type="file"]` và hành vi kéo-thả.
+  - `src/lib/components/PageHeader.svelte`: Tiêu đề Inter 700 28–30px, mô tả `text-text-mute` dễ đọc.
+  - `src/lib/components/FontSelect.svelte`: Chiều cao 52px chuẩn, 2 dòng thông tin (tên font và typography preview), nhãn 13px font-semibold, dropdown `rounded-2xl`, bảo toàn 100% id/aria selectors và chức năng cuộn tự động.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (361/361 pass) | knip ✅ (0 issues) | e2e ✅ (15/15 browser workflows pass)
+- File chính bị ảnh hưởng:
+  - `src/lib/components/Button.svelte`
+  - `src/lib/components/Input.svelte`
+  - `src/lib/components/DropZone.svelte`
+  - `src/lib/components/PageHeader.svelte`
+  - `src/lib/components/FontSelect.svelte`
+  - `README.md`
 
 ### 2026-11-23 (Giai đoạn 1: Nâng cấp Token màu Solarized & Typography Inter WCAG AA)
 
