@@ -15,7 +15,6 @@ import {
 	rebuildEpubToc
 } from '../src/lib/epub-editor/epub-book-ops';
 import { parseZipEntries, buildPreviewHtml } from '../src/lib/epub-editor/epub-editor';
-import { convertBrackets } from '../src/lib/markdown-fixer/markdown-fixer';
 import type {
 	EpubMetadata,
 	EpubJacketConfig,
@@ -523,22 +522,6 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 			const finalVal = await validateEpub(zip, 'generic', editBuffer);
 			expect(finalVal.passed).toBe(true);
 			expect(finalVal.errorCount).toBe(0);
-		});
-	});
-
-	describe('Workflow 4: Markdown Fixer OCR Archive Normalization', () => {
-		it('should convert raw markdown brackets and format markers reliably', () => {
-			const input = `
-***Tiêu đề in đậm nghiêng***
-Một đoạn văn có **in đậm** và *in nghiêng*, cùng với <u>gạch chân</u>.
-Chú thích *dấu sao độc lập* trong công thức: a * b = c.
-`;
-			const result = convertBrackets(input);
-			expect(result.converted).toContain('*/Tiêu đề in đậm nghiêng/*');
-			expect(result.converted).toContain('*in đậm*');
-			expect(result.converted).toContain('/in nghiêng/');
-			expect(result.converted).toContain('_gạch chân_');
-			expect(result.count).toBeGreaterThanOrEqual(4);
 		});
 	});
 });

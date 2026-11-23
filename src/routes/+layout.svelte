@@ -15,7 +15,6 @@
 	const isPacker = $derived(currentPath.startsWith('/epub-packer'));
 	const isEditor = $derived(currentPath.startsWith('/epub-editor'));
 	const isPdf = $derived(currentPath.startsWith('/pdf'));
-	const isMd = $derived(currentPath.startsWith('/md'));
 	const isEpubToTxt = $derived(currentPath.startsWith('/epub-to-txt'));
 	const isTxtToPdf = $derived(currentPath.startsWith('/txt-to-pdf'));
 
@@ -81,9 +80,7 @@
 	}
 </script>
 
-<div
-	class="flex h-screen h-[100dvh] w-screen bg-brand-bg md:flex-row flex-col overflow-hidden relative"
->
+<div class="flex h-screen h-dvh w-screen bg-brand-bg md:flex-row flex-col overflow-hidden relative">
 	<!-- Backdrop for mobile drawer -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -98,10 +95,10 @@
 	<!-- SIDEBAR -->
 	<aside
 		class="sidebar fixed md:static top-0 bottom-0 left-0 z-50 {mobileMenuOpen
-			? 'translate-x-0 w-[270px]'
-			: '-translate-x-full w-[270px]'} md:translate-x-0 {isCollapsed
-			? 'md:w-[72px] md:p-3'
-			: 'md:w-[232px] md:p-4'} bg-sidebar-bg border-r border-border-color flex flex-col p-4 shrink-0 transition-[width,transform] duration-200 ease-in-out"
+			? 'translate-x-0 w-67.5'
+			: '-translate-x-full w-67.5'} md:translate-x-0 {isCollapsed
+			? 'md:w-18 md:p-3'
+			: 'md:w-58 md:p-4'} bg-sidebar-bg border-r border-border-color flex flex-col p-4 shrink-0 transition-[width,transform] duration-200 ease-in-out"
 	>
 		<!-- Close button (mobile only) -->
 		<button
@@ -330,39 +327,6 @@
 				</span>
 			</a>
 
-			<!-- Markdown Fixer -->
-			<a
-				href="/md"
-				onclick={closeMenu}
-				aria-current={isMd ? 'page' : undefined}
-				title="Markdown Fixer"
-				aria-label="Markdown Fixer"
-				class="tab-btn rounded-xl flex items-center transition-all duration-150 border {isCollapsed
-					? 'h-11 w-11 justify-center p-0 mx-auto'
-					: 'h-11 px-3.5 gap-3 w-full'} {isMd
-					? 'bg-accent-soft text-accent-color font-semibold border-accent-color/30 shadow-xs'
-					: 'text-text-mute font-medium border-transparent hover:text-text-color hover:bg-panel'}"
-			>
-				<svg
-					class="w-5 h-5 shrink-0"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="1.8"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-					<path d="M14 2v4a2 2 0 0 0 2 2h4" />
-					<path d="M10 13H8" />
-					<path d="M16 13h-2" />
-					<path d="M9 17h6" />
-				</svg>
-				<span class="text-sm font-medium truncate font-sans {isCollapsed ? 'md:hidden' : 'inline'}">
-					Markdown Fixer
-				</span>
-			</a>
-
 			<!-- EPUB → TXT -->
 			<a
 				href="/epub-to-txt"
@@ -511,7 +475,7 @@
 	<main class="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
 		<!-- MOBILE HEADER -->
 		<header
-			class="flex md:hidden h-[56px] bg-sidebar-bg border-b border-border-color px-5 items-center justify-between shrink-0"
+			class="flex md:hidden h-14 bg-sidebar-bg border-b border-border-color px-5 items-center justify-between shrink-0"
 		>
 			<div class="flex items-center gap-2.5">
 				<div

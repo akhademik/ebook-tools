@@ -133,7 +133,7 @@
 
 				<div class="flex items-center gap-1.5 min-w-0 truncate">
 					<h2
-						class="font-mono text-xs sm:text-sm font-bold text-text-color truncate max-w-[110px] sm:max-w-[220px]"
+						class="font-mono text-xs sm:text-sm font-bold text-text-color truncate max-w-27.5 sm:max-w-55"
 					>
 						{editorState.fileName || 'EPUB Editor'}
 					</h2>

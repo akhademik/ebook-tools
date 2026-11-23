@@ -69,7 +69,7 @@
 		<div>
 			<button
 				type="button"
-				class="w-full sm:w-auto bg-accent-color text-on-accent font-sans text-[14px] font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-11 flex items-center justify-center gap-2 shadow-sm"
+				class="w-full sm:w-auto bg-accent-color text-on-accent font-sans text-sm font-semibold py-2.5 px-5 rounded-xl hover:bg-accent-hover active:scale-[0.98] transition-all cursor-pointer h-11 flex items-center justify-center gap-2 shadow-sm"
 				onclick={() => onOpenJacketModal()}
 			>
 				<svg

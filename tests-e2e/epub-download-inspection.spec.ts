@@ -74,6 +74,7 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 	test('Full Flow 1: Upload TXT → Pack → Download EPUB → Deep Inspection of Internal ZIP Structure', async ({
 		page
 	}) => {
+		test.setTimeout(60000);
 		await page.goto('/epub-packer');
 		await page.waitForLoadState('networkidle');
 

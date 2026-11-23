@@ -77,14 +77,7 @@ Công cụ xử lý hoa văn, họa tiết đầu chương và phân đoạn tra
 
 ---
 
-### 5. ✍️ Chuẩn hóa Markdown (Markdown Fixer)
-
-- Tự động phát hiện và chuẩn hóa các kiểu định dạng in nghiêng (`*text*`), đậm nghiêng (`***text***`) từ các tệp Markdown OCR thô.
-- Thay thế bằng các cặp định dạng ngoặc vuông tùy biến mà vẫn bảo vệ an toàn cho các công thức toán học và footnote dấu sao (`*`).
-
----
-
-### 6. 💻 Desktop App: TXT → PDF CJK
+### 5. 💻 Desktop App: TXT → PDF CJK
 
 - Ứng dụng desktop độc lập dành cho Windows chuyên xử lý văn bản chữ Hán / Nôm / CJK sang tệp PDF chất lượng cao.
 - Tự động phát hiện và sửa lỗi các ký tự PUA (chữ hiếm bị mã hóa sai) sang ký tự chuẩn.
@@ -151,9 +144,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 11:55
+- Cập nhật lần cuối: 2026-11-23 12:30
 - Đã hoàn thành:
-  - **Giai đoạn 6 Làm mới Giao diện — Các Trang Còn Lại (EPUB Editor, PDF Splitter, MD Fixer, EPUB to TXT, TXT to PDF) (`UI_DIRECTION.md`)**:
+  - **Chuẩn hóa toàn bộ các lớp CSS Tailwind theo gợi ý của `suggestCanonicalClasses`**:
+    - Thay thế toàn bộ arbitrary values sang utility tokens chuẩn của Tailwind CSS: `h-[100dvh]` -> `h-dvh`, `w-[270px]` -> `w-67.5`, `w-[72px]` -> `w-18`, `w-[232px]` -> `w-58`, `h-[56px]` -> `h-14`, `max-w-[220px]` -> `max-w-55`, `max-w-[110px]` -> `max-w-27.5`, `min-w-[200px]` -> `min-w-50`, `min-w-[160px]` -> `min-w-40`, `min-w-[170px]` -> `min-w-42.5`, `min-h-[76px]` -> `min-h-19`, `break-words` -> `wrap-break-word`, `text-[14px]` -> `text-sm`, `sm:text-[30px]` -> `sm:text-3xl`.
+    - Kết quả kiểm tra `@laststance/tailwind-suggest-canonical-classes` đạt 0 cảnh báo.
+  - **Gỡ bỏ hoàn toàn tính năng "Markdown Fixer" (`markdown-fixer`)**:
+    - Xóa bỏ route `/md`, thư viện `src/lib/markdown-fixer`, kiểu dữ liệu `markdown-fixer.type.ts`, menu điều hướng sidebar và thẻ công cụ tại trang chủ.
+    - Tinh giản quy trình gợi ý chuyển đổi sách quét thành mô hình 4 bước chuẩn (PDF → JPG, OCR ngoài, Đóng gói EPUB, EPUB Editor).
+    - Cập nhật các bài kiểm thử unit và browser E2E loại bỏ phụ thuộc vào `markdown-fixer`.
+    - Toàn bộ **350/350 unit tests pass 100%**, **14/14 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
+  - **Giai đoạn 6 Làm mới Giao diện — Các Trang Còn Lại (EPUB Editor, PDF Splitter, EPUB to TXT, TXT to PDF) (`UI_DIRECTION.md`)**:
     - Nâng cấp đồng bộ diện mạo các công cụ còn lại:
       - `src/routes/epub-editor/+page.svelte` & components (`EpubMetadataModal`, `EpubValidatorModal`, `EpubCleanerModal`): Thay thế hoàn toàn hàng nút emoji bằng các nút phụ chuẩn với icon SVG stroke inline (Lucide style) và nhãn Inter rõ ràng (Thông tin, Kiểm định, Dọn rác EPUB, Mở trình chỉnh sửa); chuẩn hóa header các modal với bo góc `rounded-2xl` và màu Solarized chuẩn.
       - `src/routes/pdf/+page.svelte`: Chuẩn hóa tiêu đề section sang Inter, thay emoji cảnh báo và mũi tên bằng icon SVG stroke, giữ nguyên 100% logic tách trang và xử lý bộ nhớ.
@@ -366,6 +367,30 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-23 (Sửa lỗi suggestCanonicalClasses Tailwind & Gỡ bỏ tính năng Markdown Fixer)
+
+- Thêm/sửa:
+  - Thay thế toàn bộ các lớp arbitrary brackets không chuẩn của Tailwind bằng canonical utility tokens theo chẩn đoán của `suggestCanonicalClasses`: `h-dvh`, `w-67.5`, `w-18`, `w-58`, `h-14`, `max-w-55`, `max-w-27.5`, `min-w-50`, `min-w-40`, `min-w-42.5`, `min-h-19`, `wrap-break-word`, `text-sm`, `sm:text-3xl`.
+  - Gỡ bỏ hoàn toàn tính năng Markdown Fixer: xóa `src/routes/md/`, `src/lib/markdown-fixer/`, `src/lib/types/markdown-fixer.type.ts`, `tests/markdown-fixer.test.ts`, loại bỏ các mục liên quan trong sidebar, trang tổng quan và e2e specs.
+  - Tối ưu sơ đồ quy trình gợi ý tại trang chủ thành 4 bước trực quan.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | e2e ✅ (14/14 browser workflows pass) | graphify ✅
+- File chính bị ảnh hưởng:
+  - `src/routes/+layout.svelte`
+  - `src/routes/+page.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/routes/epub-editor/+page.svelte`
+  - `src/lib/components/PageHeader.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-editor/components/EpubEditorModal.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/lib/types/index.ts`
+  - `tests/real-world-workflows.test.ts`
+  - `tests-e2e/epub-workflow.spec.ts`
+  - `tests-e2e/epub-download-inspection.spec.ts`
+  - `README.md`
+  - `AI_WORKFLOW.md`
 
 ### 2026-11-23 (Giai đoạn 6: Áp Dụng Phong Cách Mới Lên Các Công Cụ Còn Lại)
 

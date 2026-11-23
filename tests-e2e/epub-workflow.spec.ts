@@ -359,12 +359,6 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(page.getByRole('button', { name: 'Code' })).toBeVisible();
 	});
 
-	test('should open Markdown Fixer and verify conversion interface', async ({ page }) => {
-		await page.goto('/md');
-		await expect(page.getByRole('heading', { name: /Markdown Fixer/i })).toBeVisible();
-		await expect(page.locator('text=Chọn tệp .ZIP')).toBeVisible();
-	});
-
 	test('should open PDF Splitter and verify options interface', async ({ page }) => {
 		await page.goto('/pdf');
 		await expect(page.getByRole('heading', { name: /Tách trang PDF/i })).toBeVisible();

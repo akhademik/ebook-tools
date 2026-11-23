@@ -126,7 +126,7 @@
 					disabled={isDisabled}
 					onclick={() => goToStep(step.id)}
 					aria-current={isActive ? 'step' : undefined}
-					class="w-full text-left p-3.5 rounded-2xl border transition-all flex flex-col justify-between h-full min-h-[76px] cursor-pointer {isActive
+					class="w-full text-left p-3.5 rounded-2xl border transition-all flex flex-col justify-between h-full min-h-19 cursor-pointer {isActive
 						? 'bg-panel border-accent-color shadow-sm ring-1 ring-accent-color/30'
 						: isDisabled
 							? 'bg-panel-2/40 border-border-color/50 opacity-50 cursor-not-allowed'
@@ -152,7 +152,7 @@
 					</div>
 					<div>
 						<div
-							class="text-[14px] font-semibold truncate {isActive
+							class="text-sm font-semibold truncate {isActive
 								? 'text-text-color font-bold'
 								: isDisabled
 									? 'text-text-mute'
@@ -179,7 +179,7 @@
 			<EpubSourceSection {epubState} onOpenSyntaxModal={() => (showSyntaxModal = true)} />
 			{#if hasChapters}
 				<div class="flex justify-end mt-4">
-					<div class="w-full sm:w-auto min-w-[200px]">
+					<div class="w-full sm:w-auto min-w-50">
 						<Button variant="primary" onclick={() => (currentStep = 2)}>
 							Tiếp: Thông tin sách →
 						</Button>
@@ -192,10 +192,10 @@
 		<div class={currentStep === 2 ? 'block' : 'hidden'}>
 			<EpubMetadataSection {epubState} onOpenJacketModal={() => (showJacketModal = true)} />
 			<div class="flex justify-between items-center mt-4 gap-3 flex-wrap sm:flex-nowrap">
-				<div class="w-full sm:w-auto min-w-[160px]">
+				<div class="w-full sm:w-auto min-w-40">
 					<Button variant="secondary" onclick={() => (currentStep = 1)}>← Quay lại: Nguồn</Button>
 				</div>
-				<div class="w-full sm:w-auto min-w-[200px]">
+				<div class="w-full sm:w-auto min-w-50">
 					<Button variant="primary" onclick={() => (currentStep = 3)}>
 						Tiếp: Bìa và hoa văn →
 					</Button>
@@ -209,12 +209,12 @@
 			<EpubOrnamentsSection {epubState} />
 			<EpubIllustrationsSection {epubState} />
 			<div class="flex justify-between items-center mt-4 gap-3 flex-wrap sm:flex-nowrap">
-				<div class="w-full sm:w-auto min-w-[160px]">
+				<div class="w-full sm:w-auto min-w-40">
 					<Button variant="secondary" onclick={() => (currentStep = 2)}>
 						← Quay lại: Thông tin
 					</Button>
 				</div>
-				<div class="w-full sm:w-auto min-w-[200px]">
+				<div class="w-full sm:w-auto min-w-50">
 					<Button variant="primary" onclick={() => (currentStep = 4)}>Tiếp: Phông chữ →</Button>
 				</div>
 			</div>
@@ -224,12 +224,12 @@
 		<div class={currentStep === 4 ? 'block' : 'hidden'}>
 			<EpubFontSettingsSection {epubState} />
 			<div class="flex justify-between items-center mt-4 gap-3 flex-wrap sm:flex-nowrap">
-				<div class="w-full sm:w-auto min-w-[160px]">
+				<div class="w-full sm:w-auto min-w-40">
 					<Button variant="secondary" onclick={() => (currentStep = 3)}>
 						← Quay lại: Bìa và hoa văn
 					</Button>
 				</div>
-				<div class="w-full sm:w-auto min-w-[200px]">
+				<div class="w-full sm:w-auto min-w-50">
 					<Button variant="primary" onclick={() => (currentStep = 5)}>Tiếp: Đóng gói →</Button>
 				</div>
 			</div>
@@ -239,7 +239,7 @@
 		<div class={currentStep === 5 ? 'block' : 'hidden'}>
 			<EpubPackSection {epubState} onDownload={downloadEpub} />
 			<div class="flex justify-start mt-4">
-				<div class="w-full sm:w-auto min-w-[160px]">
+				<div class="w-full sm:w-auto min-w-40">
 					<Button variant="secondary" onclick={() => (currentStep = 4)}>
 						← Quay lại: Phông chữ
 					</Button>

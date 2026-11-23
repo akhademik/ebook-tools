@@ -1,6 +1,6 @@
 <div class="mb-8 animate-fade-in">
 	<div class="flex flex-wrap items-center gap-3 mb-2">
-		<h1 class="font-sans text-2xl sm:text-[30px] font-bold tracking-tight text-text-color">
+		<h1 class="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-text-color">
 			Bàn làm việc
 		</h1>
 		<span
@@ -203,7 +203,7 @@
 			Các bước khuyến nghị để chuyển đổi tài liệu scan sang sách điện tử chất lượng cao (tham khảo):
 		</p>
 
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 			<!-- Bước 1: PDF -> JPG -->
 			<a
 				href="/pdf"
@@ -235,29 +235,14 @@
 				<div class="mt-3 text-xs text-text-mute font-sans italic">Ứng dụng ngoài</div>
 			</div>
 
-			<!-- Bước 3: Markdown Fixer -->
-			<a
-				href="/md"
-				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
-			>
-				<div>
-					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 3
-					</span>
-					<h4 class="font-sans text-sm font-bold text-text-color mb-1">Markdown Fixer</h4>
-					<p class="text-xs text-text-mute font-sans">Sửa lỗi italic/bold, chuẩn hóa thẻ OCR</p>
-				</div>
-				<div class="mt-3 text-right text-accent-color text-xs font-semibold font-sans">Mở →</div>
-			</a>
-
-			<!-- Bước 4: Đóng gói EPUB -->
+			<!-- Bước 3: Đóng gói EPUB -->
 			<a
 				href="/epub-packer"
 				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
 			>
 				<div>
 					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 4
+						Bước 3
 					</span>
 					<h4 class="font-sans text-sm font-bold text-text-color mb-1">Đóng gói EPUB</h4>
 					<p class="text-xs text-text-mute font-sans">Nhúng bìa, jacket, font và xuất file .epub</p>
@@ -265,14 +250,14 @@
 				<div class="mt-3 text-right text-accent-color text-xs font-semibold font-sans">Mở →</div>
 			</a>
 
-			<!-- Bước 5: EPUB Editor -->
+			<!-- Bước 4: EPUB Editor -->
 			<a
 				href="/epub-editor"
 				class="modern-card p-4 rounded-xl flex flex-col justify-between hover:border-accent-color transition-colors group"
 			>
 				<div>
 					<span class="font-mono text-[11px] text-accent-color font-semibold mb-1 block">
-						Bước 5
+						Bước 4
 					</span>
 					<h4 class="font-sans text-sm font-bold text-text-color mb-1">EPUB Editor</h4>
 					<p class="text-xs text-text-mute font-sans">Soát lỗi hiển thị, kiểm định và tối ưu</p>
@@ -291,7 +276,7 @@
 			<div class="h-px flex-1 bg-border-color/60"></div>
 		</div>
 
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 			<!-- EPUB -> TXT -->
 			<a
 				href="/epub-to-txt"
@@ -366,50 +351,6 @@
 						</h4>
 						<p class="text-xs text-text-mute font-sans truncate">
 							Xuất trang PDF thành ảnh xám tương phản cao cho OCR
-						</p>
-					</div>
-				</div>
-				<span
-					class="text-text-mute group-hover:text-accent-color group-hover:translate-x-1 transition-all pl-2 shrink-0"
-					aria-hidden="true"
-				>
-					→
-				</span>
-			</a>
-
-			<!-- Markdown Fixer -->
-			<a
-				href="/md"
-				class="modern-card p-4 rounded-xl flex items-center justify-between hover:border-accent-color transition-all group"
-			>
-				<div class="flex items-center gap-3.5 min-w-0">
-					<div
-						class="w-10 h-10 rounded-lg bg-panel-2 border border-border-color flex items-center justify-center text-accent-color shrink-0"
-					>
-						<svg
-							class="w-5 h-5"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.8"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-							<path d="M14 2v4a2 2 0 0 0 2 2h4" />
-							<path d="M10 13H8" />
-							<path d="M16 13h-2" />
-							<path d="M9 17h6" />
-						</svg>
-					</div>
-					<div class="min-w-0">
-						<h4
-							class="text-sm font-semibold text-text-color group-hover:text-accent-color transition-colors font-sans truncate"
-						>
-							Markdown Fixer
-						</h4>
-						<p class="text-xs text-text-mute font-sans truncate">
-							Chuẩn hóa định dạng in nghiêng từ file OCR thô
 						</p>
 					</div>
 				</div>

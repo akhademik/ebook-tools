@@ -216,7 +216,7 @@
 
 			<!-- Footer Buttons -->
 			<div class="px-6 py-4 border-t border-border-color bg-panel-2 flex justify-end items-center">
-				<div class="w-full sm:w-auto min-w-[160px]">
+				<div class="w-full sm:w-auto min-w-40">
 					<Button
 						variant="primary"
 						onclick={handleSave}

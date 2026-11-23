@@ -51,7 +51,7 @@
 		>
 			<button
 				type="button"
-				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-accent-color text-text-color font-sans text-[14px] font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
+				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-accent-color text-text-color font-sans text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
 				onclick={() => {
 					editorState.isMetadataModalOpen = true;
 				}}
@@ -80,7 +80,7 @@
 
 			<button
 				type="button"
-				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-accent-color text-text-color font-sans text-[14px] font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
+				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-accent-color text-text-color font-sans text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
 				onclick={() => {
 					editorState.isValidatorModalOpen = true;
 				}}
@@ -104,7 +104,7 @@
 
 			<button
 				type="button"
-				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-emerald-500/50 text-text-color font-sans text-[14px] font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
+				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-emerald-500/50 text-text-color font-sans text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
 				onclick={() => {
 					editorState.cleanAnalysis = null;
 					editorState.cleanReport = null;
@@ -128,7 +128,7 @@
 				Dọn rác EPUB
 			</button>
 
-			<div class="w-full sm:w-auto min-w-[200px] shrink-0">
+			<div class="w-full sm:w-auto min-w-50 shrink-0">
 				<Button onclick={() => (editorState.isModalOpen = true)} variant="primary">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

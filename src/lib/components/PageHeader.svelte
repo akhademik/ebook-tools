@@ -6,7 +6,7 @@
 
 <div class="mb-8 animate-fade-in">
 	<h1
-		class="font-sans text-2xl sm:text-[30px] font-bold mb-2 tracking-tight text-text-color leading-tight"
+		class="font-sans text-2xl sm:text-3xl font-bold mb-2 tracking-tight text-text-color leading-tight"
 	>
 		{title}
 	</h1>
