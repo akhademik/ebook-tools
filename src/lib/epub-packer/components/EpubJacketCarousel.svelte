@@ -35,20 +35,24 @@
 	}
 
 	const activeFont = $derived(
-		epubState.fonts.jacketFont !== 'default' ? findFont(epubState.fonts.jacketFont) : null
+		epubState.fonts.jacketFont && epubState.fonts.jacketFont !== 'default'
+			? findFont(epubState.fonts.jacketFont)
+			: null
 	);
 
 	const jacketFontFamily = $derived.by(() => {
-		if (epubState.fonts.jacketFont === 'default') return '';
+		if (!epubState.fonts.jacketFont || epubState.fonts.jacketFont === 'default') {
+			return '"Bookerly", serif';
+		}
 		const font = activeFont || findFont(epubState.fonts.jacketFont);
 		if (!font) {
-			return `"${epubState.fonts.jacketFont}", sans-serif`;
+			return `"${epubState.fonts.jacketFont}", serif`;
 		}
 		const familyCandidates = [font.id, font.cssFamily, font.name]
 			.map((s) => s.trim())
 			.filter((s) => s.length > 0);
 		const uniqueFamilies = [...new Set(familyCandidates)];
-		return uniqueFamilies.map((f) => `"${f}"`).join(', ') + ', sans-serif';
+		return uniqueFamilies.map((f) => `"${f}"`).join(', ') + ', serif';
 	});
 </script>
 
@@ -123,25 +127,6 @@
 		</div>
 	</div>
 
-	<!-- 10-Template Carousel Selector Strip -->
-	<div class="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-thin">
-		{#each JACKET_TEMPLATES as template, idx (template.id)}
-			{@const isActive = currentIdx === idx}
-			<button
-				type="button"
-				onclick={() => select(idx)}
-				class="px-3.5 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all cursor-pointer flex items-center gap-1.5 {isActive
-					? 'bg-accent-color text-on-accent shadow-sm ring-1 ring-accent-soft'
-					: 'bg-panel-2 border border-field-border text-text-color hover:border-accent-color'}"
-			>
-				<span>{template.name}</span>
-				{#if isActive}
-					<span class="w-1.5 h-1.5 rounded-full bg-on-accent" aria-hidden="true"></span>
-				{/if}
-			</button>
-		{/each}
-	</div>
-
 	<!-- Carousel Live Preview Stage -->
 	<div
 		class="relative bg-panel-2/60 rounded-2xl border border-border-color p-4 sm:p-8 flex items-center justify-center min-h-[580px] overflow-hidden"
@@ -203,9 +188,8 @@
 				></button>
 			{/each}
 		</div>
-		<span class="font-sans font-medium">
-			Đang chọn: <strong class="text-accent-color">{currentTemplate.name}</strong> ({currentIdx +
-				1}/{JACKET_TEMPLATES.length})
+		<span class="font-sans font-medium text-text-mute">
+			Đang chọn: ({currentIdx + 1}/{JACKET_TEMPLATES.length})
 		</span>
 	</div>
 </div>
@@ -228,7 +212,7 @@
 	}
 
 	:global(.preview-wrap, .preview-wrap *) {
-		font-family: var(--jacket-font, inherit) !important;
+		font-family: var(--jacket-font, 'Bookerly', serif) !important;
 	}
 
 	:global(.preview-wrap p) {

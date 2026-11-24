@@ -47,8 +47,10 @@
 			id: 4,
 			title: 'Phông chữ',
 			subtitle:
-				epubState.fonts.h1Font !== 'default' ? `H1: ${epubState.fonts.h1Font}` : 'Phông mặc định',
-			badge: epubState.fonts.h1Font !== 'default' ? epubState.fonts.h1Font : 'Mặc định',
+				epubState.fonts.h1Font !== 'default'
+					? `H1: ${epubState.fonts.h1Font}`
+					: 'Mặc định (Bookerly)',
+			badge: epubState.fonts.h1Font !== 'default' ? epubState.fonts.h1Font : 'Mặc định (Bookerly)',
 			isCompleted: epubState.fonts.h1Font !== 'default'
 		},
 		{
@@ -456,8 +458,15 @@
 								<div class="flex items-center justify-between">
 									<div class="min-w-0 pr-2">
 										<span class="text-text-mute block text-[11px]">Phông chữ tiêu đề</span>
-										<span class="text-text-color font-medium truncate block">
-											{epubState.fonts.h1Font !== 'default' ? epubState.fonts.h1Font : 'Mặc định'}
+										<span
+											class="text-text-color font-medium truncate block"
+											style={epubState.fonts.h1Font === 'default'
+												? "font-family: 'Bookerly', serif;"
+												: undefined}
+										>
+											{epubState.fonts.h1Font !== 'default'
+												? epubState.fonts.h1Font
+												: 'Mặc định (Bookerly)'}
 										</span>
 									</div>
 									<button

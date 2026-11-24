@@ -64,13 +64,13 @@
 			</span>
 			<div
 				class="border border-border-color rounded-2xl p-4 sm:p-6 shadow-inner w-full flex-1"
-				style="background-color: #fbf8ef; color: #073642; font-family: sans-serif;"
+				style="background-color: #fbf8ef; color: #073642; font-family: 'Bookerly', serif;"
 			>
 				<h1
 					class="text-2xl font-bold mb-2 text-center"
 					style="font-family: {h1FontInfo
 						? `"${h1FontInfo.id}", "${h1FontInfo.cssFamily}", "${h1FontInfo.name}", sans-serif`
-						: 'inherit'};"
+						: `'Bookerly', serif`};"
 				>
 					Đây là chapter lớn
 				</h1>
@@ -78,7 +78,7 @@
 					class="text-lg font-semibold text-center"
 					style="font-family: {h2FontInfo
 						? `"${h2FontInfo.id}", "${h2FontInfo.cssFamily}", "${h2FontInfo.name}", sans-serif`
-						: 'inherit'}; color: #333333; margin-bottom: 0.25em;"
+						: `'Bookerly', serif`}; color: #333333; margin-bottom: 0.25em;"
 				>
 					Đây là chapter nhỏ
 				</h2>
@@ -88,20 +88,20 @@
 						? `"${h2SubFontInfo.id}", "${h2SubFontInfo.cssFamily}", "${h2SubFontInfo.name}", sans-serif`
 						: h2FontInfo
 							? `"${h2FontInfo.id}", "${h2FontInfo.cssFamily}", "${h2FontInfo.name}", sans-serif`
-							: 'inherit'}; color: #333333; margin-top: -0.2em;"
+							: `'Bookerly', serif`}; color: #333333; margin-top: -0.2em;"
 				>
 					Đây là chapter nhỏ tiếp nối
 				</h2>
-				<p class="text-sm leading-relaxed text-gray-700 font-sans">
+				<p class="text-sm leading-relaxed text-gray-700" style="font-family: 'Bookerly', serif;">
 					<span
 						class="dropcap"
 						style="font-family: {dropcapFontInfo
 							? `"${dropcapFontInfo.id}", "${dropcapFontInfo.cssFamily}", "${dropcapFontInfo.name}", sans-serif`
-							: 'inherit'};">Đ</span
+							: `'Bookerly', serif`};">Đ</span
 					>ây là nội dung thử nghiệm để xem trước phông chữ hiển thị trong cuốn sách của bạn sau khi
 					xuất bản. Tiêu đề lớn (h1), tiêu đề nhỏ ngay sau h1 (h2 chính), và tiêu đề nhỏ ở các vị
-					trí khác (h2 sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) vẫn sử
-					dụng phông chữ không chân (sans-serif) mặc định của thiết bị đọc sách.
+					trí khác (h2 sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) sử dụng
+					phông chữ Bookerly mặc định của sách.
 				</p>
 			</div>
 		</div>

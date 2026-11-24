@@ -126,7 +126,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 		const listbox = page.locator('[role="listbox"]');
 		await expect(listbox).toBeVisible();
-		const bookerlyOption = listbox.locator('button', { hasText: 'Bookerly' }).first();
+		const bookerlyOption = listbox.locator('button[data-font-id="Bookerly"]');
 		await expect(bookerlyOption).toBeVisible();
 		await bookerlyOption.click();
 		await expect(listbox).not.toBeVisible();
@@ -173,11 +173,11 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await fontTrigger.click();
 		const listbox3 = page.locator('[role="listbox"]');
 		await expect(listbox3).toBeVisible();
-		await listbox3.locator('button', { hasText: 'Bookerly' }).first().click();
+		await listbox3.locator('button[data-font-id="Bookerly"]').click();
 		await page.waitForTimeout(200);
 
 		// Verify template name and font badge in carousel
-		await expect(page.getByText('Mẫu 2').first()).toBeVisible();
+		await expect(page.getByText('Đang chọn: (2/10)')).toBeVisible();
 		await expect(page.locator('#jacket-modal-font-select-btn')).toContainText('Bookerly');
 		await expect(page.locator('#jacket-modal-font-select')).toHaveValue('Bookerly');
 
@@ -197,7 +197,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 		const listbox = page.locator('[role="listbox"]');
 		await expect(listbox).toBeVisible();
-		const bookerlyOption = listbox.locator('button', { hasText: 'Bookerly' }).first();
+		const bookerlyOption = listbox.locator('button[data-font-id="Bookerly"]');
 		await expect(bookerlyOption).toBeVisible();
 		await bookerlyOption.click();
 		await expect(listbox).not.toBeVisible();

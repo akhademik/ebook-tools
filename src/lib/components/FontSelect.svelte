@@ -6,7 +6,7 @@
 		id = '',
 		value = $bindable('default'),
 		label = '',
-		placeholder = 'Mặc định',
+		placeholder = 'Mặc định (Bookerly)',
 		disabled = false,
 		compact = false
 	}: FontSelectProps = $props();
@@ -92,7 +92,12 @@
 		{#if compact}
 			<div class="flex items-center min-w-0 mr-2">
 				{#if !activeFont || value === 'default'}
-					<span class="font-sans text-xs text-text-mute">{placeholder}</span>
+					<span
+						class="text-xs text-text-color truncate font-medium"
+						style="font-family: 'Bookerly', serif;"
+					>
+						{placeholder}
+					</span>
 				{:else}
 					<span
 						class="text-xs truncate font-normal"
@@ -108,7 +113,20 @@
 		{:else}
 			<div class="flex flex-col justify-center min-w-0 mr-2 text-left">
 				{#if !activeFont || value === 'default'}
-					<span class="font-sans text-sm text-text-mute">{placeholder}</span>
+					<div class="flex items-center gap-2 leading-none mb-1">
+						<span class="text-base truncate font-medium" style="font-family: 'Bookerly', serif;">
+							Mặc định
+						</span>
+						<span
+							class="font-mono text-[11px] text-text-mute shrink-0 hidden sm:inline"
+							style="font-family: 'Bookerly', serif;"
+						>
+							• Bookerly
+						</span>
+					</div>
+					<span class="text-xs text-text-mute truncate" style="font-family: 'Bookerly', serif;">
+						Chương 1: Bình minh
+					</span>
 				{:else}
 					<div class="flex items-center gap-2 leading-none mb-1">
 						<span
@@ -183,6 +201,7 @@
 				<button
 					type="button"
 					role="option"
+					data-font-id="default"
 					aria-selected={value === 'default'}
 					class="w-full text-left px-3.5 py-2.5 hover:bg-accent-soft flex items-center justify-between transition-colors cursor-pointer {value ===
 					'default'
@@ -190,9 +209,23 @@
 						: ''}"
 					onclick={() => selectFont('default')}
 				>
-					<div>
-						<span class="font-sans text-sm font-medium">Mặc định</span>
-						<span class="text-xs text-text-mute ml-2 font-mono">(System sans-serif)</span>
+					<div class="flex flex-col min-w-0">
+						<div class="flex items-center gap-2 leading-none">
+							<span class="text-base font-medium truncate" style="font-family: 'Bookerly', serif;">
+								Mặc định
+							</span>
+							<span
+								class="text-[11px] text-text-mute/70 font-mono hidden sm:inline"
+								style="font-family: 'Bookerly', serif;"
+							>
+								• Bookerly
+							</span>
+						</div>
+						<div class="flex items-center gap-2 mt-0.5">
+							<span class="text-xs text-text-mute truncate" style="font-family: 'Bookerly', serif;">
+								Chương 1: Bình minh
+							</span>
+						</div>
 					</div>
 					{#if value === 'default'}
 						<svg
@@ -215,6 +248,7 @@
 					<button
 						type="button"
 						role="option"
+						data-font-id={font.id}
 						aria-selected={isSelected}
 						class="w-full text-left px-3.5 py-2.5 hover:bg-accent-soft flex items-center justify-between gap-3 transition-colors cursor-pointer {isSelected
 							? 'bg-accent-soft'
@@ -268,7 +302,7 @@
 
 	<!-- Hidden native select for form accessibility and automation -->
 	<select {id} bind:value class="sr-only" tabindex="-1" aria-hidden="true">
-		<option value="default">Mặc định</option>
+		<option value="default">Mặc định (Bookerly)</option>
 		{#each AVAILABLE_FONTS as font (font.id)}
 			<option value={font.id}>{font.name}</option>
 		{/each}

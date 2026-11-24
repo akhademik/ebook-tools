@@ -144,8 +144,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 10:16
+- Cập nhật lần cuối: 2026-11-24 10:35
 - Đã hoàn thành:
+  - **Tinh gọn Carousel Jacket & Chuẩn hóa Phông chữ Mặc định Bookerly Toàn diện**:
+    - **Tinh giản thanh điều khiển Jacket Carousel (`EpubJacketCarousel.svelte`)**:
+      - Gỡ bỏ hàng nút chữ phía trên (`Mẫu 1` đến `Mẫu 10`), giữ không gian hiển thị rộng rãi, thoáng đãng khi đã có thanh trượt và hàng chấm tròn chỉ mục (dots indicator).
+      - Rút gọn nội dung hiển thị bên dưới từ `Đang chọn: Mẫu N (N/10)` sang `Đang chọn: (N/10)` thanh thoát và xúc tích.
+      - Thiết lập phông chữ mặc định của Jacket trang lót sang `Bookerly` thay vì hệ thống sans-serif.
+    - **Chuẩn hóa Phông chữ Mặc định là `Bookerly` trên toàn bộ hệ thống (`FontSelect.svelte`, `EpubFontSettingsSection.svelte`, `+page.svelte`)**:
+      - `FontSelect.svelte`: Placeholder mặc định đổi thành `Mặc định (Bookerly)`. Tùy chọn mặc định và hiển thị khi chưa chọn phông đều hiển thị chữ `Mặc định` kèm ghi chú `Bookerly`, được render trực tiếp bằng phông chữ `Bookerly`.
+      - Khung xem trước chương (`EpubFontSettingsSection.svelte`): Khi tiêu đề ở trạng thái mặc định, giao diện tự động áp dụng phông `Bookerly` thay vì font sans-serif hệ thống; cập nhật mô tả đoạn văn chuẩn xác theo phông `Bookerly` mặc định của sách.
+      - Thanh điều hướng và Cột tóm tắt (`+page.svelte`): Hiển thị `Mặc định (Bookerly)` tại Bước 4 và hàng tóm tắt Bước 5 được định kiểu trực tiếp bằng `Bookerly`.
+    - Toàn bộ **350/350 unit tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Chuyển đổi Trang lót sách (Jacket) thành Carousel trực tiếp ở Bước 2 (`EpubJacketCarousel.svelte`)**:
     - Thay thế hoàn toàn modal popup bằng thanh trượt Carousel trực quan tích hợp ngay dưới các ô nhập thông tin sách tại Bước 2.
     - Cập nhật thời gian thực (live preview) nội dung trang sách mẫu khi người dùng nhập tác phẩm, tác giả, dịch giả, nhà xuất bản.
@@ -425,6 +435,32 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Tinh gọn Carousel Jacket & Chuẩn hóa Phông mặc định Bookerly)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/components/EpubJacketCarousel.svelte`:
+    - Loại bỏ hàng nút bấm chọn mẫu phía trên (`Mẫu 1` ... `Mẫu 10`) để không gian hiển thị rộng rãi và tận dụng điều hướng carousel trực tiếp cùng hàng chấm chỉ mục (indicator dots).
+    - Đổi định dạng nhãn trạng thái từ `Đang chọn: Mẫu N (N/10)` thành `Đang chọn: (N/10)` tinh gọn.
+    - Cập nhật hàm tính toán phông chữ jacket: khi ở trạng thái mặc định (`default`), tự động gán phông chữ `Bookerly` thay vì hệ thống sans-serif.
+  - `src/lib/components/FontSelect.svelte`:
+    - Đổi placeholder mặc định thành `Mặc định (Bookerly)`.
+    - Thêm kiểu chữ `Bookerly` (`font-family: 'Bookerly', serif;`) cho toàn bộ các text mang nội dung "Mặc định".
+    - Bổ sung `data-font-id` trên các nút option để hỗ trợ kiểm thử tự động chính xác.
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`:
+    - Cập nhật khung xem trước typography mặc định dùng phông `Bookerly` cho toàn bộ các tiêu đề H1, H2, H2 Sub, Dropcap và đoạn văn khi chưa tùy biến phông.
+    - Sửa nội dung mô tả đoạn văn chuẩn theo phông Bookerly mặc định của sách.
+  - `src/routes/epub-packer/+page.svelte`:
+    - Cập nhật subtitle Bước 4 và badge thành `Mặc định (Bookerly)`.
+    - Hàng tóm tắt Bước 5 hiển thị `Mặc định (Bookerly)` định kiểu bằng font Bookerly.
+  - `tests-e2e/epub-workflow.spec.ts`: Cập nhật assertion và selector khớp với giao diện mới (`Đang chọn: (2/10)`, `button[data-font-id="Bookerly"]`).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | graphify ✅
+- File chính bị ảnh hưởng:
+  - `src/lib/epub-packer/components/EpubJacketCarousel.svelte`
+  - `src/lib/components/FontSelect.svelte`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `tests-e2e/epub-workflow.spec.ts`
 
 ### 2026-11-24 (Bố cục Packer Mockup A, Đồng bộ Token Ok, SVG Icons & Chuẩn hóa Tài liệu)
 
