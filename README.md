@@ -144,8 +144,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 09:48
+- Cập nhật lần cuối: 2026-11-24 09:53
 - Đã hoàn thành:
+  - **Tinh gọn danh sách chương ở Bước 1 Nguồn tài liệu (`EpubSourceSection.svelte`)**:
+    - Ẩn hoàn toàn dòng phụ trùng lặp `Nguồn: File TXT` đối với các file văn bản TXT, giúp danh sách chương hiển thị gọn gàng, thanh thoát (mỗi dòng hiển thị số thứ tự, tên chương và tên file `.xhtml`).
+    - Chỉ hiển thị nhãn `Nguồn:` đối với các file ZIP khi có nhiều file Markdown được gom nhóm vào một chương.
   - **Tối ưu Bố cục Toàn màn hình & Tinh chỉnh Bước 5 Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`)**:
     - **Loại bỏ đường line cắt xuyên bước 1–5**: Gỡ bỏ vạch kẻ nối cắt ngang qua các số bước ở thanh điều hướng, giúp giao diện thanh thoát và không bị rối mắt.
     - **Mở rộng Bước 1–4 chiếm trọn màn hình (`w-full`)**: Loại bỏ hoàn toàn cột tóm tắt sách bên phải ở các bước 1 đến 4, giúp vùng nạp tài liệu, nhập metadata, tải ảnh bìa/hoa văn/minh họa và thiết lập phông chữ có diện tích tối đa.

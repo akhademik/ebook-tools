@@ -242,12 +242,14 @@
 							</span>
 							<span class="text-text-mute text-xs shrink-0 font-mono">{chap.fileName}.xhtml</span>
 						</div>
-						<div class="text-[11px] text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
-							<span class="text-accent-color font-semibold">Nguồn:</span>
-							{#each chap.sources as src, sIdx (sIdx)}
-								<span>{src}</span>
-							{/each}
-						</div>
+						{#if chap.sources && chap.sources.some((src) => src !== 'File TXT')}
+							<div class="text-[11px] text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
+								<span class="text-accent-color font-semibold">Nguồn:</span>
+								{#each chap.sources.filter((src) => src !== 'File TXT') as src, sIdx (sIdx)}
+									<span>{src}</span>
+								{/each}
+							</div>
+						{/if}
 					</div>
 				{/each}
 			</div>

@@ -1,7 +1,7 @@
 # Graph Report - ebook-tools  (2026-11-24)
 
 ## Corpus Check
-- 141 files · ~154,716 words
+- 141 files · ~154,944 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 55 file(s) not represented in the graph (top: .otf 22, .ttf 18, .css 10)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `da3a9f5e`
+- Built from commit: `b35428ee`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -875,7 +875,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `appendText()` connect `.add` to `.a`, `CanvasGraphics`, `pdf.min.js`?**
   _High betweenness centrality (0.099) - this node is a cross-community bridge._
 - **Why does `#ue()` connect `.resolve` to `pdf.min.js`, `Annotation`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
 - **Why does `setVisibility()` connect `AnnotationStorage` to `.a`, `pdf.min.js`?**
   _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `$schema`, `project` to the rest of the system?**

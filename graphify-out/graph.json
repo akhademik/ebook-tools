@@ -52665,7 +52665,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (nhom 1 review bug fixes)",
       "source_file": "README.md",
-      "source_location": "L1218"
+      "source_location": "L1224"
     },
     {
       "id": "src_routes_epub_page",
@@ -52820,7 +52820,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (typescript strict mode full compliance)",
       "source_file": "README.md",
-      "source_location": "L1145"
+      "source_location": "L1151"
     },
     {
       "id": "design_system_1_tri\u1ebft_l\u00fd_thi\u1ebft_k\u1ebf_ch\u1ee7_\u0111\u1ec1_theme_philosophy",
@@ -53215,7 +53215,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (sua loi vo layout tren mobile view & toi uu responsive drawer/cards)",
       "source_file": "README.md",
-      "source_location": "L488"
+      "source_location": "L494"
     },
     {
       "id": "tests_e2e_tsconfig",
@@ -54159,7 +54159,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (web worker lifecycle hardening & listener leak prevention)",
       "source_file": "README.md",
-      "source_location": "L1125"
+      "source_location": "L1131"
     },
     {
       "id": "test_workflow",
@@ -54675,7 +54675,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27",
       "source_file": "README.md",
-      "source_location": "L1273"
+      "source_location": "L1279"
     },
     {
       "id": "readme_2026_09_27_tr\u01b0\u1edbc_\u0111\u00f3",
@@ -54687,7 +54687,7 @@
       "node_kind": "heading",
       "norm_label": "2026-09-27 (truoc \u0111o)",
       "source_file": "README.md",
-      "source_location": "L1282"
+      "source_location": "L1288"
     },
     {
       "id": "readme_2026_10_15",
@@ -54699,7 +54699,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-15",
       "source_file": "README.md",
-      "source_location": "L1259"
+      "source_location": "L1265"
     },
     {
       "id": "readme_2026_10_15_letter_box_wrapper",
@@ -54711,7 +54711,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-15 (letter-box wrapper)",
       "source_file": "README.md",
-      "source_location": "L1244"
+      "source_location": "L1250"
     },
     {
       "id": "readme_2026_10_16_ci_cd_pipeline_hardening_knip_resolution",
@@ -54723,7 +54723,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (ci/cd pipeline hardening & knip resolution)",
       "source_file": "README.md",
-      "source_location": "L1111"
+      "source_location": "L1117"
     },
     {
       "id": "readme_2026_10_16_ci_cd_verification_expanded_test_coverage",
@@ -54735,7 +54735,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (ci/cd verification & expanded test coverage)",
       "source_file": "README.md",
-      "source_location": "L1183"
+      "source_location": "L1189"
     },
     {
       "id": "readme_2026_10_16_clean_up",
@@ -54747,7 +54747,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (clean up)",
       "source_file": "README.md",
-      "source_location": "L1236"
+      "source_location": "L1242"
     },
     {
       "id": "readme_2026_10_16_fix_jacket_modal_font_persistence_across_templates",
@@ -54759,7 +54759,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (fix jacket modal font persistence across templates)",
       "source_file": "README.md",
-      "source_location": "L979"
+      "source_location": "L985"
     },
     {
       "id": "readme_2026_10_16_h2_font_classification_with_intervening_ornaments",
@@ -54771,7 +54771,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (h2 font classification with intervening ornaments)",
       "source_file": "README.md",
-      "source_location": "L930"
+      "source_location": "L936"
     },
     {
       "id": "readme_2026_10_16_h2_sub_font_selector_2_column_font_settings_layout",
@@ -54783,7 +54783,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (h2 sub font selector & 2-column font settings layout)",
       "source_file": "README.md",
-      "source_location": "L957"
+      "source_location": "L963"
     },
     {
       "id": "readme_2026_10_16_jacket_preview_modal_real_time_font_selection",
@@ -54795,7 +54795,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (jacket preview modal real-time font selection)",
       "source_file": "README.md",
-      "source_location": "L1027"
+      "source_location": "L1033"
     },
     {
       "id": "readme_2026_10_16_jacket_template_name_simplification_dedicated_modal_font_selection",
@@ -54807,7 +54807,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (jacket template name simplification & dedicated modal font selection)",
       "source_file": "README.md",
-      "source_location": "L1012"
+      "source_location": "L1018"
     },
     {
       "id": "readme_2026_10_16_live_font_preview_dropdown_for_h1_h2_dropcap_jacket_modal",
@@ -54819,7 +54819,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (live font preview dropdown for h1, h2, dropcap & jacket modal)",
       "source_file": "README.md",
-      "source_location": "L992"
+      "source_location": "L998"
     },
     {
       "id": "readme_2026_10_16_refine_h2_h2_sub_font_assignment_logic_direct_sibling_only",
@@ -54831,7 +54831,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (refine h2 & h2 sub font assignment logic: direct sibling only)",
       "source_file": "README.md",
-      "source_location": "L941"
+      "source_location": "L947"
     },
     {
       "id": "readme_2026_10_16_refinements_toc_center_page_dropcap",
@@ -54843,7 +54843,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (refinements: toc, center page, dropcap & @@!)",
       "source_file": "README.md",
-      "source_location": "L1200"
+      "source_location": "L1206"
     },
     {
       "id": "readme_2026_10_16_review_refinements_ui_error_wrap_letter_poem_headings_ornament_fix_pdf_zero_copy",
@@ -54855,7 +54855,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (review refinements: ui error wrap, letter/poem headings, ornament fix & pdf zero-copy)",
       "source_file": "README.md",
-      "source_location": "L1090"
+      "source_location": "L1096"
     },
     {
       "id": "readme_2026_10_16_worker_detached_buffer_fallback_concurrency_testing_ml_self_healing",
@@ -54867,7 +54867,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (worker detached buffer fallback, concurrency testing & ml self-healing)",
       "source_file": "README.md",
-      "source_location": "L1040"
+      "source_location": "L1046"
     },
     {
       "id": "readme_2026_10_16_workflow_documentation_consolidation",
@@ -54879,7 +54879,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (workflow & documentation consolidation)",
       "source_file": "README.md",
-      "source_location": "L1169"
+      "source_location": "L1175"
     },
     {
       "id": "readme_2026_10_25_pdf_memory_ceiling_hardening_dynamic_byte_chunking_file_system_access_api_page_range",
@@ -54891,7 +54891,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-25 (pdf memory ceiling hardening: dynamic byte chunking, file system access api & page range)",
       "source_file": "README.md",
-      "source_location": "L828"
+      "source_location": "L834"
     },
     {
       "id": "readme_2026_10_25_pdf_splitter_ocr_optimization_200_dpi_default_zero_padded_filenames_degraded_quality_tracking",
@@ -54903,7 +54903,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-25 (pdf splitter ocr optimization: 200 dpi default, zero-padded filenames & degraded quality tracking)",
       "source_file": "README.md",
-      "source_location": "L809"
+      "source_location": "L815"
     },
     {
       "id": "readme_2026_10_27_independent_alignment_for_blockquote_footers_t_p_c_calibre_css_specificity_fix",
@@ -54915,7 +54915,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-27 (independent alignment for blockquote footers: >t, >p, >c & calibre css specificity fix)",
       "source_file": "README.md",
-      "source_location": "L773"
+      "source_location": "L779"
     },
     {
       "id": "readme_2026_11_03_dropdown_auto_scroll_to_active_font_7_new_typography_fonts",
@@ -54927,7 +54927,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-03 (dropdown auto-scroll to active font & 7 new typography fonts)",
       "source_file": "README.md",
-      "source_location": "L758"
+      "source_location": "L764"
     },
     {
       "id": "readme_2026_11_06_chu\u1ea9n_h\u00f3a_th\u1ee9_t\u1ef1_selector_trong_quotes_css_s\u1eeda_l\u1ed7i_stylelint_no_descending_specificity",
@@ -54939,7 +54939,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-06 (chuan hoa thu tu selector trong quotes.css sua loi stylelint no-descending-specificity)",
       "source_file": "README.md",
-      "source_location": "L712"
+      "source_location": "L718"
     },
     {
       "id": "readme_2026_11_06_c\u00e2n_\u0111\u1ed1i_\u0111\u1ed1i_x\u1ee9ng_kho\u1ea3ng_c\u00e1ch_tr\u00ean_d\u01b0\u1edbi_cho_border_left_c\u1ee7a_letter_v\u00e0_letter_box",
@@ -54951,7 +54951,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-06 (can \u0111oi \u0111oi xung khoang cach tren/duoi cho border-left cua [letter] va [letter-box])",
       "source_file": "README.md",
-      "source_location": "L720"
+      "source_location": "L726"
     },
     {
       "id": "readme_2026_11_06_d\u1ecdn_d\u1eb9p_comment_ph\u00e2n_m\u1ee5c_trong_c\u00e1c_file_m\u1eabu_css_template",
@@ -54963,7 +54963,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-06 (don dep comment phan muc trong cac file mau css template)",
       "source_file": "README.md",
-      "source_location": "L702"
+      "source_location": "L708"
     },
     {
       "id": "readme_2026_11_06_nested_tags_support_poem_inside_letter_and_letter_box",
@@ -54975,7 +54975,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-06 (nested tags support: [poem] inside [letter] and [letter-box])",
       "source_file": "README.md",
-      "source_location": "L736"
+      "source_location": "L742"
     },
     {
       "id": "readme_2026_11_06_tri\u1ec7t_ti\u00eau_margin_cho_th\u1ebb_p_c\u1ee7a_poem_l\u1ed3ng_trong_letter_v\u00e0_letter_box",
@@ -54987,7 +54987,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-06 (triet tieu margin cho the p cua poem long trong letter va letter-box)",
       "source_file": "README.md",
-      "source_location": "L728"
+      "source_location": "L734"
     },
     {
       "id": "readme_2026_11_23_chu\u1ea9n_h\u00f3a_vi\u1ebft_hoa_nh\u00e3n_file_d\u1ecdn_d\u1eb9p_layout",
@@ -54999,7 +54999,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (chuan hoa viet hoa nhan file & don dep layout)",
       "source_file": "README.md",
-      "source_location": "L554"
+      "source_location": "L560"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_1_n\u00e2ng_c\u1ea5p_token_m\u00e0u_solarized_typography_inter_wcag_aa",
@@ -55011,7 +55011,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 1: nang cap token mau solarized & typography inter wcag aa)",
       "source_file": "README.md",
-      "source_location": "L675"
+      "source_location": "L681"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_2_chu\u1ea9n_h\u00f3a_th\u00e0nh_ph\u1ea7n_d\u00f9ng_chung_button_input_dropzone_pageheader_fontselect",
@@ -55023,7 +55023,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 2: chuan hoa thanh phan dung chung button, input, dropzone, pageheader, fontselect)",
       "source_file": "README.md",
-      "source_location": "L658"
+      "source_location": "L664"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_3_khung_\u1ee9ng_d\u1ee5ng_sidebar_t\u1ef1_thu_g\u1ecdn_72px",
@@ -55035,7 +55035,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 3: khung ung dung & sidebar tu thu gon 72px)",
       "source_file": "README.md",
-      "source_location": "L646"
+      "source_location": "L652"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_4_t\u00e1i_c\u1ea5u_tr\u00fac_trang_t\u1ed5ng_quan_b\u00e0n_l\u00e0m_vi\u1ec7c",
@@ -55047,7 +55047,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 4: tai cau truc trang tong quan ban lam viec)",
       "source_file": "README.md",
-      "source_location": "L636"
+      "source_location": "L642"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_5_trang_\u0111\u00f3ng_g\u00f3i_epub_thanh_5_b\u01b0\u1edbc_c\u1ed9t_t\u00f3m_t\u1eaft_c\u1ed1_\u0111\u1ecbnh",
@@ -55059,7 +55059,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 5: trang \u0111ong goi epub \u2014 thanh 5 buoc & cot tom tat co \u0111inh)",
       "source_file": "README.md",
-      "source_location": "L615"
+      "source_location": "L621"
     },
     {
       "id": "readme_2026_11_23_giai_\u0111o\u1ea1n_6_\u00e1p_d\u1ee5ng_phong_c\u00e1ch_m\u1edbi_l\u00ean_c\u00e1c_c\u00f4ng_c\u1ee5_c\u00f2n_l\u1ea1i",
@@ -55071,7 +55071,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (giai \u0111oan 6: ap dung phong cach moi len cac cong cu con lai)",
       "source_file": "README.md",
-      "source_location": "L595"
+      "source_location": "L601"
     },
     {
       "id": "readme_2026_11_23_ho\u00e0n_thi\u1ec7n_giao_di\u1ec7n_chi_ti\u1ebft_pdf_splitter_jacket_selector_suggestion_flow_token_ok",
@@ -55083,7 +55083,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (hoan thien giao dien chi tiet: pdf splitter, jacket selector, suggestion flow & token ok)",
       "source_file": "README.md",
-      "source_location": "L454"
+      "source_location": "L460"
     },
     {
       "id": "readme_2026_11_23_l\u00e0m_m\u1edbi_giao_di\u1ec7n_ui_packer_sections_slender_steps_overview_sidebar_svg_icons",
@@ -55095,7 +55095,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (lam moi giao dien ui: packer sections, slender steps, overview, sidebar & svg icons)",
       "source_file": "README.md",
-      "source_location": "L517"
+      "source_location": "L523"
     },
     {
       "id": "readme_2026_11_23_s\u1eeda_l\u1ed7i_suggestcanonicalclasses_tailwind_g\u1ee1_b\u1ecf_t\u00ednh_n\u0103ng_markdown_fixer",
@@ -55107,7 +55107,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-23 (sua loi suggestcanonicalclasses tailwind & go bo tinh nang markdown fixer)",
       "source_file": "README.md",
-      "source_location": "L571"
+      "source_location": "L577"
     },
     {
       "id": "readme_2026_11_24_b\u1ed1_c\u1ee5c_packer_mockup_a_\u0111\u1ed3ng_b\u1ed9_token_ok_svg_icons_chu\u1ea9n_h\u00f3a_t\u00e0i_li\u1ec7u",
@@ -55119,7 +55119,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-24 (bo cuc packer mockup a, \u0111ong bo token ok, svg icons & chuan hoa tai lieu)",
       "source_file": "README.md",
-      "source_location": "L415"
+      "source_location": "L421"
     },
     {
       "id": "readme_changelog",
@@ -55131,7 +55131,7 @@
       "node_kind": "heading",
       "norm_label": "changelog",
       "source_file": "README.md",
-      "source_location": "L413"
+      "source_location": "L419"
     },
     {
       "id": "src_lib_utils_image_bg_remove_ml",
@@ -55187,7 +55187,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (worker cancellation race condition & ml fallback hardening)",
       "source_file": "README.md",
-      "source_location": "L1056"
+      "source_location": "L1062"
     },
     {
       "id": "codemirror",
@@ -56233,7 +56233,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-21 (seamless multi-footers support in blockquote)",
       "source_file": "README.md",
-      "source_location": "L914"
+      "source_location": "L920"
     },
     {
       "id": "readme_2026_11_18_kh\u1eed_s\u1ed1_ch\u00fa_th\u00edch_trong_toc_lo\u1ea1i_b\u1ecf_trang_kh\u00f4ng_ti\u00eau_\u0111\u1ec1_kh\u1ecfi_m\u1ee5c_l\u1ee5c_preview_ui",
@@ -56245,7 +56245,7 @@
       "node_kind": "heading",
       "norm_label": "2026-11-18 (khu so chu thich trong toc & loai bo trang khong tieu \u0111e khoi muc luc & preview ui)",
       "source_file": "README.md",
-      "source_location": "L686"
+      "source_location": "L692"
     },
     {
       "id": "src_lib_epub_index",
@@ -56994,7 +56994,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-16 (letter/poem dropcap suppression & heading syntax warning)",
       "source_file": "README.md",
-      "source_location": "L1073"
+      "source_location": "L1079"
     },
     {
       "id": "readme_tr\u1ea1ng_th\u00e1i_h\u1ec7_th\u1ed1ng",
@@ -57139,7 +57139,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-25 (pdf splitter full hardening: zero-copy, canvas guard, 100% offline)",
       "source_file": "README.md",
-      "source_location": "L879"
+      "source_location": "L885"
     },
     {
       "id": "readme_2026_10_25_pdf_smart_split_zip_mobile_guard_full_zero_copy_synchronization",
@@ -57151,7 +57151,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-25 (pdf smart split zip, mobile guard & full zero-copy synchronization)",
       "source_file": "README.md",
-      "source_location": "L851"
+      "source_location": "L857"
     },
     {
       "id": "static_vendor_pdfjs_pdf_worker_min_constructor_oncomobjonmessage",
@@ -57174,7 +57174,7 @@
       "node_kind": "heading",
       "norm_label": "2026-10-26 (pdf splitter disk stream zero-byte fix, ui button state sync & playwright e2e coverage)",
       "source_file": "README.md",
-      "source_location": "L789"
+      "source_location": "L795"
     },
     {
       "id": "ai_workflow_0_th\u1ee9_t\u1ef1_\u0111\u1ecdc_khi_m\u1edf_l\u1ea1i_project_b\u1eaft_bu\u1ed9c_kh\u00f4ng_\u0111\u01b0\u1ee3c_b\u1ecf_qua_b\u01b0\u1edbc_n\u00e0o",
@@ -130164,7 +130164,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1012",
+      "source_location": "L1018",
       "weight": 1.0
     },
     {
@@ -130175,7 +130175,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1027",
+      "source_location": "L1033",
       "weight": 1.0
     },
     {
@@ -130186,7 +130186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1040",
+      "source_location": "L1046",
       "weight": 1.0
     },
     {
@@ -130197,7 +130197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1056",
+      "source_location": "L1062",
       "weight": 1.0
     },
     {
@@ -130208,7 +130208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1073",
+      "source_location": "L1079",
       "weight": 1.0
     },
     {
@@ -130219,7 +130219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1090",
+      "source_location": "L1096",
       "weight": 1.0
     },
     {
@@ -130230,7 +130230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1111",
+      "source_location": "L1117",
       "weight": 1.0
     },
     {
@@ -130241,7 +130241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1125",
+      "source_location": "L1131",
       "weight": 1.0
     },
     {
@@ -130252,7 +130252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1145",
+      "source_location": "L1151",
       "weight": 1.0
     },
     {
@@ -130263,7 +130263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1169",
+      "source_location": "L1175",
       "weight": 1.0
     },
     {
@@ -130274,7 +130274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1183",
+      "source_location": "L1189",
       "weight": 1.0
     },
     {
@@ -130285,7 +130285,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1200",
+      "source_location": "L1206",
       "weight": 1.0
     },
     {
@@ -130296,7 +130296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1218",
+      "source_location": "L1224",
       "weight": 1.0
     },
     {
@@ -130307,7 +130307,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1236",
+      "source_location": "L1242",
       "weight": 1.0
     },
     {
@@ -130318,7 +130318,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1244",
+      "source_location": "L1250",
       "weight": 1.0
     },
     {
@@ -130329,7 +130329,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1259",
+      "source_location": "L1265",
       "weight": 1.0
     },
     {
@@ -130340,7 +130340,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1273",
+      "source_location": "L1279",
       "weight": 1.0
     },
     {
@@ -130351,7 +130351,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1282",
+      "source_location": "L1288",
       "weight": 1.0
     },
     {
@@ -130362,7 +130362,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L415",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -130373,7 +130373,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L454",
+      "source_location": "L460",
       "weight": 1.0
     },
     {
@@ -130384,7 +130384,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L488",
+      "source_location": "L494",
       "weight": 1.0
     },
     {
@@ -130395,7 +130395,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L517",
+      "source_location": "L523",
       "weight": 1.0
     },
     {
@@ -130406,7 +130406,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L554",
+      "source_location": "L560",
       "weight": 1.0
     },
     {
@@ -130417,7 +130417,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L571",
+      "source_location": "L577",
       "weight": 1.0
     },
     {
@@ -130428,7 +130428,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L595",
+      "source_location": "L601",
       "weight": 1.0
     },
     {
@@ -130439,7 +130439,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L615",
+      "source_location": "L621",
       "weight": 1.0
     },
     {
@@ -130450,7 +130450,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L636",
+      "source_location": "L642",
       "weight": 1.0
     },
     {
@@ -130461,7 +130461,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L646",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -130472,7 +130472,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L658",
+      "source_location": "L664",
       "weight": 1.0
     },
     {
@@ -130483,7 +130483,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L675",
+      "source_location": "L681",
       "weight": 1.0
     },
     {
@@ -130494,7 +130494,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L686",
+      "source_location": "L692",
       "weight": 1.0
     },
     {
@@ -130505,7 +130505,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L702",
+      "source_location": "L708",
       "weight": 1.0
     },
     {
@@ -130516,7 +130516,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L712",
+      "source_location": "L718",
       "weight": 1.0
     },
     {
@@ -130527,7 +130527,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L720",
+      "source_location": "L726",
       "weight": 1.0
     },
     {
@@ -130538,7 +130538,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L728",
+      "source_location": "L734",
       "weight": 1.0
     },
     {
@@ -130549,7 +130549,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L736",
+      "source_location": "L742",
       "weight": 1.0
     },
     {
@@ -130560,7 +130560,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L758",
+      "source_location": "L764",
       "weight": 1.0
     },
     {
@@ -130571,7 +130571,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L773",
+      "source_location": "L779",
       "weight": 1.0
     },
     {
@@ -130582,7 +130582,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L789",
+      "source_location": "L795",
       "weight": 1.0
     },
     {
@@ -130593,7 +130593,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L809",
+      "source_location": "L815",
       "weight": 1.0
     },
     {
@@ -130604,7 +130604,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L828",
+      "source_location": "L834",
       "weight": 1.0
     },
     {
@@ -130615,7 +130615,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L851",
+      "source_location": "L857",
       "weight": 1.0
     },
     {
@@ -130626,7 +130626,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L879",
+      "source_location": "L885",
       "weight": 1.0
     },
     {
@@ -130637,7 +130637,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L914",
+      "source_location": "L920",
       "weight": 1.0
     },
     {
@@ -130648,7 +130648,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L930",
+      "source_location": "L936",
       "weight": 1.0
     },
     {
@@ -130659,7 +130659,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L941",
+      "source_location": "L947",
       "weight": 1.0
     },
     {
@@ -130670,7 +130670,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L957",
+      "source_location": "L963",
       "weight": 1.0
     },
     {
@@ -130681,7 +130681,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L979",
+      "source_location": "L985",
       "weight": 1.0
     },
     {
@@ -130692,7 +130692,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L992",
+      "source_location": "L998",
       "weight": 1.0
     },
     {
@@ -130791,7 +130791,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L413",
+      "source_location": "L419",
       "weight": 1.0
     },
     {
@@ -179177,7 +179177,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L246",
+      "source_location": "L252",
       "weight": 1.0
     },
     {
@@ -179921,7 +179921,7 @@
       "confidence_score": 0.95,
       "context": "AsyncDuplicateWorkerMock",
       "source_file": "README.md",
-      "source_location": "L1044",
+      "source_location": "L1050",
       "weight": 1.0
     },
     {
@@ -179933,7 +179933,7 @@
       "confidence_score": 0.95,
       "context": "AsyncDuplicateWorkerMock",
       "source_file": "README.md",
-      "source_location": "L394",
+      "source_location": "L400",
       "weight": 1.0
     },
     {
@@ -179969,7 +179969,7 @@
       "confidence_score": 0.95,
       "context": "EpubFontsConfig",
       "source_file": "README.md",
-      "source_location": "L960",
+      "source_location": "L966",
       "weight": 1.0
     },
     {
@@ -179993,7 +179993,7 @@
       "confidence_score": 0.95,
       "context": "PdfJsDocument",
       "source_file": "README.md",
-      "source_location": "L884",
+      "source_location": "L890",
       "weight": 1.0
     },
     {
@@ -180005,7 +180005,7 @@
       "confidence_score": 0.95,
       "context": "PdfJsDocument",
       "source_file": "README.md",
-      "source_location": "L316",
+      "source_location": "L322",
       "weight": 1.0
     },
     {
@@ -180017,7 +180017,7 @@
       "confidence_score": 0.95,
       "context": "PdfSplitterState",
       "source_file": "README.md",
-      "source_location": "L866",
+      "source_location": "L872",
       "weight": 1.0
     },
     {
@@ -180029,7 +180029,7 @@
       "confidence_score": 0.95,
       "context": "PdfSplitterState",
       "source_file": "README.md",
-      "source_location": "L795",
+      "source_location": "L801",
       "weight": 1.0
     },
     {
@@ -180041,7 +180041,7 @@
       "confidence_score": 0.95,
       "context": "PdfSplitterState",
       "source_file": "README.md",
-      "source_location": "L295",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -180065,7 +180065,7 @@
       "confidence_score": 0.95,
       "context": "PdfZipPart",
       "source_file": "README.md",
-      "source_location": "L861",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -180077,7 +180077,7 @@
       "confidence_score": 0.95,
       "context": "ProcessPdfResult",
       "source_file": "README.md",
-      "source_location": "L861",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -180089,7 +180089,7 @@
       "confidence_score": 0.95,
       "context": "RawChapterItem",
       "source_file": "README.md",
-      "source_location": "L1151",
+      "source_location": "L1157",
       "weight": 1.0
     },
     {
@@ -180101,7 +180101,7 @@
       "confidence_score": 0.95,
       "context": "RawChapterItem",
       "source_file": "README.md",
-      "source_location": "L364",
+      "source_location": "L370",
       "weight": 1.0
     },
     {
@@ -180113,7 +180113,7 @@
       "confidence_score": 0.95,
       "context": "analyzeChapterCandidates",
       "source_file": "README.md",
-      "source_location": "L1149",
+      "source_location": "L1155",
       "weight": 1.0
     },
     {
@@ -180149,7 +180149,7 @@
       "confidence_score": 0.95,
       "context": "buildChapterXhtml",
       "source_file": "README.md",
-      "source_location": "L1079",
+      "source_location": "L1085",
       "weight": 1.0
     },
     {
@@ -180185,7 +180185,7 @@
       "confidence_score": 0.95,
       "context": "classifyChapterHeadings",
       "source_file": "README.md",
-      "source_location": "L933",
+      "source_location": "L939",
       "weight": 1.0
     },
     {
@@ -180197,7 +180197,7 @@
       "confidence_score": 0.95,
       "context": "classifyChapterHeadings",
       "source_file": "README.md",
-      "source_location": "L401",
+      "source_location": "L407",
       "weight": 1.0
     },
     {
@@ -180209,7 +180209,7 @@
       "confidence_score": 0.95,
       "context": "cleanupWorkerAndFallbackPending",
       "source_file": "README.md",
-      "source_location": "L395",
+      "source_location": "L401",
       "weight": 1.0
     },
     {
@@ -180221,7 +180221,7 @@
       "confidence_score": 0.95,
       "context": "downloadAllParts()",
       "source_file": "README.md",
-      "source_location": "L864",
+      "source_location": "L870",
       "weight": 1.0
     },
     {
@@ -180233,7 +180233,7 @@
       "confidence_score": 0.95,
       "context": "extractChunkBlocks",
       "source_file": "README.md",
-      "source_location": "L1149",
+      "source_location": "L1155",
       "weight": 1.0
     },
     {
@@ -180245,7 +180245,7 @@
       "confidence_score": 0.95,
       "context": "getClampedViewport",
       "source_file": "README.md",
-      "source_location": "L888",
+      "source_location": "L894",
       "weight": 1.0
     },
     {
@@ -180257,7 +180257,7 @@
       "confidence_score": 0.95,
       "context": "getClampedViewport",
       "source_file": "README.md",
-      "source_location": "L322",
+      "source_location": "L328",
       "weight": 1.0
     },
     {
@@ -180269,7 +180269,7 @@
       "confidence_score": 0.95,
       "context": "handleCoverFile",
       "source_file": "README.md",
-      "source_location": "L858",
+      "source_location": "L864",
       "weight": 1.0
     },
     {
@@ -180281,7 +180281,7 @@
       "confidence_score": 0.95,
       "context": "handleIllustrationFiles",
       "source_file": "README.md",
-      "source_location": "L859",
+      "source_location": "L865",
       "weight": 1.0
     },
     {
@@ -180293,7 +180293,7 @@
       "confidence_score": 0.95,
       "context": "htmlToCleanText",
       "source_file": "README.md",
-      "source_location": "L1186",
+      "source_location": "L1192",
       "weight": 1.0
     },
     {
@@ -180305,7 +180305,7 @@
       "confidence_score": 0.95,
       "context": "htmlToCleanText",
       "source_file": "README.md",
-      "source_location": "L918",
+      "source_location": "L924",
       "weight": 1.0
     },
     {
@@ -180317,7 +180317,7 @@
       "confidence_score": 0.95,
       "context": "htmlToCleanText",
       "source_file": "README.md",
-      "source_location": "L385",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -180329,7 +180329,7 @@
       "confidence_score": 0.95,
       "context": "initPdfWorker",
       "source_file": "README.md",
-      "source_location": "L894",
+      "source_location": "L900",
       "weight": 1.0
     },
     {
@@ -180341,7 +180341,7 @@
       "confidence_score": 0.95,
       "context": "initPdfWorker",
       "source_file": "README.md",
-      "source_location": "L327",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -180353,7 +180353,7 @@
       "confidence_score": 0.95,
       "context": "isIllustrationTag",
       "source_file": "README.md",
-      "source_location": "L384",
+      "source_location": "L390",
       "weight": 1.0
     },
     {
@@ -180365,7 +180365,7 @@
       "confidence_score": 0.95,
       "context": "isMobileOrLowMemoryDevice()",
       "source_file": "README.md",
-      "source_location": "L301",
+      "source_location": "L307",
       "weight": 1.0
     },
     {
@@ -180377,7 +180377,7 @@
       "confidence_score": 0.95,
       "context": "isNoToc",
       "source_file": "README.md",
-      "source_location": "L689",
+      "source_location": "L695",
       "weight": 1.0
     },
     {
@@ -180389,7 +180389,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L1284",
+      "source_location": "L1290",
       "weight": 1.0
     },
     {
@@ -180401,7 +180401,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L1246",
+      "source_location": "L1252",
       "weight": 1.0
     },
     {
@@ -180413,7 +180413,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L1190",
+      "source_location": "L1196",
       "weight": 1.0
     },
     {
@@ -180425,7 +180425,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L741",
+      "source_location": "L747",
       "weight": 1.0
     },
     {
@@ -180437,7 +180437,7 @@
       "confidence_score": 0.95,
       "context": "mergeBrokenParagraphs",
       "source_file": "README.md",
-      "source_location": "L269",
+      "source_location": "L275",
       "weight": 1.0
     },
     {
@@ -180449,7 +180449,7 @@
       "confidence_score": 0.95,
       "context": "openPdfDocument",
       "source_file": "README.md",
-      "source_location": "L883",
+      "source_location": "L889",
       "weight": 1.0
     },
     {
@@ -180461,7 +180461,7 @@
       "confidence_score": 0.95,
       "context": "parseTxtToChapters",
       "source_file": "README.md",
-      "source_location": "L1079",
+      "source_location": "L1085",
       "weight": 1.0
     },
     {
@@ -180473,7 +180473,7 @@
       "confidence_score": 0.95,
       "context": "parseTxtToChapters",
       "source_file": "README.md",
-      "source_location": "L1225",
+      "source_location": "L1231",
       "weight": 1.0
     },
     {
@@ -180485,7 +180485,7 @@
       "confidence_score": 0.95,
       "context": "parseTxtToChapters",
       "source_file": "README.md",
-      "source_location": "L377",
+      "source_location": "L383",
       "weight": 1.0
     },
     {
@@ -180497,7 +180497,7 @@
       "confidence_score": 0.95,
       "context": "pdf",
       "source_file": "README.md",
-      "source_location": "L495",
+      "source_location": "L501",
       "weight": 1.0
     },
     {
@@ -180509,7 +180509,7 @@
       "confidence_score": 0.95,
       "context": "postMessage",
       "source_file": "README.md",
-      "source_location": "L1128",
+      "source_location": "L1134",
       "weight": 1.0
     },
     {
@@ -180521,7 +180521,7 @@
       "confidence_score": 0.95,
       "context": "postMessage",
       "source_file": "README.md",
-      "source_location": "L360",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -180533,7 +180533,7 @@
       "confidence_score": 0.95,
       "context": "processOrnamentOnMainThread",
       "source_file": "README.md",
-      "source_location": "L1060",
+      "source_location": "L1066",
       "weight": 1.0
     },
     {
@@ -180545,7 +180545,7 @@
       "confidence_score": 0.95,
       "context": "processOrnamentOnMainThread",
       "source_file": "README.md",
-      "source_location": "L350",
+      "source_location": "L356",
       "weight": 1.0
     },
     {
@@ -180557,7 +180557,7 @@
       "confidence_score": 0.95,
       "context": "processOrnamentOnMainThread()",
       "source_file": "README.md",
-      "source_location": "L1045",
+      "source_location": "L1051",
       "weight": 1.0
     },
     {
@@ -180569,7 +180569,7 @@
       "confidence_score": 0.95,
       "context": "processPdfToJpg",
       "source_file": "README.md",
-      "source_location": "L792",
+      "source_location": "L798",
       "weight": 1.0
     },
     {
@@ -180581,7 +180581,7 @@
       "confidence_score": 0.95,
       "context": "protectSpecialBlocks",
       "source_file": "README.md",
-      "source_location": "L269",
+      "source_location": "L275",
       "weight": 1.0
     },
     {
@@ -180593,7 +180593,7 @@
       "confidence_score": 0.95,
       "context": "releasePartBlob",
       "source_file": "README.md",
-      "source_location": "L835",
+      "source_location": "L841",
       "weight": 1.0
     },
     {
@@ -180605,7 +180605,7 @@
       "confidence_score": 0.95,
       "context": "releasePartBlob",
       "source_file": "README.md",
-      "source_location": "L311",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -180617,7 +180617,7 @@
       "confidence_score": 0.95,
       "context": "removeCoverFile",
       "source_file": "README.md",
-      "source_location": "L858",
+      "source_location": "L864",
       "weight": 1.0
     },
     {
@@ -180629,7 +180629,7 @@
       "confidence_score": 0.95,
       "context": "renderPdfPageToBlob",
       "source_file": "README.md",
-      "source_location": "L855",
+      "source_location": "L861",
       "weight": 1.0
     },
     {
@@ -180641,7 +180641,7 @@
       "confidence_score": 0.95,
       "context": "renderPdfPageToBlob",
       "source_file": "README.md",
-      "source_location": "L318",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -180653,7 +180653,7 @@
       "confidence_score": 0.95,
       "context": "replaceNestedDiv",
       "source_file": "README.md",
-      "source_location": "L742",
+      "source_location": "L748",
       "weight": 1.0
     },
     {
@@ -180665,7 +180665,7 @@
       "confidence_score": 0.95,
       "context": "replaceNestedDiv",
       "source_file": "README.md",
-      "source_location": "L270",
+      "source_location": "L276",
       "weight": 1.0
     },
     {
@@ -180677,7 +180677,7 @@
       "confidence_score": 0.95,
       "context": "resetCoverCrop",
       "source_file": "README.md",
-      "source_location": "L858",
+      "source_location": "L864",
       "weight": 1.0
     },
     {
@@ -180701,7 +180701,7 @@
       "confidence_score": 0.95,
       "context": "stripFootnoteRefs",
       "source_file": "README.md",
-      "source_location": "L689",
+      "source_location": "L695",
       "weight": 1.0
     },
     {
@@ -180713,7 +180713,7 @@
       "confidence_score": 0.95,
       "context": "stripFootnoteRefs",
       "source_file": "README.md",
-      "source_location": "L249",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -180725,7 +180725,7 @@
       "confidence_score": 0.95,
       "context": "triggerDownload",
       "source_file": "README.md",
-      "source_location": "L792",
+      "source_location": "L798",
       "weight": 1.0
     },
     {
@@ -180737,7 +180737,7 @@
       "confidence_score": 0.95,
       "context": "triggerDownload",
       "source_file": "README.md",
-      "source_location": "L293",
+      "source_location": "L299",
       "weight": 1.0
     },
     {
@@ -180749,7 +180749,7 @@
       "confidence_score": 0.95,
       "context": "validateTxtSyntax",
       "source_file": "README.md",
-      "source_location": "L1079",
+      "source_location": "L1085",
       "weight": 1.0
     },
     {
@@ -180761,7 +180761,7 @@
       "confidence_score": 0.95,
       "context": "validateTxtSyntax",
       "source_file": "README.md",
-      "source_location": "L1225",
+      "source_location": "L1231",
       "weight": 1.0
     },
     {
@@ -180773,7 +180773,7 @@
       "confidence_score": 0.95,
       "context": "window",
       "source_file": "README.md",
-      "source_location": "L1044",
+      "source_location": "L1050",
       "weight": 1.0
     },
     {
@@ -180785,7 +180785,7 @@
       "confidence_score": 0.95,
       "context": "window",
       "source_file": "README.md",
-      "source_location": "L394",
+      "source_location": "L400",
       "weight": 1.0
     },
     {
@@ -180797,10 +180797,10 @@
       "confidence_score": 0.95,
       "context": "workerSrc",
       "source_file": "README.md",
-      "source_location": "L898",
+      "source_location": "L904",
       "weight": 1.0
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "da3a9f5ef7a4e0310d9d5fb300f8a11ae4a87a85"
+  "built_at_commit": "b35428ee04b3e92949d378185dbb5104bb9ca569"
 }
