@@ -144,8 +144,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 11:15
+- Cập nhật lần cuối: 2026-11-24 11:26
 - Đã hoàn thành:
+  - **Tinh gọn Trang Tổng quan (Home Decluttering & Streamlined Overview)**:
+    - **Loại bỏ huy hiệu phụ tại tiêu đề (`src/routes/+page.svelte`)**: Gỡ bỏ nhãn `Xử lý 100% ngoại tuyến trên máy bạn` tại header trang chủ, giảm bớt chi tiết lặp lại để tập trung vào các công cụ cốt lõi.
+    - **Loại bỏ các chip tính năng (feature badges) trong 2 thẻ công cụ chính**: Gỡ bỏ các chip `Bìa & Jacket`, `Heuristic phân chương`, `Nhúng font & Hoa văn`, `Mục lục tự động` ở thẻ Đóng gói EPUB và `Live Preview 2 chiều`, `Kiểm định Kobo`, `Dọn rác mồ côi`, `Tái tạo TOC` ở thẻ EPUB Editor & Validator, giúp thẻ sản phẩm thanh thoát, hiện đại và tối giản.
+    - **Loại bỏ hoàn toàn khối `Quy trình gợi ý cho sách quét`**: Dọn sạch khối quy trình 4 bước rườm rà, đưa giao diện trang chủ về bố cục trực diện gồm hai khối rõ ràng: `Bắt đầu với` (2 công cụ chính) và `Công cụ lẻ & Mở rộng`.
+    - Toàn bộ **367/367 unit tests pass 100%** (18/18 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Tinh gọn & Hài hòa Giao diện Bước 3 "Bìa và hoa văn / Tùy chọn trang trí" (Minimal DropZone & Compact Section Layout)**:
     - **Hỗ trợ chế độ `compact` cho `DropZone.svelte` (`src/lib/components/DropZone.svelte`, `components.type.ts`)**:
       - Bổ sung prop `compact?: boolean` cho `DropZoneProps`.
@@ -469,6 +474,19 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Tinh gọn Trang Tổng quan — Gỡ bỏ Badge ngoại tuyến, Chip tính năng và Khối gợi ý sách quét)
+
+- Thêm/sửa:
+  - `src/routes/+page.svelte`:
+    - Gỡ bỏ huy hiệu `Xử lý 100% ngoại tuyến trên máy bạn` tại PageHeader trang chủ.
+    - Gỡ bỏ toàn bộ danh sách chip tính năng con trong thẻ Đóng gói EPUB (`Bìa & Jacket`, `Heuristic phân chương`, `Nhúng font & Hoa văn`, `Mục lục tự động`).
+    - Gỡ bỏ toàn bộ danh sách chip tính năng con trong thẻ EPUB Editor & Validator (`Live Preview 2 chiều`, `Kiểm định Kobo`, `Dọn rác mồ côi`, `Tái tạo TOC`).
+    - Xóa bỏ hoàn toàn khối `Quy trình gợi ý cho sách quét` (4 bước chuyển đổi sách quét).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4912 nodes, 10561 edges, 283 communities
+- File chính bị ảnh hưởng:
+  - `src/routes/+page.svelte`
+  - `README.md`
 
 ### 2026-11-24 (Tinh gọn & Hài hòa Giao diện Bước 3 Bìa và Hoa văn)
 
