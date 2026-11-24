@@ -11,8 +11,7 @@
 	let { epubState, onDownload }: Props = $props();
 </script>
 
-<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
-	<h2 class="text-base font-semibold text-text-color mb-4">Đóng gói và tải về</h2>
+<div class="animate-fade-in">
 	<div class="mb-5">
 		<Input
 			bind:value={epubState.metadata.epubOutName}
@@ -26,21 +25,18 @@
 		</p>
 	</div>
 
-	<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
-		<div class="w-full sm:w-auto sm:flex-1 sm:max-w-55 min-w-42.5 shrink-0">
-			<Button
-				onclick={() => epubState.processEpub()}
-				disabled={epubState.source.epubChapters.length === 0 || epubState.processing}
-				variant="primary"
-			>
-				{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
-			</Button>
-		</div>
-		<div class="w-full sm:w-auto sm:flex-1 sm:max-w-55 min-w-42.5 shrink-0">
-			<Button onclick={() => onDownload()} disabled={!epubState.epubBlob} variant="secondary">
-				Tải file .EPUB
-			</Button>
-		</div>
+	<div class="space-y-3 mt-6">
+		<Button
+			onclick={() => epubState.processEpub()}
+			disabled={epubState.source.epubChapters.length === 0 || epubState.processing}
+			variant="primary"
+			size="lg"
+		>
+			{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
+		</Button>
+		<Button onclick={() => onDownload()} disabled={!epubState.epubBlob} variant="secondary">
+			Tải file .EPUB
+		</Button>
 	</div>
 
 	{#if epubState.status}

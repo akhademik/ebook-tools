@@ -106,7 +106,7 @@
 
 			<button
 				type="button"
-				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-emerald-500/50 text-text-color font-sans text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
+				class="h-11 px-4 rounded-xl border border-field-border bg-panel hover:bg-panel-2 hover:border-ok/50 text-text-color font-sans text-sm font-semibold cursor-pointer transition-all flex items-center justify-center gap-2 whitespace-nowrap shrink-0 shadow-sm"
 				onclick={() => {
 					editorState.cleanAnalysis = null;
 					editorState.cleanReport = null;
@@ -119,7 +119,7 @@
 					viewBox="0 0 24 24"
 					stroke-width="1.75"
 					stroke="currentColor"
-					class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+					class="w-4 h-4 text-ok"
 				>
 					<path
 						stroke-linecap="round"

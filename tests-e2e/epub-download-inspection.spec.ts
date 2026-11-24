@@ -87,7 +87,11 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 			timeout: 25000
 		});
 
-		// 3. Trigger EPUB Packing
+		// 3. Navigate to Step 5 (Đóng gói) & Trigger EPUB Packing
+		await page
+			.getByRole('button', { name: /Đóng gói/i })
+			.first()
+			.click();
 		const packBtn = page.getByRole('button', { name: /Đóng gói file EPUB/i }).first();
 		await expect(packBtn).toBeEnabled();
 		await packBtn.click();

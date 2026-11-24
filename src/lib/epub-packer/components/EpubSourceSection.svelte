@@ -38,7 +38,7 @@
 	});
 </script>
 
-<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">
+<div class="animate-fade-in">
 	<h2 class="text-base font-semibold text-text-color mb-3">Chọn file nguồn (.ZIP hoặc .TXT)</h2>
 	<DropZone
 		accept=".zip,.txt,application/zip,text/plain"

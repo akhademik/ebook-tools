@@ -338,7 +338,7 @@
 				class="mt-4 p-3.5 rounded-xl bg-accent-soft border border-accent-color/40 text-text-color text-sm flex items-center gap-2.5 animate-fade-in"
 			>
 				<svg
-					class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"
+					class="w-5 h-5 text-ok shrink-0"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"

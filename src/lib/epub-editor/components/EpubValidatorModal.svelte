@@ -173,14 +173,14 @@
 					<!-- Summary Badges Card -->
 					<div
 						class="p-4 rounded-xl border {res.passed
-							? 'bg-emerald-500/10 border-emerald-500/30'
+							? 'bg-ok/10 border-ok/30'
 							: 'bg-red-500/10 border-red-500/30'}"
 					>
 						<div class="flex items-center justify-between mb-3">
 							<div class="flex items-center gap-2.5">
 								{#if res.passed}
 									<span
-										class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0"
+										class="w-7 h-7 rounded-full bg-ok/20 text-ok flex items-center justify-center shrink-0"
 									>
 										<svg
 											class="w-4 h-4"
@@ -216,11 +216,7 @@
 									</span>
 								{/if}
 								<div>
-									<h4
-										class="text-sm font-bold font-sans {res.passed
-											? 'text-emerald-400'
-											: 'text-red-400'}"
-									>
+									<h4 class="text-sm font-bold font-sans {res.passed ? 'text-ok' : 'text-red-400'}">
 										{res.passed
 											? 'File EPUB đạt chuẩn kiểm định!'
 											: `Phát hiện ${res.errorCount} lỗi cần khắc phục`}
@@ -259,52 +255,211 @@
 						>
 							<div
 								class="flex items-center gap-1.5 {res.summary.structure === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-red-400'}"
 							>
-								<span>{res.summary.structure === 'pass' ? '✓' : '✗'}</span> Cấu trúc file
+								{#if res.summary.structure === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									</svg>
+								{/if}
+								<span>Cấu trúc file</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.manifest === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-red-400'}"
 							>
-								<span>{res.summary.manifest === 'pass' ? '✓' : '✗'}</span> Manifest
+								{#if res.summary.manifest === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									</svg>
+								{/if}
+								<span>Manifest</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.spine === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-red-400'}"
 							>
-								<span>{res.summary.spine === 'pass' ? '✓' : '✗'}</span> Spine thứ tự
+								{#if res.summary.spine === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									</svg>
+								{/if}
+								<span>Spine thứ tự</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.toc === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-red-400'}"
 							>
-								<span>{res.summary.toc === 'pass' ? '✓' : '✗'}</span> Mục lục TOC
+								{#if res.summary.toc === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									</svg>
+								{/if}
+								<span>Mục lục TOC</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.xhtml === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-red-400'}"
 							>
-								<span>{res.summary.xhtml === 'pass' ? '✓' : '✗'}</span> Thẻ XHTML
+								{#if res.summary.xhtml === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+									</svg>
+								{/if}
+								<span>Thẻ XHTML</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.fonts === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-amber-400'}"
 							>
-								<span>{res.summary.fonts === 'pass' ? '✓' : '!'}</span> Phông chữ
+								{#if res.summary.fonts === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<span class="w-3.5 text-center font-bold">!</span>
+								{/if}
+								<span>Phông chữ</span>
 							</div>
 							<div
 								class="flex items-center gap-1.5 {res.summary.cover === 'pass'
-									? 'text-emerald-400'
+									? 'text-ok'
 									: 'text-amber-400'}"
 							>
-								<span>{res.summary.cover === 'pass' ? '✓' : '!'}</span> Ảnh bìa Cover
+								{#if res.summary.cover === 'pass'}
+									<svg
+										class="w-3.5 h-3.5 shrink-0"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											d="m4.5 12.75 6 6 9-13.5"
+										/>
+									</svg>
+								{:else}
+									<span class="w-3.5 text-center font-bold">!</span>
+								{/if}
+								<span>Ảnh bìa Cover</span>
 							</div>
 						</div>
 					</div>
@@ -349,11 +504,9 @@
 													</div>
 												{/if}
 												{#if issue.suggestion}
-													<div
-														class="text-[11px] text-emerald-400/90 flex items-start gap-1 font-sans"
-													>
+													<div class="text-[11px] text-ok flex items-start gap-1 font-sans">
 														<svg
-															class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"
+															class="w-3.5 h-3.5 text-ok shrink-0 mt-0.5"
 															viewBox="0 0 24 24"
 															fill="none"
 															stroke="currentColor"

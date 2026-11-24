@@ -10,7 +10,7 @@
 	let { epubState }: Props = $props();
 </script>
 
-<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
+<div class="animate-fade-in">
 	<h2 class="text-base font-semibold text-text-color mb-3">Ảnh bìa sách (Book Cover)</h2>
 
 	<DropZone

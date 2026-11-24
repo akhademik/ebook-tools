@@ -144,8 +144,23 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-23 17:55
+- Cập nhật lần cuối: 2026-11-24 09:48
 - Đã hoàn thành:
+  - **Tối ưu Bố cục Toàn màn hình & Tinh chỉnh Bước 5 Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`)**:
+    - **Loại bỏ đường line cắt xuyên bước 1–5**: Gỡ bỏ vạch kẻ nối cắt ngang qua các số bước ở thanh điều hướng, giúp giao diện thanh thoát và không bị rối mắt.
+    - **Mở rộng Bước 1–4 chiếm trọn màn hình (`w-full`)**: Loại bỏ hoàn toàn cột tóm tắt sách bên phải ở các bước 1 đến 4, giúp vùng nạp tài liệu, nhập metadata, tải ảnh bìa/hoa văn/minh họa và thiết lập phông chữ có diện tích tối đa.
+    - **Hiển thị Tóm tắt sách duy nhất tại Bước 5 (Đóng gói sách)**: Đưa khối tóm tắt tổng thể vào Bước 5 kèm các nút điều chỉnh trực tiếp ("Sửa nguồn →", "Sửa thông tin →", "Sửa bìa →", "Sửa phông →", "+ Thêm bìa") để người dùng soát lỗi trước khi xuất bản.
+    - **Khối xuất bản trực quan**: Hiển thị trạng thái kiểm định "Đã đủ để đóng gói file EPUB", ô đặt tên file và 2 nút hành động lớn "Đóng gói file EPUB" và "Tải file .EPUB".
+    - **Cập nhật kiểm thử E2E Playwright**: Điều chỉnh `tests-e2e/epub-download-inspection.spec.ts` và `tests-e2e/epub-workflow.spec.ts` chuyển sang Bước 5 trước khi kích hoạt đóng gói.
+  - **Hoàn thiện cấu trúc bố cục Mockup A & Chuẩn hóa triệt để Token/Icon (Packer Unified Cards, Token Ok, SVG Icons & Docs Sync)**:
+    - **Tái cấu trúc bố cục EPUB Packer (`src/routes/epub-packer/+page.svelte`)**: Bọc mỗi bước (1–5) trong **1 thẻ lớn duy nhất (`modern-card`)** gồm tiêu đề bước (font-bold 18–20px) + dòng mô tả ngắn + đường kẻ phân tách + nội dung section + footer hàng nút điều hướng "Quay lại / Tiếp" nằm ngay TRONG thẻ.
+    - **Gộp Bước 3 thành 1 thẻ duy nhất**: Loại bỏ thẻ bọc riêng của `EpubCoverSection`, `EpubOrnamentsSection`, `EpubIllustrationsSection`, gộp thành 3 khối liền mạch ngăn cách bằng đường kẻ mỏng `border-t border-border-color`.
+    - **Loại bỏ thẻ bọc riêng của cả 7 component section**: Chuyển các section thành khối nội dung không viền (`animate-fade-in`), tinh giản tiêu đề lặp giữa section và card step header.
+    - **Cột tóm tắt sách**: Bổ sung banner thông báo trạng thái _"Đã đủ để đóng gói file EPUB"_ với icon check và token `--color-ok` khi đã tải chương nguồn.
+    - **Chuẩn hóa triệt để Token `--color-ok`**: Thay thế 100% các lớp `emerald-*` còn sót sang token `--color-ok` (`text-ok`, `bg-ok/10`, `border-ok/30`, `bg-ok/20`...) trên toàn bộ các modal và components (`EpubCleanerModal`, `EpubEditorSidebar`, `EpubValidatorModal`, `EpubMetadataModal`, `EpubEditorPreviewPane`, `pdf/+page.svelte`, `epub-editor/+page.svelte`).
+    - **Loại bỏ ký tự/emoji còn sót**: Thay thế mũi tên thô `➔` trong `EpubCleanerModal` sang SVG/mũi tên chuẩn; thay 5 ký tự `✗` trong `EpubValidatorModal` sang icon SVG stroke; chuyển các nhãn văn bản badge trong `EpubCleanerModal` sang Inter `font-sans`.
+    - **Đồng bộ tài liệu**: Xóa bỏ các vị trí còn nhắc Markdown Fixer trong `README.md` và `UI_DIRECTION.md` (ghi chú rõ Markdown Fixer đã gỡ); cấu hình `XDG_CONFIG_HOME` cho Playwright webServer; cập nhật `tests-e2e/pdf-workflow.spec.ts` bỏ selector `📁`.
+    - Toàn bộ **350/350 unit tests pass 100%**, **14/14 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Làm mới triệt để giao diện theo phản hồi chi tiết (Comprehensive UI Polish & Refinement)**:
     - **Trang PDF → JPG (`src/routes/pdf/+page.svelte`)**: Loại bỏ hoàn toàn font-mono trên các nhãn và nút ("10 trang", "20 trang", "Tải ảnh xem trước", "‹ Trước", "Sau ›", "Mặc định (Không cắt)"), bỏ uppercase trên nhãn "Header (px)" và "Footer (px)"; chuẩn hóa toàn bộ nút và ô nhập liệu sang `border-field-border` cao 40–44px và nền `bg-panel-2` theo đúng mockup thiết kế.
     - **Giảm thiểu font-mono trên các modal editor**:
@@ -194,7 +209,6 @@ pnpm test:e2e
     - Nâng cấp đồng bộ diện mạo các công cụ còn lại:
       - `src/routes/epub-editor/+page.svelte` & components (`EpubMetadataModal`, `EpubValidatorModal`, `EpubCleanerModal`): Thay thế hoàn toàn hàng nút emoji bằng các nút phụ chuẩn với icon SVG stroke inline (Lucide style) và nhãn Inter rõ ràng (Thông tin, Kiểm định, Dọn rác EPUB, Mở trình chỉnh sửa); chuẩn hóa header các modal với bo góc `rounded-2xl` và màu Solarized chuẩn.
       - `src/routes/pdf/+page.svelte`: Chuẩn hóa tiêu đề section sang Inter, thay emoji cảnh báo và mũi tên bằng icon SVG stroke, giữ nguyên 100% logic tách trang và xử lý bộ nhớ.
-      - `src/routes/md/+page.svelte`: Chuẩn hóa tiêu đề sang Inter, thẻ `modern-card`, bảo toàn cú pháp và logic chuẩn hóa Markdown.
       - `src/routes/epub-to-txt/+page.svelte`: Chuẩn hóa tiêu đề sang Inter, nút chuyển đổi với SVG icon, thanh tiến độ Solarized.
       - `src/routes/txt-to-pdf/+page.svelte`: Thay thế toàn bộ 9 emoji tính năng và tải xuống bằng hệ thống icon SVG stroke chuyên nghiệp.
     - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
@@ -212,8 +226,8 @@ pnpm test:e2e
     - Thiết kế lại trang Tổng quan theo định hướng giao diện mới:
       - Header: Tiêu đề "Bàn làm việc", mô tả tinh gọn, huy hiệu trạng thái bảo mật "file không rời khỏi máy bạn" với màu `--color-ok`.
       - Khối "Bắt đầu với": 2 thẻ lớn (Đóng gói EPUB & EPUB Editor & Validator) với icon SVG nổi bật, chip tính năng chi tiết, loại bỏ nút lặp (thẻ chính là liên kết với mũi tên điều hướng).
-      - Khối "Quy trình gợi ý cho sách quét": Mô hình 5 bước trực quan (PDF → JPG, OCR ngoài viền đứt, Markdown Fixer, Đóng gói EPUB, EPUB Editor) với hướng dẫn rõ ràng.
-      - Khối "Công cụ lẻ & Mở rộng": Danh sách thẻ ngang gọn gàng (EPUB → TXT, PDF → JPG, Markdown Fixer, TXT → PDF CJK gắn tag Desktop).
+      - Khối "Quy trình gợi ý cho sách quét": Mô hình 4 bước trực quan (PDF → JPG, OCR ngoài viền đứt, Đóng gói EPUB, EPUB Editor) với hướng dẫn rõ ràng.
+      - Khối "Công cụ lẻ & Mở rộng": Danh sách thẻ ngang gọn gàng (EPUB → TXT, PDF → JPG, TXT → PDF CJK gắn tag Desktop).
     - Toàn bộ **361/361 unit tests pass 100%**, **15/15 Playwright E2E browser tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues, production build hoàn tất.
   - **Giai đoạn 3 Làm mới Giao diện — Khung Ứng Dụng & Sidebar Tự Thu Gọn 72px (`UI_DIRECTION.md`)**:
     - Nâng cấp layout ứng dụng trong [`src/routes/+layout.svelte`](src/routes/+layout.svelte):
@@ -403,6 +417,45 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Bố cục Packer Mockup A, Đồng bộ Token Ok, SVG Icons & Chuẩn hóa Tài liệu)
+
+- Thêm/sửa:
+  - Bố cục trang Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`):
+    - Bọc mỗi bước (1–5) trong 1 thẻ lớn duy nhất (`modern-card`), có tiêu đề bước nổi bật (Inter font-bold), mô tả ngắn gọn, nội dung section và hàng nút "Quay lại / Tiếp" nằm ngay trong thẻ.
+    - Gộp Bước 3 (Bìa và hoa văn) thành 1 thẻ duy nhất gồm 3 khối liền mạch (Ảnh bìa, Ảnh trang trí, Ảnh minh họa) phân cách bằng đường kẻ mỏng `border-t border-border-color`.
+    - Gỡ bỏ khung thẻ ngoài `modern-card mb-6` ở toàn bộ 7 component section, chuyển thành khối không viền `animate-fade-in`.
+    - Cột tóm tắt sách: Thêm banner trạng thái _"Đã đủ để đóng gói file EPUB"_ khi đã có chương nguồn.
+  - Đồng bộ Token màu Solarized & Typography:
+    - Loại bỏ 100% các lớp `emerald-*` tự đặt trong `EpubCleanerModal`, `EpubEditorSidebar`, `EpubValidatorModal`, `EpubMetadataModal`, `EpubEditorPreviewPane`, `pdf/+page.svelte`, `epub-editor/+page.svelte`, chuyển sang token chuẩn `--color-ok` (`text-ok`, `bg-ok/10`, `border-ok/30`, `bg-ok/20`...).
+    - `EpubCleanerModal.svelte`: Chuyển toàn bộ các nhãn chữ và badge sang `font-sans` (Inter), chỉ giữ `font-mono` cho số liệu và tên file; thay thế ký tự `➔` bằng mũi tên chuẩn.
+    - `EpubValidatorModal.svelte`: Thay thế 5 ký tự `✗` (khi fail) bằng hệ thống icon SVG stroke đồng bộ với dấu tick `✓`.
+  - Chuẩn hóa tài liệu:
+    - `README.md`: Xóa bỏ 3 vị trí nhắc Markdown Fixer ở dòng ~197, ~215, ~216 để thống nhất với việc tính năng đã gỡ bỏ ngày 2026-11-23.
+    - `UI_DIRECTION.md`: Gỡ bỏ nhắc đến Markdown Fixer và route `/md` tại các mục 3.2, 3.3, 5.1, 5.3 và 7; ghi chú rõ "Markdown Fixer đã gỡ".
+    - `playwright.config.ts` & `tests-e2e/pdf-workflow.spec.ts`: Cấu hình `XDG_CONFIG_HOME` cho webServer, cập nhật test selector thư mục PDF bỏ emoji `📁`.
+  - Bảo toàn logic: 0 file `.ts` nghiệp vụ trong `src/` bị ảnh hưởng.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | build production ✅ | E2E browser tests ✅ (14/14 pass)
+- File chính bị ảnh hưởng:
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`
+  - `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`
+  - `src/lib/epub-packer/components/EpubPackSection.svelte`
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`
+  - `src/lib/epub-editor/components/EpubValidatorModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorSidebar.svelte`
+  - `src/lib/epub-editor/components/EpubMetadataModal.svelte`
+  - `src/lib/epub-editor/components/EpubEditorPreviewPane.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `src/routes/epub-editor/+page.svelte`
+  - `playwright.config.ts`
+  - `tests-e2e/pdf-workflow.spec.ts`
+  - `README.md`
+  - `UI_DIRECTION.md`
 
 ### 2026-11-23 (Hoàn thiện giao diện chi tiết: PDF Splitter, Jacket Selector, Suggestion Flow & Token Ok)
 

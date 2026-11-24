@@ -254,7 +254,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(h2SubTrigger).toContainText('Akashi');
 		await expect(page.locator('#h2-sub-font-select')).toHaveValue('UTM_Akashi');
 
-		// 5. Verify Pack button is enabled
+		// 5. Navigate to Step 5 and verify Pack button is enabled
+		await page.getByRole('button', { name: /Tiếp: Đóng gói/i }).click();
 		const packBtn = page.getByRole('button', { name: /Đóng gói file EPUB/i }).first();
 		await expect(packBtn).toBeVisible();
 		await expect(packBtn).toBeEnabled();

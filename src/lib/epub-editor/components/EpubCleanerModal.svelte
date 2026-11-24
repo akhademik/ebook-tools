@@ -67,7 +67,7 @@
 			>
 				<div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
 					<div
-						class="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0"
+						class="w-8 h-8 rounded-lg bg-ok/15 text-ok flex items-center justify-center shrink-0"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -137,9 +137,9 @@
 					</div>
 				{:else if editorState.cleanReport}
 					<!-- Success Cleaning Report -->
-					<div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-5 text-center">
+					<div class="bg-ok/10 border border-ok/30 rounded-xl p-5 text-center">
 						<div
-							class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto mb-3"
+							class="w-12 h-12 rounded-full bg-ok/20 text-ok flex items-center justify-center mx-auto mb-3"
 						>
 							<svg
 								class="w-6 h-6"
@@ -151,7 +151,7 @@
 								<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
 							</svg>
 						</div>
-						<h4 class="text-base font-bold text-emerald-400 font-sans">Dọn dẹp thành công!</h4>
+						<h4 class="text-base font-bold text-ok font-sans">Dọn dẹp thành công!</h4>
 						<p class="text-xs text-text-mute mt-1 font-sans">
 							Đã tối ưu hóa và cập nhật lại file EPUB
 						</p>
@@ -165,13 +165,13 @@
 							</div>
 							<div class="bg-panel/80 rounded-lg p-3 border border-border-color">
 								<span class="text-xs text-text-mute block font-sans">Sau</span>
-								<span class="font-mono text-sm font-bold text-emerald-400">
+								<span class="font-mono text-sm font-bold text-ok">
 									{formatByteSize(editorState.cleanReport.afterBytes)}
 								</span>
 							</div>
-							<div class="bg-emerald-500/20 rounded-lg p-3 border border-emerald-500/40">
-								<span class="text-xs text-emerald-300 block font-sans">Tiết kiệm</span>
-								<span class="font-mono text-sm font-bold text-emerald-400">
+							<div class="bg-ok/20 rounded-lg p-3 border border-ok/40">
+								<span class="text-xs text-ok block font-sans">Tiết kiệm</span>
+								<span class="font-mono text-sm font-bold text-ok">
 									-{formatByteSize(editorState.cleanReport.savedBytes)}
 								</span>
 							</div>
@@ -234,7 +234,7 @@
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
 							<span class="text-xs text-text-mute block font-sans">Có thể giảm</span>
-							<span class="font-mono text-sm font-bold text-emerald-400">
+							<span class="font-mono text-sm font-bold text-ok">
 								~{formatByteSize(a.estimatedSavingsBytes)}
 							</span>
 						</div>
@@ -270,11 +270,12 @@
 									<span>Xóa hình ảnh không dùng</span>
 									{#if a.unusedImages.length > 0}
 										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
 										>
-											{a.unusedImages.length} file (~{formatByteSize(
-												a.unusedImages.reduce((s, i) => s + i.byteSize, 0)
-											)})
+											<span class="font-mono">{a.unusedImages.length}</span> file (<span
+												class="font-mono"
+												>~{formatByteSize(a.unusedImages.reduce((s, i) => s + i.byteSize, 0))}</span
+											>)
 										</span>
 									{/if}
 								</div>
@@ -308,11 +309,12 @@
 									<span>Xóa fonts nhúng không dùng</span>
 									{#if a.unusedFonts.length > 0}
 										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
 										>
-											{a.unusedFonts.length} file (~{formatByteSize(
-												a.unusedFonts.reduce((s, f) => s + f.byteSize, 0)
-											)})
+											<span class="font-mono">{a.unusedFonts.length}</span> file (<span
+												class="font-mono"
+												>~{formatByteSize(a.unusedFonts.reduce((s, f) => s + f.byteSize, 0))}</span
+											>)
 										</span>
 									{/if}
 								</div>
@@ -350,9 +352,9 @@
 									<span>Xóa file CSS mồ côi</span>
 									{#if a.unusedStyles.length > 0}
 										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-mono"
+											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
 										>
-											{a.unusedStyles.length} file
+											<span class="font-mono">{a.unusedStyles.length}</span> file
 										</span>
 									{/if}
 								</div>
@@ -381,11 +383,13 @@
 								</svg>
 								<span>Phát hiện {a.missingReferences.length} liên kết hỏng trong sách:</span>
 							</div>
-							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute font-mono text-[11px]">
+							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute font-sans text-[11px]">
 								{#each a.missingReferences.slice(0, 5) as ref (ref.sourceFile + '-' + ref.targetRef)}
 									<div>
-										• {ref.sourceFile} ➔ <span class="text-amber-300">{ref.targetRef}</span> (không tìm
-										thấy)
+										• <span class="font-mono text-text-color">{ref.sourceFile}</span>
+										<span class="text-text-mute mx-1">→</span>
+										<span class="font-mono text-amber-300">{ref.targetRef}</span>
+										<span class="text-text-mute font-sans ml-1">(không tìm thấy)</span>
 									</div>
 								{/each}
 							</div>

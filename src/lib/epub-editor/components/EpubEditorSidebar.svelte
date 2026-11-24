@@ -244,7 +244,7 @@
 
 						{#if isPreviewActive}
 							<span
-								class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 font-bold flex items-center gap-1"
+								class="px-1.5 py-0.5 rounded text-[10px] bg-ok/20 text-ok font-bold flex items-center gap-1"
 								title="Đang render trong Preview"
 							>
 								<svg

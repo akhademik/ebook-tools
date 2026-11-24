@@ -105,7 +105,7 @@ Biến mới cần thêm:
 ### 3.2 Quy tắc tự động
 
 - Ở trang chủ `/`: mặc định **mở rộng**.
-- Khi vào một công cụ (`/epub-packer`, `/epub-editor`, `/pdf`, `/md`, `/epub-to-txt`, `/txt-to-pdf`): mặc định **thu gọn** để nội dung có thêm chỗ.
+- Khi vào một công cụ (`/epub-packer`, `/epub-editor`, `/pdf`, `/epub-to-txt`, `/txt-to-pdf`): mặc định **thu gọn** để nội dung có thêm chỗ. (Lưu ý: Markdown Fixer `/md` đã gỡ bỏ hoàn toàn).
 - Có nút bật/tắt ở đầu sidebar (icon mũi tên, `aria-expanded`, `aria-label` "Thu gọn menu"/"Mở rộng menu"). Khi người dùng tự bấm, **lưu lựa chọn** vào `localStorage` (khóa mới, ví dụ `sidebar-collapsed`) và tôn trọng lựa chọn đó ở các lần sau, thay cho mặc định tự động.
 - Chuyển trạng thái bằng `transition: width 200ms ease`; nội dung chữ ẩn bằng `opacity`/`hidden` sau khi thu, tránh giật chữ.
 - Màn hình `< md`: **giữ nguyên** cơ chế drawer hiện tại (nút ☰ trên header mobile, backdrop). Không áp dụng thu gọn ở mobile.
@@ -117,7 +117,7 @@ Nhóm và thứ tự (giữ đúng các đường dẫn hiện có):
 
 1. Tổng quan `/`
 2. **Tạo và tinh chỉnh**: Đóng gói EPUB `/epub-packer`, EPUB Editor `/epub-editor`
-3. **Tiền xử lý**: PDF → JPG `/pdf`, Markdown Fixer `/md`, EPUB → TXT `/epub-to-txt`
+3. **Tiền xử lý**: PDF → JPG `/pdf`, EPUB → TXT `/epub-to-txt` _(Markdown Fixer đã gỡ)_
 4. **Mở rộng**: TXT → PDF CJK `/txt-to-pdf`
 
 Mục đang chọn: nền `accent-soft`, chữ `accent-color`, đậm 600, thêm `aria-current="page"`. Mục thường: chữ `text-mute`, hover đổi nền `panel`.
@@ -174,8 +174,8 @@ Cột này chỉ **đọc** state để hiển thị; không ghi vào state. `Ep
 
 - Tiêu đề "Bàn làm việc" + dòng mô tả + huy hiệu "file không rời khỏi máy bạn".
 - **Bắt đầu với**: 2 thẻ lớn (Đóng gói EPUB, EPUB Editor và Validator), mỗi thẻ có icon, mô tả 1–2 dòng, vài chip tính năng, và dòng "Mở công cụ →" (bản thân thẻ là liên kết, bỏ nút lặp).
-- **Quy trình gợi ý cho sách quét**: 5 ô nối bằng mũi tên: PDF → JPG, OCR (viền đứt, "thực hiện bên ngoài ứng dụng"), Markdown Fixer, Đóng gói EPUB, EPUB Editor. Ghi rõ đây chỉ là gợi ý.
-- **Công cụ lẻ**: danh sách thẻ ngang gọn (icon, tên, 1 dòng mô tả, mũi tên): EPUB → TXT, PDF → JPG, Markdown Fixer, TXT → PDF CJK (nhãn "Desktop").
+- **Quy trình gợi ý cho sách quét**: 4 ô nối bằng mũi tên: PDF → JPG, OCR (viền đứt, "thực hiện bên ngoài ứng dụng"), Đóng gói EPUB, EPUB Editor _(Markdown Fixer đã gỡ)_. Ghi rõ đây chỉ là gợi ý.
+- **Công cụ lẻ**: danh sách thẻ ngang gọn (icon, tên, 1 dòng mô tả, mũi tên): EPUB → TXT, PDF → JPG, TXT → PDF CJK (nhãn "Desktop"). _(Markdown Fixer đã gỡ)_.
 - Giữ nguyên các `href`.
 
 ### 5.2 EPUB Editor (`src/routes/epub-editor/+page.svelte` và `src/lib/epub-editor/components/*`)
@@ -183,7 +183,7 @@ Cột này chỉ **đọc** state để hiển thị; không ghi vào state. `Ep
 - Trang ngoài: áp dụng thẻ, nút, DropZone mới. Hàng nút (Thông tin / Kiểm định / Dọn rác / Mở trình chỉnh sửa) dùng kiểu nút phụ chuẩn, bỏ emoji, thay icon SVG.
 - Modal toàn màn hình: **chỉ đổi màu, bo góc, icon, chữ** theo token mới. Không đổi bố cục chia đôi, thanh kéo, sidebar file, đồng bộ cuộn, cơ chế xác nhận chưa lưu.
 
-### 5.3 PDF → JPG, Markdown Fixer, EPUB → TXT, TXT → PDF CJK
+### 5.3 PDF → JPG, EPUB → TXT, TXT → PDF CJK (Markdown Fixer đã gỡ)
 
 Chỉ áp dụng token, tiêu đề trang, thẻ, nút, DropZone, Input mới. Không đổi bố cục xử lý, tiến độ, tải về.
 
@@ -204,7 +204,7 @@ Chỉ áp dụng token, tiêu đề trang, thẻ, nút, DropZone, Input mới. K
 ## 7. Tiêu chí nghiệm thu
 
 - [ ] Không file `.ts` nào trong `src/` bị sửa (chạy `git diff --stat` để xác nhận). Ngoại lệ phải được nêu rõ và được đồng ý.
-- [ ] Mọi chức năng cũ hoạt động như trước: đóng gói, tải EPUB, jacket, đổi phông, cắt bìa, editor, validator, cleaner, tách PDF, Markdown Fixer, EPUB → TXT.
+- [ ] Mọi chức năng cũ hoạt động như trước: đóng gói, tải EPUB, jacket, đổi phông, cắt bìa, editor, validator, cleaner, tách PDF, EPUB → TXT (Markdown Fixer đã gỡ bỏ).
 - [ ] `pnpm format:check`, `check`, `lint`, `test`, `knip`, `build`, `test:e2e` đều xanh.
 - [ ] Sidebar tự thu gọn khi vào công cụ, có nút mở lại, nhớ lựa chọn của người dùng; mobile vẫn là drawer.
 - [ ] Nút Đóng gói luôn nhìn thấy ở trang Đóng gói EPUB mà không cần cuộn xuống cuối.

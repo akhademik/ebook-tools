@@ -15,8 +15,7 @@
 	);
 </script>
 
-<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
-	<h2 class="text-base font-semibold text-text-color mb-4">Thông tin sách & Trang giới thiệu</h2>
+<div class="animate-fade-in">
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 		<div>
 			<Input bind:value={epubState.metadata.title} label="Tác phẩm" placeholder="Mật Mã Da Vinci" />

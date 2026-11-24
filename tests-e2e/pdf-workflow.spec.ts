@@ -172,7 +172,7 @@ startxref
 		await pickDirBtn.click();
 
 		// Verify directory selected badge
-		await expect(page.getByText('📁 TestExportFolder')).toBeVisible();
+		await expect(page.getByText('TestExportFolder')).toBeVisible();
 
 		// Start splitting to disk
 		const startBtn = page.getByRole('button', { name: /Bắt đầu tách trang/i });

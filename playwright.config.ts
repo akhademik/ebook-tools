@@ -25,6 +25,10 @@ export default defineConfig({
 		reuseExistingServer: !process.env.CI,
 		stdout: 'ignore',
 		stderr: 'pipe',
-		timeout: 120000
+		timeout: 120000,
+		env: {
+			...process.env,
+			XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME || '/tmp/.config'
+		}
 	}
 });

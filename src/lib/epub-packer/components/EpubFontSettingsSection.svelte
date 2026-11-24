@@ -23,11 +23,7 @@
 	);
 </script>
 
-<div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">
-	<h2 class="text-base font-semibold text-text-color mb-4">
-		Cấu hình phông chữ nội dung & Xem trước chương
-	</h2>
-
+<div class="animate-fade-in">
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
 		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap) -->
 		<div class="flex flex-col gap-4">

@@ -125,7 +125,7 @@
 		class="h-10 px-3 md:px-4 border-b border-border-color flex items-center justify-between bg-panel-2 shrink-0 select-none gap-2"
 	>
 		<div class="flex items-center gap-2 min-w-0 text-xs">
-			<span class="text-emerald-500 font-semibold shrink-0 flex items-center gap-1 font-sans">
+			<span class="text-ok font-semibold shrink-0 flex items-center gap-1 font-sans">
 				<svg
 					class="w-3.5 h-3.5"
 					viewBox="0 0 24 24"
