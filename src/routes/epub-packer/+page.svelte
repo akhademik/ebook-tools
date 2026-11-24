@@ -237,28 +237,28 @@
 
 	<!-- Step 3: Bìa và hoa văn -->
 	<div class={currentStep === 3 ? 'block' : 'hidden'}>
-		<div class="modern-card rounded-2xl p-5 sm:p-7 shadow-sm border border-border-color">
-			<div class="mb-6 pb-4 border-b border-border-color">
-				<h2 class="text-lg sm:text-xl font-bold text-text-color font-sans">Bìa và hoa văn</h2>
-				<p class="text-sm text-text-mute mt-1">
+		<div class="modern-card rounded-2xl p-4 sm:p-6 shadow-sm border border-border-color">
+			<div class="mb-5 pb-3 border-b border-border-color">
+				<h2 class="text-base sm:text-lg font-bold text-text-color font-sans">Bìa và hoa văn</h2>
+				<p class="text-xs sm:text-sm text-text-mute mt-0.5">
 					Thêm ảnh bìa sách, họa tiết trang trí đầu chương và ảnh minh họa cho nội dung
 				</p>
 			</div>
 
-			<div class="space-y-6">
+			<div class="space-y-5">
 				<EpubCoverSection {epubState} />
 
-				<div class="pt-6 border-t border-border-color">
+				<div class="pt-5 border-t border-border-color/70">
 					<EpubOrnamentsSection {epubState} />
 				</div>
 
-				<div class="pt-6 border-t border-border-color">
+				<div class="pt-5 border-t border-border-color/70">
 					<EpubIllustrationsSection {epubState} />
 				</div>
 			</div>
 
 			<div
-				class="mt-8 pt-5 border-t border-border-color flex justify-between items-center gap-3 flex-wrap sm:flex-nowrap"
+				class="mt-6 pt-4 border-t border-border-color flex justify-between items-center gap-3 flex-wrap sm:flex-nowrap"
 			>
 				<div class="w-full sm:w-auto min-w-40">
 					<Button variant="secondary" onclick={() => (currentStep = 2)}>

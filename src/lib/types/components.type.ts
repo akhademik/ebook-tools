@@ -13,6 +13,7 @@ export interface DropZoneProps {
 	accept?: string;
 	multiple?: boolean;
 	disabled?: boolean;
+	compact?: boolean;
 	onSelect?: (file: File) => void;
 	onSelectMultiple?: (files: FileList | File[]) => void;
 	title?: string;
@@ -28,6 +29,7 @@ export interface InputProps {
 	type?: string;
 	min?: number | string | null;
 	max?: number | string | null;
+	compact?: boolean;
 	oninput?: (event: Event) => void;
 }
 

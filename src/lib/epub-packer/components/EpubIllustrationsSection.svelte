@@ -10,8 +10,10 @@
 </script>
 
 <div class="animate-fade-in">
-	<div class="flex items-center justify-between mb-3">
-		<h2 class="text-base font-semibold text-text-color">Ảnh minh họa nội dung (Illustrations)</h2>
+	<div class="flex items-center justify-between mb-1.5">
+		<h3 class="text-sm sm:text-base font-semibold text-text-color font-sans">
+			Ảnh minh họa nội dung (Illustrations)
+		</h3>
 		{#if epubState.images.illustrationFiles.length > 0}
 			<button
 				type="button"
@@ -23,28 +25,23 @@
 		{/if}
 	</div>
 
-	<p class="text-xs text-text-mute mb-4">
-		Hỗ trợ tải lên 1 hoặc nhiều ảnh (<code>.jpg, .png, .webp, .gif, .svg</code>), file
-		<code>.pdf</code>
-		hoặc file nén <code>.zip</code> chứa các ảnh / file PDF. Tên file ảnh/PDF cần trùng với tên thẻ
-		trong file TXT (Ví dụ: cú pháp
-		<code>[hinh-1]</code>
-		sẽ tự liên kết với file <code>hinh-1.jpg</code> / <code>hinh-1.png</code> /
-		<code>hinh-1.pdf</code>).
+	<p class="text-xs text-text-mute mb-2.5 font-sans">
+		Tự động liên kết thẻ <code>[hinh-1]</code> trong văn bản với file cùng tên (ảnh, PDF hoặc ZIP).
 	</p>
 
 	<DropZone
+		compact={true}
 		accept=".png,.jpg,.jpeg,.webp,.gif,.svg,.zip,.pdf"
 		multiple={true}
 		onSelectMultiple={(files) => epubState.images.handleIllustrationFiles(files)}
 		onSelect={(file) => epubState.images.handleIllustrationFiles(file)}
 		title="Chọn ảnh minh họa, file PDF hoặc file ZIP"
-		subtitle="Kéo thả nhiều ảnh, file PDF hoặc file .zip tại đây"
+		subtitle="Kéo thả nhiều ảnh hoặc file nén vào đây"
 		selectedCount={epubState.images.illustrationFiles.length}
 	/>
 
 	{#if epubState.images.illustrationIsProcessing}
-		<div class="mt-3 flex items-center gap-2 text-xs text-accent-color font-mono animate-pulse">
+		<div class="mt-2.5 flex items-center gap-2 text-xs text-accent-color font-mono animate-pulse">
 			<div
 				class="w-3.5 h-3.5 border-2 border-accent-color border-t-transparent rounded-full animate-spin"
 			></div>
@@ -53,7 +50,7 @@
 	{/if}
 
 	{#if epubState.images.illustrationError}
-		<div class="mt-3 text-xs text-red-500 flex items-center gap-1.5 font-medium">
+		<div class="mt-2.5 text-xs text-red-500 flex items-center gap-1.5 font-medium">
 			<svg
 				class="w-4 h-4 text-red-500 shrink-0"
 				viewBox="0 0 24 24"
@@ -73,17 +70,17 @@
 
 	{#if epubState.images.illustrationFiles.length > 0}
 		<div
-			class="mt-4 flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 bg-brand-bg rounded-xl border border-border-color"
+			class="mt-3 flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 bg-panel-2/50 rounded-xl border border-border-color/70"
 		>
 			{#each epubState.images.illustrationFiles as img, idx (img.fileName + idx)}
 				<div
-					class="flex items-center gap-2 bg-panel-2 border border-border-color px-2.5 py-1.5 rounded-lg text-xs font-mono"
+					class="flex items-center gap-1.5 bg-panel border border-border-color px-2 py-1 rounded-md text-[11px] font-mono"
 				>
 					<span class="text-accent-color font-semibold">[{img.name}]</span>
-					<span class="text-text-mute text-[11px]">({img.fileName})</span>
+					<span class="text-text-mute">({img.fileName})</span>
 					<button
 						type="button"
-						class="text-red-400 hover:text-red-600 ml-1 cursor-pointer font-bold"
+						class="text-red-400 hover:text-red-600 ml-1 cursor-pointer font-bold leading-none"
 						onclick={() => epubState.images.removeIllustrationFile(idx)}
 						title="Xóa ảnh này"
 					>

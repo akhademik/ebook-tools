@@ -144,8 +144,23 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 11:05
+- Cập nhật lần cuối: 2026-11-24 11:15
 - Đã hoàn thành:
+  - **Tinh gọn & Hài hòa Giao diện Bước 3 "Bìa và hoa văn / Tùy chọn trang trí" (Minimal DropZone & Compact Section Layout)**:
+    - **Hỗ trợ chế độ `compact` cho `DropZone.svelte` (`src/lib/components/DropZone.svelte`, `components.type.ts`)**:
+      - Bổ sung prop `compact?: boolean` cho `DropZoneProps`.
+      - Khi bật `compact`, giảm mạnh chiều cao từ ~180px xuống ~70px (`py-3 sm:py-3.5 px-4`, bo viền `rounded-xl` viền mảnh nét đứt `border`, icon 28px `w-7 h-7` kèm icon SVG stroke 14px `w-3.5 h-3.5`, nhãn tiêu đề `text-xs sm:text-sm font-medium`, subtitle `text-[11px] sm:text-xs`).
+    - **Hỗ trợ chế độ `compact` cho `Input.svelte` (`src/lib/components/Input.svelte`)**:
+      - Bổ sung prop `compact?: boolean` cho `InputProps`, giảm chiều cao ô nhập từ 44px (`h-11`) xuống 32–36px (`h-8 sm:h-9 text-xs px-2.5 rounded-lg`) giúp các ô nhập số lề cắt bìa gọn gàng, thanh thoát.
+    - **Thiết kế lại khối Cắt lề ảnh bìa (`EpubCoverSection.svelte`) sang bố cục 2 cột nằm ngang**:
+      - Thay thế hoàn toàn bố cục cũ (ảnh preview 280px chiếm 1 hàng to và 2 cột căn lề xếp bên dưới chiếm tới ~700px chiều cao) thành thẻ nằm ngang (`flex flex-col sm:flex-row items-start gap-5`): Thumbnail bìa 130–160px (`w-32 sm:w-40`) nằm bên trái có khung viền và vạch đỏ cắt lề trực quan, bảng điều khiển căn lề nằm bên phải với các nút bấm nhanh 32px (`T ±20`, `B ±20`, `L ±20`, `R ±20`) và 4 ô nhập lề `compact`.
+      - Tiết kiệm hơn 60% diện tích màn hình, thao tác căn lề tức thời không phải cuộn trang.
+    - **Tinh gọn khối Hoa văn trang trí (`EpubOrnamentsSection.svelte`) & Minh họa (`EpubIllustrationsSection.svelte`)**:
+      - Tối ưu 2 DropZone Trang trí chương lớn (H1) và Trang trí chương phụ (H2) với `compact={true}`, khung xem trước hoa văn sau khi tẩy nền hiển thị dạng thẻ ngang nhỏ gọn 48x36px.
+      - Tinh giản đoạn văn mô tả ảnh minh họa thành 1 dòng ngắn gọn, thanh thoát; vùng danh sách thẻ ảnh minh họa `max-h-36` bo góc `rounded-xl`.
+    - **Cân đối khoảng cách và đệm thẻ chung của Bước 3 (`src/routes/epub-packer/+page.svelte`)**:
+      - Chuẩn hóa đệm thẻ Bước 3 từ `p-5 sm:p-7` thành `p-4 sm:p-6`, khoảng cách giữa các phần tử `space-y-5`, đường kẻ ngăn cách `pt-5 border-border-color/70`.
+    - Toàn bộ **367/367 unit tests pass 100%** (18/18 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ File TXT**:
     - **Khử triệt để lỗi dấu tiếng Việt NFD (macOS/iOS Unicode Decomposed) sang NFC Precomposed**:
       - Tên file khi tải từ macOS/iOS/trình duyệt thường ở dạng Unicode NFD (vần và dấu thanh bị tách thành các code point rời rạc như `o` + `^` + `~`). Khi nạp vào ô nhập liệu `<input>`, các font chữ không hỗ trợ GPOS dấu rời sẽ hiển thị lệch dấu hoặc ô vuông tofu.
@@ -454,6 +469,33 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Tinh gọn & Hài hòa Giao diện Bước 3 Bìa và Hoa văn)
+
+- Thêm/sửa:
+  - `src/lib/types/components.type.ts`: Bổ sung `compact?: boolean` cho `DropZoneProps` và `InputProps`.
+  - `src/lib/components/DropZone.svelte`: Thêm biến thể `compact` với đệm nhỏ `py-3 sm:py-3.5 px-4`, icon 28px, chữ 13px/11px, viền mỏng nét đứt `border-border-color`.
+  - `src/lib/components/Input.svelte`: Thêm biến thể `compact` chiều cao `h-8 sm:h-9` cho các ô nhập số lề pixel.
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`:
+    - Áp dụng `DropZone compact={true}` cho vùng nạp ảnh bìa sách.
+    - Tái cấu trúc vùng xem trước và cắt lề ảnh bìa sang bố cục hàng ngang 2 cột: Thumbnail bìa 130–160px bên trái và bảng điều khiển nút bấm/ô nhập cắt lề bên phải, giảm hơn 60% chiều cao màn hình.
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`:
+    - Áp dụng `DropZone compact={true}` cho cả 2 vùng nạp hoa văn chương lớn (H1) và chương phụ (H2).
+    - Thẻ xem trước kết quả tẩy nền PNG trong suốt được tối ưu dạng thanh mini 48x36px.
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`:
+    - Rút gọn phần ghi chú hướng dẫn thành 1 dòng xúc tích.
+    - Áp dụng `DropZone compact={true}` và tối ưu kích thước danh sách chip ảnh minh họa.
+  - `src/routes/epub-packer/+page.svelte`: Tinh chỉnh đệm thẻ Bước 3 sang `p-4 sm:p-6`, khoảng cách `space-y-5` liền mạch, hài hòa.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4911 nodes, 10555 edges, 267 communities
+- File chính bị ảnh hưởng:
+  - `src/lib/types/components.type.ts`
+  - `src/lib/components/DropZone.svelte`
+  - `src/lib/components/Input.svelte`
+  - `src/lib/epub-packer/components/EpubCoverSection.svelte`
+  - `src/lib/epub-packer/components/EpubOrnamentsSection.svelte`
+  - `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `README.md`
 
 ### 2026-11-24 (Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ TXT)
 

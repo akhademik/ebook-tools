@@ -5,6 +5,7 @@
 		accept = '',
 		multiple = false,
 		disabled = false,
+		compact = false,
 		onSelect,
 		onSelectMultiple,
 		title = 'Kéo thả hoặc click để chọn file',
@@ -54,7 +55,9 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="border-2 border-dashed border-border-color rounded-2xl p-6 sm:p-10 text-center transition-all relative {disabled
+	class="{compact
+		? 'border border-dashed border-border-color rounded-xl py-3 px-3.5 sm:py-3.5 sm:px-4'
+		: 'border-2 border-dashed border-border-color rounded-2xl p-6 sm:p-10'} text-center transition-all relative {disabled
 		? 'opacity-60 cursor-not-allowed bg-panel-2/50'
 		: 'cursor-pointer'} {isDragOver && !disabled
 		? 'border-accent-color bg-accent-soft'
@@ -78,11 +81,13 @@
 	/>
 	<div class="flex flex-col items-center justify-center pointer-events-none">
 		<div
-			class="w-12 h-12 rounded-xl bg-accent-soft text-accent-color flex items-center justify-center mb-3"
+			class="{compact
+				? 'w-7 h-7 rounded-lg mb-1'
+				: 'w-12 h-12 rounded-xl mb-3'} bg-accent-soft text-accent-color flex items-center justify-center"
 			aria-hidden="true"
 		>
 			<svg
-				class="w-6 h-6"
+				class={compact ? 'w-3.5 h-3.5' : 'w-6 h-6'}
 				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
@@ -95,21 +100,37 @@
 				<line x1="12" y1="3" x2="12" y2="15" />
 			</svg>
 		</div>
-		<p class="text-base font-semibold text-text-color mb-1 font-sans">{title}</p>
+		<p
+			class="{compact
+				? 'text-xs sm:text-sm font-medium'
+				: 'text-base font-semibold'} text-text-color mb-0.5 font-sans"
+		>
+			{title}
+		</p>
 		{#if subtitle}
-			<p class="text-sm text-text-mute font-sans max-w-sm">{subtitle}</p>
+			<p
+				class="{compact
+					? 'text-[11px] sm:text-xs max-w-xs'
+					: 'text-sm max-w-sm'} text-text-mute font-sans"
+			>
+				{subtitle}
+			</p>
 		{/if}
 		{#if selectedFile}
 			<div
-				class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-panel border border-border-color"
+				class="{compact
+					? 'mt-1.5 px-2 py-0.5 rounded-md text-[11px]'
+					: 'mt-3 px-3 py-1 rounded-lg text-xs'} inline-flex items-center gap-1.5 bg-panel border border-border-color"
 			>
-				<span class="font-mono text-xs text-accent-color break-all">{selectedFile.name}</span>
+				<span class="font-mono text-accent-color break-all">{selectedFile.name}</span>
 			</div>
 		{:else if selectedCount > 0}
 			<div
-				class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-panel border border-border-color"
+				class="{compact
+					? 'mt-1.5 px-2 py-0.5 rounded-md text-[11px]'
+					: 'mt-3 px-3 py-1 rounded-lg text-xs'} inline-flex items-center gap-1.5 bg-panel border border-border-color"
 			>
-				<span class="font-mono text-xs text-accent-color">Đã chọn {selectedCount} file ảnh</span>
+				<span class="font-mono text-accent-color">Đã chọn {selectedCount} file ảnh</span>
 			</div>
 		{/if}
 	</div>
