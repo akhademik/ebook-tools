@@ -1,17 +1,17 @@
 # Graph Report - ebook-tools  (2026-11-24)
 
 ## Corpus Check
-- 141 files · ~158,292 words
+- 141 files · ~158,413 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 55 file(s) not represented in the graph (top: .otf 22, .ttf 18, .css 10)
 
 ## Summary
-- 4913 nodes · 10562 edges · 273 communities (117 shown, 156 thin omitted)
+- 4914 nodes · 10563 edges · 283 communities (119 shown, 164 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 147 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2b347fa7`
+- Built from commit: `70bd2b33`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,21 +24,21 @@
 - XFAObjectArray
 - .add
 - .get
-- has
+- Catalog
 - AnnotationEditorUIManager
 - LocaleSetNamespace
 - .success
-- PartialEvaluator
+- has
 - PDFWorker
 - epub-source-parser.ts
-- real-world-workflows.test.ts
+- zip-writer.ts
 - AnnotationEditor
 - content-rules.ts
-- .getObj
-- XMLParserBase
-- lib/types/index.ts
-- stylesheet-builder.ts
-- WsdlConnection
+- parseCMap
+- .parse
+- epub-source-state.svelte.ts
+- makeHexColor
+- extractFontProgram
 - AnnotationEditorLayer
 - BasePdfManager
 - FreeTextEditor
@@ -46,7 +46,7 @@
 - InkEditor
 - .createElement
 - XFAObject
-- epub-packer/+page.svelte
+- epub-state.svelte.ts
 - PDFFetchStreamReader
 - AES256Cipher
 - .resolve
@@ -60,7 +60,7 @@
 - txt-parser.ts
 - PDFDocumentProxy
 - valueToHtml
-- fetchIfRef
+- .getObj
 - Annotation
 - WidgetAnnotation
 - AnnotationStorage
@@ -74,127 +74,127 @@
 - WorkerTransport
 - Edge
 - pdf-splitter.ts
-- epub-state.svelte.ts
-- epub-editor.test.ts
+- utils/index.ts
+- epub-editor-state.svelte.ts
 - .a
-- .parse
+- .constructPostScript
 - epub-cleaner.test.ts
 - epub-reader-parser.ts
 - .onSymbolDictionary
-- wrap
-- .getTextContent
+- CFFCompiler
+- .getOperatorList
 - devDependencies
-- .ensureBuffer
-- checkAndRepair
+- .makeFilter
+- convert
 - cleaner-engine.ts
 - .createDocumentHandler
 - ExclGroup
 - scripts
 - epub-to-txt.ts
-- add
+- Font
 - CanvasExtraState
 - Word64
 - ChunkedStream
 - .getByte
 - .getBytes
-- pdf.ts
-- getPage
+- pdf-splitter.test.ts
+- bind
 - compileGlyf
 - .constructor
 - EpubImagesState
 - BaseShadingPattern
-- PDFPageProxy
+- InternalRenderTask
 - constructor
 - readBit
 - parseTilePackets
 - XmlObject
 - executeOpTree
 - Caption
-- appendText
-- CFFCompiler
+- checkAndRepair
+- PDFPageProxy
 - compilerOptions
 - LabCS
 - EpubEditorState
 - PDFDataRangeTransport
-- .shift
+- Parser
 - DeviceRgbCS
 - .push
 - ContentObject
-- xfaFactory
+- process
 - BaseStream
-- CompiledFont
+- CMap
 - CalRGBCS
 - ColorSpace
-- EpubToTxtState
-- .readBlock
-- P
-- Range
+- .render
+- XhtmlObject
+- .b
+- generate-fonts-meta.js
 - LinkAnnotationElement
 - NullOptimizer
 - UI_DIRECTION.md — Hướng dẫn làm mới giao diện Ebook Maker
 - dependencies
 - @playwright/test
 - PageSet
-- CFFStrings
-- find
+- image-bg-remove.worker.ts
+- FontInfo
 - XFAAttribute
 - 🚀 Các công cụ chính
 - Root
 - Stream
 - preview-builder.ts
 - Ref
-- Template
+- PageViewport
 - CommandManager
-- 3. Kiến trúc Kiểm Thử 4 Tầng & Ma Trận: "Sửa Gì - Chạy Test Gì?"
+- ⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử
 - Color
 - PDFWorkerStreamReader
 - vite.config.js
 - BaseCanvasFactory
-- Radial
+- parseCharString
 - Text
-- BehaviorOverride
+- P
 - PageArea
 - fingerprints
 - TextState
 - epub-editor.ts
 - Jbig2Stream
-- Signature
+- Assist
 - AnnotationBorderStyle
 - Xdp
 - Datasets
 - IndexedCS
-- .setup
+- Body
 - result.type.ts
 - BaseFilterFactory
 - AI_WORKFLOW.md — Quy trình làm việc & Kiểm thử bắt buộc cho AI Coding Agent
-- Stylesheet
+- Encryption
 - DESIGN_SYSTEM.md — Hệ Thống Thiết Kế & Quy Chuẩn Giao Diện (Ebook Forge)
 - BitModel
 - .pdf
 - DeviceCmykCS
 - 2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code & Trước khi Commit
 - ExData
-- 2. Định hướng thiết kế
-- .compileTopDicts
+- EquateRange
+- Exclude
 - transform
 - tests-e2e/tsconfig.json
 - Tuyển Tập Truyện Ngắn Đương Đại
 - tests/tsconfig.json
 - knip.json
 - 5. Các trang còn lại
-- GlobalImageCache
-- AdjustData
+- .toString
+- Packets
 - 4. Quy chuẩn Thành phần Giao diện (Components)
-- Uri
+- PageRange
 - Amd
 - DeviceGrayCS
-- Certificates
+- Picture
 - BaseShading
 - Button
-- CalGrayCS
-- Comb
+- Record
+- Rename
 - Margin
-- getPdfManager
+- PDFWorkerStreamRangeReader
 - .i
 - .log
 - EvaluatorPreprocessor
@@ -202,76 +202,81 @@
 - Compression
 - CompressLogicalStructure
 - LabelPrinter
-- ContentCopy
+- LockDocument
 - ScriptModel
 - Br
-- Mode
+- Occur
 - DuplexOption
-- Copies
+- Para
 - CurrentPage
 - AlternateCS
 - Linear
-- Driver
+- Solid
 - RunScripts
 - Interactive
 - DynamicRender
 - Traverse
-- Conformance
-- Pattern
+- 4. Trang Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`)
+- DOMCanvasFactory
 - Relevant
-- Embed
-- epub-editor-state.svelte.ts
-- Script
-- GroupParent
+- XfaText
+- real-world-workflows.test.ts
+- Acrobat7
+- AddViewerPreferences
 - OpenAction
-- Layout
-- IfEmpty
+- AdobeExtensionLevel
+- AlwaysEmbed
 - HuffmanTable
 - Permissions
 - SubjectDN
-- 3. Khung ứng dụng và hành vi thu gọn sidebar (`src/routes/+layout.svelte`)
+- AppearanceFilter
 - IncrementalMerge
 - NameAttr
-- OutputBin
+- BatchOutput
 - Pagination
-- PlaintextMetadata
-- Certificate
-- RenderPolicy
+- Change
+- Creator
+- Debug
 - Cmd
-- DefaultTypeface
-- SubmitFormat
+- Enforce
+- Equate
 - SuppressBanner
-- DocumentAssembly
+- ExcludeNS
 - EncryptionLevel
 - TemplateCache
-- XsdConnection
+- FormFieldFilling
 - Threshold
-- ValidationMessaging
-- VersionControl
-- EncryptData
+- Level
+- Linearized
+- MsgId
 - Filter
-- OutputXSL
-- ModifyAnnots
-- XhtmlObject
+- NeverEmbed
+- Overprint
+- XhtmlNamespace
 - PageOffset
-- JpegStream
-- Keep
+- PaginationOverride
+- PickTrayByPDFSize
 - src_lib_epub_packer_epub_packer_buildchapterxhtml
 - Severity
 - src_lib_epub_packer_epub_packer_buildcontainerxml
 - Output
-- PasswordEdit
+- Print
 - To
-- Window
+- PrinterName
 - Pcl
+- PrintScaling
+- SilentPrint
 - src_lib_epub_packer_epub_packer_buildcontentopf
+- Staple
 - src_lib_epub_packer_epub_packer_buildnavxhtml
 - src_lib_epub_packer_epub_packer_buildtocncx
 - src_lib_epub_packer_epub_packer_classifychapterheadings
+- StartNode
 - src_lib_epub_packer_epub_packer_gettocentries
 - src_lib_epub_packer_epub_packer_injectheadingids
 - Name
 - src_lib_epub_packer_epub_packer_mergebrokenparagraphs
+- StartPage
 - src_lib_epub_packer_parser_epub_source_parser_analyzechaptercandidates
 - src_lib_epub_packer_parser_epub_source_parser_assignsequentialchapterids
 - src_lib_epub_packer_parser_epub_source_parser_cleanheaderfooterocr
@@ -282,11 +287,16 @@
 - src_lib_epub_packer_parser_epub_source_parser_getcleanedlinesreport
 - src_lib_epub_packer_parser_epub_source_parser_parsemarkdownblocks
 - src_lib_epub_packer_parser_epub_source_parser_rendermarkdownblocks
-- ValidateApprovalSignatures
-- Event
-- Speak
-- Attributes
-- WebClient
+- Tagged
+- ViewerPreferences
+- Zpl
+- DefaultUi
+- Desc
+- EncryptionMethod
+- Oids
+- Reason
+- SignData
+- Ul
 
 ## God Nodes (most connected - your core abstractions)
 1. `ConfigNamespace` - 141 edges
@@ -298,7 +308,7 @@
 7. `has()` - 65 edges
 8. `create()` - 56 edges
 9. `XFAObject` - 56 edges
-10. `Changelog` - 55 edges
+10. `Changelog` - 56 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `2026-10-16 (H2 Font Classification with Intervening Ornaments)` --references--> `classifyChapterHeadings()`  [INFERRED]
@@ -315,43 +325,43 @@
 ## Import Cycles
 - None detected.
 
-## Communities (273 total, 156 thin omitted)
+## Communities (283 total, 164 thin omitted)
 
 ### Community 0 - "ConfigNamespace"
 Cohesion: 0.01
-Nodes (55): Acrobat7, AddSilentPrint, AddViewerPreferences, AdobeExtensionLevel, AlwaysEmbed, AutoSave, BatchOutput, Change (+47 more)
+Nodes (45): AddSilentPrint, AdjustData, Attributes, AutoSave, BehaviorOverride, CompressObjectStream, ConfigNamespace, Conformance (+37 more)
 
 ### Community 1 - "pdf.worker.min.js"
 Cohesion: 0.02
-Nodes (81): accept(), ADBE_JSConsole, ADBE_JSDebugger, _addNamespacePrefix(), amend(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), applyTransform() (+73 more)
+Nodes (67): accept(), ADBE_JSConsole, ADBE_JSDebugger, _addNamespacePrefix(), addPdfFont(), applyTransform(), BaseException(), bezierBoundingBox() (+59 more)
 
 ### Community 2 - "CanvasGraphics"
-Cohesion: 0.04
-Nodes (23): applyBoundingBox(), CachedCanvases, CanvasGraphics, composeSMask(), composeSMaskBackdrop(), copyCtxState(), drawImageAtIntegerCoords(), eoFill() (+15 more)
+Cohesion: 0.05
+Nodes (22): applyBoundingBox(), applyTransform(), CanvasGraphics, clip(), composeSMask(), copyCtxState(), drawImageAtIntegerCoords(), endPath() (+14 more)
 
 ### Community 3 - "pdf.min.js"
 Cohesion: 0.03
-Nodes (67): addNativeFontFace(), BaseException(), BaseRangeReader, bind(), bytesToString(), CMYK_HTML(), CMYK_RGB(), convertOpList() (+59 more)
+Nodes (66): AnnotationElementFactory, BaseException(), bytesToString(), CMYK_HTML(), CMYK_RGB(), composeSMaskBackdrop(), constructPath(), convertOpList() (+58 more)
 
 ### Community 4 - "TemplateNamespace"
 Cohesion: 0.02
-Nodes (30): AppearanceFilter, Assist, Barcode, Bookend, Break, Connect, DefaultUi, DigestMethod (+22 more)
+Nodes (30): Barcode, Bookend, Break, Certificate, Certificates, Comb, Connect, DigestMethod (+22 more)
 
 ### Community 5 - "XFAObjectArray"
 Cohesion: 0.02
-Nodes (29): Acrobat, Agent, Common, Config, Data, Desc, DigestMethods, Encodings (+21 more)
+Nodes (27): Acrobat, Agent, Common, Config, Data, DigestMethods, Encodings, EncryptionMethods (+19 more)
 
 ### Community 6 - ".add"
 Cohesion: 0.05
-Nodes (19): AnnotationElement, AnnotationElementFactory, CaretAnnotationElement, CircleAnnotationElement, FileAttachmentAnnotationElement, FreeTextAnnotationElement, getRectDims(), HighlightAnnotationElement (+11 more)
+Nodes (18): AnnotationElement, CaretAnnotationElement, CircleAnnotationElement, FileAttachmentAnnotationElement, FreeTextAnnotationElement, getRectDims(), HighlightAnnotationElement, InkAnnotationElement (+10 more)
 
 ### Community 7 - ".get"
-Cohesion: 0.05
-Nodes (23): addNode(), CFFFDSelect, Dict, FakeUnicodeFont, findNextFileMarker(), formInfo(), FreeTextAnnotation, generateImages() (+15 more)
+Cohesion: 0.07
+Nodes (10): ButtonWidgetAnnotation, Dict, documentInfo(), FakeUnicodeFont, formInfo(), FreeTextAnnotation, generateImages(), _hasOnlyDocumentSignatures() (+2 more)
 
-### Community 8 - "has"
-Cohesion: 0.04
-Nodes (23): addTopLevelNode(), adjustMapping(), calculationOrderIds(), Catalog, appendIfJavaScriptDict(), addPageDict(), parseNestedOrder(), parseOnOff() (+15 more)
+### Community 8 - "Catalog"
+Cohesion: 0.05
+Nodes (17): Catalog, appendIfJavaScriptDict(), addPageDict(), _collectJS(), fetch(), fetchAsync(), fetchDestination(), fetchIfRef() (+9 more)
 
 ### Community 10 - "LocaleSetNamespace"
 Cohesion: 0.03
@@ -361,65 +371,61 @@ Nodes (24): CalendarSymbols, CurrencySymbol, CurrencySymbols, DatePattern, DateP
 Cohesion: 0.04
 Nodes (22): applyAssist(), ariaLabel(), BreakAfter, BreakBefore, CheckButton, ChoiceList, ContentArea, DateTimeEdit (+14 more)
 
-### Community 12 - "PartialEvaluator"
-Cohesion: 0.05
-Nodes (14): _cache(), createFromArray(), getCached(), getTransformMatrix(), normalizeRect(), OperatorList, parseShading(), PartialEvaluator (+6 more)
+### Community 12 - "has"
+Cohesion: 0.07
+Nodes (16): add(), adjustMapping(), clean(), forEach(), has(), indexObjects(), loadXfaFonts(), on() (+8 more)
 
 ### Community 13 - "PDFWorker"
-Cohesion: 0.11
-Nodes (8): getDataProp(), getDocument(), getUrlProp(), _initialize(), LoopbackPort, PDFDocumentLoadingTask, PDFWorker, send()
+Cohesion: 0.12
+Nodes (7): getDataProp(), getDocument(), getUrlProp(), LoopbackPort, PDFDocumentLoadingTask, PDFWorker, send()
 
 ### Community 14 - "epub-source-parser.ts"
-Cohesion: 0.09
-Nodes (62): 2026-10-16 (TypeScript Strict Mode Full Compliance), analyzeChapterCandidates(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate() (+54 more)
+Cohesion: 0.11
+Nodes (54): 2026-10-16 (TypeScript Strict Mode Full Compliance), analyzeChapterCandidates(), extractChunkBlocks(), extractMarkerTitle(), isDecorationOnly(), makeChapterMatcher(), pushIfLineStart(), scoreHeadingCandidate() (+46 more)
 
-### Community 15 - "real-world-workflows.test.ts"
-Cohesion: 0.09
-Nodes (45): ref_css_template_intro_css_css_raw, ref_templates_css_template_cover_css_raw, prepareChapters(), prepareMetadata(), resolveActiveFonts(), assembleEpubZip(), buildEpubBlob(), src_lib_epub_packer_epub_packer_getdynamiccss (+37 more)
-
-### Community 16 - "AnnotationEditor"
-Cohesion: 0.04
-Nodes (4): AnnotationEditor, FakeEditor, get(), getPathGenerator()
+### Community 15 - "zip-writer.ts"
+Cohesion: 0.06
+Nodes (66): ref_css_template_intro_css_css_raw, ref_templates_css_template_base_css_raw, ref_templates_css_template_breaks_css_raw, ref_templates_css_template_center_page_css_raw, ref_templates_css_template_cover_css_raw, ref_templates_css_template_headings_css_raw, ref_templates_css_template_notes_css_raw, ref_templates_css_template_ornaments_css_raw (+58 more)
 
 ### Community 17 - "content-rules.ts"
-Cohesion: 0.19
-Nodes (17): CssAndFontsRule, XhtmlPagesRule, NavigationRule, OpfPackageRule, SpineRule, StructureRule, ManifestItemInfo, ValidationCategory (+9 more)
+Cohesion: 0.16
+Nodes (19): src_lib_epub_editor_epub_cleaner_extracthtmlreferences, src_lib_epub_editor_epub_editor_isvalidfontmagic, src_lib_epub_editor_epub_editor_validatehtml, CssAndFontsRule, XhtmlPagesRule, NavigationRule, OpfPackageRule, SpineRule (+11 more)
 
-### Community 18 - ".getObj"
-Cohesion: 0.05
-Nodes (31): addHex(), BinaryCMapStream, CMap, createBuiltInCMap(), expectInt(), expectString(), extendCMap(), fetchUncompressed() (+23 more)
-
-### Community 19 - "XMLParserBase"
-Cohesion: 0.12
-Nodes (6): isWhitespace(), onText(), parseFromString(), XFAParser, XMLParserBase, skipWs()
-
-### Community 20 - "lib/types/index.ts"
+### Community 18 - "parseCMap"
 Cohesion: 0.13
-Nodes (14): MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE, assignSequentialChapterIds(), src_lib_epub_packer_parser_epub_source_parser_parsetxttochaptersasync, EpubSourceState (+6 more)
+Nodes (13): createBuiltInCMap(), expectInt(), expectString(), extendCMap(), IdentityCMap, parseBfChar(), parseBfRange(), parseCidChar() (+5 more)
 
-### Community 21 - "stylesheet-builder.ts"
-Cohesion: 0.09
-Nodes (22): ref_templates_css_template_base_css_raw, ref_templates_css_template_breaks_css_raw, ref_templates_css_template_center_page_css_raw, ref_templates_css_template_headings_css_raw, ref_templates_css_template_notes_css_raw, ref_templates_css_template_ornaments_css_raw, ref_templates_css_template_quotes_css_raw, src_assets_fonts_metadata (+14 more)
-
-### Community 23 - "AnnotationEditorLayer"
-Cohesion: 0.06
-Nodes (3): AnnotationEditorLayer, getEditableAnnotation(), has()
-
-### Community 25 - "FreeTextEditor"
+### Community 19 - ".parse"
 Cohesion: 0.05
-Nodes (3): FreeTextEditor, KeyboardManager, toDateObject()
+Nodes (16): compileCharString(), bezierCurveTo(), lineTo(), moveTo(), CompiledFont, getSubroutineBias(), isWhitespace(), lookupCmap() (+8 more)
+
+### Community 20 - "epub-source-state.svelte.ts"
+Cohesion: 0.11
+Nodes (18): MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE, MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE, assignSequentialChapterIds(), src_lib_epub_packer_parser_epub_source_parser_parsetxttochaptersasync, EpubSourceState (+10 more)
+
+### Community 21 - "makeHexColor"
+Cohesion: 0.09
+Nodes (8): CachedCanvases, ColorManager, drawFigure(), drawTriangle(), makeHexColor(), setFillRGBColor(), setStrokeRGBColor(), TilingPattern
+
+### Community 22 - "extractFontProgram"
+Cohesion: 0.13
+Nodes (12): decrypt(), extractFontHeader(), extractFontProgram(), getToken(), isSpecial(), PostScriptToken, prevChar(), readBoolean() (+4 more)
 
 ### Community 26 - "create"
-Cohesion: 0.07
-Nodes (25): #a(), CaretAnnotation, CircleAnnotation, create(), getInt(), fieldObjects(), FileAttachmentAnnotation, getPdfColorArray() (+17 more)
-
-### Community 27 - "InkEditor"
 Cohesion: 0.08
-Nodes (3): bezierBoundingBox(), ColorManager, InkEditor
+Nodes (22): #a(), _cache(), CaretAnnotation, CircleAnnotation, create(), getInt(), createFromArray(), fieldObjects() (+14 more)
+
+### Community 28 - ".createElement"
+Cohesion: 0.11
+Nodes (7): appendText(), BaseSVGFactory, get(), getCtx(), layout(), PopupElement, TextLayerRenderTask
+
+### Community 30 - "epub-state.svelte.ts"
+Cohesion: 0.07
+Nodes (19): src_assets_fonts_metadata, activeFont, currentTemplate, jacketFontFamily, src_lib_epub_packer_epub_packer_epub_css, src_lib_epub_packer_state_index_epubfontsstate, src_lib_epub_packer_state_index_epubimagesstate, src_lib_epub_packer_state_index_epubjacketstate (+11 more)
 
 ### Community 31 - "PDFFetchStreamReader"
-Cohesion: 0.08
-Nodes (11): BaseCMapReaderFactory, BaseStandardFontDataFactory, createFetchOptions(), createHeaders(), DOMCMapReaderFactory, DOMStandardFontDataFactory, fetchData(), isValidFetchUrl() (+3 more)
+Cohesion: 0.07
+Nodes (12): BaseCMapReaderFactory, BaseStandardFontDataFactory, createFetchOptions(), createHeaders(), DOMCMapReaderFactory, DOMStandardFontDataFactory, fetchData(), isValidFetchUrl() (+4 more)
 
 ### Community 32 - "AES256Cipher"
 Cohesion: 0.08
@@ -427,23 +433,23 @@ Nodes (10): AES128Cipher, AES256Cipher, AESBaseCipher, ARCFourCipher, calculateS
 
 ### Community 33 - ".resolve"
 Cohesion: 0.05
-Nodes (14): 2026-10-16 (Web Worker Lifecycle Hardening & Listener Leak Prevention), #de(), _fetchDocument(), getArrayBuffer(), _onProgress(), PDFDataTransportStreamReader, PDFNetworkStreamFullRequestReader, PDFNetworkStreamRangeRequestReader (+6 more)
+Nodes (13): 2026-10-16 (Web Worker Lifecycle Hardening & Listener Leak Prevention), #de(), _fetchDocument(), getArrayBuffer(), _onProgress(), PDFDataTransportStreamReader, PDFNetworkStreamFullRequestReader, PDFObjects (+5 more)
 
 ### Community 34 - "EBOOK-TOOLS — FULL REGRESSION TESTING INSTRUCTION"
 Cohesion: 0.05
 Nodes (41): 10. PDF → EPUB USER FLOW, 11. EPUB EDITOR E2E, 12. EPUB CLEANER E2E, 13. EPUB VALIDATOR E2E, 14. IMAGE PROCESSING E2E, 15. WORKER TESTING, 16. REGRESSION TEST, 17. OUTPUT FILE VALIDATION (+33 more)
 
 ### Community 35 - "Changelog"
-Cohesion: 0.04
-Nodes (49): 2026-09-27, 2026-09-27 (Trước đó), 2026-10-15, 2026-10-15 (letter-box wrapper), 2026-10-16 (CI/CD Pipeline Hardening & Knip Resolution), 2026-10-16 (CI/CD Verification & Expanded Test Coverage), 2026-10-16 (Clean Up), 2026-10-16 (Fix Jacket Modal Font Persistence Across Templates) (+41 more)
+Cohesion: 0.05
+Nodes (45): 2026-09-27, 2026-09-27 (Trước đó), 2026-10-15, 2026-10-15 (letter-box wrapper), 2026-10-16 (CI/CD Pipeline Hardening & Knip Resolution), 2026-10-16 (CI/CD Verification & Expanded Test Coverage), 2026-10-16 (Clean Up), 2026-10-16 (Fix Jacket Modal Font Persistence Across Templates) (+37 more)
 
 ### Community 36 - "BaseFullReader"
 Cohesion: 0.06
-Nodes (19): fontkit, ref_fs, ref_http, ref_https, ref_module, ref_path, files, fontkit (+11 more)
+Nodes (15): ref_fs, ref_http, ref_https, BaseFullReader, BaseRangeReader, createRequestOptions(), getFullReader(), getRangeReader() (+7 more)
 
 ### Community 37 - "image-bg-remove-ml.ts"
-Cohesion: 0.11
-Nodes (25): 2026-10-16 (Worker Cancellation Race Condition & ML Fallback Hardening), @imgly/background-removal, autoCropTransparentCanvas(), canvasToBlob(), cleanupWorkerAndFallbackPending(), compressAndResizeCanvas(), getOrCreateWorker(), loadImage() (+17 more)
+Cohesion: 0.17
+Nodes (23): 2026-10-16 (Worker Cancellation Race Condition & ML Fallback Hardening), @imgly/background-removal, autoCropTransparentCanvas(), canvasToBlob(), cleanupWorkerAndFallbackPending(), compressAndResizeCanvas(), getOrCreateWorker(), loadImage() (+15 more)
 
 ### Community 39 - "constructor"
 Cohesion: 0.11
@@ -451,31 +457,31 @@ Nodes (9): ref_url, constructor(), DOMSVGFactory, _onProgressiveDone(), _onRecei
 
 ### Community 41 - ".compile"
 Cohesion: 0.09
-Nodes (12): AstArgument, AstBinaryOperation, AstLiteral, AstMin, AstNode, AstVariable, AstVariableDefinition, buildAddOperation() (+4 more)
+Nodes (13): AstArgument, AstBinaryOperation, AstLiteral, AstMin, AstNode, AstVariable, AstVariableDefinition, buildAddOperation() (+5 more)
 
 ### Community 42 - "txt-parser.ts"
 Cohesion: 0.07
-Nodes (37): 2026-10-16 (Letter/Poem Dropcap Suppression & Heading Syntax Warning), 2026-10-16 (NHOM 1 Review Bug Fixes), 2026-10-16 (Worker Detached Buffer Fallback, Concurrency Testing & ML Self-Healing), 2026-10-25 (PDF Memory Ceiling Hardening: Dynamic Byte Chunking, File System Access API & Page Range), 2026-11-18 (Khử số chú thích trong TOC & Loại bỏ trang không tiêu đề khỏi Mục lục & Preview UI), 2026-11-24 (Tinh gọn & Hài hòa Giao diện Bước 3 Bìa và Hoa văn), Trạng thái hệ thống, svelte (+29 more)
+Nodes (39): 2026-10-16 (Letter/Poem Dropcap Suppression & Heading Syntax Warning), 2026-10-16 (NHOM 1 Review Bug Fixes), 2026-10-16 (Worker Detached Buffer Fallback, Concurrency Testing & ML Self-Healing), 2026-11-24 (Tinh gọn & Hài hòa Giao diện Bước 3 Bìa và Hoa văn), Trạng thái hệ thống, svelte, applyInlineFormatting(), cleanupTxtWorkerAndFallback() (+31 more)
 
 ### Community 44 - "valueToHtml"
 Cohesion: 0.06
 Nodes (8): BooleanElement, DateElement, DateTime, Decimal, Float, Integer, Time, valueToHtml()
 
-### Community 45 - "fetchIfRef"
-Cohesion: 0.13
-Nodes (5): EvalState, fetch(), fetchIfRef(), getNewTemporaryRef(), StructTreeRoot
+### Community 45 - ".getObj"
+Cohesion: 0.17
+Nodes (10): fetchCompressed(), fetchUncompressed(), getNumber(), Lexer, nextChar(), parseCMapName(), processXRefTable(), readXRefTable() (+2 more)
 
 ### Community 46 - "Annotation"
-Cohesion: 0.12
-Nodes (3): Annotation, getRgbColor(), PopupAnnotation
+Cohesion: 0.07
+Nodes (10): Annotation, getPdfColorArray(), getQuadPoints(), getRgbColor(), getTransformMatrix(), intersect(), LinkAnnotation, normalizeRect() (+2 more)
 
 ### Community 47 - "WidgetAnnotation"
-Cohesion: 0.10
-Nodes (9): addString(), ButtonWidgetAnnotation, charsToGlyphs(), ChoiceWidgetAnnotation, documentInfo(), encodeString(), getCharPositions(), TextWidgetAnnotation (+1 more)
+Cohesion: 0.14
+Nodes (7): addString(), charsToGlyphs(), ChoiceWidgetAnnotation, encodeString(), getCharPositions(), TextWidgetAnnotation, WidgetAnnotation
 
 ### Community 48 - "AnnotationStorage"
 Cohesion: 0.07
-Nodes (13): AnnotationStorage, CheckboxWidgetAnnotationElement, ChoiceWidgetAnnotationElement, #Mi(), PrintAnnotationStorage, PushButtonWidgetAnnotationElement, RadioButtonWidgetAnnotationElement, render() (+5 more)
+Nodes (12): AnnotationStorage, CheckboxWidgetAnnotationElement, ChoiceWidgetAnnotationElement, PrintAnnotationStorage, PushButtonWidgetAnnotationElement, RadioButtonWidgetAnnotationElement, render(), setAttributes() (+4 more)
 
 ### Community 49 - "_bindElement"
 Cohesion: 0.08
@@ -486,8 +492,8 @@ Cohesion: 0.09
 Nodes (21): buildCodeblocks(), buildPackets(), buildPrecincts(), Calculate, calculateComponentDimensions(), calculateTileGrids(), ComponentPositionResolutionLayerIterator(), createPacket() (+13 more)
 
 ### Community 51 - "PdfSplitterState"
-Cohesion: 0.18
-Nodes (3): 2026-10-26 (PDF Splitter Disk Stream Zero-byte Fix, UI Button State Sync & Playwright E2E Coverage), PdfSplitterState, triggerDownload()
+Cohesion: 0.13
+Nodes (4): 2026-10-26 (PDF Splitter Disk Stream Zero-byte Fix, UI Button State Sync & Playwright E2E Coverage), EpubToTxtState, PdfSplitterState, triggerDownload()
 
 ### Community 52 - "PDFImage"
 Cohesion: 0.12
@@ -506,64 +512,64 @@ Cohesion: 0.08
 Nodes (7): Arc, Border, Corner, Edge, hasMargin(), Line, Rectangle
 
 ### Community 58 - "pdf-splitter.ts"
-Cohesion: 0.07
-Nodes (42): 2026-10-25 (PDF Splitter Full Hardening: Zero-Copy, Canvas Guard, 100% Offline), applyGrayscale(), cropCanvas(), DEFAULT_DESKTOP_PART_BYTES, DEFAULT_DPI, DEFAULT_MAX_PAGES_PER_PART, DEFAULT_MOBILE_PART_BYTES, dpiToScale() (+34 more)
-
-### Community 59 - "epub-state.svelte.ts"
 Cohesion: 0.08
-Nodes (30): 2026-11-24 (Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ TXT), src_lib_epub_packer_epub_packer_epub_css, EpubState, EpubFontsState, EpubJacketState, EpubMetadataState, src_lib_epub_packer_state_index_epubfontsstate, src_lib_epub_packer_state_index_epubimagesstate (+22 more)
+Nodes (38): 2026-10-25 (PDF Splitter Full Hardening: Zero-Copy, Canvas Guard, 100% Offline), App, Window, applyGrayscale(), cropCanvas(), DEFAULT_DESKTOP_PART_BYTES, DEFAULT_MAX_PAGES_PER_PART, DEFAULT_MOBILE_PART_BYTES (+30 more)
 
-### Community 60 - "epub-editor.test.ts"
+### Community 59 - "utils/index.ts"
 Cohesion: 0.09
-Nodes (20): categorizeFile(), exportEpubBlob(), parseSpineOrder(), parseZipEntries(), validateDirtyPages(), validateHtml(), src_lib_epub_editor_epub_editor_categorizefile, src_lib_epub_editor_epub_editor_deobfuscateidpffont (+12 more)
+Nodes (21): 2026-11-24 (Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ TXT), EpubState, EpubFontsState, EpubJacketState, EpubMetadataState, src_lib_utils_index_ensureepubext, isDebug(), isDebugEnabled (+13 more)
+
+### Community 60 - "epub-editor-state.svelte.ts"
+Cohesion: 0.08
+Nodes (22): isDirty, exportEpubBlob(), validateDirtyPages(), validateHtml(), src_lib_epub_editor_epub_cleaner_epubanalysisresult, src_lib_epub_editor_epub_cleaner_epubcleanoptions, src_lib_epub_editor_epub_cleaner_epubcleanreport, src_lib_epub_editor_epub_editor_buildpreviewhtml (+14 more)
 
 ### Community 61 - ".a"
 Cohesion: 0.27
 Nodes (3): DOMFilterFactory, getRGB(), getKeyword()
 
-### Community 62 - ".parse"
-Cohesion: 0.28
-Nodes (3): PDFFunction, PostScriptCompiler, toNumberArray()
+### Community 62 - ".constructPostScript"
+Cohesion: 0.29
+Nodes (3): PDFFunction, PostScriptEvaluator, toNumberArray()
 
 ### Community 63 - "epub-cleaner.test.ts"
-Cohesion: 0.17
-Nodes (17): cleanupDuplicateWorkerAndFallback(), DuplicatePendingJob, getDuplicateWorker(), pendingDuplicateJobs, _resetDuplicateWorkerForTest(), scanDuplicateResources(), computeDuplicateResources(), DuplicateDetectorWorkerRequest (+9 more)
+Cohesion: 0.18
+Nodes (16): cleanupDuplicateWorkerAndFallback(), DuplicatePendingJob, getDuplicateWorker(), pendingDuplicateJobs, _resetDuplicateWorkerForTest(), scanDuplicateResources(), computeDuplicateResources(), DuplicateDetectorWorkerRequest (+8 more)
 
 ### Community 64 - "epub-reader-parser.ts"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (18): categorizeResource(), extractEpubMetadata(), findOpfPath(), parseEpub(), parseOpfManifestAndSpine(), EpubBook, EpubBookMetadata, EpubContainer (+10 more)
 
 ### Community 65 - ".onSymbolDictionary"
 Cohesion: 0.12
 Nodes (14): ContextCache, decodeBitmap(), decodeIAID(), decodeInteger(), readBits(), decodeMMRBitmap(), decodeRefinement(), decodeTextRegion() (+6 more)
 
-### Community 66 - "wrap"
-Cohesion: 0.14
-Nodes (9): CFFCharset, CFFDict, CFFPrivateDict, CFFTopDict, createDict(), emptyPrivateDictionary(), parseIndex(), parsePrivateDict() (+1 more)
+### Community 66 - "CFFCompiler"
+Cohesion: 0.06
+Nodes (13): CFF, CFFCharset, CFFCompiler, CFFDict, CFFIndex, CFFOffsetTracker, CFFPrivateDict, CFFStrings (+5 more)
 
-### Community 67 - ".getTextContent"
-Cohesion: 0.15
-Nodes (14): BaseLocalCache, addFakeSpaces(), appendEOL(), applyInverseRotation(), buildTextContentItem(), compareWithLastPosition(), ensureTextContentItem(), flushTextContentItem() (+6 more)
+### Community 67 - ".getOperatorList"
+Cohesion: 0.07
+Nodes (18): BaseLocalCache, EvalState, OperatorList, closePendingRestoreOPS(), addFakeSpaces(), appendEOL(), applyInverseRotation(), buildTextContentItem() (+10 more)
 
 ### Community 68 - "devDependencies"
 Cohesion: 0.10
 Nodes (21): devDependencies, eslint, @eslint/js, eslint-plugin-svelte, globals, knip, @playwright/test, prettier (+13 more)
 
-### Community 69 - ".ensureBuffer"
-Cohesion: 0.08
+### Community 69 - ".makeFilter"
+Cohesion: 0.09
 Nodes (7): Ascii85Stream, AsciiHexStream, CCITTFaxStream, JpxStream, LZWStream, PredictorStream, RunLengthStream
 
-### Community 70 - "checkAndRepair"
-Cohesion: 0.08
-Nodes (29): adjustWidths(), charCodeOf(), checkAndRepair(), readNameTable(), readOpenTypeHeader(), sanitizeGlyph(), convert(), getCharCodes() (+21 more)
+### Community 70 - "convert"
+Cohesion: 0.12
+Nodes (16): charCodeOf(), convert(), getCharCodes(), createCmapTable(), createNameTable(), createOS2Table(), createPostscriptName(), createPostTable() (+8 more)
 
 ### Community 71 - "cleaner-engine.ts"
-Cohesion: 0.16
-Nodes (16): analyzeEpub(), analyzeOptimizationPlan(), cleanEpub(), extractCssUrls(), extractHtmlReferences(), formatByteSize(), EpubAnalysisResult, EpubCleanOptions (+8 more)
+Cohesion: 0.19
+Nodes (15): analyzeEpub(), analyzeOptimizationPlan(), cleanEpub(), extractCssUrls(), extractHtmlReferences(), EpubAnalysisResult, EpubCleanOptions, EpubCleanReport (+7 more)
 
 ### Community 72 - ".createDocumentHandler"
-Cohesion: 0.20
-Nodes (12): requestLoadedStream(), resetNewTemporaryRef(), serializeXfaData(), terminate(), ensureNotTerminated(), finishWorkerTask(), loadDocument(), onFailure() (+4 more)
+Cohesion: 0.11
+Nodes (21): annotationGlobals(), checkFirstPage(), checkLastPage(), createGlobals(), ensure(), _getPageIndex(), requestLoadedStream(), resetNewTemporaryRef() (+13 more)
 
 ### Community 73 - "ExclGroup"
 Cohesion: 0.10
@@ -574,36 +580,32 @@ Cohesion: 0.11
 Nodes (19): scripts, build, check, dev, format, format:check, knip, lint (+11 more)
 
 ### Community 75 - "epub-to-txt.ts"
-Cohesion: 0.25
-Nodes (17): MAX_EPUB_FILE_SIZE, cleanTextFormatting(), convertBlockquoteElementToTxt(), convertHeadingElementToTxt(), convertInlineHtmlToTxt(), decodeHtmlEntities(), EpubToTxtResult, extractEpubToTxt() (+9 more)
-
-### Community 76 - "add"
-Cohesion: 0.14
-Nodes (4): add(), addPdfFont(), CFFIndex, Font
+Cohesion: 0.22
+Nodes (19): MAX_EPUB_FILE_SIZE, src_lib_epub_editor_epub_editor_resolverelativepath, cleanTextFormatting(), convertBlockquoteElementToTxt(), convertHeadingElementToTxt(), convertInlineHtmlToTxt(), decodeHtmlEntities(), EpubToTxtResult (+11 more)
 
 ### Community 77 - "CanvasExtraState"
-Cohesion: 0.11
-Nodes (6): applyInverseTransform(), applyTransform(), CanvasExtraState, intersect(), PageViewport, scaleMinMax()
+Cohesion: 0.18
+Nodes (4): bezierBoundingBox(), CanvasExtraState, intersect(), scaleMinMax()
 
 ### Community 78 - "Word64"
 Cohesion: 0.20
 Nodes (8): ch(), littleSigma(), littleSigmaPrime(), maj(), rotr(), sigma(), sigmaPrime(), Word64
 
 ### Community 80 - ".getByte"
-Cohesion: 0.24
-Nodes (7): readTableEntry(), readTables(), checkHeader(), parseImageProperties(), Parser, readXRefStream(), startXRef()
+Cohesion: 0.16
+Nodes (6): checkHeader(), find(), FlateStream, JpegStream, readXRefStream(), startXRef()
 
-### Community 82 - "pdf.ts"
-Cohesion: 0.13
-Nodes (15): App, Window, src_lib_types_index_pdfjspage, src_lib_types_index_pdfjsviewport, PdfJsLib, PdfJsPage, PdfJsViewport, PdfPreviewPage (+7 more)
+### Community 82 - "pdf-splitter.test.ts"
+Cohesion: 0.10
+Nodes (18): DEFAULT_DPI, formatEta(), src_lib_pdf_splitter_pdf_splitter_getclampedviewport, src_lib_pdf_splitter_pdf_splitter_max_canvas_dimension, src_lib_pdf_splitter_pdf_splitter_max_canvas_pixels, updateProgress(), src_lib_types_index_pdfjspage, src_lib_types_index_pdfjsviewport (+10 more)
 
-### Community 83 - "getPage"
-Cohesion: 0.22
-Nodes (8): annotationGlobals(), checkFirstPage(), checkLastPage(), createGlobals(), ensure(), getPage(), _getPageIndex(), XRefParseException
+### Community 83 - "bind"
+Cohesion: 0.12
+Nodes (11): addNativeFontFace(), bind(), createFontFaceRule(), createNativeFontFace(), insertRule(), KeyboardManager, loadSystemFont(), _prepareFontLoadEvent() (+3 more)
 
 ### Community 84 - "compileGlyf"
 Cohesion: 0.06
-Nodes (19): _charToGlyph(), compileGlyf(), lineTo(), moveTo(), quadraticCurveTo(), CompositeGlyph, Contour, convertCidString() (+11 more)
+Nodes (16): compileGlyf(), lineTo(), moveTo(), quadraticCurveTo(), CompositeGlyph, Contour, getFloat214(), getInt16() (+8 more)
 
 ### Community 85 - ".constructor"
 Cohesion: 0.23
@@ -613,13 +615,17 @@ Nodes (3): getB(), MeshShading, MeshStreamReader
 Cohesion: 0.19
 Nodes (3): 2026-10-25 (PDF Smart Split ZIP, Mobile Guard & Full Zero-Copy Synchronization), EpubImagesState, renderPdfPageToBlob()
 
-### Community 88 - "PDFPageProxy"
-Cohesion: 0.06
-Nodes (7): cancelAllRequests(), clear(), InternalRenderTask, PDFPageProxy, RenderingCancelledException, RenderTask, XfaText
+### Community 87 - "BaseShadingPattern"
+Cohesion: 0.20
+Nodes (4): BaseShadingPattern, DummyShadingPattern, MeshShadingPattern, RadialAxialShadingPattern
+
+### Community 88 - "InternalRenderTask"
+Cohesion: 0.13
+Nodes (4): clear(), InternalRenderTask, RenderingCancelledException, RenderTask
 
 ### Community 89 - "constructor"
-Cohesion: 0.06
-Nodes (34): _addPixels(), _addPixelsNeg(), byteIn(), constructor(), _createBuiltInEncoding(), DatasetXMLParser, decrypt(), _eatBits() (+26 more)
+Cohesion: 0.08
+Nodes (32): _addPixels(), _addPixelsNeg(), adjustWidths(), amend(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), buildToFontChar(), byteIn() (+24 more)
 
 ### Community 90 - "readBit"
 Cohesion: 0.19
@@ -630,48 +636,56 @@ Cohesion: 0.15
 Nodes (6): InclusionTree, parseTilePackets(), readCodingpasses(), skipBytes(), skipMarkerIfEqual(), TagTree
 
 ### Community 93 - "executeOpTree"
-Cohesion: 0.07
-Nodes (48): addFontStyle(), beginText(), clip(), closeEOFillStroke(), closeFillStroke(), closePath(), closeStroke(), constructPath() (+40 more)
+Cohesion: 0.09
+Nodes (31): addFontStyle(), beginText(), closeEOFillStroke(), closeFillStroke(), closePath(), closeStroke(), eoFill(), eoFillStroke() (+23 more)
 
 ### Community 94 - "Caption"
 Cohesion: 0.12
 Nodes (4): Caption, Draw, Field, _setValue()
 
-### Community 95 - "appendText"
-Cohesion: 0.33
-Nodes (4): appendText(), getCtx(), layout(), TextLayerRenderTask
+### Community 95 - "checkAndRepair"
+Cohesion: 0.17
+Nodes (15): checkAndRepair(), readNameTable(), readOpenTypeHeader(), readTableEntry(), readTables(), sanitizeGlyph(), getUint16(), int16() (+7 more)
 
 ### Community 97 - "compilerOptions"
 Cohesion: 0.13
 Nodes (14): ./.svelte-kit/tsconfig.json, compilerOptions, allowJs, checkJs, esModuleInterop, forceConsistentCasingInFileNames, moduleResolution, resolveJsonModule (+6 more)
 
 ### Community 99 - "EpubEditorState"
-Cohesion: 0.26
-Nodes (3): extractLinkedCssPaths(), BookMetadataDetails, EpubEditorState
+Cohesion: 0.18
+Nodes (7): formatByteSize(), categorizeFile(), extractLinkedCssPaths(), parseSpineOrder(), parseZipEntries(), BookMetadataDetails, EpubEditorState
 
-### Community 101 - ".shift"
-Cohesion: 0.17
-Nodes (4): CipherTransform, DecryptStream, ParserEOFException, readBlock()
+### Community 101 - "Parser"
+Cohesion: 0.16
+Nodes (6): CipherTransform, DecryptStream, getFontFileType(), isTrueTypeCollectionFile(), Parser, ParserEOFException
 
 ### Community 103 - ".push"
-Cohesion: 0.07
-Nodes (26): addChildren(), AppearanceStreamEvaluator, buildHuffmanTable(), sanitizeTTProgram(), clean(), compileCharString(), bezierCurveTo(), lineTo() (+18 more)
+Cohesion: 0.06
+Nodes (35): addChildren(), AppearanceStreamEvaluator, buildHuffmanTable(), sanitizeTTProgram(), fetchIfRefAsync(), findNextFileMarker(), generateFont(), getBaseStreams() (+27 more)
 
 ### Community 104 - "ContentObject"
 Cohesion: 0.14
 Nodes (4): ContentObject, IntegerObject, OptionObject, StringObject
 
-### Community 107 - "CompiledFont"
-Cohesion: 0.23
-Nodes (5): CompiledFont, getSubroutineBias(), lookupCmap(), buildPath(), Type2Compiled
+### Community 105 - "process"
+Cohesion: 0.24
+Nodes (7): addHex(), BinaryCMapStream, hexToInt(), hexToStr(), incHex(), process(), readNumber()
 
-### Community 112 - "P"
-Cohesion: 0.14
-Nodes (6): addPara(), B, I, P, popFont(), pushData()
+### Community 111 - "XhtmlObject"
+Cohesion: 0.15
+Nodes (4): Html, mapStyle(), Sup, XhtmlObject
+
+### Community 112 - ".b"
+Cohesion: 0.20
+Nodes (4): B, I, popFont(), pushData()
+
+### Community 113 - "generate-fonts-meta.js"
+Cohesion: 0.20
+Nodes (9): fontkit, ref_module, ref_path, files, fontkit, FONTS_DIR, metadata, OUTPUT_FILE (+1 more)
 
 ### Community 116 - "UI_DIRECTION.md — Hướng dẫn làm mới giao diện Ebook Maker"
-Cohesion: 0.22
-Nodes (8): 0. PHẠM VI — QUAN TRỌNG NHẤT, 1. Quy trình bắt buộc, 4.1 Chia bước, 4.2 Cột tóm tắt (bên phải, rộng ~340–380px, xuống dưới ở màn hẹp), 4.3 Các section, 4. Trang Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`), 8. Đoạn nhắc nên dán kèm khi giao việc cho AI, UI_DIRECTION.md — Hướng dẫn làm mới giao diện Ebook Maker
+Cohesion: 0.15
+Nodes (12): 0. PHẠM VI — QUAN TRỌNG NHẤT, 1. Quy trình bắt buộc, 2.1 Token màu (cập nhật trong `src/routes/layout.css`, giữ nguyên **tên** biến cũ), 2.2 Chữ, 2.3 Thành phần dùng chung (sửa trong `src/lib/components/`, **giữ nguyên props**), 2. Định hướng thiết kế, 3.1 Hai trạng thái, 3.2 Quy tắc tự động (+4 more)
 
 ### Community 117 - "dependencies"
 Cohesion: 0.18
@@ -681,9 +695,9 @@ Nodes (11): dependencies, codemirror, @codemirror/commands, @codemirror/lang-css
 Cohesion: 0.25
 Nodes (4): ref_node_fs, ref_node_path, ref_node_process, @playwright/test
 
-### Community 121 - "find"
+### Community 121 - "FontInfo"
 Cohesion: 0.24
-Nodes (4): find(), FontInfo, FontSelector, getDefault()
+Nodes (3): FontInfo, FontSelector, getDefault()
 
 ### Community 123 - "🚀 Các công cụ chính"
 Cohesion: 0.33
@@ -693,9 +707,9 @@ Nodes (6): 1. ✏️ Chỉnh sửa & Kiểm định EPUB Trực quan (EPUB Edito
 Cohesion: 0.23
 Nodes (14): deobfuscateAdobeFont(), deobfuscateIdpfFont(), isValidFontMagic(), buildPreviewHtml(), escapeAttribute(), escapeRegExp(), extractPublicationIdentifiers(), getAssetDataUrl() (+6 more)
 
-### Community 130 - "3. Kiến trúc Kiểm Thử 4 Tầng & Ma Trận: "Sửa Gì - Chạy Test Gì?""
-Cohesion: 0.50
-Nodes (4): 3.1 Kiến trúc Hệ Thống Kiểm Thử 4 Tầng, 3.2 Ma Trận Hướng Dẫn: "Sửa Gì - Chạy Test Gì?" (Test Decision Matrix), 3.3 Bảng Tra Cứu Lệnh Nhanh (Cheat Sheet), 3. Kiến trúc Kiểm Thử 4 Tầng & Ma Trận: "Sửa Gì - Chạy Test Gì?"
+### Community 130 - "⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử"
+Cohesion: 0.29
+Nodes (7): ⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử, ⚡ Hướng dẫn Cài đặt & Sử dụng, Khởi chạy ứng dụng, 🧪 Quy chuẩn Kiểm thử & Chất lượng Mã nguồn (Quality Gates), 🛡️ Quyền riêng tư & Bảo mật, Yêu cầu hệ thống, Đóng gói ứng dụng (Production Build)
 
 ### Community 131 - "Color"
 Cohesion: 0.22
@@ -705,9 +719,13 @@ Nodes (3): Color, makeHexColor(), Stipple
 Cohesion: 0.25
 Nodes (5): @sveltejs/adapter-cloudflare, @sveltejs/kit, @tailwindcss/vite, ref_types, vite
 
+### Community 135 - "parseCharString"
+Cohesion: 0.33
+Nodes (4): CFFFDSelect, parseCharString(), parseCharStrings(), stackFn()
+
 ### Community 141 - "epub-editor.ts"
-Cohesion: 0.40
-Nodes (8): hashBytes(), sha1(), sha1Async(), sha1Bytes(), sha1Hex(), sha1HexAsync(), src_lib_utils_index_sha1, src_lib_utils_index_sha1async
+Cohesion: 0.35
+Nodes (9): hashBytes(), sha1(), sha1Async(), sha1Bytes(), sha1Hex(), sha1HexAsync(), src_lib_utils_index_resolverelativepath, src_lib_utils_index_sha1 (+1 more)
 
 ### Community 142 - "Jbig2Stream"
 Cohesion: 0.20
@@ -718,8 +736,8 @@ Cohesion: 0.40
 Nodes (3): AppError, Result, ValidationError
 
 ### Community 151 - "AI_WORKFLOW.md — Quy trình làm việc & Kiểm thử bắt buộc cho AI Coding Agent"
-Cohesion: 0.18
-Nodes (11): 0. Thứ tự đọc khi mở lại project (BẮT BUỘC, không được bỏ qua bước nào), 1. Ngăn xếp công nghệ & quy tắc code bắt buộc, 4.1 Cập nhật `README.md`, 4.2 Cập nhật `DESIGN_SYSTEM.md`, 4.3 Báo cáo `/graphiphy`, 4. Cập nhật tài liệu sau khi pipeline pass, 5. Nguyên tắc chung khi AI làm việc trên project này, 6. Template khởi tạo nếu file chưa tồn tại (+3 more)
+Cohesion: 0.13
+Nodes (15): 0. Thứ tự đọc khi mở lại project (BẮT BUỘC, không được bỏ qua bước nào), 1. Ngăn xếp công nghệ & quy tắc code bắt buộc, 3.1 Kiến trúc Hệ Thống Kiểm Thử 4 Tầng, 3.2 Ma Trận Hướng Dẫn: "Sửa Gì - Chạy Test Gì?" (Test Decision Matrix), 3.3 Bảng Tra Cứu Lệnh Nhanh (Cheat Sheet), 3. Kiến trúc Kiểm Thử 4 Tầng & Ma Trận: "Sửa Gì - Chạy Test Gì?", 4.1 Cập nhật `README.md`, 4.2 Cập nhật `DESIGN_SYSTEM.md` (+7 more)
 
 ### Community 153 - "DESIGN_SYSTEM.md — Hệ Thống Thiết Kế & Quy Chuẩn Giao Diện (Ebook Forge)"
 Cohesion: 0.20
@@ -728,10 +746,6 @@ Nodes (7): 1. Triết lý Thiết Kế & Chủ đề (Theme Philosophy), 2.1 CSS
 ### Community 157 - "2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code & Trước khi Commit"
 Cohesion: 0.33
 Nodes (5): 2.1 Chu trình kiểm tra cục bộ khi sửa code (Local Dev Loop), 2.2 Pipeline Chốt Chặn CI/CD (BẮT BUỘC 100% PASS TRƯỚC KHI COMMIT HOẶC PUSH), 2.3 Quy tắc chỉnh sửa file (bắt buộc), 2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code & Trước khi Commit, 7. Tiêu chí nghiệm thu
-
-### Community 159 - "2. Định hướng thiết kế"
-Cohesion: 0.50
-Nodes (4): 2.1 Token màu (cập nhật trong `src/routes/layout.css`, giữ nguyên **tên** biến cũ), 2.2 Chữ, 2.3 Thành phần dùng chung (sửa trong `src/lib/components/`, **giữ nguyên props**), 2. Định hướng thiết kế
 
 ### Community 162 - "tests-e2e/tsconfig.json"
 Cohesion: 0.33
@@ -753,6 +767,10 @@ Nodes (4): entry, ignoreDependencies, project, $schema
 Cohesion: 0.50
 Nodes (4): 5.1 Tổng quan (`src/routes/+page.svelte`), 5.2 EPUB Editor (`src/routes/epub-editor/+page.svelte` và `src/lib/epub-editor/components/*`), 5.3 PDF → JPG, EPUB → TXT, TXT → PDF CJK (Markdown Fixer đã gỡ), 5. Các trang còn lại
 
+### Community 167 - ".toString"
+Cohesion: 0.07
+Nodes (13): addNode(), addTopLevelNode(), calculationOrderIds(), parseNestedOrder(), parseOnOff(), parseOrder(), hexString(), getCatalogObj() (+5 more)
+
 ### Community 169 - "4. Quy chuẩn Thành phần Giao diện (Components)"
 Cohesion: 0.29
 Nodes (7): 4.1 Nút bấm (`Button.svelte`), 4.2 Ô nhập liệu (`Input.svelte`), 4.3 Khu vực Kéo thả file (`DropZone.svelte`), 4.4 Bộ chọn Phông chữ (`FontSelect.svelte`), 4.5 Thẻ Card Hiện Đại (`.modern-card`), 4.6 Icon, 4. Quy chuẩn Thành phần Giao diện (Components)
@@ -761,49 +779,49 @@ Nodes (7): 4.1 Nút bấm (`Button.svelte`), 4.2 Ô nhập liệu (`Input.svelte
 Cohesion: 0.33
 Nodes (3): 2026-11-24 (Tối ưu Font-Stack Tiếng Việt & Khử lỗi Font Input/Placeholder), Button, 6. Thứ tự thực hiện (mỗi dòng một commit)
 
-### Community 179 - "getPdfManager"
-Cohesion: 0.17
-Nodes (7): cancelAllRequests(), DefaultAppearanceEvaluator, getFullReader(), getRangeReader(), PDFWorkerStreamRangeReader, sendProgressiveData(), getPdfManager()
+### Community 179 - "PDFWorkerStreamRangeReader"
+Cohesion: 0.33
+Nodes (3): cancelAllRequests(), getRangeReader(), PDFWorkerStreamRangeReader
 
 ### Community 180 - ".i"
-Cohesion: 0.08
-Nodes (12): ConnectionSet, ConnectionSetNamespace, EffectiveInputPolicy, EffectiveOutputPolicy, getMeasurement(), Operation, parseExpression(), RootElement (+4 more)
+Cohesion: 0.05
+Nodes (19): ConnectionSet, ConnectionSetNamespace, EffectiveInputPolicy, EffectiveOutputPolicy, getMeasurement(), Operation, parseExpression(), RootElement (+11 more)
 
-### Community 205 - "epub-editor-state.svelte.ts"
-Cohesion: 0.08
-Nodes (28): jszip, vitest, optimizeEpub(), isDirty, extractBookMetadata(), findOpfPath(), rebuildEpubToc(), reorderOpfSpine() (+20 more)
+### Community 201 - "4. Trang Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`)"
+Cohesion: 0.50
+Nodes (4): 4.1 Chia bước, 4.2 Cột tóm tắt (bên phải, rộng ~340–380px, xuống dưới ở màn hẹp), 4.3 Các section, 4. Trang Đóng gói EPUB (`src/routes/epub-packer/+page.svelte`)
+
+### Community 205 - "real-world-workflows.test.ts"
+Cohesion: 0.15
+Nodes (13): jszip, vitest, optimizeEpub(), extractBookMetadata(), findOpfPath(), rebuildEpubToc(), reorderOpfSpine(), src_lib_epub_editor_epub_cleaner_analyzeoptimizationplan (+5 more)
 
 ### Community 211 - "HuffmanTable"
 Cohesion: 0.20
 Nodes (4): getStandardTable(), HuffmanLine, HuffmanTable, HuffmanTreeNode
 
-### Community 214 - "3. Khung ứng dụng và hành vi thu gọn sidebar (`src/routes/+layout.svelte`)"
-Cohesion: 0.50
-Nodes (4): 3.1 Hai trạng thái, 3.2 Quy tắc tự động, 3.3 Menu, 3. Khung ứng dụng và hành vi thu gọn sidebar (`src/routes/+layout.svelte`)
-
-### Community 237 - "XhtmlObject"
-Cohesion: 0.07
-Nodes (11): Body, Html, Li, mapStyle(), Ol, Span, Sub, Sup (+3 more)
+### Community 237 - "XhtmlNamespace"
+Cohesion: 0.14
+Nodes (5): Li, Ol, Span, Sub, XhtmlNamespace
 
 ## Knowledge Gaps
-- **268 isolated node(s):** `gitignorePath`, `$schema`, `project`, `entry`, `ignoreDependencies` (+263 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1593 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **156 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **269 isolated node(s):** `gitignorePath`, `$schema`, `project`, `entry`, `ignoreDependencies` (+264 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1594 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **164 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `appendText()` connect `appendText` to `CanvasGraphics`, `pdf.min.js`, `AnnotationEditor`, `.createElement`, `.a`?**
+- **Why does `appendText()` connect `.createElement` to `CanvasGraphics`, `pdf.min.js`, `.a`?**
   _High betweenness centrality (0.099) - this node is a cross-community bridge._
-- **Why does `Trạng thái hệ thống` connect `txt-parser.ts` to `.resolve`, `Changelog`, `image-bg-remove-ml.ts`, `epub-to-txt.ts`, `epub-source-parser.ts`, `real-world-workflows.test.ts`, `PdfSplitterState`, `EpubImagesState`, `Edge`, `pdf-splitter.ts`, `epub-state.svelte.ts`?**
-  _High betweenness centrality (0.087) - this node is a cross-community bridge._
-- **Why does `#ue()` connect `.resolve` to `pdf.min.js`, `PartialEvaluator`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
+- **Why does `Trạng thái hệ thống` connect `txt-parser.ts` to `.resolve`, `⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử`, `Changelog`, `image-bg-remove-ml.ts`, `epub-to-txt.ts`, `epub-source-parser.ts`, `zip-writer.ts`, `PdfSplitterState`, `EpubImagesState`, `Edge`, `pdf-splitter.ts`, `utils/index.ts`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+- **Why does `#ue()` connect `.resolve` to `Catalog`, `pdf.min.js`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
 - **What connects `gitignorePath`, `$schema`, `project` to the rest of the system?**
-  _268 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _269 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ConfigNamespace` be split into smaller, more focused modules?**
-  _Cohesion score 0.011299435028248588 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.013888888888888888 - nodes in this community are weakly interconnected._
 - **Should `pdf.worker.min.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.019010343863572827 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.01925267714741399 - nodes in this community are weakly interconnected._
 - **Should `CanvasGraphics` be split into smaller, more focused modules?**
-  _Cohesion score 0.03631961259079903 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.04518297236743839 - nodes in this community are weakly interconnected._

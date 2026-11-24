@@ -144,8 +144,15 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 11:31
+- Cập nhật lần cuối: 2026-11-24 11:51
 - Đã hoàn thành:
+  - **Tối ưu Hài hòa Header Sidebar & Logo Ebook Forge (Streamlined Sidebar Header & Seamless Collapse Button)**:
+    - **Loại bỏ icon hộp màu cồng kềnh (`src/routes/+layout.svelte`)**: Gỡ bỏ khung icon sách 40x40px (`w-10 h-10 bg-accent-soft`) ở cả Header Sidebar Desktop và Header Mobile, chuyển thương hiệu thành dạng wordmark chữ in đậm tinh tế `Ebook Forge`.
+    - **Tối ưu nút thu/mở menu `<` và `>`**:
+      - Khi mở rộng (`isCollapsed = false`): Nút thu gọn `<` (`w-8 h-8 rounded-lg`) nằm gọn gàng bên phải tiêu đề `Ebook Forge`, căn chỉnh thẳng hàng ngang hoàn hảo.
+      - Khi thu gọn (`isCollapsed = true`): Ẩn hoàn toàn chữ `Ebook Forge`, nút chuyển thành nút điều khiển mở rộng `>` kích thước chuẩn 44x44px (`w-11 h-11 rounded-xl mx-auto`), thẳng hàng dọc 100% với toàn bộ các nút icon bên dưới ("Tổng quan", "Đóng gói EPUB", "EPUB Editor", nút đổi theme).
+      - Chấm dứt hoàn toàn hiện tượng xếp chồng lệch pha (icon 40px đè lên nút 32px) khi thu gọn sidebar.
+    - Toàn bộ **367/367 unit tests pass 100%** (18/18 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Gỡ bỏ Huy hiệu "Xử lý ngay trên máy bạn" (Remove Client-Side Badge)**:
     - **`PageHeader.svelte`**: Loại bỏ chuỗi mặc định `'Xử lý ngay trên máy bạn'`, chuẩn hóa prop `badge?: string` chỉ hiển thị khi có nhãn văn bản tùy chỉnh cụ thể (ví dụ: `badge="Ứng dụng Desktop"`).
     - **Gỡ bỏ `badge={true}` trên toàn bộ các trang công cụ**: Dọn dẹp sạch sẽ thuộc tính `badge={true}` tại `src/routes/epub-editor/+page.svelte`, `src/routes/epub-packer/+page.svelte`, `src/routes/epub-to-txt/+page.svelte`, và `src/routes/pdf/+page.svelte`, giúp phần đầu các trang hiển thị thoáng đãng, đồng nhất và tinh giản.
@@ -478,6 +485,17 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Tối ưu Hài hòa Header Sidebar & Logo Ebook Forge)
+
+- Thêm/sửa:
+  - `src/routes/+layout.svelte`:
+    - Gỡ bỏ khung icon sách 40x40px và chữ phụ `Desk` tại header Sidebar và Header Mobile, giữ lại thương hiệu wordmark `Ebook Forge` tối giản, hiện đại.
+    - Tinh chỉnh nút `<` thu gọn khi mở rộng nằm gọn gàng bên phải tiêu đề, và nút `>` mở rộng khi thu gọn sidebar đạt kích thước chuẩn 44x44px (`w-11 h-11 rounded-xl mx-auto`), thẳng hàng dọc tuyệt đối với các icon bên dưới.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4914 nodes, 10563 edges, 283 communities
+- File chính bị ảnh hưởng:
+  - `src/routes/+layout.svelte`
+  - `README.md`
 
 ### 2026-11-24 (Gỡ bỏ Huy hiệu "Xử lý ngay trên máy bạn" trên Toàn bộ Tiêu đề Trang)
 

@@ -114,46 +114,29 @@
 
 		<!-- Header & Logo -->
 		<div
-			class="flex items-center justify-between {isCollapsed
-				? 'md:flex-col md:gap-3 md:items-center md:justify-center'
-				: ''} mb-6"
+			class="flex items-center {isCollapsed ? 'justify-center mb-4' : 'justify-between mb-5 px-1'}"
 		>
 			<a
 				href="/"
 				onclick={closeMenu}
-				class="flex items-center gap-3 min-w-0 group {isCollapsed ? 'md:justify-center' : ''}"
+				class="min-w-0 group {isCollapsed ? 'md:hidden' : 'flex items-center'}"
 				title="Ebook Forge"
 				aria-label="Trang chủ Ebook Forge"
 			>
-				<div
-					class="w-10 h-10 rounded-xl bg-accent-soft border border-accent-color/30 flex items-center justify-center text-accent-color shrink-0 shadow-xs"
+				<span
+					class="font-sans text-base font-bold text-text-color tracking-tight group-hover:text-accent-color transition-colors truncate"
 				>
-					<svg
-						class="w-5 h-5"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-						<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-					</svg>
-				</div>
-				<div class="flex flex-col min-w-0 {isCollapsed ? 'md:hidden' : 'block'}">
-					<span class="font-sans text-base font-bold text-text-color truncate leading-tight">
-						Ebook Forge
-					</span>
-					<span class="text-[11px] font-sans text-text-mute truncate">Desk</span>
-				</div>
+					Ebook Forge
+				</span>
 			</a>
 
 			<!-- Toggle Collapse Desktop Button -->
 			<button
 				type="button"
 				onclick={toggleSidebar}
-				class="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-text-mute hover:text-text-color hover:bg-panel transition-colors cursor-pointer shrink-0"
+				class="hidden md:flex items-center justify-center {isCollapsed
+					? 'w-11 h-11 rounded-xl text-text-mute hover:text-text-color hover:bg-panel mx-auto'
+					: 'w-8 h-8 rounded-lg text-text-mute hover:text-text-color hover:bg-panel'} transition-colors cursor-pointer shrink-0"
 				aria-expanded={!isCollapsed}
 				aria-label={isCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
 				title={isCollapsed ? 'Mở rộng menu' : 'Thu gọn menu'}
@@ -469,25 +452,9 @@
 		<header
 			class="flex md:hidden h-14 bg-sidebar-bg border-b border-border-color px-5 items-center justify-between shrink-0"
 		>
-			<div class="flex items-center gap-2.5">
-				<div
-					class="w-8 h-8 rounded-lg bg-accent-soft text-accent-color flex items-center justify-center font-bold text-base"
-				>
-					<svg
-						class="w-4 h-4"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.8"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-						<path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-					</svg>
-				</div>
+			<a href="/" class="flex items-center min-w-0" title="Trang chủ Ebook Forge">
 				<h2 class="font-sans text-base font-bold text-text-color">Ebook Forge</h2>
-			</div>
+			</a>
 			<button
 				onclick={openMenu}
 				class="text-text-color p-2 hover:bg-panel rounded-lg cursor-pointer transition-colors"
