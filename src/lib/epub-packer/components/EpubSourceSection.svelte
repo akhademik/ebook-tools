@@ -120,7 +120,7 @@
 						type="number"
 						bind:value={epubState.source.heuristicStart}
 						oninput={() => epubState.source.applyGrouping()}
-						class="bg-panel-2 border border-field-border text-text-color font-mono text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
+						class="bg-panel-2 border border-field-border text-text-color font-sans font-medium text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
 						min="1"
 						placeholder="Đầu"
 					/>
@@ -129,7 +129,7 @@
 						type="number"
 						bind:value={epubState.source.heuristicEnd}
 						oninput={() => epubState.source.applyGrouping()}
-						class="bg-panel-2 border border-field-border text-text-color font-mono text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
+						class="bg-panel-2 border border-field-border text-text-color font-sans font-medium text-sm h-11 px-3 rounded-xl w-20 text-center outline-none focus:border-accent-color"
 						min="1"
 						placeholder="Cuối"
 					/>

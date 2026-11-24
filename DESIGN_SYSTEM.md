@@ -50,15 +50,16 @@ Trong Tailwind v4, các biến trên được tích hợp qua `@theme`:
 
 ## 3. Typography
 
-- **Font Sans chính**: `'Inter', sans-serif` (`font-sans`) — dùng cho **toàn bộ giao diện người dùng**:
+- **Font Sans chính**: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif` (`font-sans`) — dùng cho **toàn bộ giao diện người dùng**:
+  - Hỗ trợ tiếng Việt 100% trên mọi nền tảng hệ điều hành (kể cả khi offline không tải được Google Fonts CDN).
   - Tiêu đề trang: 28–30px (`text-2xl` hoặc `text-3xl`), font-bold (700)
   - Tiêu đề thẻ (card header): 20px (`text-xl`), font-semibold (600)
   - Nhãn nhập liệu (input label): 13px, font-semibold (600), không viết hoa toàn bộ (no uppercase)
   - Nhãn nhóm menu sidebar: 12px, font-semibold (600), uppercase
   - Nội dung thường (body): 15–16px (`text-[15px]` / `text-base`), line-height 1.55–1.6
-  - Chú thích / Nhãn phụ: 13–14px, màu `text-text-mute`
+  - Chú thích / Nhãn phụ / Placeholder: 13–15px, màu `text-text-mute`
   - Nút bấm: Inter 15px, font-semibold (600) cho primary, medium (500) cho nút phụ (không dùng font-mono)
-- **Font Mono**: `'Space Mono', monospace` (`font-mono`) — **chỉ dùng cho giá trị kỹ thuật**:
+- **Font Mono**: `'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace` (`font-mono`) — **chỉ dùng cho giá trị kỹ thuật**:
   - Tên file, phần mở rộng file, phiên bản (version badge), chỉ số số học, tọa độ px, mã nguồn.
 
 ---

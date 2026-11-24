@@ -16,8 +16,13 @@
 	--color-field-border: var(--color-field-border);
 	--color-on-accent: var(--color-on-accent);
 	--color-ok: var(--color-ok);
-	--font-mono: 'Space Mono', monospace;
-	--font-sans: 'Inter', sans-serif;
+	--font-mono:
+		'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+	--font-sans:
+		'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+		'Noto Color Emoji';
 }
 
 :root {
@@ -39,8 +44,13 @@
 	--color-ok: #3f6a10; /* Success state */
 	--card-shadow: 0 4px 20px -2px rgba(7, 54, 66, 0.06);
 
-	--font-mono: 'Space Mono', monospace;
-	--font-sans: 'Inter', sans-serif;
+	--font-mono:
+		'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+	--font-sans:
+		'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+		'Noto Color Emoji';
 }
 
 html.dark {
@@ -71,6 +81,7 @@ body {
 	color: var(--color-text-color);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 	transition:
 		background-color 0.25s ease,
 		color 0.25s ease,
@@ -112,13 +123,21 @@ html.dark .tab-btn:hover {
 	box-shadow: 0 2px 8px rgba(53, 182, 171, 0.08);
 }
 
-/* Form Inputs & Buttons readable font size */
+/* Form Inputs & Buttons readable font size & antialiased text */
 input,
 select,
 textarea,
 button {
 	font-family: inherit;
 	font-size: 15px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+input::placeholder,
+textarea::placeholder {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 /* Minimalist Custom Scrollbar */

@@ -144,8 +144,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 10:35
+- Cập nhật lần cuối: 2026-11-24 10:45
 - Đã hoàn thành:
+  - **Tối ưu hóa Font-Stack Tiếng Việt & Khử lỗi Font Input/Placeholder Toàn diện**:
+    - **Nâng cấp Font-Stack đa nền tảng (`src/routes/layout.css`, `DESIGN_SYSTEM.md`)**:
+      - Bổ sung chuỗi fallback chuẩn quốc tế cho `font-sans`: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`, đảm bảo 100% hiển thị tiếng Việt trơn tru, không bị lỗi dấu/nhảy font trên mọi OS (kể cả khi offline không nạp được Google Fonts).
+      - Bổ sung fallback hoàn chỉnh cho `font-mono`: `'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace`.
+    - **Khử bỏ `font-mono` ở ô input mang placeholder tiếng Việt (`EpubSourceSection.svelte`)**:
+      - Chuyển ô nhập trang bắt đầu (`placeholder="Đầu"`) và trang kết thúc (`placeholder="Cuối"`) từ `font-mono` sang `font-sans font-medium` để hiển thị chữ tiếng Việt sắc nét, đều đặn.
+    - **Tăng cường Text-Rendering & Khử răng cưa (`layout.css`, `src/app.html`)**:
+      - Bổ sung `-webkit-font-smoothing: antialiased`, `-moz-osx-font-smoothing: grayscale` và `text-rendering: optimizeLegibility` cho toàn bộ thẻ `input`, `textarea` và `::placeholder`.
+      - Loại bỏ lớp không chuẩn `antialiased-none` tại `src/app.html`, kích hoạt `antialiased` chuẩn nét cho toàn bộ `<body>`.
+    - Toàn bộ **350/350 unit tests pass 100%**, `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Tinh gọn Carousel Jacket & Chuẩn hóa Phông chữ Mặc định Bookerly Toàn diện**:
     - **Tinh giản thanh điều khiển Jacket Carousel (`EpubJacketCarousel.svelte`)**:
       - Gỡ bỏ hàng nút chữ phía trên (`Mẫu 1` đến `Mẫu 10`), giữ không gian hiển thị rộng rãi, thoáng đãng khi đã có thanh trượt và hàng chấm tròn chỉ mục (dots indicator).
@@ -435,6 +445,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Tối ưu Font-Stack Tiếng Việt & Khử lỗi Font Input/Placeholder)
+
+- Thêm/sửa:
+  - `src/routes/layout.css`:
+    - Chuẩn hóa `--font-sans` với hệ thống fallback đa nền tảng tối ưu tiếng Việt (`'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`).
+    - Bổ sung font stack fallback hoàn chỉnh cho `--font-mono`.
+    - Bật `text-rendering: optimizeLegibility`, khử răng cưa antialiased trên thẻ `input`, `select`, `textarea`, `button` và `::placeholder`.
+  - `src/app.html`: Gỡ bỏ `antialiased-none`, kích hoạt `antialiased` chuẩn cho `<body>`.
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`: Thay thế `font-mono` bằng `font-sans font-medium` ở 2 ô nhập trang quét có placeholder tiếng Việt (`"Đầu"`, `"Cuối"`).
+  - `DESIGN_SYSTEM.md`: Cập nhật quy chuẩn typography và font stack hỗ trợ tiếng Việt 100%.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (350/350 pass) | knip ✅ (0 issues) | graphify ✅
+- File chính bị ảnh hưởng:
+  - `src/routes/layout.css`
+  - `src/app.html`
+  - `src/lib/epub-packer/components/EpubSourceSection.svelte`
+  - `DESIGN_SYSTEM.md`
 
 ### 2026-11-24 (Tinh gọn Carousel Jacket & Chuẩn hóa Phông mặc định Bookerly)
 
