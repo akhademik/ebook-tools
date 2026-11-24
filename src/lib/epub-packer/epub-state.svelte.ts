@@ -1,7 +1,12 @@
 // src/lib/epub-packer/epub-state.svelte.ts
 import { buildEpubBlob, EPUB_CSS } from './epub-packer';
 import type { EpubFontsConfig, EpubJacketConfig, CoverBlobItem, OrnamentsConfig } from '$lib/types';
-import { Logger } from '$lib/utils';
+import {
+	Logger,
+	cleanTitleFromFileName,
+	extractMetadataFromTxt,
+	hasVietnameseDiacritics
+} from '$lib/utils';
 import { findFont } from './templates/fonts';
 import {
 	EpubMetadataState,
@@ -30,10 +35,28 @@ export class EpubState {
 		this.images = new EpubImagesState();
 		this.source = new EpubSourceState({
 			getTitle: () => this.metadata.title,
-			onFileLoaded: (baseName: string) => {
+			onFileLoaded: (baseName: string, originalFileName?: string) => {
 				this.metadata.epubOutName = baseName;
-				this.metadata.title = baseName.replace(/-/g, ' ');
+				this.metadata.title = cleanTitleFromFileName(originalFileName || baseName);
 				this.epubBlob = null;
+			},
+			onTxtParsed: (rawText: string) => {
+				const detected = extractMetadataFromTxt(rawText);
+				if (
+					detected.title &&
+					(!hasVietnameseDiacritics(this.metadata.title) || this.metadata.title === 'Không tên')
+				) {
+					this.metadata.title = detected.title;
+				}
+				if (detected.author && !this.metadata.author) {
+					this.metadata.author = detected.author;
+				}
+				if (detected.translator && !this.jacket.translator) {
+					this.jacket.translator = detected.translator;
+				}
+				if (detected.publisher && !this.metadata.publisher) {
+					this.metadata.publisher = detected.publisher;
+				}
 			},
 			getIllustrationFiles: () => this.images.illustrationFiles
 		});

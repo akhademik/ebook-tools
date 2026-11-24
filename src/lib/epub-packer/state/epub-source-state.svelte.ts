@@ -19,7 +19,8 @@ import { MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE } from '$lib/constants';
 
 export interface EpubSourceStateDependencies {
 	getTitle: () => string;
-	onFileLoaded?: (baseName: string) => void;
+	onFileLoaded?: (baseName: string, originalFileName?: string) => void;
+	onTxtParsed?: (rawText: string) => void;
 	getIllustrationFiles?: () => IllustrationImageItem[];
 }
 
@@ -253,7 +254,7 @@ export class EpubSourceState {
 			this.fileType = 'txt';
 			this.parseStatus = 'Đang đọc file văn bản .TXT...';
 			const base = slugify(file.name.replace(/\.txt$/i, ''));
-			this.deps.onFileLoaded?.(base);
+			this.deps.onFileLoaded?.(base, file.name);
 			try {
 				Logger.debug('[EpubSourceState]', 'Reading file.text()...');
 				const text = await file.text();
@@ -263,6 +264,7 @@ export class EpubSourceState {
 					text.length
 				);
 				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
+				this.deps.onTxtParsed?.(this.rawTxtText);
 				await this.applyTxtGrouping();
 			} catch (err: unknown) {
 				const errorMsg = err instanceof Error ? err.message : String(err);
@@ -274,7 +276,7 @@ export class EpubSourceState {
 			this.fileType = 'zip';
 			this.parseStatus = 'Đang đọc các chương Markdown trong file .ZIP...';
 			const base = slugify(file.name.replace(/\.zip$/i, ''));
-			this.deps.onFileLoaded?.(base);
+			this.deps.onFileLoaded?.(base, file.name);
 			await this.loadZipContent(file);
 		}
 	}

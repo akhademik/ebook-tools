@@ -1160,4 +1160,38 @@ describe('epub-packer tests', () => {
 			expect(centerCss).toContain('.center-page-content');
 		});
 	});
+
+	describe('EpubState title and metadata loading', () => {
+		it('should normalize NFD filename to NFC on file loaded', async () => {
+			const { EpubState } = await import('../src/lib/epub-packer/epub-state.svelte');
+			const state = new EpubState();
+			const nfdName = 'Đo\u0302\u0303 Thu Ha\u0300.txt';
+			const fakeFile = new File(['# Tiêu đề trong file\nNội dung'], nfdName, {
+				type: 'text/plain'
+			});
+			await state.source.handleFile(fakeFile);
+			expect(state.metadata.title).toBe('Đỗ Thu Hà');
+			expect(state.metadata.title).toBe('Đỗ Thu Hà'.normalize('NFC'));
+		});
+
+		it('should intelligently extract metadata from txt when filename lacks diacritics', async () => {
+			const { EpubState } = await import('../src/lib/epub-packer/epub-state.svelte');
+			const state = new EpubState();
+			const txtContent = `
+# Đắc Nhân Tâm
+Tác giả: Dale Carnegie
+Dịch giả: Nguyễn Hiến Lê
+NXB: Nhà xuất bản Trẻ
+
+# Chương 1
+Nội dung...
+`;
+			const fakeFile = new File([txtContent], 'dac-nhan-tam.txt', { type: 'text/plain' });
+			await state.source.handleFile(fakeFile);
+			expect(state.metadata.title).toBe('Đắc Nhân Tâm');
+			expect(state.metadata.author).toBe('Dale Carnegie');
+			expect(state.jacket.translator).toBe('Nguyễn Hiến Lê');
+			expect(state.metadata.publisher).toBe('Nhà xuất bản Trẻ');
+		});
+	});
 });

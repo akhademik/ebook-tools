@@ -144,8 +144,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 10:45
+- Cập nhật lần cuối: 2026-11-24 11:05
 - Đã hoàn thành:
+  - **Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ File TXT**:
+    - **Khử triệt để lỗi dấu tiếng Việt NFD (macOS/iOS Unicode Decomposed) sang NFC Precomposed**:
+      - Tên file khi tải từ macOS/iOS/trình duyệt thường ở dạng Unicode NFD (vần và dấu thanh bị tách thành các code point rời rạc như `o` + `^` + `~`). Khi nạp vào ô nhập liệu `<input>`, các font chữ không hỗ trợ GPOS dấu rời sẽ hiển thị lệch dấu hoặc ô vuông tofu.
+      - Hàm `cleanTitleFromFileName` (`src/lib/utils/text.ts`) chuẩn hóa 100% sang Unicode NFC (`.normalize('NFC')`), giải mã URL `%xx`, bóc tách đuôi file, gỡ bỏ tag đóng mở ngoặc `[Full]`, `[Ebook]`, `(bản dịch)`, chuyển đổi `_` và `-` thành khoảng trắng và tự động viết hoa chữ cái đầu.
+    - **Trích xuất thông minh Tiêu đề & Metadata từ nội dung file TXT (`extractMetadataFromTxt`)**:
+      - Tự động nhận diện tiêu đề sách, tác giả, dịch giả, nhà xuất bản từ các tiền tố tiếng Việt/tiếng Anh (`Tên sách:`, `Tác giả:`, `Dịch giả:`, `NXB:`, `Title:`, `Author:`...) hoặc tiêu đề Markdown H1 (`# ...`) ở đầu file TXT.
+      - Nhận diện tiêu đề dòng độc lập khi đi kèm khối thông tin tác giả/dịch giả (ví dụ: `BẮT TRẺ ĐỒNG XANH` đứng trước `Tác giả: J. D. Salinger`), đồng thời tránh hoàn toàn việc nhầm lẫn với các tên chương (`Chương 1...`) hoặc nội dung văn bản thông thường.
+      - Tự động nâng cấp tiêu đề sách có dấu tiếng Việt chuẩn xác khi người dùng tải file có tên không dấu (ví dụ file `dac-nhan-tam.txt` tự động lấy tiêu đề `Đắc Nhân Tâm` từ nội dung file).
+    - Toàn bộ **367/367 unit tests pass 100%** (18/18 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Tối ưu hóa Font-Stack Tiếng Việt & Khử lỗi Font Input/Placeholder Toàn diện**:
     - **Nâng cấp Font-Stack đa nền tảng (`src/routes/layout.css`, `DESIGN_SYSTEM.md`)**:
       - Bổ sung chuỗi fallback chuẩn quốc tế cho `font-sans`: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif`, đảm bảo 100% hiển thị tiếng Việt trơn tru, không bị lỗi dấu/nhảy font trên mọi OS (kể cả khi offline không nạp được Google Fonts).
@@ -445,6 +454,30 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Chuẩn hóa Unicode NFC & Trích xuất Tiêu đề, Metadata Thông minh từ TXT)
+
+- Thêm/sửa:
+  - `src/lib/utils/text.ts`:
+    - Thêm `cleanTitleFromFileName`: Tự động chuẩn hóa tên file sang Unicode NFC (precomposed), giải mã URL `%xx`, bóc tách đuôi file, gỡ bỏ tag đóng mở ngoặc `[Full]`, `[Ebook]`, `(bản dịch)`, chuyển đổi `_` và `-` thành khoảng trắng và tự động viết hoa chữ cái đầu khi file là chữ thường.
+    - Thêm `hasVietnameseDiacritics`: Kiểm tra chuỗi có chứa dấu tiếng Việt (hỗ trợ cả chuẩn NFC và NFD).
+    - Thêm `extractMetadataFromTxt`: Bóc tách thông minh tiêu đề sách, tác giả, dịch giả, nhà xuất bản từ các tiền tố (`Tên sách:`, `Tác giả:`, `Dịch giả:`, `NXB:`...) hoặc Markdown H1 (`# ...`) hoặc dòng tiêu đề độc lập đi kèm khối metadata ở đầu file TXT.
+  - `src/lib/epub-packer/state/epub-source-state.svelte.ts`:
+    - Truyền `file.name` gốc vào `onFileLoaded` để xử lý chuẩn hóa tiêu đề.
+    - Kích hoạt callback `onTxtParsed` sau khi nạp xong nội dung file văn bản `.TXT`.
+  - `src/lib/epub-packer/epub-state.svelte.ts`:
+    - Kết nối `cleanTitleFromFileName` vào sự kiện nạp file giúp tiêu đề sạch sẽ, chuẩn Unicode NFC.
+    - Tự động nâng cấp tiêu đề có dấu tiếng Việt chuẩn xác và điền bổ sung tác giả, dịch giả, NXB từ nội dung TXT khi tên file là slug không dấu (`dac-nhan-tam.txt` -> `Đắc Nhân Tâm`).
+  - `tests/helpers.test.ts` & `tests/epub-packer.test.ts`:
+    - Bổ sung bộ test unit kiểm thử toàn diện cho `cleanTitleFromFileName`, `hasVietnameseDiacritics`, `extractMetadataFromTxt` và luồng nạp file trong `EpubState`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4910 nodes, 10548 edges, 271 communities
+- File chính bị ảnh hưởng:
+  - `src/lib/utils/text.ts`
+  - `src/lib/epub-packer/state/epub-source-state.svelte.ts`
+  - `src/lib/epub-packer/epub-state.svelte.ts`
+  - `tests/helpers.test.ts`
+  - `tests/epub-packer.test.ts`
+  - `README.md`
 
 ### 2026-11-24 (Tối ưu Font-Stack Tiếng Việt & Khử lỗi Font Input/Placeholder)
 

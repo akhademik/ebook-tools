@@ -50,7 +50,10 @@ const {
 	ensureEpubExt,
 	triggerDownload,
 	escapeXml,
-	normalizeCharPreserveLength
+	normalizeCharPreserveLength,
+	hasVietnameseDiacritics,
+	cleanTitleFromFileName,
+	extractMetadataFromTxt
 } = utilsModule;
 
 describe('utils tests', () => {
@@ -192,6 +195,133 @@ describe('utils tests', () => {
 			const res = normalizeCharPreserveLength(astral);
 			expect(res).toBe('𠀀');
 			expect(res.isWellFormed()).toBe(true);
+		});
+	});
+
+	describe('hasVietnameseDiacritics', () => {
+		it('should return true for NFC Vietnamese strings with accents or special characters', () => {
+			expect(hasVietnameseDiacritics('Đỗ Thu Hà')).toBe(true);
+			expect(hasVietnameseDiacritics('Tiếng Việt')).toBe(true);
+			expect(hasVietnameseDiacritics('đường')).toBe(true);
+			expect(hasVietnameseDiacritics('Ơi')).toBe(true);
+		});
+
+		it('should return true for NFD decomposed Vietnamese strings', () => {
+			// NFD decomposed 'Đỗ Thu Hà'
+			const nfd = 'Đo\u0302\u0303 Thu Ha\u0300';
+			expect(hasVietnameseDiacritics(nfd)).toBe(true);
+		});
+
+		it('should return false for ASCII text without diacritics', () => {
+			expect(hasVietnameseDiacritics('Dac Nhan Tam')).toBe(false);
+			expect(hasVietnameseDiacritics('Hello World')).toBe(false);
+			expect(hasVietnameseDiacritics('Book 1 - Chapter 2')).toBe(false);
+		});
+
+		it('should return false for empty or non-string inputs', () => {
+			expect(hasVietnameseDiacritics('')).toBe(false);
+			expect(hasVietnameseDiacritics(null)).toBe(false);
+			expect(hasVietnameseDiacritics(undefined)).toBe(false);
+			expect(hasVietnameseDiacritics(123)).toBe(false);
+		});
+	});
+
+	describe('cleanTitleFromFileName', () => {
+		it('should normalize NFD decomposed filenames to NFC', () => {
+			const nfdFileName = 'Đo\u0302\u0303 Thu Ha\u0300.txt';
+			const cleaned = cleanTitleFromFileName(nfdFileName);
+			expect(cleaned).toBe('Đỗ Thu Hà');
+			// Verify it is precomposed NFC
+			expect(cleaned).toBe('Đỗ Thu Hà'.normalize('NFC'));
+			expect(cleaned.length).toBe('Đỗ Thu Hà'.length);
+		});
+
+		it('should decode URL-encoded filenames', () => {
+			expect(cleanTitleFromFileName('Dac%20Nhan%20Tam.txt')).toBe('Dac Nhan Tam');
+		});
+
+		it('should replace underscores and hyphens with spaces and capitalize words if all lowercase', () => {
+			expect(cleanTitleFromFileName('dac_nhan_tam.txt')).toBe('Dac Nhan Tam');
+			expect(cleanTitleFromFileName('khong-gia-dinh.txt')).toBe('Khong Gia Dinh');
+		});
+
+		it('should strip leading and trailing bracketed/parenthesized tags', () => {
+			expect(
+				cleanTitleFromFileName('[Full] [Ebook] Toi Thay Hoa Vang Tren Co Xanh [PRC].txt')
+			).toBe('Toi Thay Hoa Vang Tren Co Xanh');
+			expect(cleanTitleFromFileName('(Bản đẹp) Mat Biec (PDF).txt')).toBe('Mat Biec');
+		});
+
+		it('should strip various file extensions (.txt, .zip, .epub, .md)', () => {
+			expect(cleanTitleFromFileName('My Book.zip')).toBe('My Book');
+			expect(cleanTitleFromFileName('My Book.epub')).toBe('My Book');
+			expect(cleanTitleFromFileName('My Book.md')).toBe('My Book');
+		});
+
+		it('should handle empty or invalid inputs gracefully', () => {
+			expect(cleanTitleFromFileName('')).toBe('');
+			expect(cleanTitleFromFileName(null)).toBe('');
+			expect(cleanTitleFromFileName(undefined)).toBe('');
+			expect(cleanTitleFromFileName(123)).toBe('');
+		});
+	});
+
+	describe('extractMetadataFromTxt', () => {
+		it('should extract title, author, translator, publisher with explicit prefixes', () => {
+			const txt = `
+Tên sách: Không Gia Đình
+Tác giả: Hector Malot
+Dịch giả: Huỳnh Lý
+Nhà xuất bản: NXB Văn Học
+
+Nội dung bắt đầu từ đây...
+`;
+			const res = extractMetadataFromTxt(txt);
+			expect(res.title).toBe('Không Gia Đình');
+			expect(res.author).toBe('Hector Malot');
+			expect(res.translator).toBe('Huỳnh Lý');
+			expect(res.publisher).toBe('NXB Văn Học');
+		});
+
+		it('should extract title from Markdown H1 when present', () => {
+			const txt = `
+# Đắc Nhân Tâm
+Tác giả: Dale Carnegie
+Người dịch: Nguyễn Hiến Lê
+NXB: Nhà xuất bản Trẻ
+`;
+			const res = extractMetadataFromTxt(txt);
+			expect(res.title).toBe('Đắc Nhân Tâm');
+			expect(res.author).toBe('Dale Carnegie');
+			expect(res.translator).toBe('Nguyễn Hiến Lê');
+			expect(res.publisher).toBe('Nhà xuất bản Trẻ');
+		});
+
+		it('should extract title from first standalone line if followed by metadata block', () => {
+			const txt = `
+BẮT TRẺ ĐỒNG XANH
+Tác giả: J. D. Salinger
+Bản dịch: Phùng Khánh
+`;
+			const res = extractMetadataFromTxt(txt);
+			expect(res.title).toBe('BẮT TRẺ ĐỒNG XANH');
+			expect(res.author).toBe('J. D. Salinger');
+			expect(res.translator).toBe('Phùng Khánh');
+		});
+
+		it('should ignore chapter markers or section titles as book titles', () => {
+			const txt = `
+Chương 1: Khởi đầu
+Nội dung chương 1...
+`;
+			const res = extractMetadataFromTxt(txt);
+			expect(res.title).toBeUndefined();
+		});
+
+		it('should handle empty or non-string input safely', () => {
+			expect(extractMetadataFromTxt('')).toEqual({});
+			// @ts-expect-error test non-string input
+			expect(extractMetadataFromTxt(null)).toEqual({});
 		});
 	});
 });
