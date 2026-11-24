@@ -12,13 +12,11 @@
 	import EpubIllustrationsSection from '$lib/epub-packer/components/EpubIllustrationsSection.svelte';
 	import EpubFontSettingsSection from '$lib/epub-packer/components/EpubFontSettingsSection.svelte';
 	import EpubPackSection from '$lib/epub-packer/components/EpubPackSection.svelte';
-	import EpubJacketModal from '$lib/epub-packer/components/EpubJacketModal.svelte';
 	import EpubSyntaxModal from '$lib/epub-packer/components/EpubSyntaxModal.svelte';
 
 	const epubState = new EpubState();
 
 	let currentStep = $state(1);
-	let showJacketModal = $state(false);
 	let showSyntaxModal = $state(false);
 
 	const hasChapters = $derived(epubState.source.epubChapters.length > 0);
@@ -218,7 +216,7 @@
 				</p>
 			</div>
 
-			<EpubMetadataSection {epubState} onOpenJacketModal={() => (showJacketModal = true)} />
+			<EpubMetadataSection {epubState} />
 
 			<div
 				class="mt-8 pt-5 border-t border-border-color flex justify-between items-center gap-3 flex-wrap sm:flex-nowrap"
@@ -518,5 +516,4 @@
 </div>
 
 <!-- Modals -->
-<EpubJacketModal bind:show={showJacketModal} {epubState} />
 <EpubSyntaxModal bind:show={showSyntaxModal} />

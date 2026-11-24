@@ -115,94 +115,71 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			.first()
 			.click();
 
-		// 3. Open Jacket Modal & test font selection
-		const jacketPreviewBtn = page.getByRole('button', { name: /Xem trước/i }).first();
-		if (await jacketPreviewBtn.isVisible()) {
-			await jacketPreviewBtn.click();
-			const modalTitle = page.locator('text=Xem trước trang giới thiệu');
-			await expect(modalTitle).toBeVisible();
+		// 3. Test Jacket Carousel & font selection
+		const previewWrap = page.locator('.preview-wrap');
+		await expect(previewWrap).toBeVisible();
 
-			// Select font inside modal using FontSelect
-			const fontTrigger = page.locator('#jacket-modal-font-select-btn');
-			await expect(fontTrigger).toBeVisible();
-			await fontTrigger.click();
+		// Select font inside carousel using FontSelect
+		const fontTrigger = page.locator('#jacket-modal-font-select-btn');
+		await expect(fontTrigger).toBeVisible();
+		await fontTrigger.click();
 
-			const listbox = page.locator('[role="listbox"]');
-			await expect(listbox).toBeVisible();
-			const bookerlyOption = listbox.locator('button', { hasText: 'Bookerly' }).first();
-			await expect(bookerlyOption).toBeVisible();
-			await bookerlyOption.click();
-			await expect(listbox).not.toBeVisible();
-			await expect(fontTrigger).toContainText('Bookerly');
+		const listbox = page.locator('[role="listbox"]');
+		await expect(listbox).toBeVisible();
+		const bookerlyOption = listbox.locator('button', { hasText: 'Bookerly' }).first();
+		await expect(bookerlyOption).toBeVisible();
+		await bookerlyOption.click();
+		await expect(listbox).not.toBeVisible();
+		await expect(fontTrigger).toContainText('Bookerly');
 
-			// Verify preview wrap is visible with dynamic style
-			const previewWrap = page.locator('.preview-wrap');
-			await expect(previewWrap).toBeVisible();
+		// Verify preview wrap is visible with dynamic style
+		const titleFont = await page
+			.locator('.preview-wrap .title')
+			.evaluate((el) => window.getComputedStyle(el).fontFamily);
+		expect(titleFont).toContain('Bookerly');
 
-			const titleFont = await page
-				.locator('.preview-wrap .title')
-				.evaluate((el) => window.getComputedStyle(el).fontFamily);
-			expect(titleFont).toContain('Bookerly');
+		// Click "Tiếp" to navigate to Mẫu 2
+		await page.getByRole('button', { name: 'Tiếp', exact: true }).first().click();
+		await page.waitForTimeout(200);
+		const titleFontM2 = await page
+			.locator('.preview-wrap .title')
+			.evaluate((el) => window.getComputedStyle(el).fontFamily);
+		expect(titleFontM2).toContain('Bookerly');
 
-			// Click "Tiếp" to navigate to Mẫu 2
-			await page.getByRole('button', { name: 'Tiếp', exact: true }).click();
-			await page.waitForTimeout(200);
-			const titleFontM2 = await page
-				.locator('.preview-wrap .title')
-				.evaluate((el) => window.getComputedStyle(el).fontFamily);
-			expect(titleFontM2).toContain('Bookerly');
+		// While on Mẫu 2, change font to Akashi
+		await fontTrigger.click();
+		const listbox2 = page.locator('[role="listbox"]');
+		await expect(listbox2).toBeVisible();
+		await listbox2.locator('button', { hasText: 'UTM_Akashi' }).first().click();
+		await page.waitForTimeout(200);
+		const titleFontM2Akashi = await page
+			.locator('.preview-wrap .title')
+			.evaluate((el) => window.getComputedStyle(el).fontFamily);
+		expect(titleFontM2Akashi).toContain('Akashi');
 
-			// While on Mẫu 2, change font to Akashi
-			await fontTrigger.click();
-			const listbox2 = page.locator('[role="listbox"]');
-			await expect(listbox2).toBeVisible();
-			await listbox2.locator('button', { hasText: 'UTM_Akashi' }).first().click();
-			await page.waitForTimeout(200);
-			const titleFontM2Akashi = await page
-				.locator('.preview-wrap .title')
-				.evaluate((el) => window.getComputedStyle(el).fontFamily);
-			expect(titleFontM2Akashi).toContain('Akashi');
+		// Click "Tiếp" to navigate to Mẫu 3
+		await page.getByRole('button', { name: 'Tiếp', exact: true }).first().click();
+		await page.waitForTimeout(200);
+		const titleFontM3 = await page
+			.locator('.preview-wrap .title')
+			.evaluate((el) => window.getComputedStyle(el).fontFamily);
+		expect(titleFontM3).toContain('Akashi');
 
-			// Click "Tiếp" to navigate to Mẫu 3
-			await page.getByRole('button', { name: 'Tiếp', exact: true }).click();
-			await page.waitForTimeout(200);
-			const titleFontM3 = await page
-				.locator('.preview-wrap .title')
-				.evaluate((el) => window.getComputedStyle(el).fontFamily);
-			expect(titleFontM3).toContain('Akashi');
+		// Click "Trước" back to Mẫu 2
+		await page.getByRole('button', { name: 'Trước', exact: true }).first().click();
+		await page.waitForTimeout(200);
 
-			// Click "Trước" back to Mẫu 2
-			await page.getByRole('button', { name: 'Trước', exact: true }).click();
-			await page.waitForTimeout(200);
+		// Change font back to Bookerly for consistency
+		await fontTrigger.click();
+		const listbox3 = page.locator('[role="listbox"]');
+		await expect(listbox3).toBeVisible();
+		await listbox3.locator('button', { hasText: 'Bookerly' }).first().click();
+		await page.waitForTimeout(200);
 
-			// Change font back to Bookerly for consistency
-			await fontTrigger.click();
-			const listbox3 = page.locator('[role="listbox"]');
-			await expect(listbox3).toBeVisible();
-			await listbox3.locator('button', { hasText: 'Bookerly' }).first().click();
-			await page.waitForTimeout(200);
-
-			// Select template 2 and close modal
-			const selectBtn = page.getByRole('button', { name: 'Chọn mẫu này' });
-			await selectBtn.click();
-			await expect(modalTitle).not.toBeVisible();
-
-			// Verify font select is no longer in main section
-			await expect(page.locator('#jacket-font-select')).toHaveCount(0);
-
-			// Verify template name and font badge in main section
-			await expect(page.getByText('Mẫu 2').first()).toBeVisible();
-			await expect(page.getByText('(Bookerly)')).toBeVisible();
-
-			// Re-open preview modal to verify font selection persisted and initial template is Mẫu 2
-			await jacketPreviewBtn.click();
-			await expect(modalTitle).toBeVisible();
-			await expect(page.locator('#jacket-modal-font-select-btn')).toContainText('Bookerly');
-			await expect(page.locator('#jacket-modal-font-select')).toHaveValue('Bookerly');
-			const closeBtn = page.getByRole('dialog').getByRole('button', { name: 'Đóng' });
-			await closeBtn.click();
-			await expect(modalTitle).not.toBeVisible();
-		}
+		// Verify template name and font badge in carousel
+		await expect(page.getByText('Mẫu 2').first()).toBeVisible();
+		await expect(page.locator('#jacket-modal-font-select-btn')).toContainText('Bookerly');
+		await expect(page.locator('#jacket-modal-font-select')).toHaveValue('Bookerly');
 
 		// 4. Test FontSelect live preview dropdown for H1 font and H2 Sub font
 		// Switch to Step 4: Phông chữ

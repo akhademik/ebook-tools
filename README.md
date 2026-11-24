@@ -144,8 +144,13 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 09:53
+- Cập nhật lần cuối: 2026-11-24 10:16
 - Đã hoàn thành:
+  - **Chuyển đổi Trang lót sách (Jacket) thành Carousel trực tiếp ở Bước 2 (`EpubJacketCarousel.svelte`)**:
+    - Thay thế hoàn toàn modal popup bằng thanh trượt Carousel trực quan tích hợp ngay dưới các ô nhập thông tin sách tại Bước 2.
+    - Cập nhật thời gian thực (live preview) nội dung trang sách mẫu khi người dùng nhập tác phẩm, tác giả, dịch giả, nhà xuất bản.
+    - Hỗ trợ thanh chọn nhanh 10 mẫu thiết kế (`Mẫu 1` đến `Mẫu 10`), bộ chọn phông chữ nhúng `FontSelect`, hai nút điều hướng `Trước` / `Tiếp` và hàng chấm chỉ mục (dots indicator).
+    - Tinh giản giao diện, loại bỏ modal che khuất màn hình và tối ưu hóa trải nghiệm người dùng.
   - **Tinh gọn danh sách chương ở Bước 1 Nguồn tài liệu (`EpubSourceSection.svelte`)**:
     - Ẩn hoàn toàn dòng phụ trùng lặp `Nguồn: File TXT` đối với các file văn bản TXT, giúp danh sách chương hiển thị gọn gàng, thanh thoát (mỗi dòng hiển thị số thứ tự, tên chương và tên file `.xhtml`).
     - Chỉ hiển thị nhãn `Nguồn:` đối với các file ZIP khi có nhiều file Markdown được gom nhóm vào một chương.
