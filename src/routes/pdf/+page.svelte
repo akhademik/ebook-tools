@@ -17,7 +17,6 @@
 	title="Tách trang PDF → JPG"
 	description="Tách ảnh xám tối ưu cho OCR và cắt lề header/footer hàng loạt."
 	breadcrumb="Tiền xử lý"
-	badge={true}
 />
 
 <div class="modern-card rounded-2xl p-5 sm:p-7 mb-6">

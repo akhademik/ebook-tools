@@ -27,7 +27,6 @@
 	title="EPUB Editor"
 	description="Xem và tinh chỉnh trực tiếp HTML / CSS bên trong file EPUB bất kỳ với Live Preview."
 	breadcrumb="Tạo và tinh chỉnh"
-	badge={true}
 />
 
 <div class="modern-card rounded-2xl p-5 sm:p-7 mb-6 animate-fade-in">

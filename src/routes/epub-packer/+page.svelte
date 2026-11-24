@@ -113,7 +113,6 @@
 	title="Đóng gói EPUB"
 	description="Chuyển đổi văn bản TXT hoặc file nén ZIP chứa Markdown thành sách điện tử EPUB chuẩn mực"
 	breadcrumb="Tạo và tinh chỉnh"
-	badge={true}
 />
 
 <!-- 5-step navigation bar -->

@@ -144,8 +144,12 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 11:26
+- Cập nhật lần cuối: 2026-11-24 11:31
 - Đã hoàn thành:
+  - **Gỡ bỏ Huy hiệu "Xử lý ngay trên máy bạn" (Remove Client-Side Badge)**:
+    - **`PageHeader.svelte`**: Loại bỏ chuỗi mặc định `'Xử lý ngay trên máy bạn'`, chuẩn hóa prop `badge?: string` chỉ hiển thị khi có nhãn văn bản tùy chỉnh cụ thể (ví dụ: `badge="Ứng dụng Desktop"`).
+    - **Gỡ bỏ `badge={true}` trên toàn bộ các trang công cụ**: Dọn dẹp sạch sẽ thuộc tính `badge={true}` tại `src/routes/epub-editor/+page.svelte`, `src/routes/epub-packer/+page.svelte`, `src/routes/epub-to-txt/+page.svelte`, và `src/routes/pdf/+page.svelte`, giúp phần đầu các trang hiển thị thoáng đãng, đồng nhất và tinh giản.
+    - Toàn bộ **367/367 unit tests pass 100%** (18/18 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Tinh gọn Trang Tổng quan (Home Decluttering & Streamlined Overview)**:
     - **Loại bỏ huy hiệu phụ tại tiêu đề (`src/routes/+page.svelte`)**: Gỡ bỏ nhãn `Xử lý 100% ngoại tuyến trên máy bạn` tại header trang chủ, giảm bớt chi tiết lặp lại để tập trung vào các công cụ cốt lõi.
     - **Loại bỏ các chip tính năng (feature badges) trong 2 thẻ công cụ chính**: Gỡ bỏ các chip `Bìa & Jacket`, `Heuristic phân chương`, `Nhúng font & Hoa văn`, `Mục lục tự động` ở thẻ Đóng gói EPUB và `Live Preview 2 chiều`, `Kiểm định Kobo`, `Dọn rác mồ côi`, `Tái tạo TOC` ở thẻ EPUB Editor & Validator, giúp thẻ sản phẩm thanh thoát, hiện đại và tối giản.
@@ -474,6 +478,23 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-24 (Gỡ bỏ Huy hiệu "Xử lý ngay trên máy bạn" trên Toàn bộ Tiêu đề Trang)
+
+- Thêm/sửa:
+  - `src/lib/components/PageHeader.svelte`:
+    - Loại bỏ giá trị mặc định `'Xử lý ngay trên máy bạn'`.
+    - Chuyển kiểu prop `badge?: string`, chỉ hiển thị huy hiệu khi có nội dung text tùy chỉnh (như `badge="Ứng dụng Desktop"`).
+  - `src/routes/epub-editor/+page.svelte`, `src/routes/epub-packer/+page.svelte`, `src/routes/epub-to-txt/+page.svelte`, `src/routes/pdf/+page.svelte`:
+    - Gỡ bỏ `badge={true}` khỏi `PageHeader`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4913 nodes, 10562 edges, 273 communities
+- File chính bị ảnh hưởng:
+  - `src/lib/components/PageHeader.svelte`
+  - `src/routes/epub-editor/+page.svelte`
+  - `src/routes/epub-packer/+page.svelte`
+  - `src/routes/epub-to-txt/+page.svelte`
+  - `src/routes/pdf/+page.svelte`
+  - `README.md`
 
 ### 2026-11-24 (Tinh gọn Trang Tổng quan — Gỡ bỏ Badge ngoại tuyến, Chip tính năng và Khối gợi ý sách quét)
 

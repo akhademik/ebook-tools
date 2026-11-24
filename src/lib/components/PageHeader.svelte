@@ -3,10 +3,10 @@
 
 	interface Props extends PageHeaderProps {
 		breadcrumb?: string;
-		badge?: boolean | string;
+		badge?: string;
 	}
 
-	let { title = '', description = '', breadcrumb = '', badge = false }: Props = $props();
+	let { title = '', description = '', breadcrumb = '', badge }: Props = $props();
 </script>
 
 <div class="mb-8 animate-fade-in">
@@ -52,7 +52,7 @@
 						d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
 					/>
 				</svg>
-				<span>{typeof badge === 'string' ? badge : 'Xử lý ngay trên máy bạn'}</span>
+				<span>{badge}</span>
 			</span>
 		{/if}
 	</div>
