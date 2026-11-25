@@ -4,6 +4,21 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Loại bỏ Triệt để Chú thích CSS trong File EPUB Thành phẩm)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/templates/css-template/base.css`, `center-page.css`, `ornaments.css`:
+    - Xóa toàn bộ comment tiếng Việt còn sót lại (`/* Thiết lập chiều cao chuẩn cho trang */`, `/* Khung căn giữa toàn trang an toàn cho mọi e-reader */`, `/* Khi h1/h2 đứng ngay sau ornament (độ đặc hiệu tăng dần) */`).
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`:
+    - Bổ sung bước làm sạch tự động trong `prepareFinalCss` và `getDynamicCss`: lọc bỏ toàn bộ comment CSS dạng `/* ... */` và thu gọn dòng trắng trước khi xuất ra `style.css`.
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`:
+    - Tự động lọc sạch comment trong `customCss` trước khi nhúng vào khối `<style>` của các trang nội dung đặc thù (như jacket, cover).
+  - `tests/epub-css-specificity.test.ts`:
+    - Bổ sung test suite xác thực `EPUB_CSS`, `getDynamicCss`, `prepareFinalCss` và thẻ `<style>` trong `buildChapterXhtml` không chứa bất kỳ comment nào (`expect(...).not.toMatch(/\/\*[\s\S]*?\*\//)`).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (390/390 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Tích hợp Tự động Siêu dữ liệu Credit Chế bản Sách vào `content.opf`)
 
 - Thêm/sửa:

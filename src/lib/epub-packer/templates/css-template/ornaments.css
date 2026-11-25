@@ -40,7 +40,6 @@
 	border: 0;
 }
 
-/* Khi h1/h2 đứng ngay sau ornament (độ đặc hiệu tăng dần) */
 .chapter-ornament + h1 {
 	margin-top: 0.2em !important;
 	padding-top: 0 !important;

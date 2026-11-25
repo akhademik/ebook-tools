@@ -93,7 +93,10 @@ export function getDynamicCss(
 	if (hasBreaks) css += '\n' + breaksCss;
 	if (hasNotes) css += '\n' + notesCss;
 
-	return css;
+	return css
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim();
 }
 
 /**
@@ -243,5 +246,9 @@ export function prepareFinalCss(
 		finalCss = fontFaces.trim() + '\n\n' + finalCss;
 	}
 
-	return finalCss;
+	// Strip all CSS comments (/* ... */) and collapse excessive blank lines
+	return finalCss
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim();
 }

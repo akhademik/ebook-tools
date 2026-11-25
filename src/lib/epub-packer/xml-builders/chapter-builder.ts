@@ -448,7 +448,8 @@ export function buildChapterXhtml(
 			.replace(/\s+>/g, '>');
 	});
 
-	const styleBlock = customCss ? `  <style>\n${customCss}\n  </style>\n` : '';
+	const cleanedCustomCss = customCss ? customCss.replace(/\/\*[\s\S]*?\*\//g, '').trim() : '';
+	const styleBlock = cleanedCustomCss ? `  <style>\n${cleanedCustomCss}\n  </style>\n` : '';
 	const linkStyle =
 		chapter.fileName === 'jacket' || chapter.fileName === 'cover'
 			? ''

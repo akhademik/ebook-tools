@@ -7,6 +7,7 @@ import {
 } from '../src/lib/epub-packer/builders/stylesheet-builder';
 import { buildContentOpf } from '../src/lib/epub-packer/xml-builders/opf-builder';
 import { buildNavXhtml } from '../src/lib/epub-packer/xml-builders/nav-builder';
+import { buildChapterXhtml } from '../src/lib/epub-packer/xml-builders/chapter-builder';
 import { parseTxtToChapters } from '../src/lib/epub-packer/parser/txt-parser';
 import { prepareChapters } from '../src/lib/epub-packer/builders/asset-builder';
 import type { EpubChapterItem, EpubFontsConfig, OrnamentsConfig } from '../src/lib/types';
@@ -315,5 +316,49 @@ describe('EPUB 3 Accessibility & WAI-ARIA Calibre Compliance', () => {
 			'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
 		);
 		expect(notes.html).toContain('role="doc-backlink"');
+	});
+});
+
+describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () => {
+	it('should ensure EPUB_CSS, getDynamicCss, and prepareFinalCss contain zero comments', () => {
+		expect(EPUB_CSS).not.toMatch(/\/\*[\s\S]*?\*\//);
+
+		const dynamicCss = getDynamicCss(
+			[
+				{
+					xmlId: 'c1',
+					fileName: 'c1',
+					title: 'C1',
+					features: { hasHeadings: true, hasCenterPage: true, hasQuotes: true, hasBreaks: true }
+				}
+			],
+			null
+		);
+		expect(dynamicCss).not.toMatch(/\/\*[\s\S]*?\*\//);
+
+		const finalCssWithComments = prepareFinalCss(
+			[{ xmlId: 'c1', fileName: 'c1', title: 'C1' }],
+			'/* Comment 1 */ body { margin: 0; } /* Comment 2 */'
+		);
+		expect(finalCssWithComments).not.toMatch(/\/\*[\s\S]*?\*\//);
+		expect(finalCssWithComments).toBe('body { margin: 0; }');
+	});
+
+	it('should ensure buildChapterXhtml strips comments from inline customCss in <style>', () => {
+		const chapter: EpubChapterItem = {
+			xmlId: 'ch1',
+			fileName: 'chap_01',
+			title: 'Chương 1',
+			html: '<p>Nội dung</p>'
+		};
+		const xhtml = buildChapterXhtml(
+			{ language: 'vi' } as any,
+			chapter,
+			false,
+			'/* Inline Comment */ .jacket-1 { color: red; } /* Footer comment */'
+		);
+		expect(xhtml).toContain('<style>\n.jacket-1 { color: red; }\n  </style>');
+		expect(xhtml).not.toContain('/* Inline Comment */');
+		expect(xhtml).not.toContain('/* Footer comment */');
 	});
 });
