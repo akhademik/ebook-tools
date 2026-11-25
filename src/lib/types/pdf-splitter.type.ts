@@ -24,6 +24,8 @@ export interface PdfZipPart {
 	sizeBytes: number;
 	savedToDisk?: boolean;
 	autoDownloaded?: boolean;
+	downloadTriggered?: boolean;
+	blobReleased?: boolean;
 }
 
 export interface ProcessPdfResult {

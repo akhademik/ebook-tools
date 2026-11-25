@@ -292,11 +292,15 @@
 						/>
 						<div class="text-xs">
 							<span class="font-medium text-text-color block">
-								Tự động tải về từng phần và giải phóng RAM tức thì
+								Tự động kích hoạt tải từng phần (Bộ đệm an toàn trần RAM)
 							</span>
 							<span class="text-text-mute block mt-0.5">
-								Khuyên dùng cho sách nhiều trang khi không chọn thư mục lưu. Tải file ZIP xuống máy
-								ngay khi xong mỗi phần và giải phóng bộ nhớ RAM.
+								Kích hoạt tải ngay khi mỗi phần hoàn thành và giải phóng các phần cũ theo cửa sổ
+								trượt (tối đa 2 phần trong RAM).
+								<em
+									>Chú ý: Nếu trình duyệt (Chrome/Edge) hiển thị thông báo "Tải nhiều file", vui
+									lòng chọn <strong>Cho phép (Allow)</strong>.</em
+								>
 							</span>
 						</div>
 					</label>
@@ -485,8 +489,10 @@
 									{(part.sizeBytes / (1024 * 1024)).toFixed(1)} MB
 									{#if part.savedToDisk}
 										· <span class="text-ok font-medium">Đã lưu ra đĩa</span>
-									{:else if part.autoDownloaded}
-										· <span class="text-ok font-medium">Đã tải (Đã giải phóng RAM)</span>
+									{:else if part.blob && (part.downloadTriggered || part.autoDownloaded)}
+										· <span class="text-accent-color font-medium">Đã gửi lệnh tải · Trong RAM</span>
+									{:else if !part.blob && (part.downloadTriggered || part.autoDownloaded)}
+										· <span class="text-text-mute">Đã gửi lệnh tải · Đã giải phóng RAM</span>
 									{:else if !part.blob}
 										· <span class="text-text-mute">Đã giải phóng RAM</span>
 									{/if}

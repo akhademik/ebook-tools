@@ -194,8 +194,7 @@ export async function applyGrayscaleAsync(
 	try {
 		const processedBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
 			const timeoutId = setTimeout(() => {
-				pendingGrayscaleJobs.delete(id);
-				reject(new Error('Grayscale worker job timed out (15s)'));
+				handleWorkerFailure(new Error('Grayscale worker job timed out (15s)'));
 			}, 15000);
 
 			pendingGrayscaleJobs.set(id, { resolve, reject, timeoutId });
@@ -415,27 +414,29 @@ export async function processPdfToJpg(
 	}
 
 	activeGrayscaleTasks++;
-
-	const isMobile = isMobileOrLowMemoryDevice();
-	const maxPartBytes =
-		opts.maxPartBytes ?? (isMobile ? DEFAULT_MOBILE_PART_BYTES : DEFAULT_DESKTOP_PART_BYTES);
-	const maxPagesPerPart = opts.maxPagesPerPart ?? DEFAULT_MAX_PAGES_PER_PART;
-	const targetDpi = opts.targetDpi ?? DEFAULT_DPI;
-	const targetScale = opts.targetScale ?? dpiToScale(targetDpi);
-	const maxCanvasPixels = isMobile ? MOBILE_MAX_CANVAS_PIXELS : MAX_CANVAS_PIXELS;
-	const keepColor = opts.keepColor ?? false;
-	const cropTopPx = opts.cropTopPx ?? 0;
-	const cropBottomPx = opts.cropBottomPx ?? 0;
-
-	Logger.debug(
-		'[pdf-splitter]',
-		`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, targetScale: ${targetScale}, maxPartBytes: ${maxPartBytes}, maxPagesPerPart: ${maxPagesPerPart}`
-	);
-
-	// Load document ONCE with zero-copy stream or single-buffer reuse
-	const { doc, cleanup } = await openPdfDocument(pdfSelectedFile, globalPdfjs);
+	let cleanupDoc: (() => void) | null = null;
 
 	try {
+		const isMobile = isMobileOrLowMemoryDevice();
+		const maxPartBytes =
+			opts.maxPartBytes ?? (isMobile ? DEFAULT_MOBILE_PART_BYTES : DEFAULT_DESKTOP_PART_BYTES);
+		const maxPagesPerPart = opts.maxPagesPerPart ?? DEFAULT_MAX_PAGES_PER_PART;
+		const targetDpi = opts.targetDpi ?? DEFAULT_DPI;
+		const targetScale = opts.targetScale ?? dpiToScale(targetDpi);
+		const maxCanvasPixels = isMobile ? MOBILE_MAX_CANVAS_PIXELS : MAX_CANVAS_PIXELS;
+		const keepColor = opts.keepColor ?? false;
+		const cropTopPx = opts.cropTopPx ?? 0;
+		const cropBottomPx = opts.cropBottomPx ?? 0;
+
+		Logger.debug(
+			'[pdf-splitter]',
+			`processPdfToJpg called, size: ${pdfSelectedFile.size}, keepColor: ${keepColor}, targetScale: ${targetScale}, maxPartBytes: ${maxPartBytes}, maxPagesPerPart: ${maxPagesPerPart}`
+		);
+
+		// Load document ONCE with zero-copy stream or single-buffer reuse
+		const { doc, cleanup } = await openPdfDocument(pdfSelectedFile, globalPdfjs);
+		cleanupDoc = cleanup;
+
 		const totalDocPages = doc.numPages;
 		const startPage = Math.max(1, Math.min(opts.startPage ?? 1, totalDocPages));
 		const endPage = Math.max(startPage, Math.min(opts.endPage ?? totalDocPages, totalDocPages));
@@ -633,19 +634,37 @@ export async function processPdfToJpg(
 				}
 
 				let autoDownloaded = false;
-				let retainedBlob: Blob | undefined = savedToDisk ? undefined : partBlob;
+				let downloadTriggered = false;
 
 				if (opts.autoDownloadParts && !savedToDisk && typeof window !== 'undefined') {
 					try {
 						triggerDownload(partBlob, filename);
+						downloadTriggered = true;
 						autoDownloaded = true;
-						retainedBlob = undefined; // Free 80MB Blob immediately from RAM!
 						Logger.info(
 							'[pdf-splitter]',
-							`Đã tự động tải và giải phóng RAM cho phần ${currentPartIndex}: ${filename}`
+							`Đã kích hoạt tải tự động cho phần ${currentPartIndex}: ${filename}`
 						);
 					} catch (dlErr) {
 						Logger.warn('[pdf-splitter]', `Tự động tải phần ${currentPartIndex} thất bại:`, dlErr);
+					}
+
+					// Sliding window: keep at most MAX_AUTO_RETAINED_PARTS (2) with Blobs in RAM
+					// so user can re-download if browser blocked automatic download, while capping peak RAM
+					const MAX_AUTO_RETAINED_PARTS = 2;
+					let partsWithBlobs = 0;
+					for (let i = zipParts.length - 1; i >= 0; i--) {
+						if (zipParts[i].blob) {
+							partsWithBlobs++;
+							if (partsWithBlobs >= MAX_AUTO_RETAINED_PARTS) {
+								zipParts[i].blob = undefined;
+								zipParts[i].blobReleased = true;
+								Logger.info(
+									'[pdf-splitter]',
+									`Giải phóng RAM cho phần ${zipParts[i].partIndex} theo cơ chế sliding window`
+								);
+							}
+						}
 					}
 				}
 
@@ -654,11 +673,13 @@ export async function processPdfToJpg(
 					totalParts: 0, // will be updated at the end
 					startPage: partStartPage,
 					endPage: p,
-					blob: retainedBlob,
+					blob: savedToDisk ? undefined : partBlob,
 					filename,
 					sizeBytes: partSize,
 					savedToDisk,
-					autoDownloaded
+					autoDownloaded,
+					downloadTriggered,
+					blobReleased: savedToDisk
 				};
 
 				if (opts.onPartGenerated) {
@@ -669,7 +690,7 @@ export async function processPdfToJpg(
 
 				Logger.info(
 					'[pdf-splitter]',
-					`Part ${currentPartIndex} generated: ${filename} (${partSize} bytes, savedToDisk=${savedToDisk}, autoDownloaded=${autoDownloaded})`
+					`Part ${currentPartIndex} generated: ${filename} (${partSize} bytes, savedToDisk=${savedToDisk}, downloadTriggered=${downloadTriggered})`
 				);
 
 				if (p < endPage) {
@@ -738,7 +759,9 @@ export async function processPdfToJpg(
 			savedDirectoryName: opts.dirHandle?.name
 		};
 	} finally {
-		cleanup();
+		if (cleanupDoc) {
+			cleanupDoc();
+		}
 		activeGrayscaleTasks = Math.max(0, activeGrayscaleTasks - 1);
 		cleanupGrayscaleWorker();
 	}

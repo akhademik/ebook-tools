@@ -4,6 +4,20 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Khắc phục Triệt để Worker Timeout, An toàn Ngoại lệ & Cửa sổ Trượt Tải ZIP)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - **Worker Timeout Failover**: Khi timeout 15s kích hoạt, chuyển sang gọi `handleWorkerFailure()` để terminate triệt để Worker bị đơ, reject toàn bộ pending jobs chuyển sang Main Thread fallback và giải phóng worker cũ, ngăn ngừa tình trạng nhân đôi tải CPU.
+    - **Exception Safety cho Reference Count**: Đưa `openPdfDocument()` và toàn bộ logic nạp tài liệu vào trong khối `try ... finally`, đảm bảo `activeGrayscaleTasks` luôn luôn được giảm chính xác kể cả khi mở file PDF thất bại.
+    - **Cơ chế Cửa sổ Trượt (Sliding Window Safe Retention)**: Khi bật `autoDownloadParts`, hệ thống duy trì bộ đệm tối đa 2 phần ZIP gần nhất trong RAM thay vì xóa ngay Blob khi vừa gọi `triggerDownload()`. Giúp người dùng có thể tải lại ngay lập tức nếu trình duyệt chặn popup tải nhiều file (Multiple downloads prompt), đồng thời vẫn khóa trần RAM không vượt quá 2 phần (160MB).
+  - `src/lib/types/pdf-splitter.type.ts`: Bổ sung các trường `downloadTriggered` và `blobReleased` cho `PdfZipPart` để phản ánh trung thực trạng thái tải.
+  - `src/routes/pdf/+page.svelte`: Cập nhật chú thích quyền tải nhiều file trên trình duyệt và hiển thị huy hiệu trạng thái chính xác: `Đã gửi lệnh tải · Trong RAM` / `Đã gửi lệnh tải · Đã giải phóng RAM`.
+  - `tests/pdf-splitter.test.ts`: Cập nhật kiểm thử tự động xác thực cơ chế cửa sổ trượt (sliding window) với 3 phần ZIP.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (371/371 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Khắc phục Worker Hang/Timeout, Bảo vệ Đồng thời & Tối ưu Bộ nhớ RAM cho PDF và EPUB)
 
 - Thêm/sửa:

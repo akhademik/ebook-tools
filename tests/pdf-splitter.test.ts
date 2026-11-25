@@ -889,20 +889,33 @@ describe('pdf-splitter tests', () => {
 			expect(state.degradedPages).toEqual([]);
 		});
 
-		it('should auto-download parts and free blob from memory when autoDownloadParts is true', async () => {
+		it('should auto-download parts and apply sliding window memory retention when autoDownloadParts is true', async () => {
 			const fakeFile = new File(['mock-pdf-content'], 'test-auto-dl.pdf', {
 				type: 'application/pdf'
 			});
-			mockDoc.numPages = 1;
+			mockDoc.numPages = 3;
 
+			// Split with maxPagesPerPart = 1 to generate 3 parts
 			const result = await processPdfToJpg(fakeFile, {
 				autoDownloadParts: true,
+				maxPagesPerPart: 1,
 				keepColor: true
 			});
 
-			expect(result.zipParts.length).toBe(1);
-			expect(result.zipParts[0].autoDownloaded).toBe(true);
-			expect(result.zipParts[0].blob).toBeUndefined(); // Blob freed immediately from RAM
+			expect(result.zipParts.length).toBe(3);
+			expect(result.zipParts[0].downloadTriggered).toBe(true);
+			expect(result.zipParts[1].downloadTriggered).toBe(true);
+			expect(result.zipParts[2].downloadTriggered).toBe(true);
+
+			// Under sliding window (MAX_AUTO_RETAINED_PARTS = 2):
+			// Part 1 blob is released to cap RAM
+			expect(result.zipParts[0].blob).toBeUndefined();
+			expect(result.zipParts[0].blobReleased).toBe(true);
+
+			// Parts 2 and 3 blobs are retained in safety window
+			expect(result.zipParts[1].blob).toBeDefined();
+			expect(result.zipParts[2].blob).toBeDefined();
+
 			expect(mockAnchor.click).toHaveBeenCalled();
 		});
 	});
