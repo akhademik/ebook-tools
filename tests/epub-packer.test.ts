@@ -937,14 +937,22 @@ describe('epub-packer tests', () => {
 			);
 			expect(mockZipInstance.file).toHaveBeenCalledWith(
 				'style.css',
-				expect.stringContaining(
-					'h2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "Bookerly", serif !important; }'
-				)
+				expect.stringContaining('h2 + h2 { font-family: "Bookerly", serif !important; }')
 			);
 			expect(mockZipInstance.file).toHaveBeenCalledWith(
 				'style.css',
 				expect.stringContaining(
-					'h1 + h2, h1.main-chap + h2.side-chap, h1 + .subchapter-ornament + h2, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "UTM Akashi", serif !important; }'
+					'.side-chap.h2-sub, .side-chap + .side-chap { font-family: "Bookerly", serif !important; }'
+				)
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining('h1 + h2 { font-family: "UTM Akashi", serif !important; }')
+			);
+			expect(mockZipInstance.file).toHaveBeenCalledWith(
+				'style.css',
+				expect.stringContaining(
+					'h1.main-chap + h2.side-chap, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "UTM Akashi", serif !important; }'
 				)
 			);
 			consoleLogSpy.mockRestore();

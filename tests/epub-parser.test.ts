@@ -992,10 +992,10 @@ Chú thích:
 
 			expect(chapters[0].title).toBe('Chương 1');
 			expect(chapters[0].html).toContain(
-				'<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
+				'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
 			);
 			expect(chapters[0].html).toContain(
-				'<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
+				'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
 			);
 
 			const notes = chapters[1];
@@ -1003,13 +1003,17 @@ Chú thích:
 			expect(notes.fileName).toBe('notes');
 			expect(notes.isNotes).toBe(true);
 			expect(notes.html).toContain('<h1 class="main-chap center">Chú thích:</h1>');
-			expect(notes.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
 			expect(notes.html).toContain(
-				'<a class="notenum" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a> Chú thích thứ nhất.'
+				'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
 			);
-			expect(notes.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
 			expect(notes.html).toContain(
-				'<a class="notenum" href="__FNREF_SRC_2__.xhtml#fnref2">2.</a> Chú thích thứ hai.'
+				'<a class="notenum" role="doc-backlink" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a> Chú thích thứ nhất.'
+			);
+			expect(notes.html).toContain(
+				'<aside epub:type="footnote" role="doc-footnote" id="fn2" class="note">'
+			);
+			expect(notes.html).toContain(
+				'<a class="notenum" role="doc-backlink" href="__FNREF_SRC_2__.xhtml#fnref2">2.</a> Chú thích thứ hai.'
 			);
 		});
 
@@ -1025,7 +1029,7 @@ chú thích
 			expect(chapters).toHaveLength(2);
 			expect(chapters[0].title).toBe('Chương 1');
 			expect(chapters[0].html).toContain(
-				'<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
+				'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
 			);
 
 			const notes = chapters[1];
@@ -1033,7 +1037,9 @@ chú thích
 			expect(notes.fileName).toBe('notes');
 			expect(notes.isNotes).toBe(true);
 			expect(notes.html).toContain('<h1 class="main-chap center">Chú thích:</h1>');
-			expect(notes.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
+			expect(notes.html).toContain(
+				'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
+			);
 		});
 
 		it('should parse [letter] and [poem] blocks correctly', () => {
@@ -1711,13 +1717,19 @@ Chú thích:
 			const chapters = parseTxtToChapters(txt, {}, 'Chương 1');
 			const notesChapter = chapters.find((c) => c.fileName === 'notes');
 			expect(notesChapter).toBeDefined();
-			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
-			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
-			expect(notesChapter?.html).toContain('<aside epub:type="footnote" id="fn3" class="note">');
+			expect(notesChapter?.html).toContain(
+				'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
+			);
+			expect(notesChapter?.html).toContain(
+				'<aside epub:type="footnote" role="doc-footnote" id="fn2" class="note">'
+			);
+			expect(notesChapter?.html).toContain(
+				'<aside epub:type="footnote" role="doc-footnote" id="fn3" class="note">'
+			);
 
 			// Extract fn2 content
 			const fn2Match = notesChapter?.html?.match(
-				/<aside epub:type="footnote" id="fn2" class="note">([\s\S]*?)<\/aside>/
+				/<aside epub:type="footnote" role="doc-footnote" id="fn2" class="note">([\s\S]*?)<\/aside>/
 			);
 			expect(fn2Match).not.toBeNull();
 			const fn2Content = fn2Match![1];
@@ -1940,7 +1952,7 @@ Chú thích:
 				const chapters = parseTxtToChapters(txt, {}, 'MTL Gop');
 				expect(chapters[0].title).toBe('ANH TÔNG');
 				expect(chapters[0].html).toContain(
-					'ANH TÔNG<a class="noteref" epub:type="noteref" id="fnref642"'
+					'ANH TÔNG<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref642"'
 				);
 			});
 

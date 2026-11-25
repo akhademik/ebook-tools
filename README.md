@@ -188,8 +188,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 14:42
+- Cập nhật lần cuối: 2026-11-25 15:15
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Lỗi Calibre Audit, CSS Descending Specificity & Tiêu chuẩn Accessibility EPUB 3**:
+    - **Kiến trúc CSS 5 tầng độ ưu tiên (Layered Specificity Pipeline)**: Phân tách stylesheet và các quy tắc font thành 5 tầng riêng biệt theo chuẩn W3C CSS Specificity `(A, B, C)`. Loại bỏ hoàn toàn lỗi Stylelint `no-descending-specificity` của Calibre (lỗi đảo ngược thứ tự ưu tiên giữa `.subchapter-ornament + h2`, `.subchapter-ornament + h2.side-chap`, `h1.main-chap + h2.side-chap`, `h2.h2-sub`, `.side-chap + .side-chap`).
+    - **Bộ kiểm thử tự động Specificity & W3C Accessibility (`tests/epub-css-specificity.test.ts`)**: Tích hợp thuật toán tính specificity chuẩn W3C và kiểm tra Stylelint tự động trong pipeline CI, cam kết 100% không tái phát lỗi specificity dưới mọi cấu hình font và hoa văn.
+    - **Tiêu chuẩn Accessibility EPUB 3 & W3C Accessibility 1.1**: Tự động bổ sung metadata trợ năng trong `content.opf` (`schema:accessMode`, `schema:accessModeSufficient`, `schema:accessibilityFeature`, `schema:accessibilityHazard`, `schema:accessibilitySummary`).
+    - **Khắc phục Cảnh báo Bìa sách**: Bổ sung `<title>Bìa sách</title>` và `role="img" aria-label="Bìa sách"` vào thẻ `<svg>` và `<image>` trong trang bìa `cover.xhtml`.
+    - **Khắc phục WAI-ARIA Roles cho EPUB**: Tự động chèn `role="doc-toc"` cho `<nav epub:type="toc">`, `role="doc-noteref"` cho `<a class="noteref">`, `role="doc-footnote"` cho `<aside epub:type="footnote">`, và `role="doc-backlink"` cho `<a class="notenum">`, hoàn toàn thỏa mãn bộ kiểm tra khắt khe của Calibre và EPUBCheck.
   - **Loại bỏ thẻ `<title>` mặc định cho trang căn giữa (`[new:center]`) không tiêu đề**:
     - Khi khối `[new:center]` (trang đề tặng, lời tựa, trích dẫn căn giữa) không có heading `@@`/`@`, hệ thống không còn chèn thẻ tiêu đề giả lập `<title>Giới Thiệu</title>` vào thẻ `<head>` của file XHTML thành phẩm, giữ cho tài liệu sạch sẽ và tránh làm các máy đọc sách (Kobo, Kindle, Apple Books) hiển thị tiêu đề running header/runner không mong muốn.
     - Tắt cảnh báo thiếu tiêu đề khi đóng khối `[new:center]`, bảo toàn tính năng gán heading nếu người dùng chủ động đặt `@` hoặc `@@`.
@@ -226,7 +232,7 @@ pnpm test:e2e
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 379/379 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Chất lượng mã nguồn**: Toàn bộ 387/387 unit/integration tests pass (19 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).

@@ -3,10 +3,11 @@ import { findFont, getFontCSSDeclaration } from '../templates/fonts';
 import baseCss from '../templates/css-template/base.css?raw';
 import centerPageCss from '../templates/css-template/center-page.css?raw';
 import headingsCss from '../templates/css-template/headings.css?raw';
+import ornamentsCss from '../templates/css-template/ornaments.css?raw';
+import headingCombinatorsCss from '../templates/css-template/heading-combinators.css?raw';
 import quotesCss from '../templates/css-template/quotes.css?raw';
 import breaksCss from '../templates/css-template/breaks.css?raw';
 import notesCss from '../templates/css-template/notes.css?raw';
-import ornamentsCss from '../templates/css-template/ornaments.css?raw';
 
 import type { EpubChapterItem, OrnamentsConfig, EpubFontsConfig } from '$lib/types';
 
@@ -15,9 +16,11 @@ export const EPUB_CSS =
 	'\n' +
 	centerPageCss +
 	'\n' +
+	headingsCss +
+	'\n' +
 	ornamentsCss +
 	'\n' +
-	headingsCss +
+	headingCombinatorsCss +
 	'\n' +
 	quotesCss +
 	'\n' +
@@ -81,10 +84,11 @@ export function getDynamicCss(
 	}
 
 	if (hasCenterPage) css += '\n' + centerPageCss;
+	if (hasHeadings) css += '\n' + headingsCss;
 	if (ornaments?.chapterOrnament || ornaments?.subchapterOrnament) {
 		css += '\n' + ornamentsCss;
 	}
-	if (hasHeadings) css += '\n' + headingsCss;
+	if (hasHeadings) css += '\n' + headingCombinatorsCss;
 	if (hasQuotes) css += '\n' + quotesCss;
 	if (hasBreaks) css += '\n' + breaksCss;
 	if (hasNotes) css += '\n' + notesCss;
@@ -93,7 +97,7 @@ export function getDynamicCss(
 }
 
 /**
- * Prepare final CSS with font declarations and ornament styles
+ * Prepare final CSS with font declarations and ornament styles (strictly non-descending specificity)
  */
 export function prepareFinalCss(
 	chapters: EpubChapterItem[],
@@ -108,16 +112,23 @@ export function prepareFinalCss(
 		(ornaments?.chapterOrnament || ornaments?.subchapterOrnament) &&
 		!finalCss.includes('.chapter-ornament')
 	) {
-		if (finalCss.includes('.dropcap')) {
-			finalCss = finalCss.replace('.dropcap', `${ornamentsCss}\n\n.dropcap`);
+		if (finalCss.includes('h1.main-chap + h1.main-chap')) {
+			finalCss = finalCss.replace(
+				'h1.main-chap + h1.main-chap',
+				`${ornamentsCss}\n\nh1.main-chap + h1.main-chap`
+			);
 		} else {
 			finalCss += '\n' + ornamentsCss;
 		}
 	}
 
-	// Generate @font-face and element-level font rules
+	// Generate @font-face and element-level font rules categorized by specificity layers
 	let fontFaces = '';
-	let elementFontRules = '';
+	let fontBaseRules = ''; // Layer 2: specificity (0, 0, x) / (0, 1, 0)
+	let fontSubchapterRules = ''; // Layer 3: specificity (0, 1, 1) / (0, 1, 2)
+	let fontCompoundRules = ''; // Layer 4: specificity (0, 2, 0)
+	let fontHighSpecificityRules = ''; // Layer 5: specificity (0, 2, 2) / (0, 3, 2)
+
 	if (fonts) {
 		const f1 = fonts.h1Font && fonts.h1Font !== 'default' ? findFont(fonts.h1Font) : null;
 		const f2 = fonts.h2Font && fonts.h2Font !== 'default' ? findFont(fonts.h2Font) : null;
@@ -136,23 +147,30 @@ export function prepareFinalCss(
 		}
 
 		if (f1) {
-			elementFontRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
+			fontBaseRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
 		}
 
 		if (f2 && f2Sub) {
-			// Both H2 (main) and H2 Sub fonts are defined:
-			// 1. By default, h2 receives the main H2 font
-			// 2. Elements with .h2-sub (standalone h2, h2 after <p>, or consecutive h2) receive h2SubFont
-			// 3. h1 + h2 reinforces main H2 font
-			elementFontRules += `\nh2, .side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
-			elementFontRules += `\nh2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
-			elementFontRules += `\nh1 + h2, h1.main-chap + h2.side-chap, h1 + .subchapter-ornament + h2, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
+			// Base layer (0, 0, x)
+			fontBaseRules += `\nh2, .side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
+			fontBaseRules += `\nh1 + h2 { font-family: "${f2.cssFamily}", serif !important; }`;
+			fontBaseRules += `\nh2 + h2 { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+
+			// Subchapter layer (0, 1, 1) and (0, 1, 2)
+			fontSubchapterRules += `\nh2.h2-sub { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			fontSubchapterRules += `\nh1 + .subchapter-ornament + h2 { font-family: "${f2.cssFamily}", serif !important; }`;
+
+			// Compound class layer (0, 2, 0)
+			fontCompoundRules += `\n.side-chap.h2-sub, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+
+			// High specificity layer (0, 2, 2) and (0, 3, 2)
+			fontHighSpecificityRules += `\nh1.main-chap + h2.side-chap, h1.main-chap + .subchapter-ornament + h2.side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
 		} else if (f2 && !f2Sub) {
-			// Only main H2 font is defined -> all h2 elements use f2
-			elementFontRules += `\nh2 { font-family: "${f2.cssFamily}", serif !important; }`;
+			fontBaseRules += `\nh2, .side-chap { font-family: "${f2.cssFamily}", serif !important; }`;
 		} else if (!f2 && f2Sub) {
-			// Only H2 Sub font is defined -> h2-sub elements and h2+h2 use f2Sub
-			elementFontRules += `\nh2.h2-sub, .side-chap.h2-sub, h2 + h2, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			fontBaseRules += `\nh2 + h2 { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			fontSubchapterRules += `\nh2.h2-sub { font-family: "${f2Sub.cssFamily}", serif !important; }`;
+			fontCompoundRules += `\n.side-chap.h2-sub, .side-chap + .side-chap { font-family: "${f2Sub.cssFamily}", serif !important; }`;
 		}
 
 		if (fd) {
@@ -162,27 +180,65 @@ export function prepareFinalCss(
 					`.dropcap {\n  font-family: "${fd.cssFamily}", serif !important;`
 				);
 			} else {
-				elementFontRules += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }`;
+				fontBaseRules += `\n.dropcap { font-family: "${fd.cssFamily}", serif !important; }`;
 			}
 		}
 	}
 
-	// Inject element font rules at element selector position (before classes and combinators)
-	if (elementFontRules) {
-		if (finalCss.includes('p.has-dropcap')) {
-			finalCss = finalCss.replace('p.has-dropcap', `${elementFontRules.trim()}\n\np.has-dropcap`);
-		} else if (finalCss.includes('.chapter-ornament')) {
+	// Layered injection ensuring strictly ascending specificity order
+	// Layer 2: Base rules (before headings.css)
+	if (fontBaseRules) {
+		const marker = '.dropcap {\n\tfloat: left;';
+		if (finalCss.includes(marker)) {
+			finalCss = finalCss.replace(marker, `${fontBaseRules.trim()}\n\n${marker}`);
+		} else if (finalCss.includes('.break-main-chap {\n\tmargin-top: 2em;')) {
 			finalCss = finalCss.replace(
-				'.chapter-ornament',
-				`${elementFontRules.trim()}\n\n.chapter-ornament`
+				'.break-main-chap {\n\tmargin-top: 2em;',
+				`${fontBaseRules.trim()}\n\n.break-main-chap {\n\tmargin-top: 2em;`
 			);
-		} else if (finalCss.includes('.dropcap')) {
-			finalCss = finalCss.replace('.dropcap', `${elementFontRules.trim()}\n\n.dropcap`);
 		} else {
-			finalCss = `${elementFontRules.trim()}\n` + finalCss;
+			finalCss += `\n${fontBaseRules.trim()}`;
 		}
 	}
 
+	// Layer 3: Subchapter rules (specificity 0, 1, 1 and 0, 1, 2)
+	if (fontSubchapterRules) {
+		const marker = '.subchapter-ornament + h2 {\n\tmargin-top: 0.2em !important;\n}';
+		if (finalCss.includes(marker)) {
+			finalCss = finalCss.replace(marker, `${marker}\n${fontSubchapterRules.trim()}`);
+		} else if (finalCss.includes('h1.main-chap + h1.main-chap')) {
+			finalCss = finalCss.replace(
+				'h1.main-chap + h1.main-chap',
+				`${fontSubchapterRules.trim()}\n\nh1.main-chap + h1.main-chap`
+			);
+		} else {
+			finalCss += `\n${fontSubchapterRules.trim()}`;
+		}
+	}
+
+	// Layer 4: Compound class rules (specificity 0, 2, 0)
+	if (fontCompoundRules) {
+		if (finalCss.includes('h1.main-chap + h1.main-chap')) {
+			finalCss = finalCss.replace(
+				'h1.main-chap + h1.main-chap',
+				`${fontCompoundRules.trim()}\n\nh1.main-chap + h1.main-chap`
+			);
+		} else {
+			finalCss += `\n${fontCompoundRules.trim()}`;
+		}
+	}
+
+	// Layer 5: High specificity rules (specificity 0, 2, 2 and 0, 3, 2)
+	if (fontHighSpecificityRules) {
+		const marker = 'h1.main-chap + h2.side-chap {\n\tmargin-top: 1.2em !important;\n}';
+		if (finalCss.includes(marker)) {
+			finalCss = finalCss.replace(marker, `${marker}\n${fontHighSpecificityRules.trim()}`);
+		} else {
+			finalCss += `\n${fontHighSpecificityRules.trim()}`;
+		}
+	}
+
+	// Layer 1: @font-face rules at the absolute top
 	if (fontFaces) {
 		finalCss = fontFaces.trim() + '\n\n' + finalCss;
 	}

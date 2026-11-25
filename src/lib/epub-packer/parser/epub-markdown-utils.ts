@@ -299,9 +299,9 @@ export function convertTxtInline(text: string, customDefinitions: CustomDefiniti
 	// 3. Default rule: *nghiêng* -> <i>nghiêng</i>
 	t = t.replace(/\*([^*]+)\*/g, (_m, content) => '<i>' + content + '</i>');
 
-	// 4. Default rule: {n} -> <a class="noteref" epub:type="noteref" id="fnref{n}" href="notes.xhtml#fn{n}"><sup>{n}</sup></a>
+	// 4. Default rule: {n} -> <a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref{n}" href="notes.xhtml#fn{n}"><sup>{n}</sup></a>
 	t = t.replace(/\{(\d+)\}/g, (_m, n) => {
-		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
+		return `<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
 	});
 
 	return t;

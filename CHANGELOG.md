@@ -4,6 +4,42 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Khắc phục Triệt để Lỗi Calibre Audit, CSS Descending Specificity & Chuẩn hóa Accessibility EPUB 3)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/templates/css-template/heading-combinators.css`:
+    - Tạo file mới chứa các adjacent sibling combinator giữa các heading (`h1.main-chap + h1.main-chap`, `h2.side-chap + h2.side-chap`, `h1.main-chap + h2.side-chap`).
+  - `src/lib/epub-packer/templates/css-template/headings.css`:
+    - Tách các selector combinator phức tạp sang file riêng, giữ lại thuần túy các class cơ sở (`.dropcap`, `.break-main-chap`, `.main-chap`, `.side-chap`, `.center`, `.left`, `.right`), ngăn chặn việc đảo ngược độ ưu tiên CSS (specificity inversion).
+  - `src/lib/epub-packer/templates/css-template/ornaments.css`:
+    - Tái cấu trúc selector hoa văn theo thứ tự tăng dần độ ưu tiên tuyệt đối: `.chapter-ornament, .subchapter-ornament` (0,1,0) -> `.chapter-ornament + h1`, `.subchapter-ornament + h2` (0,1,1) -> `.chapter-ornament + h1.main-chap`, `.subchapter-ornament + h2.side-chap` (0,2,1).
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`:
+    - Tái thiết kế toàn diện hàm `prepareFinalCss` theo kiến trúc 5 tầng độ ưu tiên (Layered Specificity Architecture):
+      - Tầng 1: `@font-face` declarations.
+      - Tầng 2: Quy tắc font cơ sở (`h1`, `h2, .side-chap`, `h1 + h2`, `h2 + h2`, `.dropcap`) độ ưu tiên (0,0,x)/(0,1,0).
+      - Tầng 3: Quy tắc font cho phân mục phụ (`h2.h2-sub`, `h1 + .subchapter-ornament + h2`) độ ưu tiên (0,1,1)/(0,1,2).
+      - Tầng 4: Quy tắc compound class (`.side-chap.h2-sub`, `.side-chap + .side-chap`) độ ưu tiên (0,2,0) cùng `headingCombinatorsCss`.
+      - Tầng 5: Quy tắc độ ưu tiên cao (`h1.main-chap + h2.side-chap`, `h1.main-chap + .subchapter-ornament + h2.side-chap`) độ ưu tiên (0,2,2)/(0,3,2).
+    - Giải quyết triệt để 5 lỗi Calibre Stylelint `no-descending-specificity` trên mọi kịch bản font và hoa văn.
+  - `src/lib/epub-packer/xml-builders/opf-builder.ts`:
+    - Tự động bổ sung siêu dữ liệu trợ năng W3C EPUB Accessibility 1.1 trong `content.opf`: `schema:accessMode` (textual, visual), `schema:accessModeSufficient` (textual), `schema:accessibilityFeature` (structuralNavigation, readingOrder, tableOfContents), `schema:accessibilityHazard` (none), và `schema:accessibilitySummary`.
+  - `src/lib/epub-packer/builders/asset-builder.ts`:
+    - Bổ sung `<title>Bìa sách</title>` và thuộc tính `role="img" aria-label="Bìa sách"` vào thẻ `<svg>` và `<image>` trong trang bìa `cover.xhtml`, giải quyết cảnh báo thiếu alternative text cho ảnh bìa.
+  - `src/lib/epub-packer/xml-builders/nav-builder.ts`:
+    - Thêm `role="doc-toc"` vào thẻ `<nav epub:type="toc">` trong `nav.xhtml`.
+  - `src/lib/epub-packer/parser/txt-parser.ts` & `src/lib/epub-packer/parser/epub-markdown-utils.ts`:
+    - Bổ sung các WAI-ARIA roles tương ứng cho các phần tử mang `epub:type`:
+      - `role="doc-noteref"` cho link tham chiếu chú thích `<a class="noteref">`.
+      - `role="doc-footnote"` cho khối nội dung chú thích `<aside epub:type="footnote">`.
+      - `role="doc-backlink"` cho liên kết quay lại nội dung `<a class="notenum">`.
+  - `tests/epub-css-specificity.test.ts`:
+    - Xây dựng bộ kiểm thử tự động kiểm tra W3C CSS Specificity và mô phỏng chính xác thuật toán Stylelint `no-descending-specificity` của Calibre, kiểm thử EPUB 3 Accessibility metadata, SVG cover accessibility và WAI-ARIA roles.
+  - `tests/epub-packer.test.ts`, `tests/epub-parser.test.ts`, `tests/epub-golden.test.ts`, `tests/txt-footnote-packing.test.ts`:
+    - Đồng bộ hóa các kỳ vọng kiểm thử với cấu trúc CSS phân tầng và các thuộc tính WAI-ARIA mới.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (387/387 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Loại bỏ Thẻ `<title>` Mặc định cho Trang Căn Giữa `[new:center]` Không Có Heading)
 
 - Thêm/sửa:

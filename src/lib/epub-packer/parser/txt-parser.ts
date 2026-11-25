@@ -85,7 +85,7 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 	});
 
 	t = t.replace(/\{(\d+)\}/g, (_m, n) => {
-		return `<a class="noteref" epub:type="noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
+		return `<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
 	});
 
 	return t;
@@ -384,8 +384,8 @@ export function parseTxtToChapters(
 				const content = fnMatch[2].trim();
 				const convertedContent = applyInlineFormatting(content, customDefinitions);
 				notesHtml +=
-					`<aside epub:type="footnote" id="fn${n}" class="note">\n` +
-					`  <p><a class="notenum" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n`;
+					`<aside epub:type="footnote" role="doc-footnote" id="fn${n}" class="note">\n` +
+					`  <p><a class="notenum" role="doc-backlink" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n`;
 				currentNoteOpen = true;
 			} else {
 				const converted = applyInlineFormatting(trimmed, customDefinitions);

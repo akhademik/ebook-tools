@@ -125,7 +125,7 @@ Chú thích:
 		// Assert OEBPS/nav.xhtml (EPUB 3 Navigation)
 		const navXhtml = await zip.file('OEBPS/nav.xhtml')?.async('text');
 		expect(navXhtml).toBeDefined();
-		expect(navXhtml).toContain('<nav epub:type="toc" id="toc">');
+		expect(navXhtml).toContain('<nav epub:type="toc" role="doc-toc" id="toc">');
 		expect(navXhtml).toContain('Chương 1: Khởi đầu mới');
 		expect(navXhtml).toContain('Chương 2: Hành trình tiếp diễn');
 
@@ -327,10 +327,10 @@ Chú thích:
 		expect(chap1!.html).toContain('<i>in nghiêng</i>');
 		expect(chap1!.html).toContain('<u>gạch chân</u>');
 		expect(chap1!.html).toContain(
-			'<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
+			'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
 		);
 		expect(chap1!.html).toContain(
-			'<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
+			'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
 		);
 		expect(chap1!.html).toContain('<div class="letter">');
 		expect(chap1!.html).toContain('<p class="scene-break-big" role="separator">• • •</p>');
@@ -370,9 +370,13 @@ Chú thích:
 		// Verify Notes chapter
 		const notesChap = parsedChapters.find((c) => c.isNotes || c.fileName === 'notes');
 		expect(notesChap).toBeDefined();
-		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
+		expect(notesChap!.html).toContain(
+			'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
+		);
 		expect(notesChap!.html).toContain('Tham khảo Tuyển tập Văn học Cổ điển Việt Nam.');
-		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
+		expect(notesChap!.html).toContain(
+			'<aside epub:type="footnote" role="doc-footnote" id="fn2" class="note">'
+		);
 		expect(notesChap!.html).toContain('Ghi chép từ nhật ký hành trình năm 1945.');
 
 		// 2. Build EPUB Blob

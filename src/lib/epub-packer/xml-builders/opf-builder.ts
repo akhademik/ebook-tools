@@ -98,6 +98,14 @@ export function buildContentOpf(
 		'    <meta property="dcterms:modified">' +
 		modified +
 		'</meta>\n' +
+		'    <meta property="schema:accessMode">textual</meta>\n' +
+		'    <meta property="schema:accessMode">visual</meta>\n' +
+		'    <meta property="schema:accessModeSufficient">textual</meta>\n' +
+		'    <meta property="schema:accessibilityFeature">structuralNavigation</meta>\n' +
+		'    <meta property="schema:accessibilityFeature">readingOrder</meta>\n' +
+		'    <meta property="schema:accessibilityFeature">tableOfContents</meta>\n' +
+		'    <meta property="schema:accessibilityHazard">none</meta>\n' +
+		'    <meta property="schema:accessibilitySummary">Ấn bản điện tử chuẩn EPUB 3 có cấu trúc mục lục và chú thích đầy đủ.</meta>\n' +
 		'  </metadata>\n' +
 		'  <manifest>\n    ' +
 		manifestItems.join('\n    ') +

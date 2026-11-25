@@ -41,15 +41,3 @@
 .right {
 	text-align: right;
 }
-
-h1.main-chap + h1.main-chap {
-	margin-top: 0.3em !important;
-}
-
-h2.side-chap + h2.side-chap {
-	margin-top: -0.6em !important;
-}
-
-h1.main-chap + h2.side-chap {
-	margin-top: 1.2em !important;
-}

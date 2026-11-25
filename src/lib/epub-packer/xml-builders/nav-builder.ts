@@ -247,7 +247,7 @@ export function buildNavXhtml(meta: EpubMetadata, input: EpubChapterItem[] | Toc
 		meta.language +
 		'">\n' +
 		'<head>\n  <meta charset="utf-8"/>\n  <title>Mục lục</title>\n  <link rel="stylesheet" type="text/css" href="styles/style.css"/>\n</head>\n' +
-		'<body>\n  <nav epub:type="toc" id="toc">\n    <h1>Mục lục</h1>\n    <ol>\n      ' +
+		'<body>\n  <nav epub:type="toc" role="doc-toc" id="toc">\n    <h1>Mục lục</h1>\n    <ol>\n      ' +
 		listHtml +
 		'\n    </ol>\n  </nav>\n</body>\n</html>'
 	);

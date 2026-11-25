@@ -44,20 +44,28 @@ Chú thích:
 		expect(chap1).toBeDefined();
 		expect(chap1!.fileName).toBe('chap_02');
 		expect(chap1!.html).toContain(
-			'<a class="noteref" epub:type="noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
+			'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref1" href="notes.xhtml#fn1"><sup>1</sup></a>'
 		);
 		expect(chap1!.html).toContain(
-			'<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
+			'<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
 		);
 
 		const notesChap = chapters.find((c) => c.fileName === 'notes');
 		expect(notesChap).toBeDefined();
 		// Backlinks must point back to chap_02 without manual regex substitution in test
-		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
-		expect(notesChap!.html).toContain('<a class="notenum" href="chap_02.xhtml#fnref1">1.</a>');
+		expect(notesChap!.html).toContain(
+			'<aside epub:type="footnote" role="doc-footnote" id="fn1" class="note">'
+		);
+		expect(notesChap!.html).toContain(
+			'<a class="notenum" role="doc-backlink" href="chap_02.xhtml#fnref1">1.</a>'
+		);
 		expect(notesChap!.html).toContain('Giải thích chi tiết về từ ngữ cổ trong văn học Tiếng Việt.');
-		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
-		expect(notesChap!.html).toContain('<a class="notenum" href="chap_02.xhtml#fnref2">2.</a>');
+		expect(notesChap!.html).toContain(
+			'<aside epub:type="footnote" role="doc-footnote" id="fn2" class="note">'
+		);
+		expect(notesChap!.html).toContain(
+			'<a class="notenum" role="doc-backlink" href="chap_02.xhtml#fnref2">2.</a>'
+		);
 
 		// 4. Pack full EPUB into Blob
 		const blob = await buildEpubBlob(
