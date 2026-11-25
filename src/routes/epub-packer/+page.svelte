@@ -111,7 +111,7 @@
 
 <PageHeader
 	title="Đóng gói EPUB"
-	description="Chuyển đổi văn bản TXT hoặc file nén ZIP chứa Markdown thành sách điện tử EPUB chuẩn mực"
+	description="Chuyển đổi văn bản TXT hoặc file ZIP chứa Markdown thành EPUB"
 	breadcrumb="Tạo và tinh chỉnh"
 />
 
@@ -188,9 +188,6 @@
 		<div class="modern-card rounded-2xl p-5 sm:p-7 shadow-sm border border-border-color">
 			<div class="mb-6 pb-4 border-b border-border-color">
 				<h2 class="text-lg sm:text-xl font-bold text-text-color font-sans">Nguồn tài liệu</h2>
-				<p class="text-sm text-text-mute mt-1">
-					Tải file văn bản TXT hoặc file nén ZIP chứa Markdown để bắt đầu đóng gói sách
-				</p>
 			</div>
 
 			<EpubSourceSection {epubState} onOpenSyntaxModal={() => (showSyntaxModal = true)} />
@@ -376,11 +373,11 @@
 												d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
 											/>
 										</svg>
-										<span class="text-[11px] text-text-mute">Chưa có bìa</span>
+										<span class="text-xs text-text-mute">Chưa có bìa</span>
 										<button
 											type="button"
 											onclick={() => (currentStep = 3)}
-											class="mt-1 text-[11px] text-accent-color hover:underline cursor-pointer font-medium"
+											class="mt-1 text-xs text-accent-color hover:underline cursor-pointer font-medium"
 										>
 											+ Thêm bìa
 										</button>
@@ -393,7 +390,7 @@
 								<!-- Row 1: Source -->
 								<div class="flex items-center justify-between pb-2 border-b border-border-color/60">
 									<div class="min-w-0 pr-2">
-										<span class="text-text-mute block text-[11px]">Nguồn tài liệu</span>
+										<span class="text-text-mute block text-xs">Nguồn tài liệu</span>
 										<span class="text-text-color font-medium truncate block">
 											{hasChapters
 												? `${epubState.source.epubChapters.filter((c) => c.isChapter !== false).length} chương`
@@ -412,7 +409,7 @@
 								<!-- Row 2: Metadata -->
 								<div class="flex items-start justify-between pb-2 border-b border-border-color/60">
 									<div class="min-w-0 pr-2">
-										<span class="text-text-mute block text-[11px]">Tên sách & Tác giả</span>
+										<span class="text-text-mute block text-xs">Tên sách & Tác giả</span>
 										<span class="text-text-color font-medium truncate block">
 											{epubState.metadata.title || 'Chưa đặt tiêu đề'}
 										</span>
@@ -432,7 +429,7 @@
 								<!-- Row 3: Cover & Ornaments -->
 								<div class="flex items-center justify-between pb-2 border-b border-border-color/60">
 									<div class="min-w-0 pr-2">
-										<span class="text-text-mute block text-[11px]">Bìa và hoa văn</span>
+										<span class="text-text-mute block text-xs">Bìa và hoa văn</span>
 										<span class="text-text-color font-medium truncate block">
 											{epubState.images.coverOriginalUrl ? 'Có bìa sách' : 'Chưa bìa'} •
 											{epubState.images.chapterOrnamentFile ||
@@ -456,7 +453,7 @@
 								<!-- Row 4: Fonts -->
 								<div class="flex items-center justify-between">
 									<div class="min-w-0 pr-2">
-										<span class="text-text-mute block text-[11px]">Phông chữ tiêu đề</span>
+										<span class="text-text-mute block text-xs">Phông chữ tiêu đề</span>
 										<span
 											class="text-text-color font-medium truncate block"
 											style={epubState.fonts.h1Font === 'default'
@@ -501,7 +498,7 @@
 							</div>
 						{:else}
 							<div
-								class="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-semibold"
+								class="flex items-center gap-2 px-3 py-2 rounded-xl bg-warn/10 border border-warn/25 text-warn text-xs font-semibold"
 							>
 								<span>Chưa có nội dung sách. Vui lòng nạp file ở Bước 1.</span>
 							</div>

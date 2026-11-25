@@ -219,7 +219,7 @@
 
 				<div class="flex gap-3">
 					<div
-						class="w-8 h-8 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0 mt-0.5"
+						class="w-8 h-8 rounded-lg bg-danger/15 text-danger flex items-center justify-center shrink-0 mt-0.5"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -280,7 +280,7 @@
 			<a
 				href="https://github.com/akhademik/ebook-tools/releases/latest/download/txt-to-pdf.zip"
 				download="txt-to-pdf.zip"
-				class="flex items-center justify-center gap-3 font-mono text-base tracking-wide py-4 px-6 rounded-xl bg-accent-color text-white font-semibold transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]"
+				class="flex items-center justify-center gap-3 font-sans text-base tracking-wide py-4 px-6 rounded-xl bg-accent-color text-on-accent font-semibold transition-all duration-150 hover:bg-accent-hover hover:shadow-md active:scale-[0.98]"
 			>
 				<!-- Download icon -->
 				<svg

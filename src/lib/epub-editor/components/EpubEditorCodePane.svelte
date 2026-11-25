@@ -284,7 +284,7 @@
 				</span>
 				{#if isDirty}
 					<span
-						class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 text-[10px] font-bold shrink-0 font-sans"
+						class="px-2 py-0.5 rounded bg-warn/15 text-warn text-xs font-bold shrink-0 font-sans"
 					>
 						Đã sửa
 					</span>
@@ -296,7 +296,7 @@
 
 		<!-- Actions -->
 		<div class="flex items-center gap-3 text-xs shrink-0 font-sans">
-			<span class="text-text-mute text-[11px] font-mono">
+			<span class="text-text-mute text-xs font-mono">
 				{currentLineCount} dòng · {currentLength} ký tự
 			</span>
 			<button

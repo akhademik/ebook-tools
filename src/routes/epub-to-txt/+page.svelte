@@ -64,7 +64,7 @@
 	{/if}
 
 	{#if state.status}
-		<div class="font-mono text-sm mt-4 {state.isError ? 'text-red-500' : 'text-text-mute'}">
+		<div class="font-mono text-sm mt-4 {state.isError ? 'text-danger' : 'text-text-mute'}">
 			{state.status}
 		</div>
 	{/if}

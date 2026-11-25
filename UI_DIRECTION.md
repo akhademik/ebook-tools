@@ -150,14 +150,14 @@ Quy tắc kỹ thuật bắt buộc:
 - Nút "Quay lại" / "Tiếp: …" ở cuối mỗi bước chỉ đổi bước đang xem (state giao diện), không gọi hàm nghiệp vụ.
 - Số "xong/tùy chọn" trên thanh bước chỉ lấy từ dữ liệu **đọc được** của state (ví dụ có `coverFile` hay chưa). Không thêm validation mới.
 
-### 4.2 Cột tóm tắt (bên phải, rộng ~340–380px, xuống dưới ở màn hẹp)
+### 4.2 Khối Tóm tắt thông tin sách (Bố cục tại Bước 5 — Đóng gói)
 
-Hiển thị: ô ảnh bìa (placeholder đứt nét "Chưa có bìa" nếu chưa có), tên sách, tác giả, số chương, các dòng Nguồn / Mục lục / Phông chữ / Tên file, và hai nút:
-
-- **Đóng gói file EPUB** (primary, đầy chiều ngang) gọi đúng `epubState.processEpub()` như cũ.
-- **Tải file .EPUB** (secondary, `disabled` khi chưa có `epubBlob`) gọi đúng `downloadEpub` như cũ.
-
-Cột này chỉ **đọc** state để hiển thị; không ghi vào state. `EpubPackSection` (ô nhập tên file + trạng thái/lỗi) vẫn phải tồn tại và hoạt động ở bước 5. Nếu nút Đóng gói xuất hiện ở hai nơi thì cả hai gọi cùng một hàm.
+> **Quyết định thiết kế thực tế:** Thay vì duy trì một cột tóm tắt cố định luôn hiện diện ở cạnh phải (chiếm 340–380px gây chật chội màn hình khi người dùng đang thao tác các bước cần không gian lớn như Cắt bìa, Hoa văn hay Soi font chữ), khối Tóm tắt được bố trí tập trung tại **Bước 5 (Đóng gói)** thành một bảng điều khiển duyệt lại (Review Dashboard) trực quan toàn chiều rộng:
+>
+> - **Cột trái (Tổng quan & Duyệt lại)**: Ô ảnh bìa (thumbnail bìa hoặc khung đứt nét "Chưa có bìa"), tên sách, tác giả, số chương thực tế, trạng thái hoa văn và phông chữ đã chọn. Mỗi mục đều có nút liên kết nhanh (ví dụ: `Sửa thông tin →`, `Sửa bìa →`, `Sửa phông →`) giúp người dùng nhảy trực tiếp về bước liên quan nếu muốn tinh chỉnh.
+> - **Cột phải (Đóng gói & Tải về)**: Huy hiệu kiểm tra tính sẵn sàng ("Đã đủ điều kiện đóng gói"), ô nhập tên file đầu ra `EpubPackSection`, nút primary **Đóng gói file EPUB** (`epubState.processEpub()`), thanh tiến độ đóng gói và nút secondary **Tải file .EPUB** (`downloadEpub`).
+>
+> Bố cục này giúp các Bước 1–4 có trọn vẹn 100% không gian hiển thị thoáng đãng trên cả màn hình laptop lẫn tablet, đồng thời Bước 5 trở thành một chặng chốt chặn hoàn chỉnh và tự nhiên trước khi xuất bản file.
 
 ### 4.3 Các section
 

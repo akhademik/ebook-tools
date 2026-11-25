@@ -41,7 +41,7 @@
 	/>
 
 	{#if editorState.statusMessage}
-		<div class="font-mono text-sm mt-4 {editorState.isError ? 'text-red-500' : 'text-text-mute'}">
+		<div class="font-mono text-sm mt-4 {editorState.isError ? 'text-danger' : 'text-text-mute'}">
 			{editorState.statusMessage}
 		</div>
 	{/if}

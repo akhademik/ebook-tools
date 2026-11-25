@@ -174,7 +174,7 @@
 					<div
 						class="p-4 rounded-xl border {res.passed
 							? 'bg-ok/10 border-ok/30'
-							: 'bg-red-500/10 border-red-500/30'}"
+							: 'bg-danger/10 border-danger/30'}"
 					>
 						<div class="flex items-center justify-between mb-3">
 							<div class="flex items-center gap-2.5">
@@ -198,7 +198,7 @@
 									</span>
 								{:else}
 									<span
-										class="w-7 h-7 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center shrink-0"
+										class="w-7 h-7 rounded-full bg-danger/20 text-danger flex items-center justify-center shrink-0"
 									>
 										<svg
 											class="w-4 h-4"
@@ -216,7 +216,7 @@
 									</span>
 								{/if}
 								<div>
-									<h4 class="text-sm font-bold font-sans {res.passed ? 'text-ok' : 'text-red-400'}">
+									<h4 class="text-sm font-bold font-sans {res.passed ? 'text-ok' : 'text-danger'}">
 										{res.passed
 											? 'File EPUB đạt chuẩn kiểm định!'
 											: `Phát hiện ${res.errorCount} lỗi cần khắc phục`}
@@ -256,7 +256,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.structure === 'pass'
 									? 'text-ok'
-									: 'text-red-400'}"
+									: 'text-danger'}"
 							>
 								{#if res.summary.structure === 'pass'}
 									<svg
@@ -288,7 +288,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.manifest === 'pass'
 									? 'text-ok'
-									: 'text-red-400'}"
+									: 'text-danger'}"
 							>
 								{#if res.summary.manifest === 'pass'}
 									<svg
@@ -320,7 +320,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.spine === 'pass'
 									? 'text-ok'
-									: 'text-red-400'}"
+									: 'text-danger'}"
 							>
 								{#if res.summary.spine === 'pass'}
 									<svg
@@ -352,7 +352,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.toc === 'pass'
 									? 'text-ok'
-									: 'text-red-400'}"
+									: 'text-danger'}"
 							>
 								{#if res.summary.toc === 'pass'}
 									<svg
@@ -384,7 +384,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.xhtml === 'pass'
 									? 'text-ok'
-									: 'text-red-400'}"
+									: 'text-danger'}"
 							>
 								{#if res.summary.xhtml === 'pass'}
 									<svg
@@ -416,7 +416,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.fonts === 'pass'
 									? 'text-ok'
-									: 'text-amber-400'}"
+									: 'text-warn'}"
 							>
 								{#if res.summary.fonts === 'pass'}
 									<svg
@@ -440,7 +440,7 @@
 							<div
 								class="flex items-center gap-1.5 {res.summary.cover === 'pass'
 									? 'text-ok'
-									: 'text-amber-400'}"
+									: 'text-warn'}"
 							>
 								{#if res.summary.cover === 'pass'}
 									<svg
@@ -475,36 +475,36 @@
 								{#each res.issues as issue, idx (issue.category + '-' + (issue.file || '') + '-' + idx)}
 									<div
 										class="p-3 rounded-xl border text-xs {issue.severity === 'error'
-											? 'bg-red-500/10 border-red-500/30'
+											? 'bg-danger/10 border-danger/30'
 											: issue.severity === 'warning'
-												? 'bg-amber-500/10 border-amber-500/30'
-												: 'bg-blue-500/10 border-blue-500/30'}"
+												? 'bg-warn/10 border-warn/30'
+												: 'bg-accent-soft border-accent-color/30'}"
 									>
 										<div class="flex items-start gap-2">
 											{#if issue.severity === 'error'}
-												<span class="w-2 h-2 rounded-full bg-red-400 mt-1 shrink-0"></span>
+												<span class="w-2 h-2 rounded-full bg-danger mt-1 shrink-0"></span>
 											{:else if issue.severity === 'warning'}
-												<span class="w-2 h-2 rounded-full bg-amber-400 mt-1 shrink-0"></span>
+												<span class="w-2 h-2 rounded-full bg-warn mt-1 shrink-0"></span>
 											{:else}
-												<span class="w-2 h-2 rounded-full bg-blue-400 mt-1 shrink-0"></span>
+												<span class="w-2 h-2 rounded-full bg-accent-color mt-1 shrink-0"></span>
 											{/if}
 											<div class="space-y-1 min-w-0">
 												<div
 													class="font-semibold font-sans {issue.severity === 'error'
-														? 'text-red-400'
+														? 'text-danger'
 														: issue.severity === 'warning'
-															? 'text-amber-400'
-															: 'text-blue-400'}"
+															? 'text-warn'
+															: 'text-accent-color'}"
 												>
 													{issue.message}
 												</div>
 												{#if issue.file}
-													<div class="text-[11px] text-text-mute">
+													<div class="text-xs text-text-mute">
 														file: <span class="text-text-color font-mono">{issue.file}</span>
 													</div>
 												{/if}
 												{#if issue.suggestion}
-													<div class="text-[11px] text-ok flex items-start gap-1 font-sans">
+													<div class="text-xs text-ok flex items-start gap-1 font-sans">
 														<svg
 															class="w-3.5 h-3.5 text-ok shrink-0 mt-0.5"
 															viewBox="0 0 24 24"

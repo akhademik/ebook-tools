@@ -39,7 +39,6 @@
 </script>
 
 <div class="animate-fade-in">
-	<h2 class="text-base font-semibold text-text-color mb-3">Chọn file nguồn (.ZIP hoặc .TXT)</h2>
 	<DropZone
 		accept=".zip,.txt,application/zip,text/plain"
 		onSelect={(f) => epubState.source.handleFile(f)}
@@ -243,7 +242,7 @@
 							<span class="text-text-mute text-xs shrink-0 font-mono">{chap.fileName}.xhtml</span>
 						</div>
 						{#if chap.sources && chap.sources.some((src) => src !== 'File TXT')}
-							<div class="text-[11px] text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
+							<div class="text-xs text-text-mute flex flex-wrap gap-x-2 gap-y-0.5">
 								<span class="text-accent-color font-semibold">Nguồn:</span>
 								{#each chap.sources.filter((src) => src !== 'File TXT') as src, sIdx (sIdx)}
 									<span>{src}</span>
@@ -274,21 +273,19 @@
 								{#each reportItem.scanned as scan, scIdx (scIdx)}
 									<div class="flex items-start gap-3 text-xs font-mono">
 										<span
-											class="text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 {scan.location ===
-											'Đầu file'
+											class="text-xs px-1.5 py-0.5 rounded-sm shrink-0 {scan.location === 'Đầu file'
 												? 'bg-accent-soft text-accent-color'
-												: 'bg-amber-soft text-amber-color'}"
-											>{scan.location} (Dòng {scan.lineNum})</span
+												: 'bg-warn/15 text-warn'}">{scan.location} (Dòng {scan.lineNum})</span
 										>
 										<span
 											class="flex-1 break-all {scan.isRemoved
-												? 'line-through text-red-500 opacity-60'
-												: 'text-green-500'}">{scan.text}</span
+												? 'line-through text-danger opacity-60'
+												: 'text-ok'}">{scan.text}</span
 										>
 										<span
-											class="shrink-0 text-[10px] font-semibold {scan.isRemoved
-												? 'text-red-500'
-												: 'text-green-500'}">{scan.isRemoved ? 'Sẽ xóa' : 'Giữ lại'}</span
+											class="shrink-0 text-xs font-semibold {scan.isRemoved
+												? 'text-danger'
+												: 'text-ok'}">{scan.isRemoved ? 'Sẽ xóa' : 'Giữ lại'}</span
 										>
 									</div>
 								{/each}
@@ -315,10 +312,10 @@
 	{#if epubState.source.parseStatus}
 		{#if epubState.source.parseIsError}
 			<div
-				class="text-xs mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-start gap-2.5 animate-fade-in"
+				class="text-xs mt-4 p-3.5 rounded-xl bg-danger/10 border border-danger/30 text-danger flex items-start gap-2.5 animate-fade-in"
 			>
 				<svg
-					class="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+					class="w-4 h-4 text-danger shrink-0 mt-0.5"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
@@ -340,7 +337,7 @@
 				{#if epubState.source.parseStatus.includes('Đang') || epubState.source.parseStatus.includes('xếp hàng')}
 					<button
 						type="button"
-						class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 shrink-0"
+						class="text-xs text-danger hover:underline cursor-pointer bg-transparent border-0 shrink-0"
 						onclick={() => epubState.source.cancelParseTask()}
 					>
 						Hủy
@@ -352,11 +349,11 @@
 
 	{#if epubState.source.parseWarnings.length > 0}
 		<div
-			class="text-xs mt-3.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex flex-col gap-1.5 animate-fade-in"
+			class="text-xs mt-3.5 p-3 rounded-xl bg-warn/10 border border-warn/30 text-warn flex flex-col gap-1.5 animate-fade-in"
 		>
 			<div class="flex items-center gap-2 font-semibold">
 				<svg
-					class="w-4 h-4 text-amber-500 shrink-0"
+					class="w-4 h-4 text-warn shrink-0"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
@@ -372,7 +369,7 @@
 			</div>
 			<div class="pl-6 flex flex-col gap-1 max-h-36 overflow-y-auto">
 				{#each epubState.source.parseWarnings as warn, wIdx (wIdx)}
-					<div class="leading-relaxed font-mono text-[11px]">{warn}</div>
+					<div class="leading-relaxed font-mono text-xs">{warn}</div>
 				{/each}
 			</div>
 		</div>

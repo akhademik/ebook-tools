@@ -126,7 +126,7 @@
 						{/if}
 						<button
 							type="button"
-							class="mt-4 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-sans cursor-pointer transition-colors"
+							class="mt-4 px-3 py-1.5 rounded-lg border border-danger/30 text-danger hover:bg-danger/10 text-xs font-sans cursor-pointer transition-colors"
 							onclick={() => {
 								editorState.cancelCleanupTask();
 								isAnalyzing = false;
@@ -216,7 +216,7 @@
 							<span class="text-xs text-text-mute block font-sans">Ảnh không dùng</span>
 							<span
 								class="font-mono text-sm font-bold {a.unusedImages.length > 0
-									? 'text-amber-400'
+									? 'text-warn'
 									: 'text-text-color'}"
 							>
 								{a.unusedImages.length}
@@ -226,7 +226,7 @@
 							<span class="text-xs text-text-mute block font-sans">Font không dùng</span>
 							<span
 								class="font-mono text-sm font-bold {a.unusedFonts.length > 0
-									? 'text-amber-400'
+									? 'text-warn'
 									: 'text-text-color'}"
 							>
 								{a.unusedFonts.length}
@@ -269,9 +269,7 @@
 									</svg>
 									<span>Xóa hình ảnh không dùng</span>
 									{#if a.unusedImages.length > 0}
-										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
-										>
+										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
 											<span class="font-mono">{a.unusedImages.length}</span> file (<span
 												class="font-mono"
 												>~{formatByteSize(a.unusedImages.reduce((s, i) => s + i.byteSize, 0))}</span
@@ -279,7 +277,7 @@
 										</span>
 									{/if}
 								</div>
-								<p class="text-[11px] text-text-mute mt-0.5">
+								<p class="text-xs text-text-mute mt-0.5">
 									Xóa các file ảnh không được trang nào tham chiếu (ngoại trừ ảnh bìa cover).
 								</p>
 							</div>
@@ -308,9 +306,7 @@
 									</svg>
 									<span>Xóa fonts nhúng không dùng</span>
 									{#if a.unusedFonts.length > 0}
-										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
-										>
+										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
 											<span class="font-mono">{a.unusedFonts.length}</span> file (<span
 												class="font-mono"
 												>~{formatByteSize(a.unusedFonts.reduce((s, f) => s + f.byteSize, 0))}</span
@@ -318,7 +314,7 @@
 										</span>
 									{/if}
 								</div>
-								<p class="text-[11px] text-text-mute mt-0.5">
+								<p class="text-xs text-text-mute mt-0.5">
 									Xóa các font chữ nhúng không được khai báo trong CSS của các chương.
 								</p>
 							</div>
@@ -351,14 +347,12 @@
 									</svg>
 									<span>Xóa file CSS mồ côi</span>
 									{#if a.unusedStyles.length > 0}
-										<span
-											class="px-1.5 py-0.2 bg-amber-500/20 text-amber-400 text-[10px] rounded font-sans"
-										>
+										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
 											<span class="font-mono">{a.unusedStyles.length}</span> file
 										</span>
 									{/if}
 								</div>
-								<p class="text-[11px] text-text-mute mt-0.5">
+								<p class="text-xs text-text-mute mt-0.5">
 									Xóa các file .css không được bất kỳ trang HTML/XHTML nào link tới.
 								</p>
 							</div>
@@ -366,10 +360,10 @@
 					</div>
 
 					{#if a.missingReferences.length > 0}
-						<div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs">
-							<div class="text-amber-400 font-semibold mb-1 flex items-center gap-1.5">
+						<div class="bg-warn/10 border border-warn/30 rounded-xl p-3 text-xs">
+							<div class="text-warn font-semibold mb-1 flex items-center gap-1.5">
 								<svg
-									class="w-4 h-4 text-amber-400 shrink-0"
+									class="w-4 h-4 text-warn shrink-0"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
@@ -383,12 +377,12 @@
 								</svg>
 								<span>Phát hiện {a.missingReferences.length} liên kết hỏng trong sách:</span>
 							</div>
-							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute font-sans text-[11px]">
+							<div class="max-h-24 overflow-y-auto space-y-1 text-text-mute font-sans text-xs">
 								{#each a.missingReferences.slice(0, 5) as ref (ref.sourceFile + '-' + ref.targetRef)}
 									<div>
 										• <span class="font-mono text-text-color">{ref.sourceFile}</span>
 										<span class="text-text-mute mx-1">→</span>
-										<span class="font-mono text-amber-300">{ref.targetRef}</span>
+										<span class="font-mono text-warn">{ref.targetRef}</span>
 										<span class="text-text-mute font-sans ml-1">(không tìm thấy)</span>
 									</div>
 								{/each}
@@ -405,7 +399,7 @@
 				{#if isOptimizing}
 					<button
 						type="button"
-						class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 font-sans"
+						class="text-xs text-danger hover:underline cursor-pointer bg-transparent border-0 font-sans"
 						onclick={() => {
 							editorState.cancelCleanupTask();
 							isOptimizing = false;

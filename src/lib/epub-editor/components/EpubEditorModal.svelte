@@ -147,7 +147,7 @@
 					</h2>
 					{#if editorState.dirtyPaths.size > 0}
 						<span
-							class="px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500 font-mono text-[10px] sm:text-xs font-semibold shrink-0"
+							class="px-2 py-0.5 rounded-full bg-warn/15 text-warn font-mono text-xs font-semibold shrink-0"
 						>
 							● {editorState.dirtyPaths.size}
 						</span>
@@ -292,7 +292,7 @@
 
 				<button
 					type="button"
-					class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-border-color bg-panel hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 text-text-mute text-xs font-semibold font-sans cursor-pointer transition-colors flex items-center gap-1.5"
+					class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-border-color bg-panel hover:bg-danger/10 hover:text-danger hover:border-danger/30 text-text-mute text-xs font-semibold font-sans cursor-pointer transition-colors flex items-center gap-1.5"
 					onclick={requestClose}
 					title="Đóng Editor"
 				>
@@ -352,11 +352,11 @@
 		<!-- Validation Errors Warning Banner -->
 		{#if editorState.validationErrors.length > 0}
 			<div
-				class="bg-red-500/10 border-b border-red-500/30 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 text-xs text-red-500 shrink-0 font-sans"
+				class="bg-danger/10 border-b border-danger/30 p-2.5 sm:p-3 px-4 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 text-xs text-danger shrink-0 font-sans"
 			>
 				<div class="flex items-center gap-2 min-w-0">
 					<svg
-						class="w-4 h-4 text-red-500 shrink-0"
+						class="w-4 h-4 text-danger shrink-0"
 						viewBox="0 0 24 24"
 						fill="none"
 						stroke="currentColor"
@@ -371,7 +371,7 @@
 					<span class="font-bold shrink-0"
 						>Lỗi XML/XHTML ({editorState.validationErrors.length}):</span
 					>
-					<div class="truncate font-mono text-[11px]">
+					<div class="truncate font-mono text-xs">
 						{#each editorState.validationErrors as err (err.path)}
 							<span class="underline mr-2">[{err.path}: {err.error}]</span>
 						{/each}
@@ -381,14 +381,14 @@
 				<div class="flex items-center gap-2 shrink-0">
 					<button
 						type="button"
-						class="px-2 sm:px-2.5 py-1 rounded bg-red-500 text-white font-bold hover:bg-red-600 cursor-pointer text-[11px] sm:text-xs"
+						class="px-2 sm:px-2.5 py-1 rounded bg-danger text-on-accent font-bold hover:opacity-90 cursor-pointer text-xs"
 						onclick={() => handleExport(true)}
 					>
 						Bỏ qua
 					</button>
 					<button
 						type="button"
-						class="px-2 py-1 rounded border border-red-500/40 hover:bg-red-500/20 cursor-pointer text-[11px] sm:text-xs"
+						class="px-2 py-1 rounded border border-danger/40 text-danger hover:bg-danger/10 cursor-pointer text-xs"
 						onclick={() => (editorState.validationErrors = [])}
 					>
 						Đóng
@@ -492,7 +492,7 @@
 					<!-- Header -->
 					<div class="flex items-start gap-4">
 						<div
-							class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0"
+							class="w-12 h-12 rounded-2xl bg-warn/15 text-warn flex items-center justify-center shrink-0"
 						>
 							<svg
 								class="w-6 h-6"
@@ -513,7 +513,7 @@
 								Chưa lưu thay đổi
 							</h3>
 							<p id="confirm-desc" class="text-xs text-text-mute mt-1 font-sans">
-								Bạn có <span class="text-amber-500 font-bold font-mono"
+								Bạn có <span class="text-warn font-bold font-mono"
 									>{editorState.dirtyPaths.size} file</span
 								> đã chỉnh sửa nhưng chưa được xuất ra file .EPUB.
 							</p>
@@ -522,11 +522,11 @@
 
 					<!-- Dirty files list preview -->
 					<div
-						class="max-h-32 overflow-y-auto bg-panel rounded-xl p-2.5 border border-border-color space-y-1 font-mono text-[11px]"
+						class="max-h-32 overflow-y-auto bg-panel rounded-xl p-2.5 border border-border-color space-y-1 font-mono text-xs"
 					>
 						{#each Array.from(editorState.dirtyPaths) as dirtyPath (dirtyPath)}
 							<div class="flex items-center gap-2 text-text-mute truncate">
-								<span class="text-amber-500 text-xs">●</span>
+								<span class="text-warn text-xs">●</span>
 								<span class="truncate">{dirtyPath}</span>
 							</div>
 						{/each}
@@ -547,7 +547,7 @@
 						</button>
 						<button
 							type="button"
-							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-sans text-xs font-semibold cursor-pointer transition-colors"
+							class="w-full sm:w-auto px-4 py-2 rounded-xl border border-danger/30 bg-danger/10 hover:bg-danger/20 text-danger font-sans text-xs font-semibold cursor-pointer transition-colors"
 							onclick={actuallyClose}
 						>
 							Bỏ qua

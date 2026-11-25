@@ -17,7 +17,7 @@
 		{#if epubState.images.illustrationFiles.length > 0}
 			<button
 				type="button"
-				class="bg-transparent text-red-500 hover:text-red-600 font-sans text-xs font-medium cursor-pointer transition-colors"
+				class="bg-transparent text-danger hover:opacity-80 font-sans text-xs font-medium cursor-pointer transition-colors"
 				onclick={() => epubState.images.clearIllustrationFiles()}
 			>
 				Xóa tất cả ({epubState.images.illustrationFiles.length})
@@ -50,9 +50,9 @@
 	{/if}
 
 	{#if epubState.images.illustrationError}
-		<div class="mt-2.5 text-xs text-red-500 flex items-center gap-1.5 font-medium">
+		<div class="mt-2.5 text-xs text-danger flex items-center gap-1.5 font-medium">
 			<svg
-				class="w-4 h-4 text-red-500 shrink-0"
+				class="w-4 h-4 text-danger shrink-0"
 				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
@@ -74,13 +74,13 @@
 		>
 			{#each epubState.images.illustrationFiles as img, idx (img.fileName + idx)}
 				<div
-					class="flex items-center gap-1.5 bg-panel border border-border-color px-2 py-1 rounded-md text-[11px] font-mono"
+					class="flex items-center gap-1.5 bg-panel border border-border-color px-2 py-1 rounded-md text-xs font-mono"
 				>
 					<span class="text-accent-color font-semibold">[{img.name}]</span>
 					<span class="text-text-mute">({img.fileName})</span>
 					<button
 						type="button"
-						class="text-red-400 hover:text-red-600 ml-1 cursor-pointer font-bold leading-none"
+						class="text-danger hover:opacity-80 ml-1 cursor-pointer font-bold leading-none"
 						onclick={() => epubState.images.removeIllustrationFile(idx)}
 						title="Xóa ảnh này"
 					>

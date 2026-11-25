@@ -18,7 +18,7 @@
 		{#if epubState.images.coverFile}
 			<button
 				type="button"
-				class="text-xs text-red-500 hover:text-red-600 transition-colors cursor-pointer font-sans"
+				class="text-xs text-danger hover:underline transition-colors cursor-pointer font-sans"
 				onclick={() => epubState.images.removeCoverFile()}
 			>
 				Xóa ảnh bìa
@@ -203,7 +203,7 @@
 	{#if epubState.images.coverStatus}
 		<div
 			class="text-xs mt-2.5 font-sans {epubState.images.coverIsError
-				? 'text-red-500'
+				? 'text-danger'
 				: 'text-text-mute'}"
 		>
 			{epubState.images.coverStatus}

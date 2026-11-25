@@ -112,6 +112,203 @@
 		</div>
 	</section>
 
+	<!-- 2. Quy trình gợi ý cho sách quét (Scan -> EPUB) -->
+	<section>
+		<div class="flex items-center gap-2.5 mb-4">
+			<h2 class="text-sm font-semibold text-text-mute font-sans">
+				Gợi ý quy trình xử lý sách quét
+			</h2>
+			<div class="h-px flex-1 bg-border-color/60"></div>
+		</div>
+
+		<div class="modern-card rounded-2xl p-5 sm:p-6 border border-border-color">
+			<div class="mb-4">
+				<h3 class="text-base sm:text-lg font-bold text-text-color font-sans">
+					Quy trình chuẩn hóa từ PDF scan sang EPUB
+				</h3>
+				<p class="text-xs sm:text-sm text-text-mute font-sans mt-0.5">
+					Lộ trình 4 bước gợi ý giúp chế bản sách điện tử chất lượng cao (các bước liên kết trực
+					tiếp tới công cụ tương ứng):
+				</p>
+			</div>
+
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+				<!-- Bước 1: PDF -> JPG -->
+				<a
+					href="/pdf"
+					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-all group flex flex-col justify-between"
+				>
+					<div>
+						<div class="flex items-center justify-between mb-2.5">
+							<span
+								class="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent-soft text-accent-color font-sans"
+							>
+								Bước 1
+							</span>
+							<svg
+								class="w-4 h-4 text-accent-color"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+								<circle cx="9" cy="9" r="2" />
+								<path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+							</svg>
+						</div>
+						<h4
+							class="text-sm font-bold text-text-color group-hover:text-accent-color transition-colors font-sans mb-1"
+						>
+							Tách PDF → JPG
+						</h4>
+						<p class="text-xs text-text-mute font-sans leading-relaxed">
+							Tách trang PDF, tăng tương phản ảnh xám và cắt bỏ Header/Footer hàng loạt.
+						</p>
+					</div>
+					<div
+						class="mt-3 pt-2 border-t border-border-color/50 flex items-center justify-between text-xs font-semibold text-accent-color font-sans"
+					>
+						<span>Mở công cụ</span>
+						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
+					</div>
+				</a>
+
+				<!-- Bước 2: OCR ngoài -->
+				<div
+					class="p-4 rounded-xl bg-panel-2/50 border-2 border-dashed border-border-color flex flex-col justify-between"
+				>
+					<div>
+						<div class="flex items-center justify-between mb-2.5">
+							<span
+								class="text-xs font-semibold px-2 py-0.5 rounded-full bg-panel text-text-mute border border-border-color font-sans"
+							>
+								Bước 2 (ngoài)
+							</span>
+							<svg
+								class="w-4 h-4 text-text-mute"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+								<polyline points="14 2 14 8 20 8" />
+								<line x1="16" y1="13" x2="8" y2="13" />
+								<line x1="16" y1="17" x2="8" y2="17" />
+								<polyline points="10 9 9 9 8 9" />
+							</svg>
+						</div>
+						<h4 class="text-sm font-bold text-text-color font-sans mb-1">Nhận diện chữ (OCR)</h4>
+						<p class="text-xs text-text-mute font-sans leading-relaxed">
+							Dùng ABBYY, VietOCR hoặc OCR bên ngoài nhận diện các ảnh JPG thành file văn bản thô
+							(.txt).
+						</p>
+					</div>
+					<div
+						class="mt-3 pt-2 border-t border-border-color/50 text-xs text-text-mute/80 font-sans italic"
+					>
+						Thực hiện bên ngoài ứng dụng
+					</div>
+				</div>
+
+				<!-- Bước 3: Đóng gói EPUB -->
+				<a
+					href="/epub-packer"
+					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-all group flex flex-col justify-between"
+				>
+					<div>
+						<div class="flex items-center justify-between mb-2.5">
+							<span
+								class="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent-soft text-accent-color font-sans"
+							>
+								Bước 3
+							</span>
+							<svg
+								class="w-4 h-4 text-accent-color"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="m7.5 4.27 9 5.15" />
+								<path
+									d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+								/>
+								<path d="m3.3 7 8.7 5 8.7-5" />
+								<path d="M12 22V12" />
+							</svg>
+						</div>
+						<h4
+							class="text-sm font-bold text-text-color group-hover:text-accent-color transition-colors font-sans mb-1"
+						>
+							Đóng gói EPUB
+						</h4>
+						<p class="text-xs text-text-mute font-sans leading-relaxed">
+							Nạp file text OCR, tự động nhận diện chương, thêm bìa sách, hoa văn và font nhúng.
+						</p>
+					</div>
+					<div
+						class="mt-3 pt-2 border-t border-border-color/50 flex items-center justify-between text-xs font-semibold text-accent-color font-sans"
+					>
+						<span>Mở công cụ</span>
+						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
+					</div>
+				</a>
+
+				<!-- Bước 4: Sửa file EPUB -->
+				<a
+					href="/epub-editor"
+					class="p-4 rounded-xl bg-panel-2 border border-border-color hover:border-accent-color transition-all group flex flex-col justify-between"
+				>
+					<div>
+						<div class="flex items-center justify-between mb-2.5">
+							<span
+								class="text-xs font-semibold px-2 py-0.5 rounded-full bg-accent-soft text-accent-color font-sans"
+							>
+								Bước 4
+							</span>
+							<svg
+								class="w-4 h-4 text-accent-color"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path
+									d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+								/>
+								<path d="m15 5 4 4" />
+							</svg>
+						</div>
+						<h4
+							class="text-sm font-bold text-text-color group-hover:text-accent-color transition-colors font-sans mb-1"
+						>
+							Sửa & Kiểm định
+						</h4>
+						<p class="text-xs text-text-mute font-sans leading-relaxed">
+							Soi Live Preview, tinh chỉnh XHTML/CSS, dọn rác và kiểm định tiêu chuẩn Kobo.
+						</p>
+					</div>
+					<div
+						class="mt-3 pt-2 border-t border-border-color/50 flex items-center justify-between text-xs font-semibold text-accent-color font-sans"
+					>
+						<span>Mở công cụ</span>
+						<span class="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
+					</div>
+				</a>
+			</div>
+		</div>
+	</section>
+
 	<!-- Công cụ lẻ & Mở rộng -->
 	<section>
 		<div class="flex items-center gap-2.5 mb-4">
@@ -238,7 +435,7 @@
 								TXT → PDF CJK
 							</h4>
 							<span
-								class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-panel border border-border-color text-text-mute"
+								class="text-xs font-mono px-1.5 py-0.5 rounded bg-panel border border-border-color text-text-mute"
 							>
 								Desktop
 							</span>

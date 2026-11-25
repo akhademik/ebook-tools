@@ -108,18 +108,14 @@
 			{title}
 		</p>
 		{#if subtitle}
-			<p
-				class="{compact
-					? 'text-[11px] sm:text-xs max-w-xs'
-					: 'text-sm max-w-sm'} text-text-mute font-sans"
-			>
+			<p class="{compact ? 'text-xs max-w-xs' : 'text-sm max-w-sm'} text-text-mute font-sans">
 				{subtitle}
 			</p>
 		{/if}
 		{#if selectedFile}
 			<div
 				class="{compact
-					? 'mt-1.5 px-2 py-0.5 rounded-md text-[11px]'
+					? 'mt-1.5 px-2 py-0.5 rounded-md text-xs'
 					: 'mt-3 px-3 py-1 rounded-lg text-xs'} inline-flex items-center gap-1.5 bg-panel border border-border-color"
 			>
 				<span class="font-mono text-accent-color break-all">{selectedFile.name}</span>
@@ -127,7 +123,7 @@
 		{:else if selectedCount > 0}
 			<div
 				class="{compact
-					? 'mt-1.5 px-2 py-0.5 rounded-md text-[11px]'
+					? 'mt-1.5 px-2 py-0.5 rounded-md text-xs'
 					: 'mt-3 px-3 py-1 rounded-lg text-xs'} inline-flex items-center gap-1.5 bg-panel border border-border-color"
 			>
 				<span class="font-mono text-accent-color">Đã chọn {selectedCount} file ảnh</span>

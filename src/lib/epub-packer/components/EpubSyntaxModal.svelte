@@ -6,6 +6,12 @@
 	let { show = $bindable(false) }: Props = $props();
 </script>
 
+<svelte:window
+	onkeydown={(e) => {
+		if (show && e.key === 'Escape') show = false;
+	}}
+/>
+
 {#if show}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -48,7 +54,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;h1 class="main-chap center"&gt;Tiêu đề&lt;/h1&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Tách file gom nội dung — gom toàn bộ nội dung phía sau cho đến tiêu đề tiếp
 										theo (có trong Mục lục / TOC).</span
 									>
@@ -63,7 +69,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;h2 class="side-chap center"&gt;Tiêu đề&lt;/h2&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Tiêu đề phụ / Chương nhỏ — không tách file, có hiển thị trong Mục lục (TOC).</span
 									>
 								</td>
@@ -77,7 +83,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;h2 class="side-chap center no-toc"&gt;Tiêu đề&lt;/h2&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Tiêu đề phụ / Chương nhỏ — không tách file, <strong>KHÔNG</strong> đưa vào Mục lục
 										(TOC).</span
 									>
@@ -136,7 +142,7 @@
 										>&lt;blockquote class="center"&gt;&lt;p&gt;Lời
 										thoại&lt;/p&gt;&lt;/blockquote&gt;</code
 									><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Quote / Lời thoại (hỗ trợ <code>~t</code> căn trái,
 										<code>~p</code> căn phải).</span
 									>
@@ -151,7 +157,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;footer&gt;Tác giả&lt;/footer&gt;</code> (bên trong blockquote)<br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Chỉ có tác dụng khi đứng liền mạch ngay sau dòng <code>~</code> trích dẫn (hỗ
 										trợ tối đa 3 dòng footer liền nhau, không có dòng trống ngăn cách; hỗ trợ
 										<code>&gt;t</code>
@@ -170,7 +176,7 @@
 								<td class="py-3 px-3">
 									<code>&lt;p class="scene-break-big" role="separator"&gt;• • •&lt;/p&gt;</code><br
 									/>
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Dấu ngắt cảnh lớn (phải đứng riêng một dòng).</span
 									>
 								</td>
@@ -184,7 +190,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;p class="scene-break-small" role="separator"&gt;*&lt;/p&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Dấu ngắt cảnh nhỏ có dấu sao (phải đứng riêng một dòng).</span
 									>
 								</td>
@@ -198,7 +204,7 @@
 								>
 								<td class="py-3 px-3">
 									<code>&lt;p class="scene-break-small" role="separator"&gt;&lt;/p&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Dấu ngắt cảnh nhỏ không có hoa thị / khoảng cách trống (phải đứng riêng một
 										dòng).</span
 									>
@@ -263,7 +269,7 @@
 								>
 								<td class="py-3 px-3">
 									<span class="text-text-mute">Gom thành 1 file XHTML / Căn giữa trang:</span><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										><code>[new]</code>: Gom mọi nội dung bên trong vào 1 file XHTML duy nhất.<br />
 										<code>[new:center]</code>: Tách thành 1 file XHTML và căn giữa toàn trang (sử
 										dụng
@@ -283,7 +289,7 @@
 								</td>
 								<td class="py-3 px-3">
 									<code>&lt;div class="letter"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Khối thư, mỗi dòng bên trong là 1 đoạn, có thụt lề riêng theo CSS. Hỗ trợ lồng
 										bài thơ con (<code>[poem]</code>).</span
 									>
@@ -298,11 +304,11 @@
 								</td>
 								<td class="py-3 px-3">
 									<code>&lt;div class="letter-box"&gt;...&lt;/div&gt;</code><br />
-									<span class="text-[11px] text-text-mute block mt-1">
+									<span class="text-xs text-text-mute block mt-1">
 										<strong>Khối hộp có viền bo quanh (Border Wrapper):</strong> Đóng khung nội dung với
 										viền 3px, padding và thụt lề chuẩn.
 									</span>
-									<span class="text-[11px] text-text-mute block mt-0.5">
+									<span class="text-xs text-text-mute block mt-0.5">
 										• <strong>Không nối dòng OCR:</strong> Giữ nguyên từng đoạn/dòng đúng như người
 										dùng nhập, không bị ghép tự động.<br />
 										• <strong>Cho phép lồng cú pháp:</strong> Hỗ trợ trích dẫn (<code>~ quote</code
@@ -324,7 +330,7 @@
 								</td>
 								<td class="py-3 px-3">
 									<code>&lt;div class="poem"&gt;&lt;p&gt;...&lt;/p&gt;&lt;/div&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Khối thơ, mỗi dòng bên trong là 1 đoạn, luôn canh giữa.</span
 									>
 								</td>
@@ -341,7 +347,7 @@
 										>&lt;p class="has-dropcap"&gt;&lt;span class="dropcap"&gt;c&lt;/span&gt;nội
 										dung...&lt;/p&gt;</code
 									><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Dropcap (chữ phóng to đầu đoạn). Chỉ nhận diện khi đứng đầu dòng, bên trong [ ]
 										là đúng 1 ký tự và có ít nhất 1 khoảng trắng theo sau dấu ]. Khoảng trắng này sẽ
 										tự động được loại bỏ khi xuất bản.</span
@@ -357,7 +363,7 @@
 								</td>
 								<td class="py-3 px-3">
 									<code>&lt;p&gt;Nội dung...&lt;/p&gt;</code><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Tắt tự động Dropcap (chữ phóng to đầu đoạn) cho đoạn văn ngay sau tiêu đề (<code
 											>@@</code
 										>
@@ -378,7 +384,7 @@
 										>&lt;figure class="illust-box"&gt;&lt;img class="illust-img"
 										src="../images/hinh-1.jpg" alt="hinh-1"/&gt;&lt;/figure&gt;</code
 									><br />
-									<span class="text-[11px] text-text-mute"
+									<span class="text-xs text-text-mute"
 										>Chèn ảnh minh họa (tên trong ngoặc vuông trùng với tên file ảnh tải lên, hệ
 										thống tự động gắn đúng định dạng file <code>.jpg, .png, .webp...</code>).</span
 									>

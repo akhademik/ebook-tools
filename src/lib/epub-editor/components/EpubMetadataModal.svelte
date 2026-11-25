@@ -219,7 +219,7 @@
 							</svg>
 							<span>Tự động Tái tạo Mục lục (Auto Rebuild TOC)</span>
 						</div>
-						<p class="text-[11px] text-text-mute mt-0.5">
+						<p class="text-xs text-text-mute mt-0.5">
 							Quét lại toàn bộ các thẻ &lt;h1&gt;, &lt;h2&gt; trong các chương để đồng bộ lại mục
 							lục nav.xhtml và toc.ncx.
 						</p>

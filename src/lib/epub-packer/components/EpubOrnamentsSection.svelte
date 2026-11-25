@@ -36,7 +36,7 @@
 				<div
 					class="flex items-center justify-between gap-2 text-xs {epubState.images
 						.chapterOrnamentError
-						? 'text-red-400'
+						? 'text-danger'
 						: 'text-accent-color'}"
 				>
 					<div class="flex items-center gap-2">
@@ -50,7 +50,7 @@
 					{#if epubState.images.chapterOrnamentIsProcessing}
 						<button
 							type="button"
-							class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 font-sans"
+							class="text-xs text-danger hover:underline cursor-pointer bg-transparent border-0 font-sans"
 							onclick={() => epubState.images.cancelChapterOrnamentProcessing()}
 						>
 							Hủy
@@ -75,11 +75,11 @@
 						</div>
 						<div class="text-xs">
 							<div class="font-medium text-text-color">Đã tối ưu xong</div>
-							<div class="text-text-mute text-[11px] font-mono">PNG trong suốt</div>
+							<div class="text-text-mute text-xs font-sans">PNG trong suốt</div>
 						</div>
 					</div>
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
+						class="bg-transparent text-danger hover:opacity-80 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
 						onclick={() => epubState.images.removeChapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -87,7 +87,7 @@
 			{:else if epubState.images.chapterOrnamentError}
 				<div class="flex justify-end mt-1">
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
+						class="bg-transparent text-danger hover:opacity-80 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
 						onclick={() => epubState.images.removeChapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -111,7 +111,7 @@
 				<div
 					class="flex items-center justify-between gap-2 text-xs {epubState.images
 						.subchapterOrnamentError
-						? 'text-red-400'
+						? 'text-danger'
 						: 'text-accent-color'}"
 				>
 					<div class="flex items-center gap-2">
@@ -125,7 +125,7 @@
 					{#if epubState.images.subchapterOrnamentIsProcessing}
 						<button
 							type="button"
-							class="text-xs text-red-400 hover:text-red-300 underline cursor-pointer bg-transparent border-0 font-sans"
+							class="text-xs text-danger hover:underline cursor-pointer bg-transparent border-0 font-sans"
 							onclick={() => epubState.images.cancelSubchapterOrnamentProcessing()}
 						>
 							Hủy
@@ -150,11 +150,11 @@
 						</div>
 						<div class="text-xs">
 							<div class="font-medium text-text-color">Đã tối ưu xong</div>
-							<div class="text-text-mute text-[11px] font-mono">PNG trong suốt</div>
+							<div class="text-text-mute text-xs font-sans">PNG trong suốt</div>
 						</div>
 					</div>
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
+						class="bg-transparent text-danger hover:opacity-80 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
 						onclick={() => epubState.images.removeSubchapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>
@@ -162,7 +162,7 @@
 			{:else if epubState.images.subchapterOrnamentError}
 				<div class="flex justify-end mt-1">
 					<button
-						class="bg-transparent text-red-500 hover:text-red-600 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
+						class="bg-transparent text-danger hover:opacity-80 text-xs py-1 px-2 rounded cursor-pointer transition-colors font-sans"
 						onclick={() => epubState.images.removeSubchapterOrnamentFile()}
 						type="button">Xóa ảnh</button
 					>

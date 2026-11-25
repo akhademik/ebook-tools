@@ -74,7 +74,7 @@
 				<button
 					class="bg-panel-2 border border-field-border font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					10
-						? 'text-amber-color border-amber-color bg-amber-500/10'
+						? 'text-amber-color border-amber-color bg-warn/10'
 						: 'border-field-border text-text-color hover:border-accent-color'}"
 					onclick={() => {
 						state.selectedPreviewCount = 10;
@@ -84,7 +84,7 @@
 				<button
 					class="bg-panel-2 border border-field-border font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors {state.selectedPreviewCount ===
 					20
-						? 'text-amber-color border-amber-color bg-amber-500/10'
+						? 'text-amber-color border-amber-color bg-warn/10'
 						: 'border-field-border text-text-color hover:border-accent-color'}"
 					onclick={() => {
 						state.selectedPreviewCount = 20;
@@ -252,7 +252,7 @@
 						</span>
 						<button
 							type="button"
-							class="text-xs text-red-500 hover:underline cursor-pointer font-medium"
+							class="text-xs text-danger hover:underline cursor-pointer font-medium"
 							onclick={() => state.clearOutputDirectory()}
 						>
 							Hủy
@@ -309,7 +309,7 @@
 		</div>
 
 		{#if state.status}
-			<div class="text-sm mt-4 font-sans {state.isError ? 'text-red-500' : 'text-text-mute'}">
+			<div class="text-sm mt-4 font-sans {state.isError ? 'text-danger' : 'text-text-mute'}">
 				{state.status}
 			</div>
 		{/if}
@@ -354,10 +354,10 @@
 
 		{#if state.degradedPages.length > 0}
 			<div
-				class="mt-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
+				class="mt-4 p-3.5 rounded-xl bg-warn/10 border border-warn/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
 			>
 				<svg
-					class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"
+					class="w-5 h-5 text-warn shrink-0 mt-0.5"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
@@ -370,7 +370,7 @@
 					/>
 				</svg>
 				<div class="text-xs">
-					<strong class="font-semibold block mb-0.5 text-amber-color">
+					<strong class="font-semibold block mb-0.5 text-warn">
 						Chú ý: {state.degradedPages.length} trang tự động giảm độ phân giải do giới hạn bộ nhớ
 					</strong>
 					<span class="text-text-mute">
@@ -384,10 +384,10 @@
 
 		{#if state.failedPages.length > 0}
 			<div
-				class="mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
+				class="mt-4 p-3.5 rounded-xl bg-danger/10 border border-danger/40 text-text-color text-sm flex items-start gap-2.5 animate-fade-in"
 			>
 				<svg
-					class="w-5 h-5 text-red-500 shrink-0 mt-0.5"
+					class="w-5 h-5 text-danger shrink-0 mt-0.5"
 					viewBox="0 0 24 24"
 					fill="none"
 					stroke="currentColor"
@@ -400,11 +400,11 @@
 					/>
 				</svg>
 				<div class="text-xs">
-					<strong class="font-semibold block mb-0.5 text-red-500">
+					<strong class="font-semibold block mb-0.5 text-danger">
 						Lỗi: {state.failedPages.length} trang không thể xuất hình ảnh
 					</strong>
 					<span class="text-text-mute">
-						Các trang bị lỗi: <span class="font-mono text-red-400 font-semibold"
+						Các trang bị lỗi: <span class="font-mono text-danger font-semibold"
 							>{state.failedPages.join(', ')}</span
 						> (trình duyệt không đủ bộ nhớ canvas).
 					</span>
@@ -463,7 +463,7 @@
 								<span class="font-mono text-xs text-text-mute">
 									{(part.sizeBytes / (1024 * 1024)).toFixed(1)} MB
 									{#if part.savedToDisk}
-										· <span class="text-green-500 font-medium">Đã lưu ra đĩa</span>
+										· <span class="text-ok font-medium">Đã lưu ra đĩa</span>
 									{:else if !part.blob}
 										· <span class="text-text-mute">Đã giải phóng RAM</span>
 									{/if}
@@ -481,7 +481,7 @@
 									</button>
 									<button
 										type="button"
-										class="text-text-mute hover:text-red-500 text-xs py-1 px-1.5 rounded cursor-pointer"
+										class="text-text-mute hover:text-danger text-xs py-1 px-1.5 rounded cursor-pointer"
 										onclick={() => state.releasePartBlob(idx)}
 										title="Giải phóng bộ nhớ phần này khỏi RAM"
 									>

@@ -105,7 +105,7 @@
 					>
 						{activeFont.name}
 					</span>
-					<span class="font-mono text-[10px] text-text-mute ml-1.5 shrink-0 hidden sm:inline">
+					<span class="font-mono text-xs text-text-mute ml-1.5 shrink-0 hidden sm:inline">
 						({activeFont.id})
 					</span>
 				{/if}
@@ -118,7 +118,7 @@
 							Mặc định
 						</span>
 						<span
-							class="font-mono text-[11px] text-text-mute shrink-0 hidden sm:inline"
+							class="text-xs text-text-mute shrink-0 hidden sm:inline"
 							style="font-family: 'Bookerly', serif;"
 						>
 							• Bookerly
@@ -135,7 +135,7 @@
 						>
 							{activeFont.name}
 						</span>
-						<span class="font-mono text-[11px] text-text-mute shrink-0 hidden sm:inline">
+						<span class="font-mono text-xs text-text-mute shrink-0 hidden sm:inline">
 							• {activeFont.id}
 						</span>
 					</div>
@@ -215,7 +215,7 @@
 								Mặc định
 							</span>
 							<span
-								class="text-[11px] text-text-mute/70 font-mono hidden sm:inline"
+								class="text-xs text-text-mute/70 hidden sm:inline"
 								style="font-family: 'Bookerly', serif;"
 							>
 								• Bookerly
@@ -269,7 +269,7 @@
 								>
 									Chương 1: Bình minh
 								</span>
-								<span class="text-[10px] text-text-mute/70 font-mono">
+								<span class="text-xs text-text-mute/70 font-mono">
 									• {font.id}
 								</span>
 							</div>
@@ -292,7 +292,7 @@
 				{/each}
 
 				{#if filteredFonts.length === 0}
-					<div class="p-4 text-center text-xs text-text-mute font-mono">
+					<div class="p-4 text-center text-xs text-text-mute font-sans">
 						Không tìm thấy phông chữ "{searchQuery}"
 					</div>
 				{/if}

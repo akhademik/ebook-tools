@@ -36,14 +36,16 @@ Dự án áp dụng phong cách thiết kế **Solarized Clean & Crisp**:
 | `--color-field-border` | `#8a8168` (input border ≥ 3:1) | `#5b7f87` (input border ≥ 3:1) | Viền ô nhập, viền nút phụ (nhìn rõ ranh giới ô)       |
 | `--color-on-accent`    | `#fdf6e3`                      | `#002b36`                      | Màu chữ trên nền nút accent (thay thế cho text-white) |
 | `--color-ok`           | `#3f6a10`                      | `#7bb661`                      | Trạng thái thành công, hợp lệ                         |
+| `--color-danger`       | `#b91c1c`                      | `#f87171`                      | Trạng thái lỗi, nguy hiểm, xóa (≥ 4.5:1)              |
+| `--color-warn`         | `#b45309`                      | `#fbbf24`                      | Trạng thái cảnh báo, lưu ý (≥ 4.5:1)                  |
 
 ### 2.2 Tailwind CSS Utility Mapping
 
 Trong Tailwind v4, các biến trên được tích hợp qua `@theme`:
 
-- Background: `bg-brand-bg`, `bg-sidebar-bg`, `bg-panel`, `bg-panel-2`, `bg-accent-color`, `bg-accent-soft`
-- Text: `text-text-color`, `text-text-mute`, `text-accent-color`, `text-amber-color`, `text-on-accent`, `text-ok`
-- Border: `border-border-color`, `border-border-soft`, `border-field-border`, `border-accent-color`
+- Background: `bg-brand-bg`, `bg-sidebar-bg`, `bg-panel`, `bg-panel-2`, `bg-accent-color`, `bg-accent-soft`, `bg-danger`, `bg-warn`, `bg-ok`
+- Text: `text-text-color`, `text-text-mute`, `text-accent-color`, `text-amber-color`, `text-on-accent`, `text-ok`, `text-danger`, `text-warn`
+- Border: `border-border-color`, `border-border-soft`, `border-field-border`, `border-accent-color`, `border-danger`, `border-warn`, `border-ok`
 - Hover: `hover:bg-accent-hover`, `hover:border-accent-color`
 
 ---

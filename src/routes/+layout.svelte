@@ -191,7 +191,7 @@
 
 			<!-- 2. Nhóm: Tạo và tinh chỉnh -->
 			<div
-				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+				class="text-xs font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
 					? 'md:hidden'
 					: 'block'}"
 			>
@@ -270,7 +270,7 @@
 
 			<!-- 3. Nhóm: Tiền xử lý -->
 			<div
-				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+				class="text-xs font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
 					? 'md:hidden'
 					: 'block'}"
 			>
@@ -346,7 +346,7 @@
 
 			<!-- 4. Nhóm: Mở rộng -->
 			<div
-				class="text-[11px] font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
+				class="text-xs font-semibold uppercase text-text-mute tracking-wider mt-3 mb-1 px-3 {isCollapsed
 					? 'md:hidden'
 					: 'block'}"
 			>
@@ -439,7 +439,7 @@
 						{isDark ? 'Giao diện Sáng' : 'Giao diện Tối'}
 					</span>
 				</span>
-				<span class="text-[11px] text-text-mute font-mono {isCollapsed ? 'md:hidden' : 'inline'}">
+				<span class="text-xs text-text-mute font-mono {isCollapsed ? 'md:hidden' : 'inline'}">
 					Đổi
 				</span>
 			</button>

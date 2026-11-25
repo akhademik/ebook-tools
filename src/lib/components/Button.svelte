@@ -29,8 +29,8 @@
 		: variant === 'secondary'
 			? 'bg-transparent border border-field-border text-text-color hover:bg-panel shadow-sm font-medium'
 			: variant === 'danger'
-				? 'bg-red-500 hover:bg-red-600 text-white shadow-sm'
-				: 'bg-amber-color hover:bg-amber-600 text-brand-bg shadow-sm'} {customClass}"
+				? 'bg-danger hover:opacity-90 text-on-accent shadow-sm'
+				: 'bg-warn hover:opacity-90 text-on-accent shadow-sm'} {customClass}"
 >
 	{#if children}
 		{@render children()}

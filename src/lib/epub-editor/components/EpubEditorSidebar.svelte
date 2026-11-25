@@ -51,16 +51,14 @@
 				Cấu trúc file ({editorState.files.length})
 			</span>
 			{#if editorState.dirtyPaths.size > 0}
-				<span
-					class="font-mono text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-semibold"
-				>
+				<span class="font-mono text-xs px-2 py-0.5 rounded-full bg-warn/15 text-warn font-semibold">
 					● {editorState.dirtyPaths.size} đã sửa
 				</span>
 			{/if}
 		</div>
 
 		<!-- Category Filters -->
-		<div class="grid grid-cols-5 gap-1 font-mono text-[11px]">
+		<div class="grid grid-cols-5 gap-1 font-sans text-xs">
 			<button
 				type="button"
 				class="py-1 px-1 rounded-md text-center transition-colors cursor-pointer {filterTab ===
@@ -121,7 +119,7 @@
 
 	<!-- Instruction tip -->
 	<div
-		class="px-3.5 py-2 bg-panel-2/50 border-b border-border-color text-[11px] text-text-mute font-sans flex items-center gap-1.5"
+		class="px-3.5 py-2 bg-panel-2/50 border-b border-border-color text-xs text-text-mute font-sans flex items-center gap-1.5"
 	>
 		<svg
 			class="w-3.5 h-3.5 text-accent-color shrink-0"
@@ -231,7 +229,7 @@
 						</span>
 						<span class="truncate">{file.name}</span>
 						{#if file.path.includes('/')}
-							<span class="text-[10px] text-text-mute truncate opacity-60">
+							<span class="text-xs text-text-mute truncate opacity-60">
 								{file.path.substring(0, file.path.lastIndexOf('/'))}
 							</span>
 						{/if}
@@ -239,12 +237,12 @@
 
 					<div class="flex items-center gap-1.5 shrink-0">
 						{#if isDirty}
-							<span class="text-amber-500 font-bold" title="Đã chỉnh sửa">●</span>
+							<span class="text-warn font-bold" title="Đã chỉnh sửa">●</span>
 						{/if}
 
 						{#if isPreviewActive}
 							<span
-								class="px-1.5 py-0.5 rounded text-[10px] bg-ok/20 text-ok font-bold flex items-center gap-1"
+								class="px-1.5 py-0.5 rounded text-xs bg-ok/20 text-ok font-bold flex items-center gap-1"
 								title="Đang render trong Preview"
 							>
 								<svg
@@ -271,7 +269,7 @@
 
 						{#if isEditorActive}
 							<span
-								class="px-1.5 py-0.5 rounded text-[10px] bg-accent-soft text-accent-color font-bold"
+								class="px-1.5 py-0.5 rounded text-xs bg-accent-soft text-accent-color font-bold"
 								title="Đang mở trong Code Editor"
 							>
 								Edit

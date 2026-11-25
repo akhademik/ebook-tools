@@ -139,7 +139,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		expect(titleFont).toContain('Bookerly');
 
 		// Click "Tiếp" to navigate to Mẫu 2
-		await page.getByRole('button', { name: 'Tiếp', exact: true }).first().click();
+		await page.locator('button[aria-label="Mẫu tiếp theo"]').first().click();
 		await page.waitForTimeout(200);
 		const titleFontM2 = await page
 			.locator('.preview-wrap .title')
@@ -158,7 +158,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		expect(titleFontM2Akashi).toContain('Akashi');
 
 		// Click "Tiếp" to navigate to Mẫu 3
-		await page.getByRole('button', { name: 'Tiếp', exact: true }).first().click();
+		await page.locator('button[aria-label="Mẫu tiếp theo"]').first().click();
 		await page.waitForTimeout(200);
 		const titleFontM3 = await page
 			.locator('.preview-wrap .title')
@@ -166,7 +166,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		expect(titleFontM3).toContain('Akashi');
 
 		// Click "Trước" back to Mẫu 2
-		await page.getByRole('button', { name: 'Trước', exact: true }).first().click();
+		await page.locator('button[aria-label="Mẫu trước"]').first().click();
 		await page.waitForTimeout(200);
 
 		// Change font back to Bookerly for consistency
@@ -195,12 +195,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(h1Trigger).toBeVisible();
 		await h1Trigger.click();
 
-		const listbox = page.locator('[role="listbox"]');
-		await expect(listbox).toBeVisible();
-		const bookerlyOption = listbox.locator('button[data-font-id="Bookerly"]');
-		await expect(bookerlyOption).toBeVisible();
-		await bookerlyOption.click();
-		await expect(listbox).not.toBeVisible();
+		const listbox4 = page.locator('[role="listbox"]');
+		await expect(listbox4).toBeVisible();
+		const h1BookerlyOption = listbox4.locator('button[data-font-id="Bookerly"]');
+		await expect(h1BookerlyOption).toBeVisible();
+		await h1BookerlyOption.click();
+		await expect(listbox4).not.toBeVisible();
 		await expect(h1Trigger).toContainText('Bookerly');
 		await expect(page.locator('#h1-font-select')).toHaveValue('Bookerly');
 
