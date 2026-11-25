@@ -1,5 +1,6 @@
 // src/lib/epub-packer/builders/stylesheet-builder.ts
 import { findFont, getFontCSSDeclaration } from '../templates/fonts';
+import { JACKET_TEMPLATES } from '../templates/jacket-templates';
 import baseCss from '../templates/css-template/base.css?raw';
 import centerPageCss from '../templates/css-template/center-page.css?raw';
 import headingsCss from '../templates/css-template/headings.css?raw';
@@ -9,7 +10,12 @@ import quotesCss from '../templates/css-template/quotes.css?raw';
 import breaksCss from '../templates/css-template/breaks.css?raw';
 import notesCss from '../templates/css-template/notes.css?raw';
 
-import type { EpubChapterItem, OrnamentsConfig, EpubFontsConfig } from '$lib/types';
+import type {
+	EpubChapterItem,
+	OrnamentsConfig,
+	EpubFontsConfig,
+	EpubJacketConfig
+} from '$lib/types';
 
 export const EPUB_CSS =
 	baseCss +
@@ -248,6 +254,29 @@ export function prepareFinalCss(
 
 	// Strip all CSS comments (/* ... */) and collapse excessive blank lines
 	return finalCss
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		.replace(/\n{3,}/g, '\n\n')
+		.trim();
+}
+
+/**
+ * Builds OEBPS/styles/jacket.css for the jacket/dedication page
+ */
+export function buildJacketCss(
+	jacket: EpubJacketConfig | null,
+	fonts: EpubFontsConfig | null = null
+): string {
+	if (!jacket || !jacket.enabled) return '';
+	const template = JACKET_TEMPLATES.find((t) => t.id === jacket.templateId);
+	let css = template ? template.css : '';
+	if (fonts && fonts.jacketFont && fonts.jacketFont !== 'default') {
+		const jFont = findFont(fonts.jacketFont);
+		if (jFont) {
+			const declaration = getFontCSSDeclaration(fonts.jacketFont);
+			css = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }\n${css}`;
+		}
+	}
+	return css
 		.replace(/\/\*[\s\S]*?\*\//g, '')
 		.replace(/\n{3,}/g, '\n\n')
 		.trim();

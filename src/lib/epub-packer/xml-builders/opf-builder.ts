@@ -19,20 +19,26 @@ export function buildContentOpf(
 	hasCover = false,
 	activeFonts: string[] = [],
 	ornaments: OrnamentsConfig | null = null,
-	images: IllustrationImageItem[] = []
+	images: IllustrationImageItem[] = [],
+	hasJacket?: boolean
 ): string {
 	Logger.debug('[EpubPacker]', 'buildContentOpf called', {
 		chaptersCount: chapters.length,
 		hasCover,
 		activeFonts,
-		imagesCount: images?.length || 0
+		imagesCount: images?.length || 0,
+		hasJacket
 	});
 	const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+	const jacketPresent = hasJacket ?? chapters.some((c) => c.fileName === 'jacket');
 	const manifestItems = [
 		'<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
 		'<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
 		'<item id="css" href="styles/style.css" media-type="text/css"/>'
 	];
+	if (jacketPresent) {
+		manifestItems.push('<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>');
+	}
 	if (hasCover) {
 		manifestItems.push(
 			'<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>'

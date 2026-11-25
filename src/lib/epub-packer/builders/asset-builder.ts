@@ -77,7 +77,7 @@ export function prepareChapters(
 				jacket.distributor
 			);
 			const jacketChapter: EpubChapterItem = {
-				title: 'Giới thiệu',
+				title: jacket.title?.trim() || 'Giới thiệu',
 				fileName: 'jacket',
 				xmlId: 'jacket',
 				isChapter: true,

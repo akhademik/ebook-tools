@@ -44,6 +44,15 @@ vi.mock('../src/lib/epub-packer/templates/css-template/ornaments.css?raw', () =>
 vi.mock('../src/lib/epub-packer/templates/css-template/cover.css?raw', () => ({
 	default: '/* cover.css */ .cover-wrapper { margin: 0; }'
 }));
+vi.mock('../src/lib/epub-packer/templates/css-template/intro-css.css?raw', async () => {
+	const fs = await import('node:fs');
+	const path = await import('node:path');
+	const content = fs.readFileSync(
+		path.resolve(__dirname, '../src/lib/epub-packer/templates/css-template/intro-css.css'),
+		'utf-8'
+	);
+	return { default: content };
+});
 
 import {
 	buildChapterXhtml,
@@ -531,6 +540,45 @@ describe('epub-packer tests', () => {
 			expect(xml).toContain('<meta name="generator" content="Custom Packer"/>');
 		});
 
+		it('should include styles/jacket.css in manifest when jacket is present', () => {
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
+			const xmlWithoutJacket = buildContentOpf(
+				{ title: 'Book', author: 'Author' },
+				chapters,
+				false,
+				[],
+				null,
+				[],
+				false
+			);
+			expect(xmlWithoutJacket).not.toContain('styles/jacket.css');
+
+			const xmlWithJacket = buildContentOpf(
+				{ title: 'Book', author: 'Author' },
+				chapters,
+				false,
+				[],
+				null,
+				[],
+				true
+			);
+			expect(xmlWithJacket).toContain(
+				'<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>'
+			);
+
+			const chaptersWithJacket = [
+				{ xmlId: 'jacket', title: 'Giới thiệu', fileName: 'jacket' },
+				...chapters
+			];
+			const xmlAutoJacket = buildContentOpf(
+				{ title: 'Book', author: 'Author' },
+				chaptersWithJacket
+			);
+			expect(xmlAutoJacket).toContain(
+				'<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>'
+			);
+		});
+
 		it('should include fonts in manifest if activeFonts is specified', () => {
 			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
 			const xml = buildContentOpf(
@@ -770,6 +818,7 @@ describe('epub-packer tests', () => {
 			// Verify JSZip calls
 			expect(mockZipInstance.folder).toHaveBeenCalledWith('OEBPS');
 			// Since we mocked folder/file, check that they were called
+			expect(mockZipInstance.file).toHaveBeenCalledWith('jacket.css', expect.any(String));
 			expect(mockZipInstance.file).toHaveBeenCalledWith(
 				'mimetype',
 				'application/epub+zip',

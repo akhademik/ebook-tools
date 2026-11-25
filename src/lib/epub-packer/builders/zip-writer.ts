@@ -1,8 +1,7 @@
 // src/lib/epub-packer/builders/zip-writer.ts
 import JSZip from 'jszip';
 import { Logger } from '$lib/utils';
-import { JACKET_TEMPLATES } from '../templates/jacket-templates';
-import { findFont, getFontFileName, getFontCSSDeclaration } from '../templates/fonts';
+import { getFontFileName } from '../templates/fonts';
 import coverCss from '../templates/css-template/cover.css?raw';
 
 import { buildContainerXml } from '../xml-builders/container-builder';
@@ -10,7 +9,7 @@ import { buildContentOpf } from '../xml-builders/opf-builder';
 import { buildNavXhtml, buildTocNcx } from '../xml-builders/nav-builder';
 import { buildChapterXhtml } from '../xml-builders/chapter-builder';
 import { prepareMetadata, resolveActiveFonts, prepareChapters } from './asset-builder';
-import { prepareFinalCss } from './stylesheet-builder';
+import { prepareFinalCss, buildJacketCss } from './stylesheet-builder';
 
 import type {
 	EpubMetadata,
@@ -73,9 +72,10 @@ export async function assembleEpubZip(
 		throw new Error('Không thể tạo thư mục OEBPS trong EPUB ZIP');
 	}
 
+	const hasJacket = Boolean(jacket && jacket.enabled);
 	oebps.file(
 		'content.opf',
-		buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, images)
+		buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, images, hasJacket)
 	);
 	oebps.file('nav.xhtml', buildNavXhtml(meta, chapters));
 	oebps.file('toc.ncx', buildTocNcx(meta, chapters));
@@ -83,6 +83,12 @@ export async function assembleEpubZip(
 	const stylesFolder = oebps.folder('styles');
 	if (stylesFolder) {
 		stylesFolder.file('style.css', finalCss);
+		if (hasJacket) {
+			const jacketCss = buildJacketCss(jacket, fonts);
+			if (jacketCss) {
+				stylesFolder.file('jacket.css', jacketCss);
+			}
+		}
 	}
 
 	if (coverBlob) {
@@ -144,19 +150,7 @@ export async function assembleEpubZip(
 			const isJacket = chapter.fileName === 'jacket';
 			const isCover = chapter.fileName === 'cover';
 			let localCss = '';
-			if (isJacket && jacket && jacket.enabled) {
-				const template = JACKET_TEMPLATES.find((t) => t.id === jacket.templateId);
-				if (template) {
-					localCss = template.css;
-				}
-				if (fonts && fonts.jacketFont && fonts.jacketFont !== 'default') {
-					const jFont = findFont(fonts.jacketFont);
-					if (jFont) {
-						const declaration = getFontCSSDeclaration(fonts.jacketFont);
-						localCss = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }\n${localCss}`;
-					}
-				}
-			} else if (isCover) {
+			if (isCover) {
 				localCss = coverCss;
 			}
 			const xhtmlContent = buildChapterXhtml(

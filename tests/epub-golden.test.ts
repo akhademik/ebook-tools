@@ -1,6 +1,16 @@
 // tests/epub-golden.test.ts
 import { describe, it, expect, vi } from 'vitest';
 import JSZip from 'jszip';
+import fs from 'node:fs';
+import path from 'node:path';
+
+vi.mock('../src/lib/epub-packer/templates/css-template/intro-css.css?raw', () => {
+	const content = fs.readFileSync(
+		path.resolve(__dirname, '../src/lib/epub-packer/templates/css-template/intro-css.css'),
+		'utf-8'
+	);
+	return { default: content };
+});
 
 vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({
 	default: '/* base.css */'
@@ -151,6 +161,18 @@ Chú thích:
 		const jacketXhtml = await zip.file('OEBPS/text/jacket.xhtml')?.async('text');
 		expect(jacketXhtml).toBeDefined();
 		expect(jacketXhtml).toContain('Tác Phẩm Mẫu');
+		expect(jacketXhtml).toContain('href="../styles/jacket.css"');
+		expect(jacketXhtml).not.toContain('<style>');
+
+		const jacketCss = await zip.file('OEBPS/styles/jacket.css')?.async('text');
+		expect(jacketCss).toBeDefined();
+		expect(jacketCss).toContain('.jacket-1');
+		expect(jacketCss).not.toMatch(/\/\*[\s\S]*?\*\//);
+
+		const opfXml = await zip.file('OEBPS/content.opf')?.async('text');
+		expect(opfXml).toContain(
+			'<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>'
+		);
 
 		// Assert chapter xhtml files exist
 		const chap1Xhtml = await zip.file('OEBPS/text/chap_01.xhtml')?.async('text');

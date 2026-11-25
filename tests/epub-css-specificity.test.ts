@@ -1,9 +1,20 @@
 // tests/epub-css-specificity.test.ts
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
+
+vi.mock('../src/lib/epub-packer/templates/css-template/intro-css.css?raw', () => {
+	const content = fs.readFileSync(
+		path.resolve(__dirname, '../src/lib/epub-packer/templates/css-template/intro-css.css'),
+		'utf-8'
+	);
+	return { default: content };
+});
 import {
 	EPUB_CSS,
 	prepareFinalCss,
-	getDynamicCss
+	getDynamicCss,
+	buildJacketCss
 } from '../src/lib/epub-packer/builders/stylesheet-builder';
 import { buildContentOpf } from '../src/lib/epub-packer/xml-builders/opf-builder';
 import { buildNavXhtml } from '../src/lib/epub-packer/xml-builders/nav-builder';
@@ -360,5 +371,34 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 		expect(xhtml).toContain('<style>\n.jacket-1 { color: red; }\n  </style>');
 		expect(xhtml).not.toContain('/* Inline Comment */');
 		expect(xhtml).not.toContain('/* Footer comment */');
+	});
+
+	it('should ensure buildJacketCss strips all comments and produces clean jacket.css', () => {
+		const jacketCss = buildJacketCss({
+			enabled: true,
+			templateId: 1,
+			title: 'Title',
+			author: 'Author',
+			originalTitle: '',
+			publisher: '',
+			distributor: ''
+		});
+		expect(jacketCss).toContain('.jacket-1');
+		expect(jacketCss).not.toMatch(/\/\*[\s\S]*?\*\//);
+	});
+
+	it('should link to styles/jacket.css for jacket chapter without inline style', () => {
+		const chapter: EpubChapterItem = {
+			xmlId: 'jacket',
+			fileName: 'jacket',
+			title: 'Trang Lót',
+			html: '<div class="jacket-1"><p class="title">My Book</p></div>'
+		};
+		const xhtml = buildChapterXhtml({ language: 'vi' } as any, chapter);
+		expect(xhtml).toContain('<link rel="stylesheet" type="text/css" href="../styles/jacket.css"/>');
+		expect(xhtml).not.toContain(
+			'<link rel="stylesheet" type="text/css" href="../styles/style.css"/>'
+		);
+		expect(xhtml).not.toContain('<style>');
 	});
 });

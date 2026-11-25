@@ -451,9 +451,11 @@ export function buildChapterXhtml(
 	const cleanedCustomCss = customCss ? customCss.replace(/\/\*[\s\S]*?\*\//g, '').trim() : '';
 	const styleBlock = cleanedCustomCss ? `  <style>\n${cleanedCustomCss}\n  </style>\n` : '';
 	const linkStyle =
-		chapter.fileName === 'jacket' || chapter.fileName === 'cover'
+		chapter.fileName === 'cover'
 			? ''
-			: '  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n';
+			: chapter.fileName === 'jacket'
+				? '  <link rel="stylesheet" type="text/css" href="../styles/jacket.css"/>\n'
+				: '  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n';
 	const isCenterPageWithoutHeading =
 		!!chapter.features?.hasCenterPage &&
 		(!chapter.hasCustomTitle || chapter.title === 'Giới Thiệu');

@@ -4,6 +4,25 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Tách riêng File Stylesheet `styles/jacket.css` cho Trang Lót Bìa Chuẩn EPUB 3)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`:
+    - Bổ sung hàm `buildJacketCss(jacket, fonts)` độc lập: trích xuất CSS của template jacket được chọn, tích hợp font khai báo riêng (`jacketFont` nếu có), tự động lọc sạch toàn bộ comment CSS (`/* ... */`) và thu gọn khoảng trắng.
+  - `src/lib/epub-packer/xml-builders/opf-builder.ts`:
+    - Khai báo item `<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>` trong `<manifest>` của `content.opf` khi tài liệu có trang jacket.
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`:
+    - Cập nhật trang `jacket.xhtml` liên kết tới stylesheet ngoại vi `../styles/jacket.css` thay vì nhúng khối `<style>` nội dòng trong `<head>`.
+  - `src/lib/epub-packer/builders/zip-writer.ts`:
+    - Đóng gói file `styles/jacket.css` trực tiếp vào ZIP khi jacket được bật; dọn sạch `localCss` nội dòng của jacket.
+  - `src/lib/epub-packer/builders/asset-builder.ts`:
+    - Gán tiêu đề chuẩn cho trang jacket (`jacket.title || 'Giới thiệu'`) đảm bảo tính hợp lệ của thẻ `<title>` W3C HTML5/EPUB 3.
+  - `tests/epub-css-specificity.test.ts`, `tests/epub-golden.test.ts`, `tests/epub-packer.test.ts`:
+    - Bổ sung các test case kiểm tra sự tồn tại của `OEBPS/styles/jacket.css`, manifest entry `css-jacket` trong `content.opf`, thẻ `<link>` trong `jacket.xhtml` và xác nhận sạch comment 100%.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (393/393 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+
+---
+
 ## 2026-11-25 (Loại bỏ Triệt để Chú thích CSS trong File EPUB Thành phẩm)
 
 - Thêm/sửa:

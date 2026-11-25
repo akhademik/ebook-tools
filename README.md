@@ -188,11 +188,16 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 15:45
+- Cập nhật lần cuối: 2026-11-25 16:15
 - Đã hoàn thành:
+  - **Tách riêng CSS Trang Lót (`styles/jacket.css`) chuẩn EPUB 3 Best Practice**:
+    - Thay thế việc nhúng CSS nội dòng (`<style>`) trong `jacket.xhtml` bằng file stylesheet độc lập `OEBPS/styles/jacket.css`, liên kết qua `<link rel="stylesheet" type="text/css" href="../styles/jacket.css"/>`.
+    - Tự động đăng ký `styles/jacket.css` trong `<manifest>` của `content.opf` (`<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>`).
+    - Cách ly hoàn toàn trang lót khỏi các quy tắc mặc định của ruột sách trong `style.css` (không bị thụt đầu dòng 1.25em, không bị căn đều justify).
+    - Tối ưu dung lượng: chỉ sinh ra `styles/jacket.css` và manifest item khi người dùng bật tùy chọn Jacket.
   - **Loại bỏ Triệt để Chú thích (CSS Comments) trong File EPUB Thành phẩm**:
     - Xóa sạch toàn bộ các comment chú thích tiếng Việt còn sót trong các file CSS mẫu (`base.css`, `center-page.css`, `ornaments.css`).
-    - Tích hợp cơ chế tự động lọc và xóa sạch comment CSS (`/\*[\s\S]*?\*\//g`) và thu gọn khoảng trắng trong hàm `prepareFinalCss`, `getDynamicCss` và thẻ `<style>` của `buildChapterXhtml`. Đảm bảo file `style.css` và mọi trang xhtml trong EPUB thành phẩm luôn 100% sạch sẽ, tinh gọn và không chứa bất kỳ comment nào.
+    - Tích hợp cơ chế tự động lọc và xóa sạch comment CSS (`/\*[\s\S]*?\*\//g`) và thu gọn khoảng trắng trong hàm `prepareFinalCss`, `getDynamicCss`, `buildJacketCss` và thẻ `<style>` của `buildChapterXhtml`. Đảm bảo file `style.css` và mọi trang xhtml trong EPUB thành phẩm luôn 100% sạch sẽ, tinh gọn và không chứa bất kỳ comment nào.
   - **Tích hợp Tự động Siêu dữ liệu Credit Đóng gói Sách (`content.opf`)**:
     - Tự động bổ sung metadata credit người chế bản số (`<dc:contributor id="packer">akhademik &amp; vc</dc:contributor>`) kèm tinh chỉnh vai trò chuẩn W3C EPUB 3 (`<meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>`), thuộc tính sắp xếp thư mục số (`<meta refines="#packer" property="file-as">akhademik &amp; vc</meta>`) và thông tin generator (`<meta name="generator" content="akhademik &amp; vc"/>`).
     - Cho phép tùy biến qua trường `contributor` trong `EpubMetadata` với giá trị mặc định là `'akhademik & vc'`.
@@ -238,7 +243,7 @@ pnpm test:e2e
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 390/390 unit/integration tests pass (19 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Chất lượng mã nguồn**: Toàn bộ 393/393 unit/integration tests pass (19 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).
