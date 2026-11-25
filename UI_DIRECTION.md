@@ -195,7 +195,7 @@ Chỉ áp dụng token, tiêu đề trang, thẻ, nút, DropZone, Input mới. K
 2. **Thành phần dùng chung**: `Button`, `Input`, `DropZone`, `PageHeader`, `FontSelect` (chỉ kiểu).
 3. **Khung ứng dụng và sidebar thu gọn** (mục 3).
 4. **Trang Tổng quan** (5.1).
-5. **Trang Đóng gói EPUB**: thanh bước + cột tóm tắt (mục 4).
+5. **Trang Đóng gói EPUB**: thanh bước + khối tóm tắt tại Bước 5 (mục 4).
 6. **Các trang còn lại** (mục 5.2, 5.3).
 7. Rà soát cuối: responsive (390 / 768 / 1440px), Light + Dark, điều hướng bàn phím (Tab, Enter, Esc), kiểm tra toàn bộ lệnh ở mục 1.
 

@@ -152,7 +152,7 @@ ebook-tools/
 └── CHANGELOG.md                     # Lịch sử chi tiết các phiên bản và cập nhật
 ```
 
-> **Ghi chú về Git Hooks**: Dự án **không sử dụng Husky**. Mọi quy chuẩn chất lượng mã nguồn được kiểm soát thông qua Pipeline kiểm định bắt buộc tại môi trường cục bộ ([AI_WORKFLOW.md](AI_WORKFLOW.md)) và GitHub Actions CI tự động ([ci.yml](.github/workflows/ci.yml)).
+> **Ghi chú về Git Hooks**: Dự án sử dụng **Husky** (`.husky/pre-commit`) kết hợp với `lint-staged` để tự động định dạng và bắt lỗi ESLint trước mỗi commit, kết hợp cùng GitHub Actions CI tự động ([ci.yml](.github/workflows/ci.yml)).
 
 ---
 
@@ -188,15 +188,17 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 09:45
+- Cập nhật lần cuối: 2026-11-25 10:05
 - Đã hoàn thành:
   - **Hoàn thiện UI Solarized Clean & Crisp**: Chuẩn hóa toàn bộ token màu ngữ nghĩa (`--color-danger`, `--color-warn`, `--color-ok`), loại bỏ hoàn toàn các class màu cứng `red-500`, `emerald-*`, `amber-*`.
   - **Nâng cấp cỡ chữ & Typography**: Nâng toàn bộ font chữ nhỏ dưới 12px lên tối thiểu `text-xs` (12px), loại bỏ `font-mono` ở các nhãn chữ tiếng Việt và nút bấm.
   - **Khôi phục khối gợi ý quy trình**: Bổ sung sơ đồ 4 bước _"Gợi ý quy trình xử lý sách quét"_ (PDF → OCR ngoài → Đóng gói EPUB → Sửa EPUB) trên trang Tổng quan.
   - **Đồng bộ hóa luồng đóng gói EPUB**: Bố trí bảng điều khiển tóm tắt thông tin sách tập trung tại Bước 5 (Đóng gói), giải phóng 100% không gian hiển thị cho các bước cắt bìa, hoa văn và chọn phông.
+  - **Khôi phục Husky & lint-staged**: Tích hợp Git hook pre-commit với `lint-staged` tự động format (Prettier) và lint (ESLint) các file staged trước khi commit.
+  - **Tối ưu hóa kho lưu trữ**: Bỏ theo dõi `graphify-out/` trong Git (chỉ dùng cục bộ cho AI, giảm hơn 26.000 dòng diff).
+  - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Kiểm thử trực quan & bàn phím (Playwright E2E)**: Kiểm định đầy đủ trên 3 kích thước màn hình (390px, 768px, 1440px) ở cả 2 theme Light & Dark, kiểm tra bàn phím Tab/Enter/Esc với 12 ảnh chụp màn hình kiểm chứng.
-  - **Chất lượng mã nguồn**: Toàn bộ 366/366 unit/integration tests pass, 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, cập nhật knowledge graph Graphify thành công.
+  - **Chất lượng mã nguồn**: Toàn bộ 366/366 unit/integration tests pass, 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).
@@ -205,15 +207,13 @@ pnpm test:e2e
 
 ## Changelog
 
-### 2026-11-25 (Hoàn thiện Giao diện Solarized, Token Ngữ nghĩa & Tinh gọn README)
+### 2026-11-25 (Khôi phục Husky, Chuẩn hóa Test E2E & Tối ưu Git Tracking)
 
 - Thêm/sửa:
-  - Chuẩn hóa token màu ngữ nghĩa `--color-danger` và `--color-warn` trong `DESIGN_SYSTEM.md` và `layout.css`.
-  - Nâng toàn bộ cỡ chữ nhỏ dưới 12px lên tối thiểu `text-xs` (12px) trên toàn bộ ứng dụng.
-  - Khử triệt để `font-mono` trên các nhãn text và nút tải file sang `font-sans`.
-  - Bổ sung khối "Gợi ý quy trình xử lý sách quét" 4 bước tinh gọn trên trang Tổng quan `src/routes/+page.svelte`.
-  - Đồng bộ quyết định thiết kế khối tóm tắt Bước 5 trong `UI_DIRECTION.md`.
-  - Thêm Escape key handler cho modal và bộ test E2E trực quan & bàn phím (`tests-e2e/visual-and-keyboard.spec.ts`).
-  - Tách lịch sử phát triển đồ sộ sang file [CHANGELOG.md](CHANGELOG.md) riêng, đưa `README.md` về kích thước chuẩn (~16KB).
-- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | graphify ✅ (4888 nodes, 10460 edges)
+  - Khôi phục Husky v9 (`.husky/pre-commit`) kết hợp `lint-staged` tự động kiểm tra Prettier & ESLint trước commit.
+  - Sửa `tests-e2e/visual-and-keyboard.spec.ts`: loại bỏ đường dẫn cứng, dùng `testInfo.outputPath()`, bổ sung các assertion kiểm tra chống tràn ngang (`scrollWidth <= innerWidth`), hiển thị drawer mobile và các thành phần chính.
+  - Bỏ theo dõi `graphify-out/` trong `.gitignore` và xóa khỏi git cache, giảm 26.000 dòng diff.
+  - Chuẩn hóa lớp phủ cắt bìa sang `bg-danger/40 border-danger` trong `EpubCoverSection` và `pdf/+page.svelte`.
+  - Khớp đồng bộ giai đoạn 5 trong `UI_DIRECTION.md` (thanh bước + khối tóm tắt tại Bước 5).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues)
 - Chi tiết toàn bộ lịch sử các phiên bản: xem tại [CHANGELOG.md](CHANGELOG.md).

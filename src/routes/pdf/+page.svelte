@@ -141,14 +141,14 @@
 							alt="Xem trước trang"
 						/>
 						<div
-							class="absolute top-0 left-0 right-0 bg-red-500/40 border-b border-dashed border-red-500 pointer-events-none"
+							class="absolute top-0 left-0 right-0 bg-danger/40 border-b border-dashed border-danger pointer-events-none"
 							style="height: {Math.min(
 								100,
 								(state.cropTopPx / state.previewPages[state.currentPreviewIndex].height) * 100
 							)}%"
 						></div>
 						<div
-							class="absolute bottom-0 left-0 right-0 bg-red-500/40 border-t border-dashed border-red-500 pointer-events-none"
+							class="absolute bottom-0 left-0 right-0 bg-danger/40 border-t border-dashed border-danger pointer-events-none"
 							style="height: {Math.min(
 								100,
 								(state.cropBottomPx / state.previewPages[state.currentPreviewIndex].height) * 100

@@ -48,13 +48,13 @@
 						alt="Xem trước ảnh bìa"
 					/>
 					<div
-						class="absolute top-0 left-0 right-0 bg-red-500/40 border-b border-dashed border-red-500 pointer-events-none"
+						class="absolute top-0 left-0 right-0 bg-danger/40 border-b border-dashed border-danger pointer-events-none"
 						style="height: {epubState.images.coverHeight > 0
 							? Math.min(100, (epubState.images.coverCropTop / epubState.images.coverHeight) * 100)
 							: 0}%"
 					></div>
 					<div
-						class="absolute bottom-0 left-0 right-0 bg-red-500/40 border-t border-dashed border-red-500 pointer-events-none"
+						class="absolute bottom-0 left-0 right-0 bg-danger/40 border-t border-dashed border-danger pointer-events-none"
 						style="height: {epubState.images.coverHeight > 0
 							? Math.min(
 									100,
@@ -63,7 +63,7 @@
 							: 0}%"
 					></div>
 					<div
-						class="absolute top-0 bottom-0 left-0 bg-red-500/40 border-r border-dashed border-red-500 pointer-events-none"
+						class="absolute top-0 bottom-0 left-0 bg-danger/40 border-r border-dashed border-danger pointer-events-none"
 						style="width: {epubState.images.coverWidth > 0
 							? Math.min(100, (epubState.images.coverCropLeft / epubState.images.coverWidth) * 100)
 							: 0}%; top: {epubState.images.coverHeight > 0
@@ -73,7 +73,7 @@
 							: 0}%"
 					></div>
 					<div
-						class="absolute top-0 bottom-0 right-0 bg-red-500/40 border-l border-dashed border-red-500 pointer-events-none"
+						class="absolute top-0 bottom-0 right-0 bg-danger/40 border-l border-dashed border-danger pointer-events-none"
 						style="width: {epubState.images.coverWidth > 0
 							? Math.min(100, (epubState.images.coverCropRight / epubState.images.coverWidth) * 100)
 							: 0}%; top: {epubState.images.coverHeight > 0

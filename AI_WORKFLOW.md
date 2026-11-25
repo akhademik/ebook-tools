@@ -51,7 +51,7 @@ Chỉ sau khi xác nhận (hoặc người dùng đồng ý) mới bắt đầu 
 
 > **Package manager: chỉ dùng `pnpm`.** Tuyệt đối không dùng `npm`/`yarn`/`npx` dưới bất kỳ hình thức nào. Chạy binary chưa cài thì dùng `pnpm dlx ...`.
 >
-> **Ghi chú về Git Hooks**: Dự án **không sử dụng Husky**. Mọi quy trình kiểm định chất lượng được thực thi trực tiếp qua các script `pnpm` trong pipeline cục bộ và GitHub Actions CI tự động (`.github/workflows/ci.yml`).
+> **Ghi chú về Git Hooks**: Dự án sử dụng **Husky** (`.husky/pre-commit`) kết hợp với `lint-staged` tự động kiểm tra định dạng và lint trước mỗi lần commit.
 
 ### 2.1 Chu trình kiểm tra cục bộ khi sửa code (Local Dev Loop)
 
