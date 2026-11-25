@@ -112,6 +112,48 @@ pnpm build
 
 ---
 
+## 📂 Cấu trúc Thư mục & Modules Thực tế (Project Architecture)
+
+Dự án được tổ chức theo cấu trúc module hóa phân định trách nhiệm rõ ràng (Single Responsibility):
+
+```
+ebook-tools/
+├── src/
+│   ├── routes/                      # SvelteKit Pages & Routes
+│   │   ├── +page.svelte             # Trang chủ / Tổng quan Dashboard
+│   │   ├── +layout.svelte           # Khung layout ứng dụng (Sidebar, Theme, Header)
+│   │   ├── epub-packer/             # Công cụ Đóng gói EPUB (TXT, MD Zip -> EPUB)
+│   │   ├── epub-editor/             # Bộ Biên tập, Tối ưu hóa & Kiểm định EPUB
+│   │   ├── epub-to-txt/             # Công cụ Trích xuất EPUB -> TXT
+│   │   ├── pdf/                     # Công cụ Tách trang PDF -> JPG
+│   │   ├── txt-to-pdf/              # Giới thiệu & Tải phần mềm Desktop CJK
+│   │   └── epub/+page.ts            # Route chuyển hướng HTTP 308 sang /epub-packer
+│   ├── lib/
+│   │   ├── components/              # 5 UI components dùng chung (Button, DropZone, FontSelect, Input, PageHeader)
+│   │   ├── epub-packer/             # Core logic đóng gói EPUB (parsers, builders, templates, state)
+│   │   ├── epub-editor/             # Core logic biên tập EPUB (cleaner, editor, validator, components, state)
+│   │   ├── epub-to-txt/             # Core logic trích xuất text từ file EPUB
+│   │   ├── pdf-splitter/            # Logic tách trang tài liệu PDF
+│   │   ├── utils/                   # Tiện ích chung & AI Worker tách nền hoa văn (image-bg-remove-ml)
+│   │   ├── types/                   # Định nghĩa TypeScript tập trung (strict mode)
+│   │   └── constants.ts             # Các ngưỡng giới hạn kích thước file
+│   └── assets/
+│       ├── fonts/                   # 40 phông chữ chuẩn hóa nhúng sách điện tử
+│       └── fonts-metadata.json      # Metadata font được trích xuất tự động qua script prebuild
+├── static/                          # Tài nguyên tĩnh
+│   └── vendor/pdfjs/                # Thư viện PDF.js biên dịch sẵn phục vụ xử lý PDF phía client
+├── tests/                           # 17 test suites (366 unit/integration tests qua Vitest)
+├── tests-e2e/                       # Kịch bản kiểm thử trình duyệt thực tế qua Playwright
+├── scripts/                         # Script tự động hóa lúc build (generate-fonts-meta.js)
+├── .github/workflows/ci.yml         # GitHub Actions CI pipeline
+├── AI_WORKFLOW.md                   # Quy trình làm việc & kiểm định bắt buộc
+└── DESIGN_SYSTEM.md                 # Quy chuẩn thiết kế UI & Design Tokens
+```
+
+> **Ghi chú về Git Hooks**: Dự án **không sử dụng Husky**. Mọi quy chuẩn chất lượng mã nguồn được kiểm soát thông qua Pipeline kiểm định bắt buộc tại môi trường cục bộ ([AI_WORKFLOW.md](AI_WORKFLOW.md)) và GitHub Actions CI tự động ([ci.yml](.github/workflows/ci.yml)).
+
+---
+
 ## 🧪 Quy chuẩn Kiểm thử & Chất lượng Mã nguồn (Quality Gates)
 
 Dự án tuân thủ quy trình kiểm thử và chất lượng nghiêm ngặt theo [AI_WORKFLOW.md](AI_WORKFLOW.md):
@@ -126,7 +168,7 @@ pnpm lint
 # 3. Quét mã rác, file thừa và dependencies không dùng
 pnpm knip
 
-# 4. Chạy toàn bộ Unit & Integration Tests (214+ tests)
+# 4. Chạy toàn bộ Unit & Integration Tests (366 tests)
 pnpm test
 
 # 5. Chạy Kiểm thử Giao diện Trình duyệt Thật (Playwright E2E)
@@ -144,8 +186,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-24 11:51
+- Cập nhật lần cuối: 2026-11-25 08:30
 - Đã hoàn thành:
+  - **Xóa bỏ Husky, Chuẩn hóa Cấu trúc Thư mục & Cập nhật Toàn diện Tài liệu Dự án**:
+    - **Xóa bỏ Husky hoàn toàn**: Xóa thư mục `.husky/`, hủy bỏ cấu hình `core.hooksPath` trong Git config. Quy chuẩn chất lượng mã nguồn được bảo đảm thuần túy thông qua pipeline `pnpm` cục bộ và GitHub Actions CI.
+    - **Bổ sung sơ đồ kiến trúc thư mục chuẩn xác**: Thêm mục _Cấu trúc Thư mục & Modules Thực tế_ tại `README.md` mô tả chi tiết toàn bộ các route, modules, assets và test suites đang hoạt động.
+    - **Cập nhật đồng bộ các tài liệu**: Đồng bộ số lượng 366 tests và ma trận kiểm thử tại `README.md`, `AI_WORKFLOW.md` và `TEST_WORKFLOW.md`.
+  - **Dọn dẹp Toàn diện Codebase, Module Mồ côi & Rác Tích tụ (Clean Up Dead Code & Historical Clutter)**:
+    - **Loại bỏ module mồ côi `src/lib/epub/`**: Xóa bỏ `src/lib/epub/parser/epub-reader-parser.ts` (555 LOC), `src/lib/epub/types/index.ts` (101 LOC), `src/lib/epub/index.ts` (3 LOC), và bài test đơn lẻ `tests/epub-core.test.ts` (91 LOC). Gỡ bỏ re-export `export * from '../epub/types';` khỏi `src/lib/types/index.ts`, thanh lọc ~750 dòng code chết mà không ảnh hưởng tới bất kỳ tính năng UI nào.
+    - **Dọn dẹp 15 thư mục snapshot lịch sử trong `graphify-out/`**: Giải phóng **70 MB** và **167 file** rác tích tụ.
+    - **Tối ưu hóa `package.json`**: Chuyển `fontkit` từ `dependencies` sang `devDependencies` (chỉ dùng cho `pnpm prebuild` metadata font ở build time, không bundle vào client bundle).
+    - **Dọn dẹp thư mục tạm `test-results/`**.
+    - Toàn bộ **366/366 unit tests pass 100%** (17/17 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Tối ưu Hài hòa Header Sidebar & Logo Ebook Forge (Streamlined Sidebar Header & Seamless Collapse Button)**:
     - **Loại bỏ icon hộp màu cồng kềnh (`src/routes/+layout.svelte`)**: Gỡ bỏ khung icon sách 40x40px (`w-10 h-10 bg-accent-soft`) ở cả Header Sidebar Desktop và Header Mobile, chuyển thương hiệu thành dạng wordmark chữ in đậm tinh tế `Ebook Forge`.
     - **Tối ưu nút thu/mở menu `<` và `>`**:
@@ -485,6 +537,38 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-25 (Xóa bỏ Husky, Bổ sung Sơ đồ Kiến trúc Thư mục & Cập nhật Toàn diện Tài liệu Dự án)
+
+- Thêm/sửa:
+  - Xóa bỏ thư mục `.husky/` và hủy bỏ `core.hooksPath` trong Git config.
+  - `README.md`: Bổ sung mục _Cấu trúc Thư mục & Modules Thực tế_, cập nhật số lượng test thực tế lên 366 tests, ghi nhận trạng thái loại bỏ Husky.
+  - `AI_WORKFLOW.md`: Chuẩn hóa ma trận test (sửa đường dẫn `image-bg-remove-ml.ts`, cập nhật file test `epub-parser.test.ts`), làm rõ quy chế không dùng Husky.
+  - `TEST_WORKFLOW.md`: Cập nhật bảng kiểm thử tính năng theo các route thực tế của ứng dụng (`/epub-packer`, `/epub-editor`, `/epub-to-txt`, `/pdf`, `/txt-to-pdf`).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | knip ✅ (0 issues) | graphify ✅
+- File chính bị ảnh hưởng:
+  - `.husky/` (deleted)
+  - `README.md`
+  - `AI_WORKFLOW.md`
+  - `TEST_WORKFLOW.md`
+
+### 2026-11-25 (Dọn dẹp Codebase: Xóa Module Mồ côi src/lib/epub, Chuyển fontkit sang devDependencies, Dọn dẹp Snapshot Lịch sử)
+
+- Thêm/sửa:
+  - `src/lib/epub/`: Xóa toàn bộ module parser mồ côi (`index.ts`, `types/index.ts`, `parser/epub-reader-parser.ts`).
+  - `tests/epub-core.test.ts`: Xóa file unit test đi kèm module cũ.
+  - `src/lib/types/index.ts`: Gỡ bỏ dòng export `../epub/types`.
+  - `package.json` & `pnpm-lock.yaml`: Chuyển `fontkit` sang `devDependencies`.
+  - `graphify-out/`: Xóa 15 thư mục snapshot lịch sử theo ngày, giải phóng 70 MB và 167 files.
+  - `test-results/`: Dọn dẹp thư mục tạm.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | knip ✅ (0 issues) | graphify: Rebuilt 4893 nodes, 10512 edges, 284 communities
+- File chính bị ảnh hưởng:
+  - `src/lib/epub/` (deleted)
+  - `tests/epub-core.test.ts` (deleted)
+  - `src/lib/types/index.ts`
+  - `package.json`
+  - `pnpm-lock.yaml`
+  - `README.md`
 
 ### 2026-11-24 (Tối ưu Hài hòa Header Sidebar & Logo Ebook Forge)
 

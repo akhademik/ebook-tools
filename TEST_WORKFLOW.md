@@ -81,15 +81,15 @@ Tạo một TEST INVENTORY.
 
 Ví dụ:
 
-| Feature         | Route        | Input | Output | Unit | Integration | E2E |
-| --------------- | ------------ | ----- | ------ | ---- | ----------- | --- |
-| TXT → EPUB      | /txt-to-epub | .txt  | .epub  | ✓    | ✓           | ✓   |
-| Markdown → EPUB | /md-to-epub  | .md   | .epub  | ✓    | ✓           | ✓   |
-| EPUB → TXT      | /epub-to-txt | .epub | .txt   | ✓    | ✓           | ✓   |
-| PDF → EPUB      | /pdf-to-epub | .pdf  | .epub  | ✓    | ✓           | ✓   |
-| EPUB Editor     | /epub-editor | .epub | .epub  | ✓    | ✓           | ✓   |
-| EPUB Cleaner    | ...          | .epub | .epub  | ✓    | ✓           | ✓   |
-| EPUB Validator  | ...          | .epub | report | ✓    | ✓           | ✓   |
+| Feature                | Route        | Input     | Output   | Unit | Integration | E2E |
+| ---------------------- | ------------ | --------- | -------- | ---- | ----------- | --- |
+| TXT / MD → EPUB Packer | /epub-packer | .txt, .md | .epub    | ✓    | ✓           | ✓   |
+| EPUB Editor            | /epub-editor | .epub     | .epub    | ✓    | ✓           | ✓   |
+| EPUB Cleaner           | /epub-editor | .epub     | .epub    | ✓    | ✓           | ✓   |
+| EPUB Validator         | /epub-editor | .epub     | report   | ✓    | ✓           | ✓   |
+| EPUB → TXT             | /epub-to-txt | .epub     | .txt     | ✓    | ✓           | ✓   |
+| PDF Splitter           | /pdf         | .pdf      | .zip img | ✓    | ✓           | ✓   |
+| TXT → PDF CJK Desktop  | /txt-to-pdf  | .txt      | desktop  | ✓    | —           | ✓   |
 
 Không được bỏ sót feature chỉ vì feature đó ít được sử dụng.
 

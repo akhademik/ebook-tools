@@ -50,6 +50,8 @@ Chỉ sau khi xác nhận (hoặc người dùng đồng ý) mới bắt đầu 
 ## 2. Pipeline bắt buộc sau MỌI lần chỉnh sửa code & Trước khi Commit
 
 > **Package manager: chỉ dùng `pnpm`.** Tuyệt đối không dùng `npm`/`yarn`/`npx` dưới bất kỳ hình thức nào. Chạy binary chưa cài thì dùng `pnpm dlx ...`.
+>
+> **Ghi chú về Git Hooks**: Dự án **không sử dụng Husky**. Mọi quy trình kiểm định chất lượng được thực thi trực tiếp qua các script `pnpm` trong pipeline cục bộ và GitHub Actions CI tự động (`.github/workflows/ci.yml`).
 
 ### 2.1 Chu trình kiểm tra cục bộ khi sửa code (Local Dev Loop)
 
@@ -148,7 +150,7 @@ Không được báo cáo "hoàn thành" hoặc offer commit/push nếu bất k�
 ```
 
 - **🔹 Tầng 1: Smoke Tests (`pnpm test:smoke`)**: Siêu nhanh (~350ms). Chạy liên tục mỗi khi lưu/thay đổi code để đảm bảo các luồng xương sống không gãy (TXT → EPUB, MD → EPUB, EPUB → TXT, EPUB Editor, Cleaner, Validator).
-- **🔹 Tầng 2: Unit & Integration Tests (`pnpm test:unit` hoặc `pnpm test`)**: ~1 giây (290+ bài test). Kiểm tra chi tiết từng hàm logic, heuristic nhận diện chương, regex OCR, UTF-8 tiếng Việt, phân tách PDF, bóc tách ảnh nền ML.
+- **🔹 Tầng 2: Unit & Integration Tests (`pnpm test:unit` hoặc `pnpm test`)**: ~1 giây (366 bài test trong 17 test files). Kiểm tra chi tiết từng hàm logic, heuristic nhận diện chương, regex OCR, UTF-8 tiếng Việt, phân tách PDF, bóc tách ảnh nền ML.
 - **🔹 Tầng 3: Regression Safety Net (`pnpm test:regression`)**: ~400ms. Tấm lưới an toàn vĩnh viễn chống lỗi phát sinh sau khi refactor (`TXT → EPUB → TXT` round-trip, bảo toàn TOC, cleaner safety, validator resilience).
 - **🔹 Tầng 4: Full Browser E2E & Output Inspection (`pnpm test:e2e`)**: ~15s (Playwright Chromium). Mô phỏng tải file thực tế → bóc tách ZIP → kiểm tra từng thẻ XHTML và mục lục TOC.
 - **🔹 Tầng Mở rộng: Stress & Heavy Load (`pnpm test:stress`)**: Kiểm thử sức chịu tải với tác phẩm lớn từ 1.000 đến 5.000 chương.
@@ -163,13 +165,13 @@ Trong quá trình đang phát triển / sửa dở dang một module, hãy tra c
 | :-------------------------------------- | :------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------- |
 | **Mọi thay đổi nhỏ / Lưu code**         | Bất kỳ file nào trong `src/`                                                                             | `pnpm test:smoke`                                                                                                      |
 | **TXT Parser & EPUB Packer**            | `src/lib/epub-packer/**`                                                                                 | `pnpm test:smoke`<br/>`vitest tests/epub-packer.test.ts tests/real-world-workflows.test.ts`<br/>`pnpm test:regression` |
-| **ZIP Grouper & Markdown Utils**        | `src/lib/epub-packer/parser/epub-markdown-utils.ts`<br/>`src/lib/epub-packer/parser/epub-zip-grouper.ts` | `vitest tests/epub-markdown-utils.test.ts tests/real-world-workflows.test.ts`<br/>`pnpm test:regression`               |
+| **ZIP Grouper & Markdown Utils**        | `src/lib/epub-packer/parser/epub-markdown-utils.ts`<br/>`src/lib/epub-packer/parser/epub-zip-grouper.ts` | `vitest tests/epub-parser.test.ts tests/real-world-workflows.test.ts`<br/>`pnpm test:regression`                       |
 | **EPUB to TXT Converter**               | `src/lib/epub-to-txt/**`                                                                                 | `vitest tests/epub-to-txt.test.ts`<br/>`pnpm test:smoke`<br/>`pnpm test:regression`                                    |
 | **EPUB Editor & TOC Operations**        | `src/lib/epub-editor/epub-editor.ts`<br/>`src/lib/epub-editor/epub-book-ops.ts`                          | `vitest tests/epub-editor.test.ts tests/epub-book-ops.test.ts`<br/>`pnpm test:regression`<br/>`pnpm test:e2e`          |
 | **EPUB Cleaner & Optimizer**            | `src/lib/epub-editor/epub-cleaner.ts`                                                                    | `vitest tests/epub-cleaner.test.ts`<br/>`pnpm test:regression`                                                         |
 | **EPUB Validator (Generic/Kobo/EPUB3)** | `src/lib/epub-editor/epub-validator.ts`                                                                  | `vitest tests/epub-validator.test.ts`<br/>`pnpm test:regression`                                                       |
 | **PDF Splitter & OCR Helpers**          | `src/lib/pdf-splitter/**`<br/>`src/lib/epub-packer/parser/epub-ocr-utils.ts`                             | `vitest tests/pdf-splitter.test.ts tests/real-world-workflows.test.ts`                                                 |
-| **Image Background Removal (ML)**       | `src/lib/image-bg-remove/**`                                                                             | `vitest tests/image-bg-remove.test.ts`                                                                                 |
+| **Image Background Removal (ML)**       | `src/lib/utils/image-bg-remove-ml.ts`<br/>`src/lib/utils/image-bg-remove.worker.ts`                      | `vitest tests/image-bg-remove.test.ts`                                                                                 |
 | **Core Types / Refactor diện rộng**     | `src/lib/types/**`<br/>`src/lib/utils/**`                                                                | `pnpm test`<br/>`pnpm test:regression`<br/>`pnpm test:e2e`                                                             |
 | **Giao diện trang (UI Routes)**         | `src/routes/**`                                                                                          | `pnpm test:e2e`                                                                                                        |
 
