@@ -149,7 +149,7 @@ function getGrayscaleWorker(): Worker | null {
 	return grayscaleWorker;
 }
 
-function cleanupGrayscaleWorker(force = false): void {
+export function cleanupGrayscaleWorker(force = false): void {
 	if (activeGrayscaleTasks > 0 && !force) {
 		return;
 	}
@@ -169,6 +169,14 @@ function cleanupGrayscaleWorker(force = false): void {
 			job.reject(new Error('Grayscale worker terminated'));
 		}
 	}
+}
+
+/**
+ * Returns the number of currently active pending grayscale jobs in the worker queue.
+ * Useful for monitoring and unit test assertions.
+ */
+export function getPendingGrayscaleJobsCount(): number {
+	return pendingGrayscaleJobs.size;
 }
 
 /**

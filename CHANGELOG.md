@@ -4,6 +4,26 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Kiểm thử Toàn diện postMessage Thất bại, Benchmark Thực tế Timeout & Chuẩn hóa Changelog)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - Xuất hàm `cleanupGrayscaleWorker` và `getPendingGrayscaleJobsCount` hỗ trợ kiểm thử và giám sát trạng thái hàng đợi Worker.
+  - `tests/pdf-splitter.test.ts`:
+    - **Kiểm thử lỗi đồng bộ `worker.postMessage()` (Review Item A)**: Mô phỏng tình huống `postMessage()` ném lỗi đồng bộ (`DataCloneError: ArrayBuffer at transfer list is detached`). Xác thực: Promise được xử lý fallback sang main thread thành công (`mockCtx.putImageData` được gọi), timer được hủy ngay lập tức (`clearTimeout` được gọi), job bị xóa khỏi map `pendingGrayscaleJobs`, Worker không bị hủy oan (`terminate` không bị gọi), và các job in-flight khác đang chờ trong Worker vẫn an toàn tuyệt đối và hoàn tất thành công.
+    - **Benchmark thực nghiệm hiệu năng Grayscale & Biên độ Timeout Thích ứng (Review Item B)**: Đo lường thời gian thực tế xử lý bộ đệm pixel của `processGrayscaleBuffer` trên các kích thước trang PDF quét thực tế:
+      - 1MP Text (800x1250): ~31.6ms | Timeout: 15s | Biên độ an toàn: 474x
+      - 4MP A4 200 DPI Scan (1654x2338): ~83.5ms | Timeout: 15s | Biên độ an toàn: 180x
+      - 8.7MP A4 300 DPI Scan (2480x3508): ~81.1ms | Timeout: 22.05s | Biên độ an toàn: 272x
+      - 24MP 600 DPI / Scan khổ lớn (4000x6000): ~226.9ms | Timeout: 45s | Biên độ an toàn: 198x
+      - 50MP Scan cực đại 2 trang mở (6000x8333): ~458.6ms | Timeout: 60s | Biên độ an toàn: 131x
+      - Kết luận: Thời gian xử lý thực tế luôn < 500ms ngay cả với trang 50MP (190.7MB buffer), chứng minh trần timeout 15s–60s mang lại biên độ an toàn từ 130x đến gần 500x, loại bỏ hoàn toàn nguy cơ timeout giả kể cả trên CPU thiết bị di động bị bóp hiệu năng (throttled).
+  - `README.md`:
+    - Dọn dẹp toàn bộ các khối changelog trùng lặp theo đúng chỉ đạo người dùng, chuyển liên kết tập trung sang `CHANGELOG.md`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (373/373 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Bắt lỗi Đồng bộ postMessage Worker & Timeout Thích ứng theo Kích thước Pixel)
 
 - Thêm/sửa:

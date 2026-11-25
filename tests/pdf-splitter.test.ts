@@ -387,6 +387,165 @@ describe('pdf-splitter tests', () => {
 			expect(cropped).toBeDefined();
 		});
 
+		it('should handle synchronous postMessage errors, cancel timer, clean pending map, and keep in-flight jobs safe', async () => {
+			const { applyGrayscaleAsync, cleanupGrayscaleWorker, getPendingGrayscaleJobsCount } =
+				await import('../src/lib/pdf-splitter/pdf-splitter');
+
+			cleanupGrayscaleWorker(true);
+			expect(getPendingGrayscaleJobsCount()).toBe(0);
+
+			const postMessageSpy = vi.fn();
+			const terminateSpy = vi.fn();
+			const mockWorkerInstance = {
+				onmessage: null as ((e: any) => void) | null,
+				onerror: null as ((e: any) => void) | null,
+				onmessageerror: null as ((e: any) => void) | null,
+				postMessage: postMessageSpy,
+				terminate: terminateSpy
+			};
+
+			function MockWorker() {
+				return mockWorkerInstance;
+			}
+
+			const originalWorker = (globalThis as any).Worker;
+			const originalWindowWorker = (globalThis as any).window?.Worker;
+			(globalThis as any).Worker = MockWorker;
+			if ((globalThis as any).window) {
+				(globalThis as any).window.Worker = MockWorker;
+			}
+
+			const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+			try {
+				const mockCtx1 = {
+					getImageData: vi.fn().mockReturnValue({
+						data: new Uint8Array([50, 100, 150, 255])
+					}),
+					putImageData: vi.fn()
+				};
+
+				const mockCtx2 = {
+					getImageData: vi.fn().mockReturnValue({
+						data: new Uint8Array([80, 120, 160, 255])
+					}),
+					putImageData: vi.fn()
+				};
+
+				// Job 1: In-flight job that queues normally in worker
+				postMessageSpy.mockImplementationOnce(() => {
+					// Normal postMessage - does not throw
+				});
+
+				const job1Promise = applyGrayscaleAsync(mockCtx1 as any, 1, 1, 1.08);
+
+				// Verify Job 1 was sent to worker and pending job registered in map
+				expect(postMessageSpy).toHaveBeenCalledTimes(1);
+				expect(getPendingGrayscaleJobsCount()).toBe(1);
+				const job1Call = postMessageSpy.mock.calls[0][0];
+				const job1Id = job1Call.id;
+
+				// Job 2: Synchronous postMessage error (e.g. detached ArrayBuffer / DataCloneError)
+				const syncError = new Error('DataCloneError: ArrayBuffer at transfer list is detached');
+				postMessageSpy.mockImplementationOnce(() => {
+					throw syncError;
+				});
+
+				clearTimeoutSpy.mockClear();
+
+				// Job 2 should catch synchronous error, cancel timer, remove from pending map, and fallback to main thread
+				await applyGrayscaleAsync(mockCtx2 as any, 1, 1, 1.08);
+
+				// 1. Timer cancelled for Job 2
+				expect(clearTimeoutSpy).toHaveBeenCalled();
+
+				// 2. Fallback to main thread succeeded for Job 2
+				expect(mockCtx2.putImageData).toHaveBeenCalledTimes(1);
+
+				// 3. Worker was NOT terminated by Job 2 synchronous failure
+				expect(terminateSpy).not.toHaveBeenCalled();
+
+				// 4. Job 1 is STILL alive and unaffected in pendingGrayscaleJobs
+				expect(getPendingGrayscaleJobsCount()).toBe(1);
+
+				// Now simulate worker responding successfully for Job 1
+				mockWorkerInstance.onmessage({
+					data: {
+						id: job1Id,
+						type: 'success',
+						buffer: new Uint8Array([100, 100, 100, 255]).buffer
+					}
+				});
+
+				await job1Promise;
+
+				// Job 1 completed successfully and painted its output
+				expect(mockCtx1.putImageData).toHaveBeenCalledTimes(1);
+				expect(getPendingGrayscaleJobsCount()).toBe(0);
+			} finally {
+				cleanupGrayscaleWorker(true);
+				clearTimeoutSpy.mockRestore();
+				if (originalWorker !== undefined) {
+					(globalThis as any).Worker = originalWorker;
+				} else {
+					delete (globalThis as any).Worker;
+				}
+				if (originalWindowWorker !== undefined) {
+					(globalThis as any).window.Worker = originalWindowWorker;
+				} else if ((globalThis as any).window) {
+					delete (globalThis as any).window.Worker;
+				}
+			}
+		});
+
+		it('should benchmark grayscale buffer processing and verify generous adaptive timeout margins across 1MP to 50MP', async () => {
+			const { calculateGrayscaleTimeout } = await import('../src/lib/pdf-splitter/pdf-splitter');
+			const { processGrayscaleBuffer } =
+				await import('../src/lib/pdf-splitter/pdf-grayscale.worker');
+
+			// Test matrix representing realistic PDF page resolutions:
+			// 1. Text PDF standard: ~1 MP (800x1250)
+			// 2. 200 DPI scan (A4 default): ~4 MP (1654x2338)
+			// 3. 300 DPI scan (A4 high-res): ~8.7 MP (2480x3508)
+			// 4. 600 DPI scan / full-bleed photo: ~24 MP (4000x6000)
+			// 5. Extreme double-page / art-book: ~50 MP (6000x8333)
+			const testResolutions = [
+				{ name: '1MP Text page', width: 800, height: 1250, pixels: 1_000_000 },
+				{ name: '4MP A4 200 DPI scan', width: 1654, height: 2338, pixels: 3_867_052 },
+				{ name: '8.7MP A4 300 DPI scan', width: 2480, height: 3508, pixels: 8_699_840 },
+				{ name: '24MP 600 DPI / large photo', width: 4000, height: 6000, pixels: 24_000_000 },
+				{ name: '50MP extreme double-spread', width: 6000, height: 8333, pixels: 49_998_000 }
+			];
+
+			for (const res of testResolutions) {
+				const timeoutMs = calculateGrayscaleTimeout(res.width, res.height);
+
+				// Adaptive timeout bounds checks
+				expect(timeoutMs).toBeGreaterThanOrEqual(15000);
+				expect(timeoutMs).toBeLessThanOrEqual(60000);
+
+				// Allocate test buffer (RGBA = 4 bytes per pixel)
+				const sampleBuffer = new Uint8Array(res.pixels * 4);
+				// Fill sample gradient
+				for (let i = 0; i < Math.min(1000, sampleBuffer.length); i += 4) {
+					sampleBuffer[i] = 120;
+					sampleBuffer[i + 1] = 140;
+					sampleBuffer[i + 2] = 160;
+					sampleBuffer[i + 3] = 255;
+				}
+
+				const startNs = process.hrtime.bigint();
+				const resultBuffer = processGrayscaleBuffer(sampleBuffer.buffer, 1.08);
+				const elapsedMs = Number(process.hrtime.bigint() - startNs) / 1_000_000;
+
+				expect(resultBuffer.byteLength).toBe(res.pixels * 4);
+
+				// Verify headroom: adaptive timeout must be at least 10x larger than execution time
+				const safetyMarginFactor = Math.round(timeoutMs / Math.max(1, elapsedMs));
+				expect(safetyMarginFactor).toBeGreaterThan(10);
+			}
+		});
+
 		it('should load a single document instance and clean it up upon completion', async () => {
 			mockPdfjsLib.getDocument.mockClear();
 			mockDoc.destroy.mockClear();
