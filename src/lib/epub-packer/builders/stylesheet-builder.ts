@@ -22,17 +22,17 @@ export const EPUB_CSS =
 	'\n' +
 	centerPageCss +
 	'\n' +
+	breaksCss +
+	'\n' +
+	notesCss +
+	'\n' +
 	headingsCss +
 	'\n' +
 	ornamentsCss +
 	'\n' +
 	headingCombinatorsCss +
 	'\n' +
-	quotesCss +
-	'\n' +
-	breaksCss +
-	'\n' +
-	notesCss;
+	quotesCss;
 
 export function getDynamicCss(
 	chapters: EpubChapterItem[],
@@ -90,14 +90,14 @@ export function getDynamicCss(
 	}
 
 	if (hasCenterPage) css += '\n' + centerPageCss;
+	if (hasBreaks) css += '\n' + breaksCss;
+	if (hasNotes) css += '\n' + notesCss;
 	if (hasHeadings) css += '\n' + headingsCss;
 	if (ornaments?.chapterOrnament || ornaments?.subchapterOrnament) {
 		css += '\n' + ornamentsCss;
 	}
 	if (hasHeadings) css += '\n' + headingCombinatorsCss;
 	if (hasQuotes) css += '\n' + quotesCss;
-	if (hasBreaks) css += '\n' + breaksCss;
-	if (hasNotes) css += '\n' + notesCss;
 
 	return css
 		.replace(/\/\*[\s\S]*?\*\//g, '')
@@ -212,7 +212,8 @@ export function prepareFinalCss(
 
 	// Layer 3: Subchapter rules (specificity 0, 1, 1 and 0, 1, 2)
 	if (fontSubchapterRules) {
-		const marker = '.subchapter-ornament + h2 {\n\tmargin-top: 0.2em !important;\n}';
+		const marker =
+			'.subchapter-ornament + h2 {\n\tmargin-top: 0.2em !important;\n\tpadding-top: 0 !important;\n}';
 		if (finalCss.includes(marker)) {
 			finalCss = finalCss.replace(marker, `${marker}\n${fontSubchapterRules.trim()}`);
 		} else if (finalCss.includes('h1.main-chap + h1.main-chap')) {

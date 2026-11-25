@@ -1,15 +1,53 @@
 // tests/epub-css-specificity.test.ts
 import { describe, it, expect, vi } from 'vitest';
-import fs from 'node:fs';
-import path from 'node:path';
 
-vi.mock('../src/lib/epub-packer/templates/css-template/intro-css.css?raw', () => {
-	const content = fs.readFileSync(
-		path.resolve(__dirname, '../src/lib/epub-packer/templates/css-template/intro-css.css'),
-		'utf-8'
-	);
-	return { default: content };
+const { cssMocks } = await vi.hoisted(async () => {
+	const fs = await import('node:fs');
+	const path = await import('node:path');
+	const cssDir = path.resolve(__dirname, '../src/lib/epub-packer/templates/css-template');
+	const read = (name: string) => fs.readFileSync(path.join(cssDir, name), 'utf-8');
+	return {
+		cssMocks: {
+			base: read('base.css'),
+			centerPage: read('center-page.css'),
+			headings: read('headings.css'),
+			ornaments: read('ornaments.css'),
+			headingCombinators: read('heading-combinators.css'),
+			quotes: read('quotes.css'),
+			breaks: read('breaks.css'),
+			notes: read('notes.css'),
+			intro: read('intro-css.css')
+		}
+	};
 });
+
+vi.mock('../src/lib/epub-packer/templates/css-template/base.css?raw', () => ({
+	default: cssMocks.base
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/center-page.css?raw', () => ({
+	default: cssMocks.centerPage
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/headings.css?raw', () => ({
+	default: cssMocks.headings
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/ornaments.css?raw', () => ({
+	default: cssMocks.ornaments
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/heading-combinators.css?raw', () => ({
+	default: cssMocks.headingCombinators
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/quotes.css?raw', () => ({
+	default: cssMocks.quotes
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/breaks.css?raw', () => ({
+	default: cssMocks.breaks
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/notes.css?raw', () => ({
+	default: cssMocks.notes
+}));
+vi.mock('../src/lib/epub-packer/templates/css-template/intro-css.css?raw', () => ({
+	default: cssMocks.intro
+}));
 import {
 	EPUB_CSS,
 	prepareFinalCss,
@@ -248,6 +286,46 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		const finalCss = prepareFinalCss(chapters, undefined, fonts, null);
 		const errors = findDescendingSpecificityErrors(finalCss);
 		expect(errors).toEqual([]);
+	});
+
+	it('should guarantee that .note p and scene-break selectors come before higher-specificity p selectors', () => {
+		const chapters: EpubChapterItem[] = [
+			{
+				xmlId: 'ch1',
+				fileName: 'chap_01',
+				title: 'Chương 1',
+				html: '<blockquote><p>Quote</p></blockquote><p class="scene-break-small">*</p><div class="letter"><p>Letter</p></div>',
+				features: { hasHeadings: true, hasQuotes: true, hasBreaks: true, hasNotes: true }
+			},
+			{
+				xmlId: 'notes',
+				fileName: 'notes',
+				title: 'Chú thích',
+				html: '<aside class="note"><p>Footnote</p></aside>',
+				isNotes: true,
+				features: { hasNotes: true }
+			}
+		];
+
+		const css = getDynamicCss(chapters);
+		const errors = findDescendingSpecificityErrors(css);
+		expect(errors).toEqual([]);
+
+		// Specific sanity check for the user-reported Calibre error:
+		// .note p must come before blockquote.center p, h1.main-chap + p, .letter p:first-child
+		const idxNoteP = css.indexOf('.note p');
+		const idxBqCenterP = css.indexOf('blockquote.center p');
+		const idxH1MainP = css.indexOf('h1.main-chap + p');
+		const idxLetterFirstChild = css.indexOf('.letter p:first-child');
+
+		expect(idxNoteP).toBeGreaterThan(-1);
+		expect(idxBqCenterP).toBeGreaterThan(-1);
+		expect(idxH1MainP).toBeGreaterThan(-1);
+		expect(idxLetterFirstChild).toBeGreaterThan(-1);
+
+		expect(idxNoteP).toBeLessThan(idxBqCenterP);
+		expect(idxNoteP).toBeLessThan(idxH1MainP);
+		expect(idxNoteP).toBeLessThan(idxLetterFirstChild);
 	});
 });
 

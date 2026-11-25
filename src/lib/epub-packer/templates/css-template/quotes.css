@@ -1,15 +1,3 @@
-blockquote {
-	display: block;
-	margin: 1.2em 1.5em;
-	padding: 0;
-}
-
-blockquote p {
-	text-indent: 0;
-	line-height: 1.4;
-	padding-top: 0.3em;
-}
-
 blockquote footer {
 	display: block;
 	font-size: 0.9em;
@@ -18,17 +6,26 @@ blockquote footer {
 	text-align: inherit;
 }
 
-footer.left,
+footer.left {
+	text-align: left !important;
+}
+
+footer.right {
+	text-align: right !important;
+}
+
+footer.center {
+	text-align: center !important;
+}
+
 blockquote footer.left {
 	text-align: left !important;
 }
 
-footer.right,
 blockquote footer.right {
 	text-align: right !important;
 }
 
-footer.center,
 blockquote footer.center {
 	text-align: center !important;
 }

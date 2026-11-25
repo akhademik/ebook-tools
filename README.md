@@ -188,8 +188,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 16:35
+- Cập nhật lần cuối: 2026-11-25 16:45
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Lỗi CSS Specificity Inversion cho `.note p` & `style.css` (Calibre Audit Pass 100%)**:
+    - **Tái cấu trúc thứ tự nối file CSS theo độ ưu tiên tăng dần đơn điệu (Monotonically Ascending Specificity)**:
+      - Đưa `breaksCss` và `notesCss` (chứa các quy tắc specificity `(0, 1, 1)` cho thẻ `p`: `.note p`, `p.scene-break-small`, `p.scene-break-big`) lên trước `quotesCss` (nơi chứa các quy tắc `(0, 1, 2)` và `(0, 2, 1)` như `blockquote.center p`, `h1.main-chap + p`, `.letter p:first-child`, `.letter-box .poem p`).
+      - Chuyển `blockquote` và `blockquote p` chuẩn về `base.css` ngay sau `p`, thiết lập chuỗi specificity thẻ `p` chuẩn mực từ đầu: `(0, 0, 1)` -> `(0, 0, 2)` -> `(0, 1, 1)`.
+      - Tách độc lập các selector `footer.left`, `footer.right`, `footer.center` `(0, 1, 1)` đứng trước `blockquote footer.*` `(0, 1, 2)` trong `quotes.css`.
+      - Khắc phục `marker` của `fontSubchapterRules` trong `prepareFinalCss` để chèn đúng vị trí trước `.subchapter-ornament + h2.side-chap` `(0, 2, 1)`.
+    - **Nâng cấp Bộ kiểm thử Nạp CSS Thật (`tests/epub-css-specificity.test.ts`)**:
+      - Tích hợp `vi.hoisted` nạp nội dung thực tế từ đĩa cho toàn bộ 9 file CSS mẫu, loại bỏ triệt để hiện tượng Vitest stub rỗng.
+      - Bổ sung test case kiểm tra vị trí tuyệt đối của `.note p` đứng trước toàn bộ 12 selector `p` có độ ưu tiên cao từ báo cáo của Calibre.
+      - Đảm bảo 100% không còn lỗi Stylelint `no-descending-specificity` trên mọi kịch bản sách.
   - **Rà soát & Chuẩn hóa Đặt tên CSS, Dọn dẹp Style Thừa (CSS Cleanup & Normalization)**:
     - **Dọn dẹp style thừa trong `notes.css`**: Loại bỏ quy tắc rác `aside.footnote { display: block; color: green; ... }`; bổ sung selector `.note, .notes .note` và `.note p, .notes .note p` đảm bảo đoạn văn footnote không bị thụt đầu dòng thừa (`text-indent: 0`) và căn trái rõ ràng.
     - **Loại bỏ class trùng lặp trong `quotes.css`**: Bỏ các class độc lập `.center`, `.left`, `.right` khai báo thừa trong `quotes.css` (đã được định nghĩa toàn cục chuẩn mực trong `headings.css`).

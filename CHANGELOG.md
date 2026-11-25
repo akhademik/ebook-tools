@@ -4,6 +4,27 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Khắc phục Triệt để Lỗi CSS Specificity Inversion `.note p` & Nâng cấp Test Suite CSS Calibre)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/templates/css-template/base.css`:
+    - Đưa khai báo cơ sở `blockquote` và `blockquote p` vào `base.css` ngay sau `p`, định hình chuỗi specificity chuẩn cho thẻ `p`: `(0, 0, 1)` -> `(0, 0, 2)` -> `(0, 1, 1)`.
+  - `src/lib/epub-packer/templates/css-template/quotes.css`:
+    - Loại bỏ khai báo trùng lặp `blockquote` và `blockquote p` cơ sở.
+    - Tách riêng selector `footer.left`, `footer.right`, `footer.center` `(0, 1, 1)` đứng trước `blockquote footer.*` `(0, 1, 2)` ngăn lỗi đảo ngược specificity trên phần tử `footer`.
+  - `src/lib/epub-packer/templates/css-template/notes.css`:
+    - Dọn sạch selector thừa `.notes .note` và `.notes .note p`, chuẩn hóa về `.note` và `.note p` `(0, 1, 1)`.
+  - `src/lib/epub-packer/builders/stylesheet-builder.ts`:
+    - Tái cấu trúc thứ tự nối file CSS trong `EPUB_CSS` và `getDynamicCss`: `baseCss` -> `centerPageCss` -> `breaksCss` -> `notesCss` -> `headingsCss` -> `ornamentsCss` -> `headingCombinatorsCss` -> `quotesCss`.
+    - Bảo đảm toàn bộ selector có specificity `(0, 1, 1)` (`.note p`, `p.scene-break-*`) luôn đứng trước các selector `(0, 1, 2)` và `(0, 2, 1)` trong `quotesCss`.
+    - Cập nhật chuỗi marker `.subchapter-ornament + h2` trong `prepareFinalCss` để chèn font rules cho phân mục phụ đúng vị trí trước selector `(0, 2, 1)`.
+  - `tests/epub-css-specificity.test.ts`:
+    - Sử dụng `vi.hoisted` nạp trực tiếp toàn bộ 9 file stylesheet raw từ ổ đĩa, đảm bảo bộ kiểm thử W3C Specificity và Stylelint chạy trên CSS thật 100%.
+    - Bổ sung test case xác thực `.note p` và các scene-break luôn đứng trước 12 selector độ ưu tiên cao từ báo cáo Calibre.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (394/394 pass) | knip ✅ (0 issues) | graphify ✅
+
+---
+
 ## 2026-11-25 (Chuẩn hóa Đặt tên CSS, Dọn dẹp Style Thừa & Giữ Font Bookerly Mặc định)
 
 - Thêm/sửa:
