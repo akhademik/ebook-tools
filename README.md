@@ -186,8 +186,12 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 08:30
+- Cập nhật lần cuối: 2026-11-25 08:55
 - Đã hoàn thành:
+  - **Tinh gọn UI Thẻ Trang chủ & Tiêu đề TXT → PDF CJK**:
+    - `src/routes/+page.svelte`: Đổi tên thẻ công cụ từ `EPUB Editor & Validator` thành `Sửa file EPUB` trực quan, thân thiện; gỡ bỏ huy hiệu góc `Kiểm định & Biên tập`, tạo sự cân đối, đối xứng hoàn hảo với thẻ Đóng gói EPUB.
+    - `src/routes/txt-to-pdf/+page.svelte`: Gỡ bỏ prop `badge="Ứng dụng Desktop"`, đồng bộ hóa phong cách tiêu đề trang tối giản không badge trên toàn bộ ứng dụng.
+    - Toàn bộ **366/366 unit tests pass 100%** (17/17 test files), `pnpm check` 0 errors/0 warnings, `pnpm lint` 0 errors, `pnpm knip` 0 issues.
   - **Xóa bỏ Husky, Chuẩn hóa Cấu trúc Thư mục & Cập nhật Toàn diện Tài liệu Dự án**:
     - **Xóa bỏ Husky hoàn toàn**: Xóa thư mục `.husky/`, hủy bỏ cấu hình `core.hooksPath` trong Git config. Quy chuẩn chất lượng mã nguồn được bảo đảm thuần túy thông qua pipeline `pnpm` cục bộ và GitHub Actions CI.
     - **Bổ sung sơ đồ kiến trúc thư mục chuẩn xác**: Thêm mục _Cấu trúc Thư mục & Modules Thực tế_ tại `README.md` mô tả chi tiết toàn bộ các route, modules, assets và test suites đang hoạt động.
@@ -537,6 +541,20 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-25 (Tinh gọn Thẻ Sửa file EPUB Trang chủ & Header TXT → PDF CJK)
+
+- Thêm/sửa:
+  - `src/routes/+page.svelte`:
+    - Đổi tên thẻ công cụ từ `EPUB Editor & Validator` thành `Sửa file EPUB` trực quan, thân thiện.
+    - Gỡ bỏ huy hiệu góc `Kiểm định & Biên tập` giúp 2 thẻ công cụ chính trên trang chủ cân đối, liền mạch.
+  - `src/routes/txt-to-pdf/+page.svelte`:
+    - Gỡ bỏ `badge="Ứng dụng Desktop"`, đồng bộ hóa phong cách tiêu đề trang tối giản không badge trên toàn ứng dụng.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | knip ✅ (0 issues)
+- File chính bị ảnh hưởng:
+  - `src/routes/+page.svelte`
+  - `src/routes/txt-to-pdf/+page.svelte`
+  - `README.md`
 
 ### 2026-11-25 (Xóa bỏ Husky, Bổ sung Sơ đồ Kiến trúc Thư mục & Cập nhật Toàn diện Tài liệu Dự án)
 

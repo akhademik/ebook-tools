@@ -6,7 +6,6 @@
 	title="TXT → PDF CJK"
 	description="Giới thiệu và tải xuống công cụ chuyển đổi tài liệu chữ Hán chuyên dụng cho Desktop."
 	breadcrumb="Mở rộng"
-	badge="Ứng dụng Desktop"
 />
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style="animation-delay: 0.1s;">
@@ -298,7 +297,7 @@
 						d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
 					></path>
 				</svg>
-				Tải txt-to-pdf.zip
+				Tải file
 			</a>
 
 			<div class="border-t border-border-color pt-4 flex flex-col gap-2.5 text-left text-sm">
@@ -313,10 +312,6 @@
 				<div class="flex justify-between">
 					<span class="text-text-mute">Hệ điều hành:</span>
 					<span class="font-semibold text-text-color">Windows (x64)</span>
-				</div>
-				<div class="flex justify-between">
-					<span class="text-text-mute">Kiểu chạy:</span>
-					<span class="font-semibold text-text-color">Độc lập (Portable)</span>
 				</div>
 			</div>
 		</div>

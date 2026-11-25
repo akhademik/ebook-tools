@@ -89,17 +89,12 @@
 								<path d="m15 5 4 4" />
 							</svg>
 						</div>
-						<span
-							class="text-xs text-accent-color bg-accent-soft border border-accent-color/20 px-2.5 py-1 rounded-lg font-semibold font-sans"
-						>
-							Kiểm định & Biên tập
-						</span>
 					</div>
 
 					<h3
 						class="text-xl font-bold mb-2 text-text-color group-hover:text-accent-color transition-colors font-sans"
 					>
-						EPUB Editor & Validator
+						Sửa file EPUB
 					</h3>
 					<p class="text-text-mute text-sm leading-relaxed mb-4 font-sans">
 						Mở và tinh chỉnh trực tiếp mã XHTML/CSS với Live Preview hai chiều, kiểm định tương
