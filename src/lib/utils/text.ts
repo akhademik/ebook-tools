@@ -150,10 +150,10 @@ export function extractMetadataFromTxt(rawText: string): ExtractedMetadata {
 	}
 
 	const result: ExtractedMetadata = {};
-	const text = rawText.normalize('NFC');
 	// Only inspect the top lines (header block up to 50 lines / 8000 chars)
+	// Slice first before NFC normalizing to avoid unnecessary O(n) normalization across entire book
+	const text = rawText.slice(0, 8000).normalize('NFC');
 	const lines = text
-		.slice(0, 8000)
 		.split('\n')
 		.slice(0, 50)
 		.map((l) => l.trim());

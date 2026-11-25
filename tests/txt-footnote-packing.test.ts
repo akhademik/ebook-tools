@@ -1,15 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import {
-	parseTxtToChapters,
-	assignSequentialChapterIds
-} from '$lib/epub-packer/parser/epub-source-parser';
+import { EpubState } from '$lib/epub-packer/epub-state.svelte';
 import { buildEpubBlob } from '$lib/epub-packer/builders/zip-writer';
-import { extractMetadataFromTxt } from '$lib/utils/text';
 import JSZip from 'jszip';
-import type { EpubChapterItem } from '$lib/types';
 
 describe('TXT Footnote Parsing and EPUB Packing with Unicode NFC', () => {
-	it('should parse TXT footnotes, normalize NFC, resolve backlinks, and pack valid EPUB', async () => {
+	it('should parse TXT footnotes, normalize NFC, resolve backlinks via EpubState, and pack valid EPUB', async () => {
 		// NFD decomposed text: "Tiếng Việt" using combining accents
 		const nfdText = 'Tiê' + '\u0301' + 'ng Viê' + '\u0323' + 't';
 		expect(nfdText.normalize('NFC')).toBe('Tiếng Việt');
@@ -30,45 +25,22 @@ Chú thích:
 {2} Chú thích thứ hai: Tham khảo tài liệu lịch sử năm 1945.
 `;
 
-		// 1. Verify metadata extraction with NFC
-		const meta = extractMetadataFromTxt(rawTxt);
-		expect(meta.title).toBe('Tuyệt Tác Tiếng Việt');
-		expect(meta.author).toBe('Nguyễn Du');
-		expect(meta.translator).toBe('Nhóm Biên Dịch');
+		// 1. Process via actual EpubState production pipeline (handles file load, NFC normalize, metadata, backlink mapping)
+		const state = new EpubState();
+		const fakeFile = new File([rawTxt], 'tuyet-tac.txt', { type: 'text/plain' });
+		await state.source.handleFile(fakeFile);
 
-		// 2. Parse TXT to chapters (with Unicode NFC normalization as done when processing text)
-		const normalizedTxt = rawTxt.normalize('NFC');
-		const rawChapters = parseTxtToChapters(normalizedTxt, {}, 'Tuyệt Tác Tiếng Việt');
-		// 4 chapters: preamble header block, chap 1, chap 2, notes
-		expect(rawChapters).toHaveLength(4);
+		// 2. Verify state metadata was extracted and normalized to NFC
+		expect(state.metadata.title).toBe('Tuyệt Tác Tiếng Việt');
+		expect(state.metadata.author).toBe('Nguyễn Du');
+		expect(state.jacket.translator).toBe('Nhóm Biên Dịch');
 
-		const sequentialChapters = assignSequentialChapterIds(rawChapters);
+		// 3. Verify chapter splitting and automatic backlink resolution in EpubSourceState
+		const chapters = state.source.epubChapters;
+		// 4 chapters: header block, chap 1, chap 2, notes
+		expect(chapters).toHaveLength(4);
 
-		// Resolve footnote backlinks as done in EpubSourceState
-		const footnoteMap: Record<string, string> = {};
-		for (const chap of sequentialChapters) {
-			if (chap.fileName !== 'notes' && chap.html) {
-				const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
-				for (const match of matches) {
-					footnoteMap[match[1]] = chap.fileName;
-				}
-			}
-		}
-
-		// Footnotes {1} and {2} appear in Chapter 1 ("chap_02")
-		expect(footnoteMap['1']).toBe('chap_02');
-		expect(footnoteMap['2']).toBe('chap_02');
-
-		const notesChap = sequentialChapters.find((c) => c.fileName === 'notes');
-		expect(notesChap).toBeDefined();
-		if (notesChap && notesChap.html) {
-			notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
-				return footnoteMap[n] || 'chap_01';
-			});
-		}
-
-		// 3. Verify footnote markup in chapters
-		const chap1 = sequentialChapters.find((c) => c.title.includes('Chương 1'));
+		const chap1 = chapters.find((c) => c.title.includes('Chương 1'));
 		expect(chap1).toBeDefined();
 		expect(chap1!.fileName).toBe('chap_02');
 		expect(chap1!.html).toContain(
@@ -78,32 +50,24 @@ Chú thích:
 			'<a class="noteref" epub:type="noteref" id="fnref2" href="notes.xhtml#fn2"><sup>2</sup></a>'
 		);
 
-		// Verify notes markup
+		const notesChap = chapters.find((c) => c.fileName === 'notes');
+		expect(notesChap).toBeDefined();
+		// Backlinks must point back to chap_02 without manual regex substitution in test
 		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn1" class="note">');
 		expect(notesChap!.html).toContain('<a class="notenum" href="chap_02.xhtml#fnref1">1.</a>');
-		expect(notesChap!.html).toContain('Giải thích chi tiết về từ ngữ cổ');
+		expect(notesChap!.html).toContain('Giải thích chi tiết về từ ngữ cổ trong văn học Tiếng Việt.');
 		expect(notesChap!.html).toContain('<aside epub:type="footnote" id="fn2" class="note">');
 		expect(notesChap!.html).toContain('<a class="notenum" href="chap_02.xhtml#fnref2">2.</a>');
 
 		// 4. Pack full EPUB into Blob
-		const epubChapters: EpubChapterItem[] = sequentialChapters.map((c, i) => ({
-			id: c.id || `chap-${i + 1}`,
-			title: c.title,
-			html: c.html,
-			fileName: c.fileName || `chap_${String(i + 1).padStart(2, '0')}`,
-			isChapter: c.isChapter ?? true,
-			isNotes: c.isNotes ?? false,
-			sources: c.sources || []
-		}));
-
 		const blob = await buildEpubBlob(
 			{
-				title: meta.title || 'Tuyệt Tác Tiếng Việt',
-				author: meta.author || 'Nguyễn Du',
-				language: 'vi',
+				title: state.metadata.title,
+				author: state.metadata.author,
+				language: state.metadata.lang || 'vi',
 				identifier: 'test-footnote-nfc-uuid'
 			},
-			epubChapters,
+			chapters,
 			'/* test css */',
 			false, // preserveParagraphs
 			null, // jacket
@@ -154,5 +118,34 @@ Chú thích:
 		expect(notesXhtml).toContain('id="fn1"');
 		expect(notesXhtml).toContain('href="chap_02.xhtml#fnref1"');
 		expect(notesXhtml).toContain('Giải thích chi tiết về từ ngữ cổ trong văn học Tiếng Việt.');
+	});
+
+	it('should cleanly reset previous metadata when loading a second file in the same session', async () => {
+		const state = new EpubState();
+
+		const file1 = new File(
+			[
+				`Tên sách: Sách Thứ Nhất\nTác giả: Dale Carnegie\nDịch giả: Nguyễn Hiến Lê\nNXB: NXB Trẻ\n\nNội dung...`
+			],
+			'sach-1.txt',
+			{ type: 'text/plain' }
+		);
+		await state.source.handleFile(file1);
+		expect(state.metadata.title).toBe('Sách Thứ Nhất');
+		expect(state.metadata.author).toBe('Dale Carnegie');
+		expect(state.jacket.translator).toBe('Nguyễn Hiến Lê');
+		expect(state.metadata.publisher).toBe('NXB Trẻ');
+
+		// Second file has no author/translator/publisher
+		const file2 = new File(
+			[`Tên sách: Sách Thứ Hai\n\n@@ Chương 1\nNội dung không có tác giả...`],
+			'sach-2.txt',
+			{ type: 'text/plain' }
+		);
+		await state.source.handleFile(file2);
+		expect(state.metadata.title).toBe('Sách Thứ Hai');
+		expect(state.metadata.author).toBe('');
+		expect(state.jacket.translator).toBe('');
+		expect(state.metadata.publisher).toBe('');
 	});
 });

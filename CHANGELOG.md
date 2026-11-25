@@ -4,6 +4,16 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Tối ưu hóa Trích xuất Metadata TXT & Hoàn thiện Test Đóng gói Footnote)
+
+- Thêm/sửa:
+  - `src/lib/utils/text.ts`: Tối ưu hóa `extractMetadataFromTxt` bằng cách cắt trước 8000 ký tự đầu (`rawText.slice(0, 8000).normalize('NFC')`), loại bỏ lãng phí chuẩn hóa NFC toàn bộ cuốn sách hàng triệu ký tự.
+  - `src/lib/epub-packer/epub-state.svelte.ts`: Tự động làm sạch các trường tác giả, nhà xuất bản và dịch giả khi nạp file mới (`onFileLoaded`), ngăn ngừa việc file nạp sau bị lẫn metadata của file nạp trước trong cùng phiên làm việc.
+  - `tests/txt-footnote-packing.test.ts`: Tái cấu trúc kiểm thử trực tiếp qua pipeline sản phẩm thực tế của `EpubState` (loại bỏ hoàn toàn code lặp lại logic regex phân giải footnote map), đồng thời bổ sung kịch bản kiểm tra làm sạch metadata giữa nhiều file nạp liên tiếp.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (368/368 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Chặt chẽ hóa Script Prepare, Typography Cleaner Modal & Kiểm thử Đóng gói Footnotes NFC)
 
 - Thêm/sửa:

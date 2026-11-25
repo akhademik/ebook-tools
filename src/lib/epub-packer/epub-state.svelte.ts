@@ -38,6 +38,9 @@ export class EpubState {
 			onFileLoaded: (baseName: string, originalFileName?: string) => {
 				this.metadata.epubOutName = baseName;
 				this.metadata.title = cleanTitleFromFileName(originalFileName || baseName);
+				this.metadata.author = '';
+				this.metadata.publisher = '';
+				this.jacket.translator = '';
 				this.epubBlob = null;
 			},
 			onTxtParsed: (rawText: string) => {
@@ -48,13 +51,13 @@ export class EpubState {
 				) {
 					this.metadata.title = detected.title;
 				}
-				if (detected.author && !this.metadata.author) {
+				if (detected.author) {
 					this.metadata.author = detected.author;
 				}
-				if (detected.translator && !this.jacket.translator) {
+				if (detected.translator) {
 					this.jacket.translator = detected.translator;
 				}
-				if (detected.publisher && !this.metadata.publisher) {
+				if (detected.publisher) {
 					this.metadata.publisher = detected.publisher;
 				}
 			},
