@@ -159,19 +159,19 @@
 						<div class="grid grid-cols-3 gap-3 my-4">
 							<div class="bg-panel/80 rounded-lg p-3 border border-border-color">
 								<span class="text-xs text-text-mute block font-sans">Trước</span>
-								<span class="font-mono text-sm font-bold text-text-color">
+								<span class="font-sans text-sm font-bold text-text-color tabular-nums">
 									{formatByteSize(editorState.cleanReport.beforeBytes)}
 								</span>
 							</div>
 							<div class="bg-panel/80 rounded-lg p-3 border border-border-color">
 								<span class="text-xs text-text-mute block font-sans">Sau</span>
-								<span class="font-mono text-sm font-bold text-ok">
+								<span class="font-sans text-sm font-bold text-ok tabular-nums">
 									{formatByteSize(editorState.cleanReport.afterBytes)}
 								</span>
 							</div>
 							<div class="bg-ok/20 rounded-lg p-3 border border-ok/40">
 								<span class="text-xs text-ok block font-sans">Tiết kiệm</span>
-								<span class="font-mono text-sm font-bold text-ok">
+								<span class="font-sans text-sm font-bold text-ok tabular-nums">
 									-{formatByteSize(editorState.cleanReport.savedBytes)}
 								</span>
 							</div>
@@ -181,22 +181,23 @@
 							class="text-left text-xs font-sans space-y-1 text-text-mute bg-panel/60 p-3 rounded-lg border border-border-color"
 						>
 							<div>
-								• Ảnh đã xóa: <span class="text-text-color font-mono font-semibold"
+								• Ảnh đã xóa: <span class="text-text-color font-sans font-bold tabular-nums"
 									>{editorState.cleanReport.removedImages.length}</span
 								>
 							</div>
 							<div>
-								• Font đã xóa: <span class="text-text-color font-mono font-semibold"
+								• Font đã xóa: <span class="text-text-color font-sans font-bold tabular-nums"
 									>{editorState.cleanReport.removedFonts.length}</span
 								>
 							</div>
 							<div>
-								• CSS đã xóa: <span class="text-text-color font-mono font-semibold"
+								• CSS đã xóa: <span class="text-text-color font-sans font-bold tabular-nums"
 									>{editorState.cleanReport.removedStyles.length}</span
 								>
 							</div>
 							<div>
-								• Mục Manifest đã cập nhật: <span class="text-text-color font-mono font-semibold"
+								• Mục Manifest đã cập nhật: <span
+									class="text-text-color font-sans font-bold tabular-nums"
 									>{editorState.cleanReport.removedManifestEntries.length}</span
 								>
 							</div>
@@ -208,14 +209,14 @@
 					<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
 							<span class="text-xs text-text-mute block font-sans">Tổng dung lượng</span>
-							<span class="font-mono text-sm font-bold text-text-color"
+							<span class="font-sans text-sm font-bold text-text-color tabular-nums"
 								>{formatByteSize(a.totalBytes)}</span
 							>
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
 							<span class="text-xs text-text-mute block font-sans">Ảnh không dùng</span>
 							<span
-								class="font-mono text-sm font-bold {a.unusedImages.length > 0
+								class="font-sans text-sm font-bold tabular-nums {a.unusedImages.length > 0
 									? 'text-warn'
 									: 'text-text-color'}"
 							>
@@ -225,7 +226,7 @@
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
 							<span class="text-xs text-text-mute block font-sans">Font không dùng</span>
 							<span
-								class="font-mono text-sm font-bold {a.unusedFonts.length > 0
+								class="font-sans text-sm font-bold tabular-nums {a.unusedFonts.length > 0
 									? 'text-warn'
 									: 'text-text-color'}"
 							>
@@ -234,7 +235,7 @@
 						</div>
 						<div class="bg-sidebar-bg rounded-xl p-3 border border-border-color text-center">
 							<span class="text-xs text-text-mute block font-sans">Có thể giảm</span>
-							<span class="font-mono text-sm font-bold text-ok">
+							<span class="font-sans text-sm font-bold text-ok tabular-nums">
 								~{formatByteSize(a.estimatedSavingsBytes)}
 							</span>
 						</div>
@@ -269,9 +270,10 @@
 									</svg>
 									<span>Xóa hình ảnh không dùng</span>
 									{#if a.unusedImages.length > 0}
-										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
-											<span class="font-mono">{a.unusedImages.length}</span> file (<span
-												class="font-mono"
+										<span
+											class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans font-semibold tabular-nums"
+										>
+											<span>{a.unusedImages.length}</span> file (<span
 												>~{formatByteSize(a.unusedImages.reduce((s, i) => s + i.byteSize, 0))}</span
 											>)
 										</span>
@@ -306,9 +308,10 @@
 									</svg>
 									<span>Xóa fonts nhúng không dùng</span>
 									{#if a.unusedFonts.length > 0}
-										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
-											<span class="font-mono">{a.unusedFonts.length}</span> file (<span
-												class="font-mono"
+										<span
+											class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans font-semibold tabular-nums"
+										>
+											<span>{a.unusedFonts.length}</span> file (<span
 												>~{formatByteSize(a.unusedFonts.reduce((s, f) => s + f.byteSize, 0))}</span
 											>)
 										</span>
@@ -347,8 +350,10 @@
 									</svg>
 									<span>Xóa file CSS mồ côi</span>
 									{#if a.unusedStyles.length > 0}
-										<span class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans">
-											<span class="font-mono">{a.unusedStyles.length}</span> file
+										<span
+											class="px-2 py-0.5 bg-warn/15 text-warn text-xs rounded font-sans font-semibold tabular-nums"
+										>
+											<span>{a.unusedStyles.length}</span> file
 										</span>
 									{/if}
 								</div>

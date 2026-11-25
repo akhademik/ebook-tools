@@ -263,7 +263,10 @@ export class EpubSourceState {
 					'File text read successfully, character count:',
 					text.length
 				);
-				this.rawTxtText = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
+				this.rawTxtText = text
+					.replace(/^\uFEFF/, '')
+					.replace(/\r\n/g, '\n')
+					.normalize('NFC');
 				this.deps.onTxtParsed?.(this.rawTxtText);
 				await this.applyTxtGrouping();
 			} catch (err: unknown) {

@@ -188,17 +188,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 10:05
+- Cập nhật lần cuối: 2026-11-25 10:30
 - Đã hoàn thành:
   - **Hoàn thiện UI Solarized Clean & Crisp**: Chuẩn hóa toàn bộ token màu ngữ nghĩa (`--color-danger`, `--color-warn`, `--color-ok`), loại bỏ hoàn toàn các class màu cứng `red-500`, `emerald-*`, `amber-*`.
-  - **Nâng cấp cỡ chữ & Typography**: Nâng toàn bộ font chữ nhỏ dưới 12px lên tối thiểu `text-xs` (12px), loại bỏ `font-mono` ở các nhãn chữ tiếng Việt và nút bấm.
+  - **Nâng cấp cỡ chữ & Typography**: Nâng toàn bộ font chữ nhỏ dưới 12px lên tối thiểu `text-xs` (12px), loại bỏ `font-mono` ở các nhãn chữ tiếng Việt và nút bấm. Tối ưu typography trong `EpubCleanerModal` với `font-sans tabular-nums`.
   - **Khôi phục khối gợi ý quy trình**: Bổ sung sơ đồ 4 bước _"Gợi ý quy trình xử lý sách quét"_ (PDF → OCR ngoài → Đóng gói EPUB → Sửa EPUB) trên trang Tổng quan.
   - **Đồng bộ hóa luồng đóng gói EPUB**: Bố trí bảng điều khiển tóm tắt thông tin sách tập trung tại Bước 5 (Đóng gói), giải phóng 100% không gian hiển thị cho các bước cắt bìa, hoa văn và chọn phông.
-  - **Khôi phục Husky & lint-staged**: Tích hợp Git hook pre-commit với `lint-staged` tự động format (Prettier) và lint (ESLint) các file staged trước khi commit.
+  - **Khôi phục Husky & lint-staged**: Tích hợp Git hook pre-commit với `lint-staged` tự động format (Prettier) và lint (ESLint) các file staged trước khi commit. Chặt chẽ hóa script prepare `svelte-kit sync && (husky || true)`.
   - **Tối ưu hóa kho lưu trữ**: Bỏ theo dõi `graphify-out/` trong Git (chỉ dùng cục bộ cho AI, giảm hơn 26.000 dòng diff).
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
+  - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 366/366 unit/integration tests pass, 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip.
+  - **Chất lượng mã nguồn**: Toàn bộ 367/367 unit/integration tests pass (19 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).
@@ -206,6 +207,16 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-25 (Chặt chẽ hóa Script Prepare, Typography Cleaner Modal & Kiểm thử Đóng gói Footnotes)
+
+- Thêm/sửa:
+  - `package.json`: Điều chỉnh script `prepare` thành `svelte-kit sync && (husky || true)` đảm bảo không nuốt lỗi nếu lệnh `svelte-kit sync` thất bại.
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`: Thay thế 16 vị trí `font-mono` ở số liệu thống kê dung lượng, số lượng file và badges sang `font-sans font-bold/semibold tabular-nums`, giữ `font-mono` riêng cho đường dẫn file tham chiếu.
+  - `src/lib/epub-packer/state/epub-source-state.svelte.ts`: Tự động áp dụng `.normalize('NFC')` cho `this.rawTxtText` khi nạp file `.TXT`, đảm bảo toàn bộ nội dung và chú thích được chuẩn hóa Unicode NFC precomposed đồng bộ.
+  - `tests/txt-footnote-packing.test.ts`: Bổ sung test unit/integration kiểm thử trích xuất metadata từ TXT, xử lý cú pháp chú thích `{n}` / `Chú thích:`, tạo `<aside epub:type="footnote">`, liên kết backlink và đóng gói thành công file EPUB ZIP hợp lệ.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+- Chi tiết toàn bộ lịch sử các phiên bản: xem tại [CHANGELOG.md](CHANGELOG.md).
 
 ### 2026-11-25 (Khôi phục Husky, Chuẩn hóa Test E2E & Tối ưu Git Tracking)
 

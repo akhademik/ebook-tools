@@ -9,7 +9,7 @@
 		"prebuild": "node scripts/generate-fonts-meta.js",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync && husky || true",
+		"prepare": "svelte-kit sync && (husky || true)",
 		"lint": "eslint .",
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",

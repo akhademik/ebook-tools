@@ -4,6 +4,29 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Chặt chẽ hóa Script Prepare, Typography Cleaner Modal & Kiểm thử Đóng gói Footnotes NFC)
+
+- Thêm/sửa:
+  - `package.json`: Điều chỉnh script `prepare` thành `svelte-kit sync && (husky || true)` đảm bảo không nuốt lỗi nếu lệnh `svelte-kit sync` thất bại.
+  - `src/lib/epub-editor/components/EpubCleanerModal.svelte`: Thay thế 16 vị trí `font-mono` ở số liệu thống kê dung lượng, số lượng file và badges sang `font-sans font-bold/semibold tabular-nums`, giữ `font-mono` riêng cho đường dẫn file tham chiếu.
+  - `src/lib/epub-packer/state/epub-source-state.svelte.ts`: Tự động áp dụng `.normalize('NFC')` cho `this.rawTxtText` khi nạp file `.TXT`, đảm bảo toàn bộ nội dung và chú thích được chuẩn hóa Unicode NFC precomposed đồng bộ.
+  - `tests/txt-footnote-packing.test.ts`: Bổ sung test unit/integration kiểm thử trích xuất metadata từ TXT, xử lý cú pháp chú thích `{n}` / `Chú thích:`, tạo `<aside epub:type="footnote">`, liên kết backlink và đóng gói thành công file EPUB ZIP hợp lệ.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (367/367 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
+## 2026-11-25 (Khôi phục Husky, Chuẩn hóa Test E2E & Tối ưu Git Tracking)
+
+- Thêm/sửa:
+  - Khôi phục Husky v9 (`.husky/pre-commit`) kết hợp `lint-staged` tự động kiểm tra Prettier & ESLint trước commit.
+  - Sửa `tests-e2e/visual-and-keyboard.spec.ts`: loại bỏ đường dẫn cứng, dùng `testInfo.outputPath()`, bổ sung các assertion kiểm tra chống tràn ngang (`scrollWidth <= innerWidth`), hiển thị drawer mobile và các thành phần chính.
+  - Bỏ theo dõi `graphify-out/` trong `.gitignore` và xóa khỏi git cache, giảm 26.000 dòng diff.
+  - Chuẩn hóa lớp phủ cắt bìa sang `bg-danger/40 border-danger` trong `EpubCoverSection` và `pdf/+page.svelte`.
+  - Khớp đồng bộ giai đoạn 5 trong `UI_DIRECTION.md` (thanh bước + khối tóm tắt tại Bước 5).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (366/366 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues)
+
+---
+
 ## 2026-11-25 (Hoàn thiện Giao diện Solarized, Token Ngữ nghĩa & Tinh gọn README)
 
 - Thêm/sửa:
