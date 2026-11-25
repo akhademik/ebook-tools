@@ -188,8 +188,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 13:30
+- Cập nhật lần cuối: 2026-11-25 13:40
 - Đã hoàn thành:
+  - **Bắt lỗi Đồng bộ `postMessage` & Timeout Thích ứng Pixel PDF Splitter**:
+    - Bọc `worker.postMessage()` bằng xử lý lỗi đồng bộ, hủy timer và xóa job tức thì nếu gửi thất bại, triệt tiêu nguy cơ timer ma hủy nhầm worker.
+    - Tính toán timeout động theo số lượng pixel thực tế (`calculateGrayscaleTimeout`) từ 15s đến tối đa 60s, loại bỏ tình trạng timeout giả trên các trang quét dung lượng lớn (10–25MP).
   - **Hoàn thiện Triệt để Độ tin cậy & Quản lý Bộ nhớ PDF Splitter**:
     - **Worker Timeout Failover**: Kích hoạt `handleWorkerFailure()` ngay khi timeout 15s phát sinh, terminate worker đơ và failover toàn bộ job sang Main Thread, tránh nhân đôi tải CPU.
     - **Exception-safe Reference Counting**: Đảm bảo `activeGrayscaleTasks` luôn được giải phóng trong `finally` kể cả khi nạp tài liệu PDF lỗi.
@@ -225,6 +228,17 @@ pnpm test:e2e
 ---
 
 ## Changelog
+
+### 2026-11-25 (Bắt lỗi Đồng bộ postMessage Worker & Timeout Thích ứng theo Kích thước Pixel)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - **Bắt lỗi đồng bộ `worker.postMessage()`**: Bọc lệnh gọi gửi tin nhắn trong `try ... catch`. Khi `postMessage()` ném lỗi đồng bộ (như buffer bị detached hoặc worker dừng), timer được hủy ngay lập tức qua `clearTimeout(timeoutId)` và job bị xóa khỏi `pendingGrayscaleJobs`, ngăn chặn timer ma kích hoạt `handleWorkerFailure()` làm gián đoạn các job khác sau 15s.
+    - **Timeout thích ứng theo độ phân giải (`calculateGrayscaleTimeout`)**: Thay thế giá trị cố định 15s bằng công thức tính toán động thích ứng theo số lượng pixel trang và thông số thiết bị (15s–60s). Trang 2–4MP giữ timeout 15s, trang quét lớn 10–25MP tự động mở rộng thời gian chờ tương ứng, loại bỏ triệt để hiện tượng timeout giả gây x2 tải CPU.
+  - `tests/pdf-splitter.test.ts`: Bổ sung kiểm thử unit xác thực hàm `calculateGrayscaleTimeout` với các mức độ phân giải từ 1MP đến 100MP.
+  - Làm rõ kiến trúc bộ nhớ: 160MB là trần bộ nhớ của các Blob ZIP được giữ lại trong danh sách kết quả (sliding window 2 phần), giúp RAM không tăng tuyến tính theo độ dài tài liệu.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (371/371 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+- Chi tiết toàn bộ lịch sử các phiên bản: xem tại [CHANGELOG.md](CHANGELOG.md).
 
 ### 2026-11-25 (Khắc phục Triệt để Worker Timeout, An toàn Ngoại lệ & Cửa sổ Trượt Tải ZIP)
 

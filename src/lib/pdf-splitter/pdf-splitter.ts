@@ -172,6 +172,20 @@ function cleanupGrayscaleWorker(force = false): void {
 }
 
 /**
+ * Calculates adaptive timeout for worker grayscale operations based on image resolution
+ * and device memory characteristics, preventing false timeouts on large scanned pages.
+ */
+export function calculateGrayscaleTimeout(width: number, height: number): number {
+	const pixels = width * height;
+	const isLowMem = isMobileOrLowMemoryDevice();
+	const baseMs = isLowMem ? 20000 : 15000;
+	const extraMp = Math.max(0, (pixels - 4_000_000) / 1_000_000);
+	const perMpMs = isLowMem ? 3000 : 1500;
+	const dynamicTimeout = Math.round(baseMs + extraMp * perMpMs);
+	return Math.min(60000, Math.max(baseMs, dynamicTimeout));
+}
+
+/**
  * Offloads grayscale and contrast pixel loop to a Web Worker via zero-copy ArrayBuffer transfer.
  * Automatically falls back to synchronous main thread execution if Worker is unavailable or fails.
  */
@@ -190,15 +204,25 @@ export async function applyGrayscaleAsync(
 	const imgData = ctx.getImageData(0, 0, width, height);
 	const buffer = imgData.data.buffer;
 	const id = Math.random().toString(36).substring(2, 10);
+	const timeoutMs = calculateGrayscaleTimeout(width, height);
 
 	try {
 		const processedBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
 			const timeoutId = setTimeout(() => {
-				handleWorkerFailure(new Error('Grayscale worker job timed out (15s)'));
-			}, 15000);
+				handleWorkerFailure(
+					new Error(`Grayscale worker job timed out (${Math.round(timeoutMs / 1000)}s)`)
+				);
+			}, timeoutMs);
 
 			pendingGrayscaleJobs.set(id, { resolve, reject, timeoutId });
-			worker.postMessage({ id, buffer, contrast }, [buffer]);
+
+			try {
+				worker.postMessage({ id, buffer, contrast }, [buffer]);
+			} catch (postErr) {
+				clearTimeout(timeoutId);
+				pendingGrayscaleJobs.delete(id);
+				reject(postErr);
+			}
 		});
 
 		let outData: ImageData;

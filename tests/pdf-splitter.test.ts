@@ -333,13 +333,24 @@ describe('pdf-splitter tests', () => {
 		});
 
 		it('should test applyGrayscale, applyGrayscaleAsync, and processGrayscaleBuffer', async () => {
-			const { applyGrayscale, applyGrayscaleAsync, cropCanvas, PREVIEW_DPI, PREVIEW_SCALE } =
-				await import('../src/lib/pdf-splitter/pdf-splitter');
+			const {
+				applyGrayscale,
+				applyGrayscaleAsync,
+				cropCanvas,
+				PREVIEW_DPI,
+				PREVIEW_SCALE,
+				calculateGrayscaleTimeout
+			} = await import('../src/lib/pdf-splitter/pdf-splitter');
 			const { processGrayscaleBuffer } =
 				await import('../src/lib/pdf-splitter/pdf-grayscale.worker');
 
 			expect(PREVIEW_DPI).toBe(96);
 			expect(PREVIEW_SCALE).toBe(96 / 72);
+
+			// Test adaptive timeout
+			expect(calculateGrayscaleTimeout(1000, 1000)).toBeGreaterThanOrEqual(15000);
+			expect(calculateGrayscaleTimeout(4000, 6000)).toBeGreaterThan(15000);
+			expect(calculateGrayscaleTimeout(10000, 10000)).toBe(60000);
 
 			// Test pure buffer processing
 			const rawBuffer = new Uint8Array([100, 150, 200, 255]).buffer;
