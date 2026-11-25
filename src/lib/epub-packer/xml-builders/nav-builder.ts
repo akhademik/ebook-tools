@@ -76,7 +76,8 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 		}
 
 		const basePath = 'text/' + c.fileName + '.xhtml';
-		const isGeneratedTitle = c.hasCustomTitle === false || c.title === 'Giới Thiệu';
+		const isGeneratedTitle =
+			c.hasCustomTitle === false || c.title === 'Giới Thiệu' || !c.title?.trim();
 
 		if (headings.length === 0) {
 			if (!isGeneratedTitle) {
@@ -106,9 +107,11 @@ export function buildTocTree(chapters: EpubChapterItem[]): TocTree {
 			} else {
 				// No H1 in page, but has H2 headings (e.g. inside [new] or [new:center])
 				// If first heading title is identical to c.title or c.hasCustomTitle is false, use heading directly to avoid duplicate TOC
-				const isGeneratedTitle = c.hasCustomTitle === false || c.title === 'Giới Thiệu';
+				const isGeneratedTitle =
+					c.hasCustomTitle === false || c.title === 'Giới Thiệu' || !c.title?.trim();
 				const firstMatches =
 					headings.length > 0 &&
+					Boolean(c.title?.trim()) &&
 					headings[0].title.trim().toLowerCase() === c.title.trim().toLowerCase();
 
 				if (firstMatches || isGeneratedTitle) {

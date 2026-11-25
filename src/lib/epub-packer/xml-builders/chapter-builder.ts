@@ -453,14 +453,19 @@ export function buildChapterXhtml(
 		chapter.fileName === 'jacket' || chapter.fileName === 'cover'
 			? ''
 			: '  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>\n';
+	const isCenterPageWithoutHeading =
+		!!chapter.features?.hasCenterPage &&
+		(!chapter.hasCustomTitle || chapter.title === 'Giới Thiệu');
+	const hasTitle = Boolean(chapter.title?.trim()) && !isCenterPageWithoutHeading;
+	const titleTag = hasTitle ? `  <title>${escapeXml(chapter.title.trim())}</title>\n` : '';
+
 	return (
 		'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' +
 		meta.language +
 		'">\n' +
-		'<head>\n  <meta charset="utf-8"/>\n  <title>' +
-		escapeXml(chapter.title) +
-		'</title>\n' +
+		'<head>\n  <meta charset="utf-8"/>\n' +
+		titleTag +
 		linkStyle +
 		styleBlock +
 		'</head>\n' +

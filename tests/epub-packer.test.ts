@@ -231,6 +231,51 @@ describe('epub-packer tests', () => {
 			expect(html).toContain('<p>Đoạn văn tiếp theo không dropcap.</p>');
 		});
 
+		it('should not insert <title> tag into <head> for center-page chapters without heading', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: '',
+					hasCustomTitle: false,
+					fileName: 'chap_01',
+					features: { hasCenterPage: true, preserveParagraphs: true },
+					html: '<section class="center-page">\n  <div class="center-page-content">\n    <p><b><i>Kính dâng đến Cha, và dành cho người thân đã đồng hành trên chặng đường qua</i></b></p>\n  </div>\n</section>'
+				}
+			);
+			expect(html).not.toContain('<title>');
+			expect(html).toContain('<section class="center-page">');
+			expect(html).toContain('<head>\n  <meta charset="utf-8"/>\n  <link rel="stylesheet"');
+		});
+
+		it('should not insert <title> tag into <head> even if center-page chapter has default "Giới Thiệu" without custom title', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Giới Thiệu',
+					hasCustomTitle: false,
+					fileName: 'chap_01',
+					features: { hasCenterPage: true, preserveParagraphs: true },
+					html: '<section class="center-page">\n  <div class="center-page-content">\n    <p>Lời đề tặng</p>\n  </div>\n</section>'
+				}
+			);
+			expect(html).not.toContain('<title>');
+			expect(html).not.toContain('Giới Thiệu');
+		});
+
+		it('should insert <title> tag into <head> for center-page chapters when custom heading exists', () => {
+			const html = buildChapterXhtml(
+				{ language: 'vi' },
+				{
+					title: 'Lời Đề Tặng',
+					hasCustomTitle: true,
+					fileName: 'chap_01',
+					features: { hasCenterPage: true, preserveParagraphs: true },
+					html: '<section class="center-page">\n  <div class="center-page-content">\n    <h2 class="side-chap center">Lời Đề Tặng</h2>\n    <p>Kính tặng</p>\n  </div>\n</section>'
+				}
+			);
+			expect(html).toContain('<title>Lời Đề Tặng</title>');
+		});
+
 		it('should not add dropcap to special pages like jacket or cover', () => {
 			const html = buildChapterXhtml(
 				{ language: 'vi' },

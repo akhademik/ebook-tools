@@ -1897,7 +1897,7 @@ Chú thích:
 
 				const chapters = parseTxtToChapters(txt, {}, 'MyBook');
 				expect(chapters).toHaveLength(1);
-				expect(chapters[0].title).toBe('Giới Thiệu');
+				expect(chapters[0].title).toBe('');
 				expect(chapters[0].html).toContain('class="center-page"');
 			});
 
@@ -1918,14 +1918,17 @@ Chú thích:
 				expect(validateTxtSyntax(txt2).isValid).toBe(true);
 			});
 
-			it('should use "Giới Thiệu" placeholder for [new] and [new:center] if no @@ or @ is present', () => {
+			it('should not assign title to [new:center] without heading and keep "Giới Thiệu" placeholder for [new]', () => {
+				const warnings: string[] = [];
 				const txt = `[new:center]\nLời đề tặng\n[/new:center]\n[new]\nTrang trắng ảnh\n[/new]`;
-				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
-				expect(chapters[0].title).toBe('Giới Thiệu');
+				const chapters = parseTxtToChapters(txt, { warnings }, 'Tên Sách');
+				expect(chapters[0].title).toBe('');
 				expect(chapters[1].title).toBe('Giới Thiệu');
+				// [new:center] does not warn about missing title, only [new] does
+				expect(warnings.filter((w) => w.includes('Khối [new] không chứa tiêu đề'))).toHaveLength(1);
 			});
 
-			it('should override "Giới Thiệu" placeholder if @@ or @ exists inside [new] / [new:center]', () => {
+			it('should override title if @@ or @ exists inside [new] / [new:center]', () => {
 				const txt = `[new:center]\n@ Lời Đề Tặng Riêng\nKính tặng mẹ\n[/new:center]\n[new]\n@@ Lời Mở Đầu Tác Giả\nNội dung\n[/new]`;
 				const chapters = parseTxtToChapters(txt, {}, 'Tên Sách');
 				expect(chapters[0].title).toBe('Lời Đề Tặng Riêng');

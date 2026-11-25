@@ -30,7 +30,8 @@
 			}
 			if (hasValidHeading) return true;
 
-			const isGenerated = c.hasCustomTitle === false || c.title === 'Giới Thiệu';
+			const isGenerated =
+				c.hasCustomTitle === false || c.title === 'Giới Thiệu' || !c.title?.trim();
 			return !isGenerated;
 		});
 

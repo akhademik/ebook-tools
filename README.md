@@ -188,8 +188,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 14:25
+- Cập nhật lần cuối: 2026-11-25 14:42
 - Đã hoàn thành:
+  - **Loại bỏ thẻ `<title>` mặc định cho trang căn giữa (`[new:center]`) không tiêu đề**:
+    - Khi khối `[new:center]` (trang đề tặng, lời tựa, trích dẫn căn giữa) không có heading `@@`/`@`, hệ thống không còn chèn thẻ tiêu đề giả lập `<title>Giới Thiệu</title>` vào thẻ `<head>` của file XHTML thành phẩm, giữ cho tài liệu sạch sẽ và tránh làm các máy đọc sách (Kobo, Kindle, Apple Books) hiển thị tiêu đề running header/runner không mong muốn.
+    - Tắt cảnh báo thiếu tiêu đề khi đóng khối `[new:center]`, bảo toàn tính năng gán heading nếu người dùng chủ động đặt `@` hoặc `@@`.
   - **Xem trước Trang lót sách (Jacket Preview) đồng bộ Placeholder & Dữ liệu nhập thực tế**:
     - Tách và xuất cấu hình mẫu chuẩn `JACKET_SAMPLE_PLACEHOLDERS` dùng chung làm giá trị gợi ý (`placeholder`) cho các ô nhập liệu tiêu đề, tác giả, tác phẩm gốc, dịch giả, nhà xuất bản, đơn vị liên kết.
     - Khung xem trước bìa lót (Jacket Preview) tự động chuyển đổi thông minh: hiển thị toàn bộ sách mẫu chân thực khi chưa nhập dữ liệu; ngay khi người dùng nhập bất kỳ trường thông tin nào, chuyển sang chế độ hiển thị động theo đúng dữ liệu người dùng nhập, đảm bảo không lẫn lộn dữ liệu mẫu vào sách thực tế.
@@ -223,7 +226,7 @@ pnpm test:e2e
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 376/376 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Chất lượng mã nguồn**: Toàn bộ 379/379 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).

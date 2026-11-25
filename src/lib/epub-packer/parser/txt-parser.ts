@@ -633,7 +633,7 @@ export function parseTxtToChapters(
 			isInsideNewBlock = true;
 			isInsideNewCenterBlock = true;
 			currentChapter = {
-				title: 'Giới Thiệu',
+				title: '',
 				html: '<section class="center-page">\n  <div class="center-page-content">\n',
 				sources: ['File TXT'],
 				isChapter: true,
@@ -647,7 +647,7 @@ export function parseTxtToChapters(
 		}
 
 		if (/^\[\/(new|new:center)\]$/i.test(stripped)) {
-			if (currentChapter && !currentChapter.hasCustomTitle) {
+			if (currentChapter && !currentChapter.hasCustomTitle && !isInsideNewCenterBlock) {
 				const pageNum = currentChapter.firstSourcePageNum || chapters.length;
 				const warnMsg = `Trang ${pageNum}: Khối [new] không chứa tiêu đề (@@ hoặc @). Trang nhận tiêu đề mặc định là '${currentChapter.title}'.`;
 				Logger.warn('[epub-parser]', warnMsg);

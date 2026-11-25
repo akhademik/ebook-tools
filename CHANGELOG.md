@@ -4,6 +4,24 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Loại bỏ Thẻ `<title>` Mặc định cho Trang Căn Giữa `[new:center]` Không Có Heading)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/parser/txt-parser.ts`:
+    - Khởi tạo `currentChapter.title = ''` cho khối `[new:center]` thay vì gán cứng placeholder `'Giới Thiệu'`.
+    - Tắt cảnh báo thiếu tiêu đề khi đóng khối `[/new:center]` hoặc `[/new]` đối với trang căn giữa `[new:center]`, cho phép người dùng tự do tạo trang đề tặng, trích dẫn, lời tựa không heading mà không sinh cảnh báo gây nhiễu.
+  - `src/lib/epub-packer/xml-builders/chapter-builder.ts`:
+    - Nhận diện trang căn giữa không tiêu đề (`isCenterPageWithoutHeading = !!chapter.features?.hasCenterPage && (!chapter.hasCustomTitle || chapter.title === 'Giới Thiệu')`).
+    - Khi `hasTitle` là false (trang không có tiêu đề hoặc là trang căn giữa không heading), không sinh thẻ `<title>` trong phần `<head>` của file XHTML. Ngăn chặn triệt để tình trạng các máy đọc sách (Apple Books, Kobo, Kindle) hiển thị running header/title không mong muốn như "Giới Thiệu" trên trang lời đề tặng.
+  - `src/lib/epub-packer/xml-builders/nav-builder.ts` & `src/lib/epub-packer/components/EpubSourceSection.svelte`:
+    - Cập nhật điều kiện lọc `isGeneratedTitle` bổ sung kiểm tra `!c.title?.trim()`, đồng bộ hóa việc loại trừ các trang không tiêu đề khỏi Mục lục (TOC) và danh sách xem trước đầu mục trên giao diện.
+  - `tests/epub-parser.test.ts` & `tests/epub-packer.test.ts`:
+    - Cập nhật test suite parser phản ánh tiêu đề rỗng cho `[new:center]` khi không có heading.
+    - Bổ sung 3 unit tests trong `epub-packer.test.ts` xác thực không chèn thẻ `<title>` vào `<head>` cho trang căn giữa không tiêu đề, không chèn khi có tiêu đề mặc định 'Giới Thiệu' với `hasCustomTitle: false`, và vẫn chèn thẻ `<title>...</title>` chuẩn xác khi người dùng chủ động đặt tiêu đề `@` hoặc `@@`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (379/379 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Xem trước Trang lót sách đồng bộ Placeholder & Dữ liệu nhập thực tế)
 
 - Thêm/sửa:
