@@ -20,6 +20,15 @@ const formatTranslator = (t?: string): string => {
 	return trimmed + ' dịch';
 };
 
+export const JACKET_SAMPLE_PLACEHOLDERS = {
+	title: 'Mật Mã Da Vinci',
+	originalTitle: 'The Da Vinci Code',
+	author: 'Dan Brown',
+	translator: 'Đỗ Thu Hà',
+	publisher: '1980 Books',
+	distributor: 'NXB Văn hóa Thông tin'
+} as const;
+
 export const JACKET_TEMPLATES: JacketTemplate[] = [
 	{
 		id: 1,

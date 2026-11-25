@@ -2,6 +2,7 @@
 	import Input from '$lib/components/Input.svelte';
 	import EpubJacketCarousel from './EpubJacketCarousel.svelte';
 	import type { EpubState } from '../epub-state.svelte';
+	import { JACKET_SAMPLE_PLACEHOLDERS } from '$lib/epub-packer/templates/jacket-templates';
 
 	interface Props {
 		epubState: EpubState;
@@ -13,33 +14,45 @@
 <div class="animate-fade-in">
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 		<div>
-			<Input bind:value={epubState.metadata.title} label="Tác phẩm" placeholder="Mật Mã Da Vinci" />
+			<Input
+				bind:value={epubState.metadata.title}
+				label="Tác phẩm"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.title}
+			/>
 		</div>
 		<div>
-			<Input bind:value={epubState.metadata.author} label="Tác giả" placeholder="Dan Brown" />
+			<Input
+				bind:value={epubState.metadata.author}
+				label="Tác giả"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.author}
+			/>
 		</div>
 		<div>
 			<Input
 				bind:value={epubState.jacket.originalTitle}
 				label="Tựa gốc / Tựa nhỏ"
-				placeholder="The Da Vinci Code"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.originalTitle}
 			/>
 		</div>
 		<div>
-			<Input bind:value={epubState.jacket.translator} label="Dịch giả" placeholder="Đỗ Thu Hà" />
+			<Input
+				bind:value={epubState.jacket.translator}
+				label="Dịch giả"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.translator}
+			/>
 		</div>
 		<div>
 			<Input
 				bind:value={epubState.metadata.publisher}
 				label="Nhà phát hành"
-				placeholder="1980 Books"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.publisher}
 			/>
 		</div>
 		<div>
 			<Input
 				bind:value={epubState.jacket.distributor}
 				label="Nhà xuất bản"
-				placeholder="NXB Văn hóa Thông tin"
+				placeholder={JACKET_SAMPLE_PLACEHOLDERS.distributor}
 			/>
 		</div>
 	</div>

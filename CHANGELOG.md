@@ -4,6 +4,23 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Xem trước Trang lót sách đồng bộ Placeholder & Dữ liệu nhập thực tế)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/templates/jacket-templates.ts`:
+    - Xuất hằng số cấu hình tập trung `JACKET_SAMPLE_PLACEHOLDERS` (`title: 'Mật Mã Da Vinci'`, `originalTitle: 'The Da Vinci Code'`, `author: 'Dan Brown'`, `translator: 'Đỗ Thu Hà'`, `publisher: '1980 Books'`, `distributor: 'NXB Văn hóa Thông tin'`) làm nguồn chân lý duy nhất (Single Source of Truth) cho dữ liệu mẫu xem trước và placeholder ô nhập.
+  - `src/lib/epub-packer/components/EpubMetadataSection.svelte`:
+    - Đồng bộ toàn bộ thuộc tính `placeholder` của 6 trường thông tin sách trong Bước 2 (Tiêu đề, Tác giả, Tác phẩm gốc, Dịch giả, Nhà xuất bản, Đơn vị liên kết) trực tiếp với `JACKET_SAMPLE_PLACEHOLDERS`, loại bỏ các chuỗi tĩnh rời rạc.
+  - `src/lib/epub-packer/components/EpubJacketCarousel.svelte`:
+    - Tích hợp các rune `$derived` theo dõi trạng thái `hasUserInput`.
+    - Khi người dùng chưa nhập bất kỳ thông tin nào: Khung xem trước (Jacket Preview) hiển thị toàn bộ nội dung mẫu từ `JACKET_SAMPLE_PLACEHOLDERS`, cho cái nhìn trực quan và sinh động về bố cục trang lót sách.
+    - Ngay khi người dùng nhập dữ liệu vào form: Khung xem trước chuyển tức thì sang hiển thị bằng chính dữ liệu người dùng nhập, đảm bảo các trường không nhập (như dịch giả đối với tác phẩm không dịch) không bị lọt thông tin mẫu giả lập vào.
+  - `tests/epub-packer.test.ts`:
+    - Bổ sung unit test xác thực `JACKET_SAMPLE_PLACEHOLDERS` và kiểm thử toàn diện hành vi render Jacket Preview ở cả 2 trạng thái: dùng placeholder mẫu khi form trống và hiển thị chính xác dữ liệu nhập của người dùng.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (376/376 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Chiết xuất Ngữ cảnh Cảnh báo Cú pháp TXT & Nhận diện Địa chỉ/Số nhà)
 
 - Thêm/sửa:

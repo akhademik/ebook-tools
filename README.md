@@ -188,8 +188,11 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 13:40
+- Cập nhật lần cuối: 2026-11-25 14:25
 - Đã hoàn thành:
+  - **Xem trước Trang lót sách (Jacket Preview) đồng bộ Placeholder & Dữ liệu nhập thực tế**:
+    - Tách và xuất cấu hình mẫu chuẩn `JACKET_SAMPLE_PLACEHOLDERS` dùng chung làm giá trị gợi ý (`placeholder`) cho các ô nhập liệu tiêu đề, tác giả, tác phẩm gốc, dịch giả, nhà xuất bản, đơn vị liên kết.
+    - Khung xem trước bìa lót (Jacket Preview) tự động chuyển đổi thông minh: hiển thị toàn bộ sách mẫu chân thực khi chưa nhập dữ liệu; ngay khi người dùng nhập bất kỳ trường thông tin nào, chuyển sang chế độ hiển thị động theo đúng dữ liệu người dùng nhập, đảm bảo không lẫn lộn dữ liệu mẫu vào sách thực tế.
   - **Bắt lỗi Đồng bộ `postMessage` & Timeout Thích ứng Pixel PDF Splitter**:
     - Bọc `worker.postMessage()` bằng xử lý lỗi đồng bộ, hủy timer và xóa job tức thì nếu gửi thất bại, triệt tiêu nguy cơ timer ma hủy nhầm worker.
     - Tính toán timeout động theo số lượng pixel thực tế (`calculateGrayscaleTimeout`) từ 15s đến tối đa 60s, loại bỏ tình trạng timeout giả trên các trang quét dung lượng lớn (10–25MP).
@@ -220,7 +223,7 @@ pnpm test:e2e
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 375/375 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Chất lượng mã nguồn**: Toàn bộ 376/376 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).

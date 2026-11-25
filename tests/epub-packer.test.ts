@@ -711,6 +711,49 @@ describe('epub-packer tests', () => {
 			consoleLogSpy.mockRestore();
 		});
 
+		it('should verify JACKET_SAMPLE_PLACEHOLDERS and preview rendering logic with placeholders and user inputs', async () => {
+			const { JACKET_TEMPLATES, JACKET_SAMPLE_PLACEHOLDERS } =
+				await import('../src/lib/epub-packer/templates/jacket-templates');
+
+			// 1. Verify placeholder values match book metadata inputs
+			expect(JACKET_SAMPLE_PLACEHOLDERS.title).toBe('Mật Mã Da Vinci');
+			expect(JACKET_SAMPLE_PLACEHOLDERS.author).toBe('Dan Brown');
+			expect(JACKET_SAMPLE_PLACEHOLDERS.originalTitle).toBe('The Da Vinci Code');
+			expect(JACKET_SAMPLE_PLACEHOLDERS.translator).toBe('Đỗ Thu Hà');
+			expect(JACKET_SAMPLE_PLACEHOLDERS.publisher).toBe('1980 Books');
+			expect(JACKET_SAMPLE_PLACEHOLDERS.distributor).toBe('NXB Văn hóa Thông tin');
+
+			// 2. Verify all jacket templates render placeholder values in initial preview state
+			for (const template of JACKET_TEMPLATES) {
+				const html = template.render(
+					JACKET_SAMPLE_PLACEHOLDERS.title,
+					JACKET_SAMPLE_PLACEHOLDERS.originalTitle,
+					JACKET_SAMPLE_PLACEHOLDERS.author,
+					JACKET_SAMPLE_PLACEHOLDERS.translator,
+					JACKET_SAMPLE_PLACEHOLDERS.publisher,
+					JACKET_SAMPLE_PLACEHOLDERS.distributor
+				);
+				expect(html).toContain('Mật Mã Da Vinci');
+				expect(html).toContain('Dan Brown');
+			}
+
+			// 3. Verify that when user enters custom inputs, template renders user inputs and omits empty fields
+			const customHtml = JACKET_TEMPLATES[0].render(
+				'Mắt Biếc',
+				'',
+				'Nguyễn Nhật Ánh',
+				'',
+				'NXB Trẻ',
+				''
+			);
+			expect(customHtml).toContain('Mắt Biếc');
+			expect(customHtml).toContain('Nguyễn Nhật Ánh');
+			expect(customHtml).toContain('NXB Trẻ');
+			expect(customHtml).not.toContain('Dan Brown');
+			expect(customHtml).not.toContain('The Da Vinci Code');
+			expect(customHtml).not.toContain('Đỗ Thu Hà');
+		});
+
 		it('should package cover image and generate SVG cover XHTML when coverBlob is provided', async () => {
 			const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 			const chapters = [
