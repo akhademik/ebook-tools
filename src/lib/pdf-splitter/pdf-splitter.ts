@@ -6,7 +6,8 @@ import {
 	getClampedViewport,
 	MAX_CANVAS_DIMENSION,
 	MAX_CANVAS_PIXELS,
-	MOBILE_MAX_CANVAS_PIXELS
+	MOBILE_MAX_CANVAS_PIXELS,
+	triggerDownload
 } from '$lib/utils';
 import type {
 	PdfPreviewPage,
@@ -76,13 +77,38 @@ export function applyGrayscale(
 }
 
 let grayscaleWorker: Worker | null = null;
+let activeGrayscaleTasks = 0;
 const pendingGrayscaleJobs = new Map<
 	string,
 	{
 		resolve: (buffer: ArrayBuffer) => void;
 		reject: (err: unknown) => void;
+		timeoutId: ReturnType<typeof setTimeout>;
 	}
 >();
+
+function handleWorkerFailure(err: unknown): void {
+	Logger.warn(
+		'[pdf-splitter]',
+		'Grayscale worker encountered failure, failing over pending jobs to main thread:',
+		err
+	);
+	if (grayscaleWorker) {
+		try {
+			grayscaleWorker.terminate();
+		} catch {
+			// ignore
+		}
+		grayscaleWorker = null;
+	}
+	const jobs = Array.from(pendingGrayscaleJobs.values());
+	pendingGrayscaleJobs.clear();
+	const errorObj = err instanceof Error ? err : new Error(String(err || 'Worker error'));
+	for (const job of jobs) {
+		clearTimeout(job.timeoutId);
+		job.reject(errorObj);
+	}
+}
 
 function getGrayscaleWorker(): Worker | null {
 	if (typeof window === 'undefined' || typeof Worker === 'undefined') {
@@ -96,6 +122,7 @@ function getGrayscaleWorker(): Worker | null {
 			worker.onmessage = (e: MessageEvent<GrayscaleWorkerResponse>) => {
 				const job = pendingGrayscaleJobs.get(e.data.id);
 				if (!job) return;
+				clearTimeout(job.timeoutId);
 				pendingGrayscaleJobs.delete(e.data.id);
 				if (e.data.type === 'success') {
 					job.resolve(e.data.buffer);
@@ -104,12 +131,10 @@ function getGrayscaleWorker(): Worker | null {
 				}
 			};
 			worker.onerror = (err) => {
-				Logger.warn('[pdf-splitter]', 'Grayscale worker error:', err);
-				cleanupGrayscaleWorker();
+				handleWorkerFailure(err);
 			};
 			worker.onmessageerror = (err) => {
-				Logger.warn('[pdf-splitter]', 'Grayscale worker message error:', err);
-				cleanupGrayscaleWorker();
+				handleWorkerFailure(err);
 			};
 			grayscaleWorker = worker;
 		} catch (err) {
@@ -124,7 +149,10 @@ function getGrayscaleWorker(): Worker | null {
 	return grayscaleWorker;
 }
 
-function cleanupGrayscaleWorker(): void {
+function cleanupGrayscaleWorker(force = false): void {
+	if (activeGrayscaleTasks > 0 && !force) {
+		return;
+	}
 	if (grayscaleWorker) {
 		try {
 			grayscaleWorker.terminate();
@@ -133,12 +161,19 @@ function cleanupGrayscaleWorker(): void {
 		}
 		grayscaleWorker = null;
 	}
-	pendingGrayscaleJobs.clear();
+	if (pendingGrayscaleJobs.size > 0) {
+		const jobs = Array.from(pendingGrayscaleJobs.values());
+		pendingGrayscaleJobs.clear();
+		for (const job of jobs) {
+			clearTimeout(job.timeoutId);
+			job.reject(new Error('Grayscale worker terminated'));
+		}
+	}
 }
 
 /**
  * Offloads grayscale and contrast pixel loop to a Web Worker via zero-copy ArrayBuffer transfer.
- * Automatically falls back to synchronous main thread execution if Worker is unavailable.
+ * Automatically falls back to synchronous main thread execution if Worker is unavailable or fails.
  */
 export async function applyGrayscaleAsync(
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -158,7 +193,12 @@ export async function applyGrayscaleAsync(
 
 	try {
 		const processedBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-			pendingGrayscaleJobs.set(id, { resolve, reject });
+			const timeoutId = setTimeout(() => {
+				pendingGrayscaleJobs.delete(id);
+				reject(new Error('Grayscale worker job timed out (15s)'));
+			}, 15000);
+
+			pendingGrayscaleJobs.set(id, { resolve, reject, timeoutId });
 			worker.postMessage({ id, buffer, contrast }, [buffer]);
 		});
 
@@ -373,6 +413,8 @@ export async function processPdfToJpg(
 		Logger.error('[pdf-splitter]', 'processPdfToJpg error: no file or pdfjsLib missing');
 		throw new Error('Chưa chọn file PDF hoặc thư viện PDF.js chưa tải.');
 	}
+
+	activeGrayscaleTasks++;
 
 	const isMobile = isMobileOrLowMemoryDevice();
 	const maxPartBytes =
@@ -590,20 +632,44 @@ export async function processPdfToJpg(
 					}
 				}
 
-				zipParts.push({
+				let autoDownloaded = false;
+				let retainedBlob: Blob | undefined = savedToDisk ? undefined : partBlob;
+
+				if (opts.autoDownloadParts && !savedToDisk && typeof window !== 'undefined') {
+					try {
+						triggerDownload(partBlob, filename);
+						autoDownloaded = true;
+						retainedBlob = undefined; // Free 80MB Blob immediately from RAM!
+						Logger.info(
+							'[pdf-splitter]',
+							`Đã tự động tải và giải phóng RAM cho phần ${currentPartIndex}: ${filename}`
+						);
+					} catch (dlErr) {
+						Logger.warn('[pdf-splitter]', `Tự động tải phần ${currentPartIndex} thất bại:`, dlErr);
+					}
+				}
+
+				const partItem: PdfZipPart = {
 					partIndex: currentPartIndex,
 					totalParts: 0, // will be updated at the end
 					startPage: partStartPage,
 					endPage: p,
-					blob: savedToDisk ? undefined : partBlob, // FREE BLOB FROM RAM IF SAVED TO DISK
+					blob: retainedBlob,
 					filename,
 					sizeBytes: partSize,
-					savedToDisk
-				});
+					savedToDisk,
+					autoDownloaded
+				};
+
+				if (opts.onPartGenerated) {
+					await opts.onPartGenerated(partItem);
+				}
+
+				zipParts.push(partItem);
 
 				Logger.info(
 					'[pdf-splitter]',
-					`Part ${currentPartIndex} generated: ${filename} (${partSize} bytes, savedToDisk=${savedToDisk})`
+					`Part ${currentPartIndex} generated: ${filename} (${partSize} bytes, savedToDisk=${savedToDisk}, autoDownloaded=${autoDownloaded})`
 				);
 
 				if (p < endPage) {
@@ -673,6 +739,7 @@ export async function processPdfToJpg(
 		};
 	} finally {
 		cleanup();
+		activeGrayscaleTasks = Math.max(0, activeGrayscaleTasks - 1);
 		cleanupGrayscaleWorker();
 	}
 }

@@ -281,6 +281,27 @@
 					</button>
 				{/if}
 			</div>
+
+			{#if !state.dirName}
+				<div class="mb-5 pt-3">
+					<label class="flex items-start gap-2.5 cursor-pointer select-none">
+						<input
+							type="checkbox"
+							bind:checked={state.autoDownloadParts}
+							class="w-4 h-4 mt-0.5 rounded text-accent-color border-field-border focus:ring-accent-color"
+						/>
+						<div class="text-xs">
+							<span class="font-medium text-text-color block">
+								Tự động tải về từng phần và giải phóng RAM tức thì
+							</span>
+							<span class="text-text-mute block mt-0.5">
+								Khuyên dùng cho sách nhiều trang khi không chọn thư mục lưu. Tải file ZIP xuống máy
+								ngay khi xong mỗi phần và giải phóng bộ nhớ RAM.
+							</span>
+						</div>
+					</label>
+				</div>
+			{/if}
 		{/if}
 
 		<div class="flex items-center justify-center gap-4 mt-6 flex-wrap md:flex-nowrap">
@@ -464,6 +485,8 @@
 									{(part.sizeBytes / (1024 * 1024)).toFixed(1)} MB
 									{#if part.savedToDisk}
 										· <span class="text-ok font-medium">Đã lưu ra đĩa</span>
+									{:else if part.autoDownloaded}
+										· <span class="text-ok font-medium">Đã tải (Đã giải phóng RAM)</span>
 									{:else if !part.blob}
 										· <span class="text-text-mute">Đã giải phóng RAM</span>
 									{/if}

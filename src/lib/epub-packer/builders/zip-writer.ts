@@ -23,6 +23,28 @@ import type {
 } from '$lib/types';
 
 /**
+ * Resolves binary asset data for JSZip.
+ * In browser environments, passing Blob directly lets JSZip read chunks on-demand via FileReader,
+ * preventing holding multiple duplicate ArrayBuffers on the V8 heap before packaging.
+ * In non-browser / mock test environments where FileReader is not available, falls back to ArrayBuffer.
+ */
+async function resolveZipBinaryData(
+	source: Blob | File | ArrayBuffer | Uint8Array
+): Promise<Blob | File | ArrayBuffer | Uint8Array> {
+	if (
+		typeof window !== 'undefined' &&
+		typeof FileReader !== 'undefined' &&
+		(source instanceof Blob || (typeof File !== 'undefined' && source instanceof File))
+	) {
+		return source;
+	}
+	if (typeof (source as Blob).arrayBuffer === 'function') {
+		return await (source as Blob).arrayBuffer();
+	}
+	return source;
+}
+
+/**
  * Add all assets and text files to JSZip
  */
 export async function assembleEpubZip(
@@ -67,8 +89,7 @@ export async function assembleEpubZip(
 		const imgFolder = oebps.folder('images');
 		if (imgFolder) {
 			const rawCover = 'blob' in coverBlob ? (coverBlob as { blob: Blob | File }).blob : coverBlob;
-			const data =
-				typeof rawCover.arrayBuffer === 'function' ? await rawCover.arrayBuffer() : rawCover;
+			const data = await resolveZipBinaryData(rawCover);
 			imgFolder.file('cover.jpg', data, { compression: 'STORE' });
 		}
 	}
@@ -77,7 +98,7 @@ export async function assembleEpubZip(
 		const imgFolder = oebps.folder('images');
 		if (imgFolder) {
 			const b = ornaments.chapterOrnament.blob;
-			const data = typeof b.arrayBuffer === 'function' ? await b.arrayBuffer() : b;
+			const data = await resolveZipBinaryData(b);
 			imgFolder.file(ornaments.chapterOrnament.fileName, data, { compression: 'STORE' });
 		}
 	}
@@ -85,7 +106,7 @@ export async function assembleEpubZip(
 		const imgFolder = oebps.folder('images');
 		if (imgFolder) {
 			const b = ornaments.subchapterOrnament.blob;
-			const data = typeof b.arrayBuffer === 'function' ? await b.arrayBuffer() : b;
+			const data = await resolveZipBinaryData(b);
 			imgFolder.file(ornaments.subchapterOrnament.fileName, data, { compression: 'STORE' });
 		}
 	}
@@ -95,8 +116,7 @@ export async function assembleEpubZip(
 		if (imagesFolder) {
 			for (const img of images) {
 				if (img && img.fileName && img.blob) {
-					const data =
-						typeof img.blob.arrayBuffer === 'function' ? await img.blob.arrayBuffer() : img.blob;
+					const data = await resolveZipBinaryData(img.blob);
 					imagesFolder.file(img.fileName, data, { compression: 'STORE' });
 				}
 			}
@@ -110,7 +130,7 @@ export async function assembleEpubZip(
 				const blob = fonts.blobs[fontName];
 				const fileName = getFontFileName(fontName);
 				if (fileName && blob) {
-					const data = typeof blob.arrayBuffer === 'function' ? await blob.arrayBuffer() : blob;
+					const data = await resolveZipBinaryData(blob);
 					fontsFolder.file(fileName, data, { compression: 'STORE' });
 				}
 			}

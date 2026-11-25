@@ -188,8 +188,15 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 11:55
+- Cập nhật lần cuối: 2026-11-25 12:15
 - Đã hoàn thành:
+  - **Khắc phục Worker Hang/Timeout & Bảo vệ Đồng thời PDF Splitter**:
+    - Xử lý triệt để lỗi treo Promise vĩnh viễn khi Web Worker gặp sự cố bằng cách duyệt và reject toàn bộ pending jobs, kích hoạt fallback sang Main Thread mượt mà.
+    - Thêm timeout an toàn 15 giây cho mỗi job gửi tới Worker.
+    - Quản lý vòng đời Worker theo reference count (`activeGrayscaleTasks`), ngăn việc hủy sớm worker dùng chung.
+  - **Tối ưu hóa RAM cho PDF Splitter & EPUB Packer**:
+    - **PDF Splitter**: Bổ sung cơ chế `autoDownloadParts` tự động tải và giải phóng RAM từng phần ZIP (40–80MB/phần) ngay khi đóng gói xong, giữ RAM luôn dưới ngưỡng an toàn kể cả khi tách PDF hàng nghìn trang mà không chọn thư mục đĩa.
+    - **EPUB Packer**: Loại bỏ hoàn toàn việc chuyển đổi thừa `await blob.arrayBuffer()` trong `zip-writer.ts`, truyền trực tiếp `Blob` vào JSZip giúp loại bỏ việc nhân bản bộ nhớ heap cho tất cả ảnh minh họa, ảnh bìa, hoa văn và font chữ.
   - **Tối ưu tốc độ Xem trước PDF (Preview) với Màu Gốc Mặc định**: Bỏ hoàn toàn việc tính toán grayscale ở mức pixel canvas trong `loadPdfPreview()`, hiển thị trực tiếp màu gốc ở 96 DPI giúp tăng tốc tải preview thêm 25–40% (0ms tải CPU). Chỉ áp dụng chuyển đổi sang ảnh xám qua Web Worker khi người dùng bấm nút "Bắt đầu tách trang".
   - **Tối ưu hóa Hiệu năng PDF Splitter (Giai đoạn 1)**:
     - Chuyển toàn bộ vòng lặp xử lý ảnh đen trắng & độ tương phản sang Web Worker `src/lib/pdf-splitter/pdf-grayscale.worker.ts` với cơ chế zero-copy ArrayBuffer transfer, giải phóng hoàn toàn Main Thread giúp giao diện duy trì 60 FPS, thanh tiến trình mượt mà và nút "Hủy" phản hồi tức thì.
@@ -215,7 +222,21 @@ pnpm test:e2e
 
 ## Changelog
 
-### 2026-11-25 (Xem trước PDF Màu Gốc Mặc định & Áp dụng Grayscale Worker khi Tách Trang)
+### 2026-11-25 (Khắc phục Worker Hang/Timeout, Bảo vệ Đồng thời & Tối ưu Bộ nhớ RAM cho PDF và EPUB)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - Thêm `handleWorkerFailure`: khi Web Worker gặp sự cố (`onerror` / `onmessageerror`), toàn bộ pending jobs trong Map được duyệt và reject có thông điệp lỗi cụ thể, kích hoạt khối `catch` chuyển hướng sang Main Thread an toàn thay vì treo vĩnh viễn Promise.
+    - Bổ sung timeout an toàn 15s cho từng job gửi Worker, tự động hủy và fallback nếu worker bị đơ.
+    - Quản lý vòng đời Worker theo reference count (`activeGrayscaleTasks`), ngăn việc hủy sớm worker khi có tác vụ chạy gối đầu.
+    - Hỗ trợ `autoDownloadParts`: tự động kích hoạt tải về trình duyệt và giải phóng Blob (40–80MB/phần) khỏi RAM ngay khi đóng gói xong từng phần ZIP.
+  - `src/lib/epub-packer/builders/zip-writer.ts`:
+    - Thêm `resolveZipBinaryData`: truyền trực tiếp `Blob` vào JSZip trong môi trường trình duyệt thay vì ép kiểu qua `await blob.arrayBuffer()`, triệt tiêu hoàn toàn việc nhân bản dữ liệu nhị phân trên V8 Heap đối với ảnh bìa, ảnh minh họa, hoa văn và font chữ.
+  - `src/routes/pdf/+page.svelte` & `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`:
+    - Bổ sung checkbox tùy chọn tự động tải & giải phóng RAM từng phần ZIP khi không chọn thư mục lưu trực tiếp; hiển thị badge trạng thái "Đã tải (Đã giải phóng RAM)".
+  - `tests/pdf-splitter.test.ts`: Bổ sung kiểm thử tự động xác thực tính năng `autoDownloadParts` giải phóng Blob khỏi RAM.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (371/371 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+- Chi tiết toàn bộ lịch sử các phiên bản: xem tại [CHANGELOG.md](CHANGELOG.md).
 
 - Thêm/sửa:
   - `src/lib/pdf-splitter/pdf-splitter.ts`: Bỏ hoàn toàn thao tác đọc và ghi pixel (`getImageData` / `putImageData`) trong `loadPdfPreview()`. PDF.js render trực tiếp màu gốc nguyên bản lên canvas context `{ alpha: false }`, cắt giảm 25–40% thời gian nạp xem trước và 0ms CPU overhead.

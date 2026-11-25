@@ -23,6 +23,7 @@ export interface PdfZipPart {
 	filename: string;
 	sizeBytes: number;
 	savedToDisk?: boolean;
+	autoDownloaded?: boolean;
 }
 
 export interface ProcessPdfResult {
@@ -46,6 +47,8 @@ export interface ProcessPdfOptions {
 	targetDpi?: number;
 	targetScale?: number;
 	dirHandle?: FileSystemDirectoryHandle | null;
+	autoDownloadParts?: boolean;
+	onPartGenerated?: (part: PdfZipPart) => void | Promise<void>;
 	onProgress?: (info: PdfProgressInfo) => void;
 	signal?: AbortSignal;
 }

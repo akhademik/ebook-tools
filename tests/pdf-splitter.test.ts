@@ -888,5 +888,22 @@ describe('pdf-splitter tests', () => {
 			expect(DEFAULT_DPI).toBe(200);
 			expect(state.degradedPages).toEqual([]);
 		});
+
+		it('should auto-download parts and free blob from memory when autoDownloadParts is true', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'test-auto-dl.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 1;
+
+			const result = await processPdfToJpg(fakeFile, {
+				autoDownloadParts: true,
+				keepColor: true
+			});
+
+			expect(result.zipParts.length).toBe(1);
+			expect(result.zipParts[0].autoDownloaded).toBe(true);
+			expect(result.zipParts[0].blob).toBeUndefined(); // Blob freed immediately from RAM
+			expect(mockAnchor.click).toHaveBeenCalled();
+		});
 	});
 });

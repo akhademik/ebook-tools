@@ -25,6 +25,7 @@ export class PdfSplitterState {
 	dirHandle = $state<FileSystemDirectoryHandle | null>(null);
 	dirName = $state<string>('');
 	savedDirectoryName = $state<string>('');
+	autoDownloadParts = $state<boolean>(false);
 
 	selectedPreviewCount = $state<number>(10);
 	previewPages = $state<PdfPreviewPage[]>([]);
@@ -215,6 +216,7 @@ export class PdfSplitterState {
 				maxPartBytes: this.maxPartBytes,
 				maxPagesPerPart: this.maxPagesPerPart,
 				dirHandle: this.dirHandle,
+				autoDownloadParts: this.autoDownloadParts,
 				onProgress: (info) => {
 					this.progressPercent = info.progressPercent;
 					this.status = info.progressLabel;

@@ -4,6 +4,23 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Khắc phục Worker Hang/Timeout, Bảo vệ Đồng thời & Tối ưu Bộ nhớ RAM cho PDF và EPUB)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - Thêm `handleWorkerFailure`: khi Web Worker gặp sự cố (`onerror` / `onmessageerror`), toàn bộ pending jobs trong Map được duyệt và reject có thông điệp lỗi cụ thể, kích hoạt khối `catch` chuyển hướng sang Main Thread an toàn thay vì treo vĩnh viễn Promise.
+    - Bổ sung timeout an toàn 15s cho từng job gửi Worker, tự động hủy và fallback nếu worker bị đơ.
+    - Quản lý vòng đời Worker theo reference count (`activeGrayscaleTasks`), ngăn việc hủy sớm worker khi có tác vụ chạy gối đầu.
+    - Hỗ trợ `autoDownloadParts`: tự động kích hoạt tải về trình duyệt và giải phóng Blob (40–80MB/phần) khỏi RAM ngay khi đóng gói xong từng phần ZIP.
+  - `src/lib/epub-packer/builders/zip-writer.ts`:
+    - Thêm `resolveZipBinaryData`: truyền trực tiếp `Blob` vào JSZip trong môi trường trình duyệt thay vì ép kiểu qua `await blob.arrayBuffer()`, triệt tiêu hoàn toàn việc nhân bản dữ liệu nhị phân trên V8 Heap đối với ảnh bìa, ảnh minh họa, hoa văn và font chữ.
+  - `src/routes/pdf/+page.svelte` & `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`:
+    - Bổ sung checkbox tùy chọn tự động tải & giải phóng RAM từng phần ZIP khi không chọn thư mục lưu trực tiếp; hiển thị badge trạng thái "Đã tải (Đã giải phóng RAM)".
+  - `tests/pdf-splitter.test.ts`: Bổ sung kiểm thử tự động xác thực tính năng `autoDownloadParts` giải phóng Blob khỏi RAM.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (371/371 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Xem trước PDF Màu Gốc Mặc định & Áp dụng Grayscale Worker khi Tách Trang)
 
 - Thêm/sửa:
