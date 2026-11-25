@@ -24,7 +24,8 @@ export function prepareMetadata(metadata: Partial<EpubMetadata>): EpubMetadata {
 				(typeof crypto !== 'undefined' && crypto.randomUUID
 					? crypto.randomUUID()
 					: 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2)),
-		publisher: metadata.publisher || ''
+		publisher: metadata.publisher || '',
+		contributor: metadata.contributor ?? 'akhademik & vc'
 	};
 }
 

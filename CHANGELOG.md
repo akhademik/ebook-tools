@@ -4,6 +4,25 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Tích hợp Tự động Siêu dữ liệu Credit Chế bản Sách vào `content.opf`)
+
+- Thêm/sửa:
+  - `src/lib/types/epub.type.ts`:
+    - Bổ sung trường tùy chọn `contributor?: string;` vào interface `EpubMetadata`.
+  - `src/lib/epub-packer/builders/asset-builder.ts`:
+    - Chuẩn hóa metadata với giá trị mặc định `contributor: metadata.contributor ?? 'akhademik & vc'`.
+  - `src/lib/epub-packer/xml-builders/opf-builder.ts`:
+    - Tự động sinh khối credit chuẩn mực trong phần `<metadata>` của `content.opf`:
+      - `<dc:contributor id="packer">akhademik &amp; vc</dc:contributor>`
+      - `<meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>` (mã `mrk` - Markup editor)
+      - `<meta refines="#packer" property="file-as">akhademik &amp; vc</meta>`
+      - `<meta name="generator" content="akhademik &amp; vc"/>`
+  - `tests/epub-packer.test.ts` & `tests/epub-css-specificity.test.ts`:
+    - Bổ sung unit test xác thực các thẻ credit mặc định và kiểm thử khả năng ghi đè credit tùy chỉnh khi truyền `contributor`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (388/388 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Khắc phục Triệt để Lỗi Calibre Audit, CSS Descending Specificity & Chuẩn hóa Accessibility EPUB 3)
 
 - Thêm/sửa:

@@ -263,6 +263,12 @@ describe('EPUB 3 Accessibility & WAI-ARIA Calibre Compliance', () => {
 		expect(opf).toContain('<meta property="schema:accessibilityFeature">tableOfContents</meta>');
 		expect(opf).toContain('<meta property="schema:accessibilityHazard">none</meta>');
 		expect(opf).toContain('<meta property="schema:accessibilitySummary">');
+		expect(opf).toContain('<dc:contributor id="packer">akhademik &amp; vc</dc:contributor>');
+		expect(opf).toContain(
+			'<meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>'
+		);
+		expect(opf).toContain('<meta refines="#packer" property="file-as">akhademik &amp; vc</meta>');
+		expect(opf).toContain('<meta name="generator" content="akhademik &amp; vc"/>');
 	});
 
 	it('should generate cover SVG with accessible title and ARIA role and label', async () => {

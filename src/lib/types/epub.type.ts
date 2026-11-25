@@ -6,6 +6,7 @@ export interface EpubMetadata {
 	language: string;
 	identifier?: string;
 	publisher?: string;
+	contributor?: string;
 }
 
 export interface EpubChapterFeatures {

@@ -505,8 +505,30 @@ describe('epub-packer tests', () => {
 			expect(xml).toContain('<dc:title>My Book</dc:title>');
 			expect(xml).toContain('<dc:creator id="creator">My Author</dc:creator>');
 			expect(xml).toContain('<dc:publisher>My Publisher</dc:publisher>');
+			expect(xml).toContain('<dc:contributor id="packer">akhademik &amp; vc</dc:contributor>');
+			expect(xml).toContain(
+				'<meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>'
+			);
+			expect(xml).toContain('<meta refines="#packer" property="file-as">akhademik &amp; vc</meta>');
+			expect(xml).toContain('<meta name="generator" content="akhademik &amp; vc"/>');
 			expect(xml).toContain('<item id="chap1" href="text/chap_01.xhtml"');
 			expect(xml).toContain('<itemref idref="chap1"');
+		});
+
+		it('should allow custom contributor in OPF metadata', () => {
+			const chapters = [{ xmlId: 'chap1', title: 'Chương 1', fileName: 'chap_01' }];
+			const xml = buildContentOpf(
+				{
+					title: 'My Book',
+					author: 'My Author',
+					identifier: 'uuid-1234',
+					language: 'vi',
+					contributor: 'Custom Packer'
+				},
+				chapters
+			);
+			expect(xml).toContain('<dc:contributor id="packer">Custom Packer</dc:contributor>');
+			expect(xml).toContain('<meta name="generator" content="Custom Packer"/>');
 		});
 
 		it('should include fonts in manifest if activeFonts is specified', () => {

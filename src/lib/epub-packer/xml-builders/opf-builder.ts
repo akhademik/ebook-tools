@@ -74,6 +74,19 @@ export function buildContentOpf(
 		);
 	}
 	const spineItems = chapters.map((c) => `<itemref idref="${escapeXmlAttribute(c.xmlId)}"/>`);
+	const contributor = meta.contributor ?? 'akhademik & vc';
+	const contributorXml = contributor
+		? '    <dc:contributor id="packer">' +
+			escapeXml(contributor) +
+			'</dc:contributor>\n' +
+			'    <meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>\n' +
+			'    <meta refines="#packer" property="file-as">' +
+			escapeXml(contributor) +
+			'</meta>\n' +
+			'    <meta name="generator" content="' +
+			escapeXmlAttribute(contributor) +
+			'"/>\n'
+		: '';
 
 	return (
 		'<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -94,6 +107,7 @@ export function buildContentOpf(
 		escapeXml(meta.author) +
 		'</dc:creator>\n' +
 		(meta.publisher ? '    <dc:publisher>' + escapeXml(meta.publisher) + '</dc:publisher>\n' : '') +
+		contributorXml +
 		(hasCover ? '    <meta name="cover" content="cover-image"/>\n' : '') +
 		'    <meta property="dcterms:modified">' +
 		modified +
