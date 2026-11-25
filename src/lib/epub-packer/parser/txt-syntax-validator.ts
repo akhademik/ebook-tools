@@ -32,6 +32,42 @@ function checkFootnoteSyntax(line: string, lineNum: number, errors: TxtSyntaxErr
 }
 
 /**
+ * Helper to replace matched substrings with spaces of identical length,
+ * preserving character positions so extracted context offsets align with `line`.
+ */
+function maskWithSpaces(str: string, regex: RegExp): string {
+	return str.replace(regex, (match) => ' '.repeat(match.length));
+}
+
+/**
+ * Extracts a concise context snippet around a marker at index `pos` in `text`.
+ * Extracts ~5 characters before and ~5 characters after the marker.
+ * Example: '...21/1 Lê...'
+ */
+function extractContextSnippet(text: string, pos: number, radius = 5): string {
+	const start = Math.max(0, pos - radius);
+	const end = Math.min(text.length, pos + 1 + radius);
+	const prefix = start > 0 ? '...' : '';
+	const suffix = end < text.length ? '...' : '';
+	const rawSnippet = text.slice(start, end).replace(/[\r\n\t]+/g, ' ');
+	return `${prefix}${rawSnippet}${suffix}`;
+}
+
+/**
+ * Finds all start indices of matches for a global RegExp in `str`.
+ */
+function findMatchIndices(str: string, regex: RegExp): number[] {
+	const indices: number[] = [];
+	const matches = str.matchAll(regex);
+	for (const m of matches) {
+		if (m.index !== undefined) {
+			indices.push(m.index);
+		}
+	}
+	return indices;
+}
+
+/**
  * Checks a line for unclosed inline formatting markers like *bold*, /italic/, _underline_.
  * Only checks markers that are attached to text (not surrounded by whitespace like 'ab / cd' or 'day la * binh thuong').
  * An opening marker is attached on the right to non-whitespace, or a closing marker is attached on the left to non-whitespace.
@@ -43,63 +79,69 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 		return;
 	}
 
-	// Remove URLs (http://, https://, file://) before checking slashes
-	let sanitized = line.replace(/https?:\/\/[^\s]+/gi, '');
-	// Remove dates like 15/10/2026 or 1/2/2025
-	sanitized = sanitized.replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, '');
-	// Remove fractions like 1/2, 3/4
-	sanitized = sanitized.replace(/\b\d+\/\d+\b/g, '');
-	// Remove known tag constructs like [/poem], [/letter], [/letter-box], [/new]
-	sanitized = sanitized.replace(/\[\/(?:poem|letter|letter-box|new)\]/gi, '');
+	// Mask URLs (http://, https://, file://)
+	let sanitized = maskWithSpaces(line, /https?:\/\/[^\s]+/gi);
+	// Mask fractions, dates & address numbers like 1/2, 15/10/2026, 21/1, 21/1A, 21/1/3
+	sanitized = maskWithSpaces(sanitized, /\b\d+[\p{L}]?(?:\/\d+[\p{L}]?)+\b/gu);
+	// Mask known tag constructs like [/poem], [/letter], [/letter-box], [/new], [/new:center]
+	sanitized = maskWithSpaces(sanitized, /\[\/(?:poem|letter|letter-box|new|new:center)\]/gi);
 
-	// 1. Check bold: First remove all valid completed bold pairs: *(non-space ... non-space)*
+	// 1. Check bold: First mask all valid completed bold pairs: *(non-space ... non-space)*
 	const boldPairRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
-	const textWithoutValidBolds = sanitized.replace(boldPairRegex, '');
+	const textWithoutValidBolds = maskWithSpaces(sanitized, boldPairRegex);
 	// In the remainder, find asterisks that touch text: either '*text' or 'text*' (not isolated ' * ' or ' *')
 	const lingeringBoldMarker = /(?<!\\)(?:(?<=\S)\*(?!\d)|(?<!\d)\*(?=\S))/g;
-	const lingeringStars = textWithoutValidBolds.match(lingeringBoldMarker);
-	if (lingeringStars && lingeringStars.length > 0) {
+	const boldIndices = findMatchIndices(textWithoutValidBolds, lingeringBoldMarker);
+	if (boldIndices.length > 0) {
+		const snippets = boldIndices.slice(0, 3).map((idx) => extractContextSnippet(line, idx, 5));
+		const contextStr = snippets.map((s) => `"${s}"`).join(', ');
 		warnings.push({
 			lineNum,
 			lineContent: line,
 			tag: '*',
-			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '*'`
+			context: snippets[0],
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '*' (ngữ cảnh: ${contextStr})`
 		});
 	}
 
-	// 2. Check underline: First remove all valid completed underline pairs: _(non-space ... non-space)_
-	// Ignore identifiers or illustration names like hinh_1, img_01
-	let underlineSanitized = sanitized.replace(/[\p{L}\p{N}]+_[\p{L}\p{N}]+/gu, '');
+	// 2. Check underline: First mask identifiers or illustration names like hinh_1, img_01
+	let underlineSanitized = maskWithSpaces(sanitized, /[\p{L}\p{N}]+_[\p{L}\p{N}]+/gu);
 	const underlinePairRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
-	underlineSanitized = underlineSanitized.replace(underlinePairRegex, '');
+	underlineSanitized = maskWithSpaces(underlineSanitized, underlinePairRegex);
 	const lingeringUnderlineMarker = /(?<!\\)(?:(?<=\S)_(?![\p{L}\p{N}])|(?<![\p{L}\p{N}])_(?=\S))/gu;
-	const lingeringUnderlines = underlineSanitized.match(lingeringUnderlineMarker);
-	if (lingeringUnderlines && lingeringUnderlines.length > 0) {
+	const underlineIndices = findMatchIndices(underlineSanitized, lingeringUnderlineMarker);
+	if (underlineIndices.length > 0) {
+		const snippets = underlineIndices.slice(0, 3).map((idx) => extractContextSnippet(line, idx, 5));
+		const contextStr = snippets.map((s) => `"${s}"`).join(', ');
 		warnings.push({
 			lineNum,
 			lineContent: line,
 			tag: '_',
-			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '_'`
+			context: snippets[0],
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '_' (ngữ cảnh: ${contextStr})`
 		});
 	}
 
-	// 3. Check italic: First remove all valid completed italic pairs: /(non-space ... non-space)/
+	// 3. Check italic: First mask all valid completed italic pairs: /(non-space ... non-space)/
 	const italicPairRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
-	const textWithoutValidItalics = sanitized.replace(italicPairRegex, (_match, content) => {
+	const textWithoutValidItalics = sanitized.replace(italicPairRegex, (match, content) => {
 		const cTrim = content.trim();
-		if (/^\d+$/.test(cTrim)) return _match;
-		if (cTrim.length <= 2 && /^\d+$/.test(cTrim.replace(/[^0-9]/g, ''))) return _match;
-		return '';
+		if (/^\d+$/.test(cTrim)) return match;
+		if (cTrim.length <= 2 && /^\d+$/.test(cTrim.replace(/[^0-9]/g, ''))) return match;
+		return ' '.repeat(match.length);
 	});
 	// In the remainder, find slashes that touch text: '/text' or 'text/' (not surrounded by space like ' a / b ')
 	const lingeringItalicMarker = /(?<!\\)(?:(?<=\S)\/(?!\d)|(?<!\d)\/(?=\S))/g;
-	const lingeringSlashes = textWithoutValidItalics.match(lingeringItalicMarker);
-	if (lingeringSlashes && lingeringSlashes.length > 0) {
+	const italicIndices = findMatchIndices(textWithoutValidItalics, lingeringItalicMarker);
+	if (italicIndices.length > 0) {
+		const snippets = italicIndices.slice(0, 3).map((idx) => extractContextSnippet(line, idx, 5));
+		const contextStr = snippets.map((s) => `"${s}"`).join(', ');
 		warnings.push({
 			lineNum,
 			lineContent: line,
 			tag: '/',
-			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '/'`
+			context: snippets[0],
+			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '/' (ngữ cảnh: ${contextStr})`
 		});
 	}
 }

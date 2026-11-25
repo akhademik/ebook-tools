@@ -217,6 +217,7 @@ export interface TxtSyntaxWarning {
 	lineContent: string;
 	message: string;
 	tag?: string;
+	context?: string;
 }
 
 export interface TxtSyntaxValidationResult {

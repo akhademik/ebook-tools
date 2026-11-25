@@ -4,6 +4,21 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Chiết xuất Ngữ cảnh Cảnh báo Cú pháp TXT & Nhận diện Địa chỉ/Số nhà)
+
+- Thêm/sửa:
+  - `src/lib/types/epub.type.ts`:
+    - Bổ sung trường `context?: string` cho `TxtSyntaxWarning` nhằm lưu trữ trích đoạn ngữ cảnh chứa ký tự bị cảnh báo.
+  - `src/lib/epub-packer/parser/txt-syntax-validator.ts`:
+    - **Chiết xuất ngữ cảnh 5 ký tự trước & sau**: Bổ sung hàm `extractContextSnippet` tự động trích xuất ~5 ký tự trước và 5 ký tự sau dấu format (`/`, `*`, `_`), hiển thị trực tiếp trong thông báo cảnh báo (ví dụ: `Dòng 171: Có khả năng thiếu dấu '/' (ngữ cảnh: "...21/1 Lê...")`).
+    - **Cơ chế Masking giữ nguyên Offset (`maskWithSpaces`)**: Thay thế thao tác xóa chuỗi bằng cơ chế thay thế bằng khoảng trắng cùng độ dài, đảm bảo chỉ số vị trí trích xuất từ dòng gốc `line` luôn chính xác 100%, không bị lệch offset khi có URL hoặc thẻ tag phía trước.
+    - **Khớp thông minh số nhà / địa chỉ Việt Nam**: Mở rộng biểu thức lọc số nhà, phân số và ngày tháng (`\b\d+[\p{L}]?(?:\/\d+[\p{L}]?)+\b/gu`), tự động bỏ qua các số nhà phổ biến như `21/1`, `21/1A`, `21/1/3` mà không sinh cảnh báo rác, đồng thời vẫn bảo toàn khả năng phát hiện thiếu dấu in nghiêng `/.../`.
+  - `tests/epub-parser.test.ts`:
+    - Cập nhật và bổ sung 2 test unit kiểm thử chiết xuất ngữ cảnh 5 ký tự cho dấu `/`, `*`, `_` và xác thực tự động bỏ qua số nhà Việt Nam chuẩn.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (375/375 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Kiểm thử Toàn diện postMessage Thất bại, Benchmark Thực tế Timeout & Chuẩn hóa Changelog)
 
 - Thêm/sửa:

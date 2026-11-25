@@ -220,7 +220,7 @@ pnpm test:e2e
   - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
   - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
   - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 373/373 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Chất lượng mã nguồn**: Toàn bộ 375/375 unit/integration tests pass (18 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).

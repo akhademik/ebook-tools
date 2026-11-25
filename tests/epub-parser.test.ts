@@ -1645,22 +1645,48 @@ Dòng văn bản bình thường trong thư.
 			);
 		});
 
-		it('should report warnings for odd/unclosed inline formatting markers (*, /, _)', () => {
+		it('should report warnings for odd/unclosed inline formatting markers (*, /, _) with context snippets', () => {
 			const txt = `@@ Chương 1\nĐoạn văn này có *in đậm chưa đóng\nĐoạn văn này có /in nghiêng chưa đóng\nĐoạn văn này có _gạch chân chưa đóng`;
 			const validation = validateTxtSyntax(txt);
 			expect(validation.isValid).toBe(true); // Inline unclosed are warnings, not blocking errors
 			expect(validation.warnings).toBeDefined();
 			expect(validation.warnings?.length).toBe(3);
 			expect(validation.warnings?.[0].lineNum).toBe(2);
-			expect(validation.warnings?.[0].message).toBe("Dòng 2: Có khả năng thiếu dấu '*'");
+			expect(validation.warnings?.[0].message).toContain("Dòng 2: Có khả năng thiếu dấu '*'");
+			expect(validation.warnings?.[0].message).toContain('ngữ cảnh: "...y có *in đậ..."');
+			expect(validation.warnings?.[0].context).toBe('...y có *in đậ...');
 			expect(validation.warnings?.[1].lineNum).toBe(3);
-			expect(validation.warnings?.[1].message).toBe("Dòng 3: Có khả năng thiếu dấu '/'");
+			expect(validation.warnings?.[1].message).toContain("Dòng 3: Có khả năng thiếu dấu '/'");
+			expect(validation.warnings?.[1].message).toContain('ngữ cảnh: "...y có /in ng..."');
+			expect(validation.warnings?.[1].context).toBe('...y có /in ng...');
 			expect(validation.warnings?.[2].lineNum).toBe(4);
-			expect(validation.warnings?.[2].message).toBe("Dòng 4: Có khả năng thiếu dấu '_'");
+			expect(validation.warnings?.[2].message).toContain("Dòng 4: Có khả năng thiếu dấu '_'");
+			expect(validation.warnings?.[2].message).toContain('ngữ cảnh: "...y có _gạch ..."');
+			expect(validation.warnings?.[2].context).toBe('...y có _gạch ...');
 
 			const warnings: string[] = [];
 			parseTxtToChapters(txt, { warnings });
 			expect(warnings.length).toBe(3);
+		});
+
+		it('should extract context snippet for house numbers or incomplete slash markers', () => {
+			const txt = `@@ Chương 1\nTôi tìm đến nhà số 21/ Lê Hồng Phong để gặp bạn.\nỞ đây có /đoạn chưa đóng`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true);
+			expect(validation.warnings?.length).toBe(2);
+			expect(validation.warnings?.[0].lineNum).toBe(2);
+			expect(validation.warnings?.[0].message).toContain("Dòng 2: Có khả năng thiếu dấu '/'");
+			expect(validation.warnings?.[0].message).toContain('ngữ cảnh: "...số 21/ Lê H..."');
+			expect(validation.warnings?.[1].lineNum).toBe(3);
+			expect(validation.warnings?.[1].message).toContain("Dòng 3: Có khả năng thiếu dấu '/'");
+			expect(validation.warnings?.[1].message).toContain('ngữ cảnh: "...y có /đoạn ..."');
+		});
+
+		it('should not warn on valid Vietnamese house numbers and addresses (21/1, 21/1A, 21/1/3)', () => {
+			const txt = `@@ Chương 1\nNhà số 21/1 Lê Hồng Phong và số 21/1A hoặc 21/1/3 Trần Hưng Đạo.`;
+			const validation = validateTxtSyntax(txt);
+			expect(validation.isValid).toBe(true);
+			expect(validation.warnings).toHaveLength(0);
 		});
 
 		it('should ignore URLs and dates when checking italic slashes', () => {
