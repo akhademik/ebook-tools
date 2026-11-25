@@ -70,7 +70,6 @@ blockquote footer.center {
 	margin: 0 0 0.8em 0;
 }
 
-.center,
 .poem,
 .poem p,
 blockquote.center,
@@ -78,13 +77,11 @@ blockquote.center p {
 	text-align: center;
 }
 
-.left,
 blockquote.left,
 blockquote.left p {
 	text-align: left;
 }
 
-.right,
 blockquote.right,
 blockquote.right p {
 	text-align: right;

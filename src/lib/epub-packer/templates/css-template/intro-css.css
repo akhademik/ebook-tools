@@ -464,44 +464,44 @@
 }
 
 /* intro-10 */
-.jacket-10b {
+.jacket-10 {
 	text-align: center;
 	padding: 2.8em 1.2em;
 	margin: 0;
 }
-.jacket-10b .title {
+.jacket-10 .title {
 	font-weight: bold;
 	font-size: 1.6em;
 	line-height: 1.3em;
 	margin: 0 0 1em 0;
 	overflow-wrap: break-word;
 }
-.jacket-10b .original {
+.jacket-10 .original {
 	font-style: italic;
 	font-size: 0.85em;
 	color: #555555;
 	margin: 0 0 1.3em 0;
 }
-.jacket-10b .diamond {
+.jacket-10 .diamond {
 	width: 0.5em;
 	height: 0.5em;
 	background: #000000;
 	margin: 0 auto 1.3em auto;
 	transform: rotate(45deg);
 }
-.jacket-10b .author {
+.jacket-10 .author {
 	font-weight: bold;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	font-size: 0.95em;
 	margin: 0 0 0.4em 0;
 }
-.jacket-10b .translator {
+.jacket-10 .translator {
 	font-size: 0.75em;
 	color: #555555;
 	margin: 0 0 1.1em 0;
 }
-.jacket-10b .meta {
+.jacket-10 .meta {
 	font-size: 0.7em;
 	color: #444444;
 	margin: 0.15em 0;

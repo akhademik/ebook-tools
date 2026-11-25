@@ -188,8 +188,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 16:15
+- Cập nhật lần cuối: 2026-11-25 16:35
 - Đã hoàn thành:
+  - **Rà soát & Chuẩn hóa Đặt tên CSS, Dọn dẹp Style Thừa (CSS Cleanup & Normalization)**:
+    - **Dọn dẹp style thừa trong `notes.css`**: Loại bỏ quy tắc rác `aside.footnote { display: block; color: green; ... }`; bổ sung selector `.note, .notes .note` và `.note p, .notes .note p` đảm bảo đoạn văn footnote không bị thụt đầu dòng thừa (`text-indent: 0`) và căn trái rõ ràng.
+    - **Loại bỏ class trùng lặp trong `quotes.css`**: Bỏ các class độc lập `.center`, `.left`, `.right` khai báo thừa trong `quotes.css` (đã được định nghĩa toàn cục chuẩn mực trong `headings.css`).
+    - **Tinh gọn markup H2 Markdown (`epub-markdown-utils.ts`)**: Loại bỏ thẻ bọc thừa `<span class="ch-title">` khi render `<h2>`, đồng nhất chuẩn thẻ tiêu đề với `<h1>` và `<h3>`.
+    - **Chuẩn hóa đặt tên Jacket 10 (`intro-css.css` & `jacket-templates.ts`)**: Đổi tên selector `.jacket-10b` thành `.jacket-10` đồng bộ với thứ tự đánh số `.jacket-1` đến `.jacket-9`.
+    - **Bảo toàn Typography Mặc định**: Duy trì phông chữ Bookerly luôn được nhúng mặc định cho nội dung thẻ `<p>` theo đúng chủ đích thiết kế của người dùng.
   - **Tách riêng CSS Trang Lót (`styles/jacket.css`) chuẩn EPUB 3 Best Practice**:
     - Thay thế việc nhúng CSS nội dòng (`<style>`) trong `jacket.xhtml` bằng file stylesheet độc lập `OEBPS/styles/jacket.css`, liên kết qua `<link rel="stylesheet" type="text/css" href="../styles/jacket.css"/>`.
     - Tự động đăng ký `styles/jacket.css` trong `<manifest>` của `content.opf` (`<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>`).

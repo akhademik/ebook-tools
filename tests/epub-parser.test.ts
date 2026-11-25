@@ -137,7 +137,7 @@ describe('epub-parser tests', () => {
 			expect(result.title).toBe('Title');
 			expect(result.html).toContain('<h1>Title</h1>');
 			expect(result.html).toContain(
-				'<h2><span class="ch-title">Subtitle with <b><i>CODESPAN</i></b>0<b><i>CODESPAN</i></b></span></h2>'
+				'<h2>Subtitle with <b><i>CODESPAN</i></b>0<b><i>CODESPAN</i></b></h2>'
 			);
 			expect(result.html).toContain('<h3>Heading 3</h3>');
 			expect(result.html).toContain(

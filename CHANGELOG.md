@@ -4,6 +4,26 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Chuẩn hóa Đặt tên CSS, Dọn dẹp Style Thừa & Giữ Font Bookerly Mặc định)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/templates/css-template/notes.css`:
+    - Xóa quy tắc rác `aside.footnote { display: block; color: green; padding-bottom: 0.5em; }`.
+    - Bổ sung quy tắc `.note, .notes .note` và `.note p, .notes .note p` bảo đảm các đoạn văn chú thích footnote không bị thụt lề thừa (`text-indent: 0`) và căn lề trái chuẩn xác.
+  - `src/lib/epub-packer/templates/css-template/quotes.css`:
+    - Loại bỏ các class trùng lặp `.center`, `.left`, `.right` độc lập (đã có trong `headings.css`).
+  - `src/lib/epub-packer/parser/epub-markdown-utils.ts`:
+    - Loại bỏ thẻ bọc thừa `<span class="ch-title">` khi sinh mã HTML cho `<h2>` từ Markdown block, đồng nhất với cú pháp `<h1>` và `<h3>`.
+  - `src/lib/epub-packer/templates/css-template/intro-css.css` & `src/lib/epub-packer/templates/jacket-templates.ts`:
+    - Chuẩn hóa tên class và selector từ `.jacket-10b` sang `.jacket-10`, đảm bảo tính nhất quán với mẫu 1 đến 9.
+  - Bảo toàn font Bookerly:
+    - Giữ nguyên cấu hình Bookerly nhúng mặc định trong `base.css` và `asset-builder.ts` phục vụ nội dung thẻ `<p>` theo đúng yêu cầu thiết kế cốt lõi của người dùng.
+  - `tests/epub-parser.test.ts`:
+    - Cập nhật test case kiểm tra thẻ `<h2>` Markdown không còn chứa thẻ `<span class="ch-title">`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (393/393 pass) | knip ✅ (0 issues) | graphify ✅
+
+---
+
 ## 2026-11-25 (Tách riêng File Stylesheet `styles/jacket.css` cho Trang Lót Bìa Chuẩn EPUB 3)
 
 - Thêm/sửa:

@@ -205,21 +205,14 @@ export function renderMarkdownBlocks(
 		if (b.type === 'heading') {
 			const headingText = b.text || '';
 			if (t === null && (b.level === 1 || b.level === 2)) t = headingText;
-			if (b.level === 2) {
-				html +=
-					'<h2><span class="ch-title">' +
-					convertInline(headingText, ignoreFormat) +
-					'</span></h2>\n';
-			} else {
-				html +=
-					'<h' +
-					(b.level || 1) +
-					'>' +
-					convertInline(headingText, ignoreFormat) +
-					'</h' +
-					(b.level || 1) +
-					'>\n';
-			}
+			html +=
+				'<h' +
+				(b.level || 1) +
+				'>' +
+				convertInline(headingText, ignoreFormat) +
+				'</h' +
+				(b.level || 1) +
+				'>\n';
 		} else if (b.type === 'p') {
 			const pText = b.text || '';
 			if (pText.trim() === '###') {

@@ -237,7 +237,7 @@ export const JACKET_TEMPLATES: JacketTemplate[] = [
 			return getJacketCss(10);
 		},
 		render: (title, original, author, translator, publisher, distributor) => {
-			let html = '<div class="jacket-10b">\n';
+			let html = '<div class="jacket-10">\n';
 			if (title) html += `  <p class="title">${escapeXml(title)}</p>\n`;
 			if (original) html += `  <p class="original">${escapeXml(original)}</p>\n`;
 			if ((title || original) && (author || translator || publisher || distributor)) {
