@@ -583,4 +583,78 @@ describe('EPUB Editor unit tests', () => {
 			expect(updatedCss).toBe('body { color: darkblue; font-size: 16px; }');
 		});
 	});
+
+	describe('EpubEditorState preview resilience and caching', () => {
+		it('should prevent race condition where slow render overwrites newer preview', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file('OEBPS/text/ch1.xhtml', '<html><body>Content Chapter 1</body></html>');
+			zip.file('OEBPS/text/ch2.xhtml', '<html><body>Content Chapter 2</body></html>');
+			zip.file('OEBPS/images/img.png', new Uint8Array([1, 2, 3, 4]));
+			state.zip = zip;
+
+			// Intercept ensureFileLoaded to simulate asynchronous delay
+			const originalEnsure = state.ensureFileLoaded.bind(state);
+			state.ensureFileLoaded = vi.fn().mockImplementation(async (path: string) => {
+				if (path.includes('ch1')) {
+					// Chapter 1 is slow (simulates heavy assets)
+					await new Promise((resolve) => setTimeout(resolve, 80));
+				} else {
+					// Chapter 2 is fast
+					await new Promise((resolve) => setTimeout(resolve, 10));
+				}
+				return originalEnsure(path);
+			});
+
+			// Trigger render for Chapter 1
+			state.previewTarget = 'OEBPS/text/ch1.xhtml';
+			const p1 = state.renderPreview();
+
+			// Immediately switch and trigger render for Chapter 2
+			state.previewTarget = 'OEBPS/text/ch2.xhtml';
+			const p2 = state.renderPreview();
+
+			await Promise.all([p1, p2]);
+
+			// Even though p1 finished later, previewSrcDoc must contain Chapter 2!
+			expect(state.previewSrcDoc).toContain('Content Chapter 2');
+			expect(state.previewSrcDoc).not.toContain('Content Chapter 1');
+		});
+
+		it('should cache asset data URLs across multiple preview renders and clear on reset', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'OEBPS/text/ch1.xhtml',
+				'<html><body><img src="../images/cover.png" /></body></html>'
+			);
+			zip.file('OEBPS/images/cover.png', new Uint8Array([137, 80, 78, 71]));
+			state.zip = zip;
+			state.previewTarget = 'OEBPS/text/ch1.xhtml';
+
+			expect(state.assetDataUrlCache.size).toBe(0);
+
+			await state.renderPreview();
+			expect(state.assetDataUrlCache.size).toBe(1);
+			expect(state.assetDataUrlCache.has('OEBPS/images/cover.png')).toBe(true);
+
+			const cachedUrl = state.assetDataUrlCache.get('OEBPS/images/cover.png');
+			expect(cachedUrl).toContain('data:image/png;base64,');
+
+			// Second render re-uses cached URL
+			await state.renderPreview();
+			expect(state.assetDataUrlCache.get('OEBPS/images/cover.png')).toBe(cachedUrl);
+
+			// Calling reset clears the cache
+			state.reset();
+			expect(state.assetDataUrlCache.size).toBe(0);
+			expect(state.latestPreviewRequestId).toBe(0);
+		});
+	});
 });

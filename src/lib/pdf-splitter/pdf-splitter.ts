@@ -17,14 +17,16 @@ import type {
 	PdfJsLib,
 	PdfJsDocument
 } from '$lib/types';
+import type { GrayscaleWorkerResponse } from './pdf-grayscale.worker';
 
 export const DEFAULT_DPI = 200;
+export const PREVIEW_DPI = 96;
 
 export function dpiToScale(dpi: number): number {
 	return dpi / 72;
 }
 
-const PDF_SCALE = dpiToScale(DEFAULT_DPI);
+export const PREVIEW_SCALE = dpiToScale(PREVIEW_DPI);
 const JPEG_QUALITY = 0.85;
 const GRAY_CONTRAST = 1.08;
 
@@ -71,6 +73,112 @@ export function applyGrayscale(
 		d[i] = d[i + 1] = d[i + 2] = v;
 	}
 	ctx.putImageData(imgData, 0, 0);
+}
+
+let grayscaleWorker: Worker | null = null;
+const pendingGrayscaleJobs = new Map<
+	string,
+	{
+		resolve: (buffer: ArrayBuffer) => void;
+		reject: (err: unknown) => void;
+	}
+>();
+
+function getGrayscaleWorker(): Worker | null {
+	if (typeof window === 'undefined' || typeof Worker === 'undefined') {
+		return null;
+	}
+	if (!grayscaleWorker) {
+		try {
+			const worker = new Worker(new URL('./pdf-grayscale.worker.ts', import.meta.url), {
+				type: 'module'
+			});
+			worker.onmessage = (e: MessageEvent<GrayscaleWorkerResponse>) => {
+				const job = pendingGrayscaleJobs.get(e.data.id);
+				if (!job) return;
+				pendingGrayscaleJobs.delete(e.data.id);
+				if (e.data.type === 'success') {
+					job.resolve(e.data.buffer);
+				} else {
+					job.reject(new Error(e.data.error));
+				}
+			};
+			worker.onerror = (err) => {
+				Logger.warn('[pdf-splitter]', 'Grayscale worker error:', err);
+				cleanupGrayscaleWorker();
+			};
+			worker.onmessageerror = (err) => {
+				Logger.warn('[pdf-splitter]', 'Grayscale worker message error:', err);
+				cleanupGrayscaleWorker();
+			};
+			grayscaleWorker = worker;
+		} catch (err) {
+			Logger.warn(
+				'[pdf-splitter]',
+				'Failed to instantiate Grayscale worker, falling back to main thread:',
+				err
+			);
+			grayscaleWorker = null;
+		}
+	}
+	return grayscaleWorker;
+}
+
+function cleanupGrayscaleWorker(): void {
+	if (grayscaleWorker) {
+		try {
+			grayscaleWorker.terminate();
+		} catch {
+			// ignore
+		}
+		grayscaleWorker = null;
+	}
+	pendingGrayscaleJobs.clear();
+}
+
+/**
+ * Offloads grayscale and contrast pixel loop to a Web Worker via zero-copy ArrayBuffer transfer.
+ * Automatically falls back to synchronous main thread execution if Worker is unavailable.
+ */
+export async function applyGrayscaleAsync(
+	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+	width: number,
+	height: number,
+	contrast: number
+): Promise<void> {
+	const worker = getGrayscaleWorker();
+	if (!worker) {
+		applyGrayscale(ctx, width, height, contrast);
+		return;
+	}
+
+	const imgData = ctx.getImageData(0, 0, width, height);
+	const buffer = imgData.data.buffer;
+	const id = Math.random().toString(36).substring(2, 10);
+
+	try {
+		const processedBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+			pendingGrayscaleJobs.set(id, { resolve, reject });
+			worker.postMessage({ id, buffer, contrast }, [buffer]);
+		});
+
+		let outData: ImageData;
+		if (typeof ImageData !== 'undefined') {
+			outData = new ImageData(new Uint8ClampedArray(processedBuffer), width, height);
+		} else {
+			// Fallback for Node/mock testing environments without global ImageData
+			imgData.data.set(new Uint8Array(processedBuffer));
+			outData = imgData;
+		}
+		ctx.putImageData(outData, 0, 0);
+	} catch (err) {
+		Logger.warn(
+			'[pdf-splitter]',
+			'Worker grayscale execution failed, fallback to main thread:',
+			err
+		);
+		applyGrayscale(ctx, width, height, contrast);
+	}
 }
 
 export function cropCanvas<T extends HTMLCanvasElement | OffscreenCanvas>(
@@ -200,7 +308,7 @@ export async function loadPdfPreview(
 		for (let p = 1; p <= count; p++) {
 			Logger.debug('[pdf-splitter]', `loadPdfPreview: rendering page ${p}`);
 			const page = await doc.getPage(p);
-			const viewport = getClampedViewport(page, PDF_SCALE);
+			const viewport = getClampedViewport(page, PREVIEW_SCALE);
 			const canvas = document.createElement('canvas');
 			canvas.width = viewport.width;
 			canvas.height = viewport.height;
@@ -214,7 +322,7 @@ export async function loadPdfPreview(
 
 			await page.render({ canvasContext: ctx, viewport }).promise;
 			if (!keepColor) {
-				applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+				await applyGrayscaleAsync(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
 			}
 
 			pages.push({
@@ -236,6 +344,7 @@ export async function loadPdfPreview(
 		return pages;
 	} finally {
 		cleanup();
+		cleanupGrayscaleWorker();
 	}
 }
 
@@ -391,7 +500,7 @@ export async function processPdfToJpg(
 					}
 
 					if (!keepColor && ctx) {
-						applyGrayscale(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
+						await applyGrayscaleAsync(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
 					}
 
 					// Maintain quality >= 0.85 even during retry (only scale is reduced)
@@ -568,5 +677,6 @@ export async function processPdfToJpg(
 		};
 	} finally {
 		cleanup();
+		cleanupGrayscaleWorker();
 	}
 }

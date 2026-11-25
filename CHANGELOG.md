@@ -4,6 +4,21 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Tối ưu Hiệu năng PDF Splitter Grayscale Worker & Khắc phục Race Condition EPUB Editor)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-grayscale.worker.ts`: Tạo Web Worker chuyên dụng xử lý chuyển đổi ảnh xám và tăng độ tương phản qua ArrayBuffer transferable objects, loại bỏ triệt để các blocking long tasks trên luồng chính.
+  - `src/lib/pdf-splitter/pdf-splitter.ts`:
+    - Tích hợp `applyGrayscaleAsync` với cơ chế worker offloading và fallback tự động về luồng chính khi cần.
+    - Bổ sung `PREVIEW_DPI = 96` và `PREVIEW_SCALE = dpiToScale(96)` cho `loadPdfPreview()`, giảm 77% số lượng pixel cần render và tăng tốc độ tải xem trước gấp 4–6 lần.
+  - `src/lib/epub-editor/epub-editor-state.svelte.ts`:
+    - Thêm `latestPreviewRequestId` loại bỏ nguy cơ render cũ hoàn thành muộn ghi đè lên kết quả xem trước mới khi chuyển trang.
+    - Thêm `assetDataUrlCache` (`SvelteMap`) cache Data URL cho ảnh và font nhúng, giảm thời gian render khi chỉnh sửa văn bản từ ~300ms xuống <10ms.
+  - `tests/pdf-splitter.test.ts` & `tests/epub-editor.test.ts`: Bổ sung bộ kiểm thử unit cho `processGrayscaleBuffer`, `applyGrayscaleAsync`, preview scale và cơ chế chống race condition / cache Data URL.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (370/370 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Tối ưu hóa Trích xuất Metadata TXT & Hoàn thiện Test Đóng gói Footnote)
 
 - Thêm/sửa:

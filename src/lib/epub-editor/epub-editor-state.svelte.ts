@@ -53,6 +53,8 @@ export class EpubEditorState {
 	isExporting = $state<boolean>(false);
 
 	previewSrcDoc = $state<string>('');
+	latestPreviewRequestId = 0;
+	assetDataUrlCache = new SvelteMap<string, string>();
 	validationErrors = $state<EpubValidationError[]>([]);
 
 	// Book metadata & TOC state
@@ -214,6 +216,7 @@ export class EpubEditorState {
 			return;
 		}
 
+		const requestId = ++this.latestPreviewRequestId;
 		const htmlContent = await this.ensureFileLoaded(this.previewTarget);
 
 		try {
@@ -225,12 +228,27 @@ export class EpubEditorState {
 				},
 				getAssetDataUrl: async (p) => {
 					if (!this.zip) return null;
-					return await getAssetDataUrl(this.zip, p);
+					const cached = this.assetDataUrlCache.get(p);
+					if (cached) return cached;
+					const dataUrl = await getAssetDataUrl(this.zip, p);
+					if (dataUrl) {
+						this.assetDataUrlCache.set(p, dataUrl);
+					}
+					return dataUrl;
 				}
 			});
 
+			if (requestId !== this.latestPreviewRequestId) {
+				Logger.debug(
+					'[EpubEditorState]',
+					`Discarding stale preview render ${requestId} (current latest is ${this.latestPreviewRequestId})`
+				);
+				return;
+			}
+
 			this.previewSrcDoc = srcDoc;
 		} catch (err) {
+			if (requestId !== this.latestPreviewRequestId) return;
 			Logger.error('[EpubEditorState]', 'Error rendering preview', err);
 			this.previewSrcDoc = `<div style="font-family: monospace; color: red; padding: 20px;">Lỗi kết xuất Preview: ${String(err)}</div>`;
 		}
@@ -329,6 +347,7 @@ export class EpubEditorState {
 			);
 			this.cleanReport = report;
 			this.cleanAnalysis = null;
+			this.assetDataUrlCache.clear();
 
 			// Refresh entries after deletion
 			this.files = await parseZipEntries(this.zip, this.editBuffer);
@@ -458,6 +477,8 @@ export class EpubEditorState {
 		this.isError = false;
 		this.isExporting = false;
 		this.previewSrcDoc = '';
+		this.latestPreviewRequestId = 0;
+		this.assetDataUrlCache.clear();
 		this.validationErrors = [];
 		this.cleanAnalysis = null;
 		this.cleanReport = null;

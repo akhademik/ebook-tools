@@ -333,8 +333,24 @@ describe('pdf-splitter tests', () => {
 			(globalThis as any).navigator.hardwareConcurrency = originalVal;
 		});
 
-		it('should test applyGrayscale and cropCanvas pure helper functions', async () => {
-			const { applyGrayscale, cropCanvas } = await import('../src/lib/pdf-splitter/pdf-splitter');
+		it('should test applyGrayscale, applyGrayscaleAsync, and processGrayscaleBuffer', async () => {
+			const { applyGrayscale, applyGrayscaleAsync, cropCanvas, PREVIEW_DPI, PREVIEW_SCALE } =
+				await import('../src/lib/pdf-splitter/pdf-splitter');
+			const { processGrayscaleBuffer } =
+				await import('../src/lib/pdf-splitter/pdf-grayscale.worker');
+
+			expect(PREVIEW_DPI).toBe(96);
+			expect(PREVIEW_SCALE).toBe(96 / 72);
+
+			// Test pure buffer processing
+			const rawBuffer = new Uint8Array([100, 150, 200, 255]).buffer;
+			const processedBuffer = processGrayscaleBuffer(rawBuffer, 1.08);
+			const processedArr = new Uint8ClampedArray(processedBuffer);
+			expect(processedArr[3]).toBe(255);
+			// R=G=B for grayscale
+			expect(processedArr[0]).toBe(processedArr[1]);
+			expect(processedArr[1]).toBe(processedArr[2]);
+
 			const mockCtx = {
 				getImageData: vi.fn().mockReturnValue({
 					data: new Uint8Array([100, 150, 200, 255])
@@ -346,6 +362,10 @@ describe('pdf-splitter tests', () => {
 			applyGrayscale(mockCtx as any, 1, 1, 1.08);
 			expect(mockCtx.getImageData).toHaveBeenCalledWith(0, 0, 1, 1);
 			expect(mockCtx.putImageData).toHaveBeenCalled();
+
+			// Test async grayscale with fallback
+			await applyGrayscaleAsync(mockCtx as any, 1, 1, 1.08);
+			expect(mockCtx.putImageData).toHaveBeenCalledTimes(2);
 
 			const fakeCanvas = {
 				width: 200,
