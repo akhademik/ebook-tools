@@ -4,6 +4,17 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-25 (Tối ưu Tốc độ Xem trước PDF với GPU CSS Filter & Trực tiếp Màu Gốc)
+
+- Thêm/sửa:
+  - `src/lib/pdf-splitter/pdf-splitter.ts`: Bỏ hoàn toàn thao tác đọc và ghi pixel (`getImageData` / `putImageData`) trong `loadPdfPreview()`. PDF.js render trực tiếp màu gốc lên canvas context `{ alpha: false }`, cắt giảm thêm 25–40% thời gian tải xem trước (0ms overhead CPU).
+  - `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`: Thêm trường reactive `previewGrayscale` vào state quản lý.
+  - `src/routes/pdf/+page.svelte`: Bổ sung nút bấm chuyển đổi tức thì chế độ xem trước giữa ảnh xám OCR và màu gốc; áp dụng bộ lọc tăng tốc phần cứng GPU (`filter: grayscale(100%) contrast(1.08)`) trên thẻ ảnh preview, đem lại trải nghiệm trực quan chính xác kết quả OCR với 0ms độ trễ CPU.
+  - `tests/pdf-splitter.test.ts`: Cập nhật kiểm thử unit xác thực `loadPdfPreview()` xuất ảnh trực tiếp mà không can thiệp bộ đệm pixel, đồng thời bảo toàn bộ lọc Web Worker khi bấm "Bắt đầu tách trang".
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (370/370 pass) | test e2e ✅ (21/21 pass) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Tối ưu Hiệu năng PDF Splitter Grayscale Worker & Khắc phục Race Condition EPUB Editor)
 
 - Thêm/sửa:

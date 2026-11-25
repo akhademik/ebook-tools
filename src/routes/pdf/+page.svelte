@@ -111,24 +111,42 @@
 
 		{#if state.previewPages.length > 0}
 			<div class="mt-5 pt-5 border-t border-border-color animate-fade-in">
-				<div class="flex items-center justify-center gap-4 mb-5">
-					<button
-						class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
-						onclick={() => state.prevPreviewPage()}
-						type="button">‹ Trước</button
-					>
-					<span class="font-sans text-sm text-text-mute"
-						>Trang <span class="font-mono text-text-color font-medium"
-							>{state.previewPages[state.currentPreviewIndex]?.pageNum}</span
+				<div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+					<div class="flex items-center gap-2">
+						<button
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
+							onclick={() => state.prevPreviewPage()}
+							type="button">‹ Trước</button
 						>
-						(<span class="font-mono">{state.currentPreviewIndex + 1}</span> /
-						<span class="font-mono">{state.previewPages.length}</span>)</span
-					>
+						<span class="font-sans text-sm text-text-mute"
+							>Trang <span class="font-mono text-text-color font-medium"
+								>{state.previewPages[state.currentPreviewIndex]?.pageNum}</span
+							>
+							(<span class="font-mono">{state.currentPreviewIndex + 1}</span> /
+							<span class="font-mono">{state.previewPages.length}</span>)</span
+						>
+						<button
+							class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
+							onclick={() => state.nextPreviewPage()}
+							type="button">Sau ›</button
+						>
+					</div>
+
 					<button
-						class="bg-panel-2 text-text-color border border-field-border hover:border-accent-color font-sans text-sm font-semibold h-10 px-4 rounded-xl cursor-pointer transition-colors"
-						onclick={() => state.nextPreviewPage()}
-						type="button">Sau ›</button
+						type="button"
+						class="bg-panel-2 border font-sans text-xs font-semibold h-9 px-3 rounded-xl cursor-pointer transition-all flex items-center gap-2 {state.previewGrayscale
+							? 'text-amber-color border-amber-color bg-warn/10'
+							: 'border-field-border text-text-mute hover:border-accent-color hover:text-text-color'}"
+						onclick={() => (state.previewGrayscale = !state.previewGrayscale)}
+						title="Chuyển chế độ xem trước giả lập ảnh xám OCR qua GPU mà không tốn CPU"
 					>
+						<span
+							class="w-2 h-2 rounded-full {state.previewGrayscale
+								? 'bg-amber-color'
+								: 'bg-text-mute'}"
+						></span>
+						<span>{state.previewGrayscale ? 'Xem: Xám OCR (GPU)' : 'Xem: Màu gốc'}</span>
+					</button>
 				</div>
 
 				<div
@@ -137,7 +155,8 @@
 					{#if state.previewPages[state.currentPreviewIndex]}
 						<img
 							src={state.previewPages[state.currentPreviewIndex].dataUrl}
-							class="w-full block"
+							class="w-full block transition-[filter] duration-150"
+							style={state.previewGrayscale ? 'filter: grayscale(100%) contrast(1.08);' : undefined}
 							alt="Xem trước trang"
 						/>
 						<div

@@ -29,6 +29,7 @@ export class PdfSplitterState {
 	selectedPreviewCount = $state<number>(10);
 	previewPages = $state<PdfPreviewPage[]>([]);
 	currentPreviewIndex = $state<number>(0);
+	previewGrayscale = $state<boolean>(true);
 	cropTopPx = $state<number>(0);
 	cropBottomPx = $state<number>(0);
 

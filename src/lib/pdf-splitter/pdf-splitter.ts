@@ -284,7 +284,7 @@ async function openPdfDocument(
 export async function loadPdfPreview(
 	pdfSelectedFile: File | null,
 	selectedPreviewCount: number,
-	keepColor: boolean
+	_keepColor = false
 ): Promise<PdfPreviewPage[]> {
 	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
@@ -293,7 +293,7 @@ export async function loadPdfPreview(
 	}
 	Logger.debug(
 		'[pdf-splitter]',
-		`loadPdfPreview called, file size: ${pdfSelectedFile.size}, preview count limit: ${selectedPreviewCount}, keepColor: ${keepColor}`
+		`loadPdfPreview called, file size: ${pdfSelectedFile.size}, preview count limit: ${selectedPreviewCount}`
 	);
 
 	const { doc, cleanup } = await openPdfDocument(pdfSelectedFile, globalPdfjs);
@@ -312,7 +312,7 @@ export async function loadPdfPreview(
 			const canvas = document.createElement('canvas');
 			canvas.width = viewport.width;
 			canvas.height = viewport.height;
-			const ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
+			const ctx = canvas.getContext('2d', { alpha: false });
 			if (!ctx) {
 				canvas.width = 0;
 				canvas.height = 0;
@@ -321,9 +321,6 @@ export async function loadPdfPreview(
 			}
 
 			await page.render({ canvasContext: ctx, viewport }).promise;
-			if (!keepColor) {
-				await applyGrayscaleAsync(ctx, canvas.width, canvas.height, GRAY_CONTRAST);
-			}
 
 			pages.push({
 				pageNum: p,
@@ -344,7 +341,6 @@ export async function loadPdfPreview(
 		return pages;
 	} finally {
 		cleanup();
-		cleanupGrayscaleWorker();
 	}
 }
 

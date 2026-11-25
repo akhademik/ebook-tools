@@ -181,7 +181,7 @@ describe('pdf-splitter tests', () => {
 			(globalThis as any).window.pdfjsLib = originalPdfjs;
 		});
 
-		it('should load preview pages with grayscale applied', async () => {
+		it('should load preview pages directly without canvas pixel manipulation (native color)', async () => {
 			const pages = await loadPdfPreview(fakeFile, 3, false);
 
 			expect(fakeFile.arrayBuffer).toHaveBeenCalled();
@@ -195,20 +195,19 @@ describe('pdf-splitter tests', () => {
 				height: 200
 			});
 
-			// Verify grayscale was applied since keepColor = false
+			// Verify preview renders directly without costly getImageData/putImageData calls
 			const canvas = createdCanvases[0];
 			const ctx = canvas.getContext('2d');
-			expect(ctx.getImageData).toHaveBeenCalled();
-			expect(ctx.putImageData).toHaveBeenCalled();
+			expect(ctx.getImageData).not.toHaveBeenCalled();
+			expect(ctx.putImageData).not.toHaveBeenCalled();
 			expect(mockPage.cleanup).toHaveBeenCalled();
 			expect(mockDoc.destroy).toHaveBeenCalled();
 		});
 
-		it('should load preview pages keeping colors intact', async () => {
+		it('should load preview pages with keepColor parameter without error', async () => {
 			const pages = await loadPdfPreview(fakeFile, 1, true);
 
 			expect(pages.length).toBe(1);
-			// Verify grayscale was NOT applied
 			const canvas = createdCanvases[0];
 			const ctx = canvas.getContext('2d');
 			expect(ctx.getImageData).not.toHaveBeenCalled();
