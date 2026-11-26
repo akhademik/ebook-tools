@@ -175,7 +175,14 @@ export function prepareFinalCss(
 		}
 
 		if (fqa) {
-			fontBaseRules += `\nblockquote footer { font-family: "${fqa.cssFamily}", serif !important; }`;
+			if (finalCss.includes('blockquote footer {')) {
+				finalCss = finalCss.replace(
+					'blockquote footer {',
+					`blockquote footer {\n\tfont-family: "${fqa.cssFamily}", serif !important;`
+				);
+			} else {
+				fontBaseRules += `\nblockquote footer { font-family: "${fqa.cssFamily}", serif !important; }`;
+			}
 		}
 
 		if (f2 && f2Sub) {

@@ -507,7 +507,10 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 		expect(finalCss).toContain(
 			'blockquote, blockquote p { font-family: "Bookerly", serif !important; }'
 		);
-		expect(finalCss).toContain('blockquote footer { font-family: "Bookerly", serif !important; }');
+		// Verify blockquote footer has font rule merged without duplicate selector
+		expect(finalCss).toContain('blockquote footer {\n\tfont-family: "Bookerly", serif !important;');
+		const footerMatches = finalCss.match(/blockquote footer\s*\{/g) || [];
+		expect(footerMatches.length).toBe(1);
 
 		// Also test custom font shared between H1, Quote and Quote Author
 		const customFonts: EpubFontsConfig = {
@@ -523,8 +526,22 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 			'blockquote, blockquote p { font-family: "KKTTAbsolute", serif !important; }'
 		);
 		expect(customCss).toContain(
-			'blockquote footer { font-family: "KKTTAbsolute", serif !important; }'
+			'blockquote footer {\n\tfont-family: "KKTTAbsolute", serif !important;'
 		);
+		const customFooterMatches = customCss.match(/blockquote footer\s*\{/g) || [];
+		expect(customFooterMatches.length).toBe(1);
+
+		// Test when chapters do not have quotes: blockquote footer rule is added without duplicate
+		const noQuotesCss = prepareFinalCss(
+			[{ xmlId: 'ch1', fileName: 'chap_01', title: 'Chương 1', html: '<p>Text</p>' }],
+			undefined,
+			{ quoteAuthorFont: 'Bookerly' }
+		);
+		expect(noQuotesCss).toContain(
+			'blockquote footer { font-family: "Bookerly", serif !important; }'
+		);
+		const noQuotesFooterMatches = noQuotesCss.match(/blockquote footer\s*\{/g) || [];
+		expect(noQuotesFooterMatches.length).toBe(1);
 	});
 
 	it('should resolve active fonts with deduplication when quote and quoteAuthor fonts are specified', () => {

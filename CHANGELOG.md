@@ -4,6 +4,23 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Lỗi Duplicate Selector "blockquote footer" & Nâng cấp CI/CD lên Chuẩn Node.js 24)
+
+- Thêm/sửa:
+  - **Khắc phục Triệt để Lỗi Duplicate Selector "blockquote footer" (`prepareFinalCss` trong `stylesheet-builder.ts`)**:
+    - Khi đóng gói sách có trích dẫn (`hasQuotes`) và người dùng chọn phông cho Tác giả trích dẫn (`quoteAuthorFont`), thay vì nối thêm khối `blockquote footer { ... }` gây trùng lặp selector với `quotes.css` (bị EPUBCheck báo lỗi `Unexpected duplicate selector "blockquote footer"`), hệ thống chủ động hòa trộn trực tiếp thuộc tính `font-family` vào rule `blockquote footer {` đã có sẵn.
+    - Duy trì phương án dự phòng an toàn: nếu file CSS chưa có `blockquote footer {`, hệ thống tự sinh rule mới trong `fontBaseRules`, đảm bảo selector chỉ xuất hiện đúng 1 lần duy nhất trong toàn bộ stylesheet.
+    - Cập nhật và bổ sung kiểm thử hồi quy trong `tests/epub-css-specificity.test.ts`, kiểm tra xác thực không bao giờ xuất hiện duplicate selector cho cả trường hợp có hoặc không có blockquote.
+  - **Nâng cấp Toàn diện GitHub Actions CI/CD Tương thích Node.js 24 (`.github/workflows/ci.yml`)**:
+    - Nâng cấp `actions/checkout@v4` lên `actions/checkout@v5` (chạy gốc trên Node.js 24).
+    - Nâng cấp `pnpm/action-setup@v4` lên `pnpm/action-setup@v6` (hỗ trợ pnpm v11 và chạy gốc trên Node.js 24).
+    - Nâng cấp `actions/setup-node@v4` lên `actions/setup-node@v5` (chạy gốc trên Node.js 24).
+    - Thiết lập biến môi trường toàn cục `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` triệt tiêu hoàn toàn cảnh báo deprecation Node 20 từ GitHub Actions runner.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (415/415 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/epub-packer/builders/stylesheet-builder.ts`, `tests/epub-css-specificity.test.ts`, `.github/workflows/ci.yml`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Bổ sung Chọn Phông chữ cho Quote/Tác giả, Khử trùng @font-face Tuyệt đối & Cập nhật Preview)
 
 - Thêm/sửa:

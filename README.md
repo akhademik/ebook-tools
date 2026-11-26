@@ -187,7 +187,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 10:55
+- Cập nhật lần cuối: 2026-11-26 11:10
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
@@ -196,6 +196,9 @@ pnpm test:e2e
     - Đã deflake `profile-p1.test.ts` và bổ sung 2 kịch bản Playwright E2E kiểm chứng.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Khắc phục Lỗi Duplicate Selector "blockquote footer" & Nâng cấp CI/CD Node.js 24 (`stylesheet-builder.ts`, `.github/workflows/ci.yml`)**:
+    - Tự động hòa trộn `font-family` vào rule `blockquote footer {` có sẵn trong `quotes.css` thay vì tạo khối trùng lặp, giải quyết triệt để lỗi EPUBCheck `Unexpected duplicate selector "blockquote footer"`.
+    - Nâng cấp toàn diện GitHub Actions (`actions/checkout@v5`, `pnpm/action-setup@v6`, `actions/setup-node@v5`, `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true`) giải quyết dứt điểm cảnh báo deprecation Node 20 trên GitHub Actions runners.
   - **Hỗ trợ Tùy chỉnh Font cho Trích dẫn & Tác giả (`quoteFont`, `quoteAuthorFont`, `EpubFontSettingsSection.svelte`)**:
     - Bổ sung 2 bộ chọn phông: Font cho Trích dẫn (`quoteFont`) và Font cho Tác giả trích dẫn (`quoteAuthorFont`).
     - Cập nhật khung xem trước trang sách với lời trích dẫn căn giữa (`~`) và tác giả căn phải (`>`).
