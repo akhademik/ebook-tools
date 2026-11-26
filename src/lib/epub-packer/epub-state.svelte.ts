@@ -1,6 +1,13 @@
 // src/lib/epub-packer/epub-state.svelte.ts
 import { buildEpubBlob, EPUB_CSS } from './epub-packer';
-import type { EpubFontsConfig, EpubJacketConfig, CoverBlobItem, OrnamentsConfig } from '$lib/types';
+import type {
+	EpubFontsConfig,
+	EpubJacketConfig,
+	CoverBlobItem,
+	OrnamentsConfig,
+	EpubChapterItem,
+	IllustrationImageItem
+} from '$lib/types';
 import {
 	Logger,
 	cleanTitleFromFileName,
@@ -27,6 +34,7 @@ export class EpubState {
 	status = $state<string>('');
 	isError = $state<boolean>(false);
 	processing = $state<boolean>(false);
+	packGeneration = 0;
 
 	constructor() {
 		this.metadata = new EpubMetadataState();
@@ -36,6 +44,12 @@ export class EpubState {
 		this.source = new EpubSourceState({
 			getTitle: () => this.metadata.title,
 			onFileLoaded: (baseName: string, originalFileName?: string) => {
+				this.packGeneration++;
+				if (this.processing) {
+					this.processing = false;
+					this.status = 'Đã hủy đóng gói do nguồn sách thay đổi.';
+					this.isError = false;
+				}
 				this.metadata.epubOutName = baseName;
 				this.metadata.title = cleanTitleFromFileName(originalFileName || baseName);
 				this.metadata.author = '';
@@ -82,9 +96,63 @@ export class EpubState {
 			this.isError = true;
 			return;
 		}
+
+		const currentGen = ++this.packGeneration;
 		this.processing = true;
 		this.status = 'Đang đóng gói EPUB…';
 		this.isError = false;
+
+		// 1. Snapshot toàn bộ dữ liệu nguồn và cấu hình ngay tại thời điểm bấm đóng gói
+		const chaptersSnapshot: EpubChapterItem[] = this.source.epubChapters.map((c) => ({ ...c }));
+		const metadataSnapshot = {
+			title: this.metadata.title.trim() || 'Không tên',
+			author: this.metadata.author.trim() || 'Khuyết danh',
+			language: this.metadata.lang.trim() || 'vi',
+			publisher: this.metadata.publisher.trim()
+		};
+		const isTxtMode = this.source.fileType === 'txt';
+		const jacketSnapshot: EpubJacketConfig = {
+			enabled: true,
+			templateId: this.jacket.jacketTemplateId,
+			title: metadataSnapshot.title,
+			author: metadataSnapshot.author,
+			originalTitle: this.jacket.originalTitle.trim(),
+			publisher: metadataSnapshot.publisher,
+			distributor: this.jacket.distributor.trim(),
+			translator: this.jacket.translator.trim()
+		};
+		const fontsSnapshot = {
+			jacketFont: this.fonts.jacketFont,
+			h1Font: this.fonts.h1Font,
+			h2Font: this.fonts.h2Font,
+			h2SubFont: this.fonts.h2SubFont,
+			dropcapFont: this.fonts.dropcapFont,
+			quoteFont: this.fonts.quoteFont,
+			quoteAuthorFont: this.fonts.quoteAuthorFont
+		};
+		const illustrationsSnapshot: IllustrationImageItem[] = this.images.illustrationFiles.map(
+			(img) => ({
+				...img
+			})
+		);
+
+		const ornamentsConfigSnapshot: OrnamentsConfig = {};
+		if (this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile) {
+			const blob = this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile!;
+			ornamentsConfigSnapshot.chapterOrnament = {
+				blob,
+				fileName: 'pre-chap.png',
+				mimeType: 'image/png'
+			};
+		}
+		if (this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile) {
+			const blob = this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile!;
+			ornamentsConfigSnapshot.subchapterOrnament = {
+				blob,
+				fileName: 'pre-small-chap.png',
+				mimeType: 'image/png'
+			};
+		}
 
 		try {
 			// Extract and optimize cover if uploaded
@@ -92,50 +160,43 @@ export class EpubState {
 			if (this.images.coverOriginalUrl) {
 				this.status = 'Đang tối ưu hóa ảnh bìa...';
 				coverBlob = await this.images.getOptimizedCoverBlob();
+				if (this.packGeneration !== currentGen) {
+					Logger.debug('[EpubState]', 'processEpub aborted: superseded after cover optimization');
+					return;
+				}
 			}
 
-			const metadata = {
-				title: this.metadata.title.trim() || 'Không tên',
-				author: this.metadata.author.trim() || 'Khuyết danh',
-				language: this.metadata.lang.trim() || 'vi',
-				publisher: this.metadata.publisher.trim()
-			};
-			const isTxtMode = this.source.fileType === 'txt';
-			const jacket: EpubJacketConfig = {
-				enabled: true,
-				templateId: this.jacket.jacketTemplateId,
-				title: this.metadata.title.trim() || 'Không tên',
-				author: this.metadata.author.trim() || 'Khuyết danh',
-				originalTitle: this.jacket.originalTitle.trim(),
-				publisher: this.metadata.publisher.trim(),
-				distributor: this.jacket.distributor.trim(),
-				translator: this.jacket.translator.trim()
-			};
 			const fontBlobs: Record<string, Blob> = {};
 			const neededFonts: string[] = [];
-			if (this.fonts.jacketFont !== 'default' && !neededFonts.includes(this.fonts.jacketFont)) {
-				neededFonts.push(this.fonts.jacketFont);
+			if (
+				fontsSnapshot.jacketFont !== 'default' &&
+				!neededFonts.includes(fontsSnapshot.jacketFont)
+			) {
+				neededFonts.push(fontsSnapshot.jacketFont);
 			}
-			if (this.fonts.h1Font !== 'default' && !neededFonts.includes(this.fonts.h1Font)) {
-				neededFonts.push(this.fonts.h1Font);
+			if (fontsSnapshot.h1Font !== 'default' && !neededFonts.includes(fontsSnapshot.h1Font)) {
+				neededFonts.push(fontsSnapshot.h1Font);
 			}
-			if (this.fonts.h2Font !== 'default' && !neededFonts.includes(this.fonts.h2Font)) {
-				neededFonts.push(this.fonts.h2Font);
+			if (fontsSnapshot.h2Font !== 'default' && !neededFonts.includes(fontsSnapshot.h2Font)) {
+				neededFonts.push(fontsSnapshot.h2Font);
 			}
-			if (this.fonts.h2SubFont !== 'default' && !neededFonts.includes(this.fonts.h2SubFont)) {
-				neededFonts.push(this.fonts.h2SubFont);
-			}
-			if (this.fonts.dropcapFont !== 'default' && !neededFonts.includes(this.fonts.dropcapFont)) {
-				neededFonts.push(this.fonts.dropcapFont);
-			}
-			if (this.fonts.quoteFont !== 'default' && !neededFonts.includes(this.fonts.quoteFont)) {
-				neededFonts.push(this.fonts.quoteFont);
+			if (fontsSnapshot.h2SubFont !== 'default' && !neededFonts.includes(fontsSnapshot.h2SubFont)) {
+				neededFonts.push(fontsSnapshot.h2SubFont);
 			}
 			if (
-				this.fonts.quoteAuthorFont !== 'default' &&
-				!neededFonts.includes(this.fonts.quoteAuthorFont)
+				fontsSnapshot.dropcapFont !== 'default' &&
+				!neededFonts.includes(fontsSnapshot.dropcapFont)
 			) {
-				neededFonts.push(this.fonts.quoteAuthorFont);
+				neededFonts.push(fontsSnapshot.dropcapFont);
+			}
+			if (fontsSnapshot.quoteFont !== 'default' && !neededFonts.includes(fontsSnapshot.quoteFont)) {
+				neededFonts.push(fontsSnapshot.quoteFont);
+			}
+			if (
+				fontsSnapshot.quoteAuthorFont !== 'default' &&
+				!neededFonts.includes(fontsSnapshot.quoteAuthorFont)
+			) {
+				neededFonts.push(fontsSnapshot.quoteAuthorFont);
 			}
 			// Always embed Bookerly font if available
 			if (findFont('Bookerly') && !neededFonts.includes('Bookerly')) {
@@ -143,70 +204,63 @@ export class EpubState {
 			}
 
 			for (const fontName of neededFonts) {
+				if (this.packGeneration !== currentGen) {
+					Logger.debug('[EpubState]', 'processEpub aborted: superseded during font fetching');
+					return;
+				}
 				const font = findFont(fontName);
 				if (font && font.url) {
 					this.status = `Đang tải phông chữ ${font.name}...`;
 					const res = await fetch(font.url);
+					if (this.packGeneration !== currentGen) return;
 					if (!res.ok) {
 						throw new Error(`Không thể tải file phông chữ cho ${font.name}`);
 					}
 					const fontBlob = await res.blob();
+					if (this.packGeneration !== currentGen) return;
 					fontBlobs[fontName] = fontBlob;
 				}
 			}
 
+			if (this.packGeneration !== currentGen) return;
+
 			const fontsConfig: EpubFontsConfig = {
-				jacketFont: this.fonts.jacketFont,
-				h1Font: this.fonts.h1Font,
-				h2Font: this.fonts.h2Font,
-				h2SubFont: this.fonts.h2SubFont,
-				dropcapFont: this.fonts.dropcapFont,
-				quoteFont: this.fonts.quoteFont,
-				quoteAuthorFont: this.fonts.quoteAuthorFont,
+				...fontsSnapshot,
 				blobs: fontBlobs
 			};
 
-			const ornamentsConfig: OrnamentsConfig = {};
-			if (this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile) {
-				const blob = this.images.chapterOrnamentBlob || this.images.chapterOrnamentFile!;
-				ornamentsConfig.chapterOrnament = {
-					blob,
-					fileName: 'pre-chap.png',
-					mimeType: 'image/png'
-				};
-			}
-			if (this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile) {
-				const blob = this.images.subchapterOrnamentBlob || this.images.subchapterOrnamentFile!;
-				ornamentsConfig.subchapterOrnament = {
-					blob,
-					fileName: 'pre-small-chap.png',
-					mimeType: 'image/png'
-				};
-			}
-
-			Logger.debug('[EpubState]', 'Calling buildEpubBlob');
+			Logger.debug('[EpubState]', 'Calling buildEpubBlob with immutable snapshot');
 			this.status = 'Đang đóng gói cấu trúc EPUB...';
 			const blob = await buildEpubBlob(
-				metadata,
-				this.source.epubChapters,
+				metadataSnapshot,
+				chaptersSnapshot,
 				EPUB_CSS,
 				isTxtMode,
-				jacket,
+				jacketSnapshot,
 				coverBlob,
 				fontsConfig,
-				ornamentsConfig,
-				this.images.illustrationFiles
+				ornamentsConfigSnapshot,
+				illustrationsSnapshot
 			);
+
+			if (this.packGeneration !== currentGen) {
+				Logger.debug('[EpubState]', 'processEpub aborted: superseded after buildEpubBlob');
+				return;
+			}
+
 			Logger.info('[EpubState]', 'buildEpubBlob returned blob successfully');
 			this.epubBlob = blob;
-			this.status = `Hoàn tất — ${this.source.epubChapters.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải file .EPUB' để tải về.`;
+			this.status = `Hoàn tất — ${chaptersSnapshot.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải file .EPUB' để tải về.`;
 		} catch (err: unknown) {
+			if (this.packGeneration !== currentGen) return;
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubState]', 'ERROR in processEpub', err);
 			this.status = 'Có lỗi khi đóng gói: ' + errorMsg;
 			this.isError = true;
 		} finally {
-			this.processing = false;
+			if (this.packGeneration === currentGen) {
+				this.processing = false;
+			}
 			Logger.debug('[EpubState]', 'processEpub finished, status:', this.status);
 		}
 	}

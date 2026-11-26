@@ -10,6 +10,17 @@ import type {
 
 export type { EpubMetadata, EpubChapterItem, OrnamentsConfig, IllustrationImageItem };
 
+function getUniqueOpfId(usedIds: Set<string>, baseId: string): string {
+	let id = baseId;
+	let counter = 1;
+	while (usedIds.has(id)) {
+		id = `${baseId}_${counter}`;
+		counter++;
+	}
+	usedIds.add(id);
+	return id;
+}
+
 /**
  * Builds OEBPS/content.opf package file
  */
@@ -31,36 +42,45 @@ export function buildContentOpf(
 	});
 	const modified = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 	const jacketPresent = hasJacket ?? chapters.some((c) => c.fileName === 'jacket');
+
+	const usedIds = new Set<string>(['nav', 'ncx', 'css']);
 	const manifestItems = [
 		'<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
 		'<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
 		'<item id="css" href="styles/style.css" media-type="text/css"/>'
 	];
 	if (jacketPresent) {
-		manifestItems.push('<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>');
+		const jacketId = getUniqueOpfId(usedIds, 'css-jacket');
+		manifestItems.push(
+			`<item id="${escapeXmlAttribute(jacketId)}" href="styles/jacket.css" media-type="text/css"/>`
+		);
 	}
 	if (hasCover) {
+		const coverId = getUniqueOpfId(usedIds, 'cover-image');
 		manifestItems.push(
-			'<item id="cover-image" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>'
+			`<item id="${escapeXmlAttribute(coverId)}" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`
 		);
 	}
 	if (ornaments?.chapterOrnament) {
+		const preChapId = getUniqueOpfId(usedIds, 'pre-chap');
 		manifestItems.push(
-			`<item id="pre-chap" href="images/${escapeXmlAttribute(ornaments.chapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.chapterOrnament.mimeType)}"/>`
+			`<item id="${escapeXmlAttribute(preChapId)}" href="images/${escapeXmlAttribute(ornaments.chapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.chapterOrnament.mimeType)}"/>`
 		);
 	}
 	if (ornaments?.subchapterOrnament) {
+		const preSmallChapId = getUniqueOpfId(usedIds, 'pre-small-chap');
 		manifestItems.push(
-			`<item id="pre-small-chap" href="images/${escapeXmlAttribute(ornaments.subchapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.subchapterOrnament.mimeType)}"/>`
+			`<item id="${escapeXmlAttribute(preSmallChapId)}" href="images/${escapeXmlAttribute(ornaments.subchapterOrnament.fileName)}" media-type="${escapeXmlAttribute(ornaments.subchapterOrnament.mimeType)}"/>`
 		);
 	}
 	if (images && Array.isArray(images)) {
 		for (const img of images) {
 			if (img && img.fileName) {
 				const rawId = img.id || `img-${img.fileName.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
+				const uniqueId = getUniqueOpfId(usedIds, rawId);
 				const mime = img.mimeType || 'image/jpeg';
 				manifestItems.push(
-					`<item id="${escapeXmlAttribute(rawId)}" href="images/${escapeXmlAttribute(img.fileName)}" media-type="${escapeXmlAttribute(mime)}"/>`
+					`<item id="${escapeXmlAttribute(uniqueId)}" href="images/${escapeXmlAttribute(img.fileName)}" media-type="${escapeXmlAttribute(mime)}"/>`
 				);
 			}
 		}
@@ -69,17 +89,21 @@ export function buildContentOpf(
 		const font = findFont(fontName);
 		if (font) {
 			const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, '-');
+			const uniqueId = getUniqueOpfId(usedIds, `font-${fontId}`);
 			manifestItems.push(
-				`<item id="font-${escapeXmlAttribute(fontId)}" href="fonts/${escapeXmlAttribute(font.fileName)}" media-type="${escapeXmlAttribute(font.mimeType)}"/>`
+				`<item id="${escapeXmlAttribute(uniqueId)}" href="fonts/${escapeXmlAttribute(font.fileName)}" media-type="${escapeXmlAttribute(font.mimeType)}"/>`
 			);
 		}
 	}
-	for (const c of chapters) {
+	const spineItems: string[] = [];
+	for (let i = 0; i < chapters.length; i++) {
+		const c = chapters[i];
+		const uniqueId = getUniqueOpfId(usedIds, c.xmlId || `item-${i}`);
 		manifestItems.push(
-			`<item id="${escapeXmlAttribute(c.xmlId)}" href="text/${escapeXmlAttribute(c.fileName)}.xhtml" media-type="application/xhtml+xml"/>`
+			`<item id="${escapeXmlAttribute(uniqueId)}" href="text/${escapeXmlAttribute(c.fileName)}.xhtml" media-type="application/xhtml+xml"/>`
 		);
+		spineItems.push(`<itemref idref="${escapeXmlAttribute(uniqueId)}"/>`);
 	}
-	const spineItems = chapters.map((c) => `<itemref idref="${escapeXmlAttribute(c.xmlId)}"/>`);
 	const contributor = meta.contributor ?? 'akhademik & vc';
 	const contributorXml = contributor
 		? '    <dc:contributor id="packer">' +

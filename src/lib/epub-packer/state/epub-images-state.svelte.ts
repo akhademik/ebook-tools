@@ -3,6 +3,22 @@ import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
 import { MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE } from '$lib/constants';
 import { Logger, processOrnamentImage, renderPdfPageToBlob } from '$lib/utils';
 
+const RESERVED_ILLUSTRATION_FILENAMES = new Set([
+	'cover.jpg',
+	'cover.jpeg',
+	'cover.png',
+	'cover.webp',
+	'pre-chap.png',
+	'pre-small-chap.png'
+]);
+
+function sanitizeUploadedIllustrationFileName(fileName: string): string {
+	if (RESERVED_ILLUSTRATION_FILENAMES.has(fileName.toLowerCase())) {
+		return `illus_${fileName}`;
+	}
+	return fileName;
+}
+
 export class EpubImagesState {
 	// Cover Image States
 	coverFile = $state<File | null>(null);
@@ -96,8 +112,10 @@ export class EpubImagesState {
 							if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
 								const blob = await zip.files[name].async('blob');
 								if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
-								const rawFileName = name.split('/').pop() || name;
-								const baseName = rawFileName.replace(/\.[^.]+$/, '');
+								const rawFileName = sanitizeUploadedIllustrationFileName(
+									name.split('/').pop() || name
+								);
+								const baseName = (name.split('/').pop() || name).replace(/\.[^.]+$/, '');
 								const mimeType = this.getImageMimeType(rawFileName);
 
 								const existingIdx = this.illustrationFiles.findIndex(
@@ -125,7 +143,7 @@ export class EpubImagesState {
 									if (!blob) continue;
 									const rawFileName = name.split('/').pop() || name;
 									const baseName = rawFileName.replace(/\.pdf$/i, '');
-									const outputFileName = `${baseName}.jpg`;
+									const outputFileName = sanitizeUploadedIllustrationFileName(`${baseName}.jpg`);
 
 									const existingIdx = this.illustrationFiles.findIndex(
 										(f) =>
@@ -200,8 +218,8 @@ export class EpubImagesState {
 						);
 						continue;
 					}
-					const fileName = file.name;
-					const baseName = fileName.replace(/\.[^.]+$/, '');
+					const fileName = sanitizeUploadedIllustrationFileName(file.name);
+					const baseName = file.name.replace(/\.[^.]+$/, '');
 					const mimeType = file.type || this.getImageMimeType(fileName);
 
 					const existingIdx = this.illustrationFiles.findIndex(

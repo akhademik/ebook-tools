@@ -43,6 +43,24 @@ async function resolveZipBinaryData(
 	return source;
 }
 
+function resolveSafeIllustrationFileName(fileName: string, reservedOrTaken: Set<string>): string {
+	const lower = fileName.toLowerCase();
+	if (!reservedOrTaken.has(lower)) {
+		reservedOrTaken.add(lower);
+		return fileName;
+	}
+	const ext = fileName.includes('.') ? '.' + fileName.split('.').pop() : '';
+	const base = fileName.replace(/\.[^.]+$/, '');
+	let counter = 1;
+	let candidate = `illus_${base}${ext}`;
+	while (reservedOrTaken.has(candidate.toLowerCase())) {
+		candidate = `illus_${base}_${counter}${ext}`;
+		counter++;
+	}
+	reservedOrTaken.add(candidate.toLowerCase());
+	return candidate;
+}
+
 /**
  * Add all assets and text files to JSZip
  */
@@ -72,10 +90,36 @@ export async function assembleEpubZip(
 		throw new Error('Không thể tạo thư mục OEBPS trong EPUB ZIP');
 	}
 
+	// Đảm bảo không trùng tên file ảnh minh họa với ảnh bìa hoặc hoa văn
+	const reservedImageNames = new Set<string>();
+	if (coverBlob) {
+		reservedImageNames.add('cover.jpg');
+	}
+	if (ornaments?.chapterOrnament?.fileName) {
+		reservedImageNames.add(ornaments.chapterOrnament.fileName.toLowerCase());
+	}
+	if (ornaments?.subchapterOrnament?.fileName) {
+		reservedImageNames.add(ornaments.subchapterOrnament.fileName.toLowerCase());
+	}
+
+	const safeImages: IllustrationImageItem[] = [];
+	const takenImageNames = new Set<string>(reservedImageNames);
+	if (images && Array.isArray(images) && images.length > 0) {
+		for (const img of images) {
+			if (img && img.fileName && img.blob) {
+				const safeName = resolveSafeIllustrationFileName(img.fileName, takenImageNames);
+				safeImages.push({
+					...img,
+					fileName: safeName
+				});
+			}
+		}
+	}
+
 	const hasJacket = Boolean(jacket && jacket.enabled);
 	oebps.file(
 		'content.opf',
-		buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, images, hasJacket)
+		buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, safeImages, hasJacket)
 	);
 	oebps.file('nav.xhtml', buildNavXhtml(meta, chapters));
 	oebps.file('toc.ncx', buildTocNcx(meta, chapters));
@@ -117,11 +161,11 @@ export async function assembleEpubZip(
 		}
 	}
 
-	if (images && Array.isArray(images) && images.length > 0) {
+	if (safeImages.length > 0) {
 		const imagesFolder = oebps.folder('images');
 		if (imagesFolder) {
-			for (const img of images) {
-				if (img && img.fileName && img.blob) {
+			for (const img of safeImages) {
+				if (img.blob) {
 					const data = await resolveZipBinaryData(img.blob);
 					imagesFolder.file(img.fileName, data, { compression: 'STORE' });
 				}

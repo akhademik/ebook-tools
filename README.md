@@ -187,7 +187,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 11:55
+- Cập nhật lần cuối: 2026-11-26 12:30
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
@@ -196,6 +196,12 @@ pnpm test:e2e
     - Đã deflake `profile-p1.test.ts` và toàn bộ 24 kịch bản Playwright E2E kiểm chứng pass 100%.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 trong EPUB Packer theo TASKS.md**:
+    - **P1: Generation Token nạp nguồn sách (`EpubSourceState`)**: Ngăn chặn tình trạng race condition khi chọn liên tiếp file TXT/ZIP, tác vụ cũ hoàn thành muộn sẽ bị ngắt sớm và không thể ghi đè dữ liệu lên file mới.
+    - **P1: Snapshot Bất biến & Pack Generation (`EpubState`)**: Chụp snapshot toàn bộ dữ liệu ngay lúc bấm đóng gói, ngăn chặn việc đổi sách giữa chừng làm lẫn metadata sách A vào nội dung sách B, tự động hủy bỏ kết quả đóng gói cũ khi người dùng nạp sách mới.
+    - **P2: Hạn ngạch an toàn bộ nhớ khi giải nén ZIP (`constants.ts`, `EpubSourceState`)**: Chặn tối đa 1.000 file `.md`, 15MB/file, và 60MB tổng dung lượng văn bản giải nén, chống đứng máy và cạn RAM.
+    - **P2: Cô lập Namespace tài nguyên ảnh & Chống trùng OPF ID (`zip-writer.ts`, `opf-builder.ts`, `EpubImagesState`)**: Tự động đổi tên ảnh minh họa trùng với ảnh bìa (`cover.jpg`) hoặc hoa văn thành `illus_*`, đảm bảo không bị ghi đè mất file bìa; tự sinh mã ID phân biệt trong OPF manifest triệt tiêu 100% nguy cơ trùng ID.
+    - Bổ sung 9 unit tests chuyên sâu trong `tests/epub-packer-lifecycle.test.ts`, nâng tổng số test lên **425/425 unit tests pass 100% (21 test files)**.
   - **Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size (`FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**:
     - Ô chọn phông chữ khi ở trạng thái bình thường chỉ hiển thị duy nhất tên phông (`[Tên font]`), loại bỏ phần `- Text mẫu` để giao diện gọn gàng, không trùng lặp thông tin với khung xem trước.
     - Danh sách chọn phông dropdown chỉ hiển thị `[Tên font] - Text mẫu`, loại bỏ hậu tố mã ID `• {font.id}` giúp giao diện thanh thoát và dễ nhìn.

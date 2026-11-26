@@ -4,6 +4,30 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 trong EPUB Packer theo TASKS.md)
+
+- Thêm/sửa:
+  - **1. P1: Khử race condition nạp file nguồn qua Generation Token (`EpubSourceState`)**:
+    - Bổ sung `fileLoadGeneration` tự động tăng dần mỗi khi gọi `handleFile()`.
+    - Hủy ngay tác vụ parse cũ (`cancelParseTask()`) khi chọn file mới, bất kể file mới là TXT hay ZIP.
+    - Đặt chốt kiểm tra `this.fileLoadGeneration !== currentGen` sau các thao tác bất đồng bộ (`await file.text()`, `await JSZip.loadAsync()`, giải nén từng file MD và hoàn tất parse TXT), loại bỏ hoàn toàn rủi ro file cũ hoàn thành muộn ghi đè dữ liệu lên file mới.
+  - **2. P1: Khử rủi ro đổi nguồn sách khi đang đóng gói qua Snapshot & Pack Generation (`EpubState`)**:
+    - Cơ chế **Snapshot bất biến**: Ngay khi bắt đầu `processEpub()`, toàn bộ dữ liệu cấu hình và nội dung (`metadata`, `chapters`, `jacket`, `fonts`, `ornaments`, `illustrations`, `isTxtMode`) được snapshot thành bản sao cục bộ độc lập, loại bỏ triệt để nguy cơ "Metadata sách A lẫn nội dung chương sách B".
+    - Cơ chế **Pack Generation**: Đánh dấu `packGeneration` tăng dần; khi người dùng nạp sách mới (`onFileLoaded`), tác vụ đóng gói đang chạy dở sẽ bị hủy kết quả và tự động dừng lại, không ghi nhận đè `epubBlob` cũ lên sách mới.
+  - **3. P2: Hạn ngạch an toàn chống cạn kiệt RAM / Zip-bomb khi giải nén ZIP (`constants.ts`, `EpubSourceState`)**:
+    - Thiết lập 3 hạn ngạch chặt chẽ: `MAX_ZIP_MARKDOWN_FILES = 1000` files, `MAX_ZIP_SINGLE_MD_SIZE = 15MB`/file, và `MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE = 60MB` tổng dung lượng văn bản thô trong RAM.
+    - Bắt lỗi sớm và hiển thị cảnh báo rõ ràng cho người dùng, bảo vệ tab trình duyệt khỏi tình trạng đơ cứng hoặc crash do tràn bộ nhớ (OOM).
+  - **4. P2: Cô lập Namespace tài nguyên & Chống trùng lặp ID trong manifest OPF (`zip-writer.ts`, `opf-builder.ts`, `EpubImagesState`)**:
+    - Nhận diện các tên file đặc thù đã dành riêng (`cover.jpg`, `pre-chap.png`, `pre-small-chap.png`). Khi ảnh minh họa có tên trùng lặp, hệ thống tự động gán tiền tố an toàn `illus_${fileName}` (ví dụ: `illus_cover.jpg`), ngăn chặn triệt để việc ảnh minh họa ghi đè mất ảnh bìa hay hoa văn gốc.
+    - Bộ phát sinh ID duy nhất trong `buildContentOpf`: tự động phát hiện và thêm hậu tố phân biệt `_1`, `_2` nếu hai file ảnh chuẩn hóa ra cùng mã ID, bảo đảm 100% ID trong manifest và spine itemref là duy nhất, không phát sinh lỗi EPUBCheck.
+  - **Bổ sung Bộ kiểm thử Đơn vị Chuyên sâu (`tests/epub-packer-lifecycle.test.ts`)**:
+    - Viết 9 unit test mới kiểm thử toàn diện cả 4 kịch bản P1 & P2: race condition TXT/ZIP, quá hạn ngạch ZIP, snapshot isolation, hủy kết quả đóng gói cũ khi đổi nguồn, cô lập file ảnh và chống trùng OPF ID.
+    - Nâng tổng số test lên **425/425 unit tests pass 100% (21 test files)**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (425/425 pass, 21 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/constants.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/state/epub-images-state.svelte.ts`, `src/lib/epub-packer/builders/zip-writer.ts`, `src/lib/epub-packer/xml-builders/opf-builder.ts`, `tests/epub-packer-lifecycle.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size)
 
 - Thêm/sửa:
