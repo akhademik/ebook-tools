@@ -5,6 +5,7 @@ import {
 	extractCssUrls,
 	extractHtmlReferences,
 	analyzeEpub,
+	analyzeOptimizationPlan,
 	cleanEpub,
 	formatByteSize
 } from '../src/lib/epub-editor/epub-cleaner';
@@ -514,6 +515,61 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 			// 11.jpg MUST NOT be corrupted into 1x.jpg
 			expect(updatedHtml).toContain('src="../images/11.jpg"');
 			expect(updatedHtml).not.toContain('1x.jpg');
+		});
+
+		it('should extract images in inline style using &quot; and @import in <style>', async () => {
+			const { extractHtmlReferences } =
+				await import('../src/lib/epub-editor/cleaner/reference-extractor');
+
+			const html1 = '<div style="background:url(&quot;images/a.jpg&quot;)"></div>';
+			const refs1 = extractHtmlReferences(html1);
+			expect(refs1.images).toContain('images/a.jpg');
+
+			const html2 = '<div style="background:url(&apos;images/b.png&apos;)"></div>';
+			const refs2 = extractHtmlReferences(html2);
+			expect(refs2.images).toContain('images/b.png');
+
+			const html3 = '<style>@import "t.css";</style>';
+			const refs3 = extractHtmlReferences(html3);
+			expect(refs3.styles).toContain('t.css');
+		});
+
+		it('should default deduplicateResources to false in cleanEpub and exclude duplicates from estimated savings', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				'<container version="1.0"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>'
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<package version="3.0" unique-identifier="pub-id">
+  <metadata><dc:title>Test</dc:title><dc:identifier id="pub-id">1</dc:identifier></metadata>
+  <manifest>
+    <item id="c1" href="text/ch1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="img1" href="images/1.jpg" media-type="image/jpeg"/>
+    <item id="img1_dup" href="images/1_dup.jpg" media-type="image/jpeg"/>
+  </manifest>
+  <spine><itemref idref="c1"/></spine>
+</package>`
+			);
+			zip.file(
+				'OEBPS/text/ch1.xhtml',
+				'<html><body><img src="../images/1.jpg"/><img src="../images/1_dup.jpg"/></body></html>'
+			);
+			zip.file('OEBPS/images/1.jpg', new Uint8Array([1, 2, 3]));
+			zip.file('OEBPS/images/1_dup.jpg', new Uint8Array([1, 2, 3]));
+
+			const plan = await analyzeOptimizationPlan(zip);
+			expect(plan.duplicateResources).toHaveLength(1);
+			expect(plan.savingsBreakdown.duplicateResources).toBe(3);
+			// estimatedSavingsBytes must exclude duplicate resources
+			expect(plan.estimatedSavingsBytes).toBe(0);
+
+			// Calling cleanEpub without options must NOT deduplicate
+			const report = await cleanEpub(zip);
+			expect(report.deduplicatedResources).toHaveLength(0);
+			expect(zip.file('OEBPS/images/1_dup.jpg')).not.toBeNull();
 		});
 	});
 });

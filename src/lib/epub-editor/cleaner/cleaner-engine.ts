@@ -219,12 +219,12 @@ export async function analyzeOptimizationPlan(
 		duplicateResources: duplicateResources.reduce((sum, d) => sum + d.byteSize, 0)
 	};
 
+	// Estimated savings exclude duplicate resources by default since deduplication is non-destructive opt-in
 	const estimatedSavingsBytes =
 		savingsBreakdown.unusedImages +
 		savingsBreakdown.unusedFonts +
 		savingsBreakdown.unusedStyles +
-		savingsBreakdown.unusedPages +
-		savingsBreakdown.duplicateResources;
+		savingsBreakdown.unusedPages;
 
 	return {
 		totalFiles: filePaths.length,
@@ -275,7 +275,7 @@ export async function cleanEpub(
 		removeUnusedFonts: true,
 		removeUnusedStyles: true,
 		cleanOpfManifest: true,
-		deduplicateResources: true
+		deduplicateResources: false
 	},
 	editBuffer?: Map<string, string>,
 	onProgress?: (current: number, total: number, filename: string) => void,

@@ -1389,5 +1389,21 @@ Vận tốc trung bình là 60 km/h/s trong thí nghiệm.
 			expect(html).toContain('<i>chữ nghiêng</i>');
 			expect(html).toContain('<u>chữ gạch chân</u>');
 		});
+
+		it('should format URLs wrapped in formatting markers correctly', () => {
+			const txt = `@@ Chương 1
+Liên kết *https://a.com* in đậm.
+Liên kết /xem https://a.com/ in nghiêng.
+Liên kết _http://a.com/x_ gạch chân.
+URL bình thường https://a.com/ kết thúc bằng dấu gạch chéo.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Book Test');
+			const html = chapters[0].html;
+
+			expect(html).toContain('<b>https://a.com</b>');
+			expect(html).toContain('<i>xem https://a.com</i>');
+			expect(html).toContain('<u>http://a.com/x</u>');
+			expect(html).toContain('https://a.com/');
+		});
 	});
 });

@@ -229,6 +229,12 @@
 				}
 
 				view.setState(targetState);
+				view.dispatch({
+					effects: [
+						wrapCompartment.reconfigure(lineWrap ? EditorView.lineWrapping : []),
+						themeCompartment.reconfigure(isDarkMode() ? oneDark : [])
+					]
+				});
 				activeTarget = target;
 				currentLength = expectedContent.length;
 				currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;

@@ -493,7 +493,9 @@ Cả đoàn reo hò trong niềm vui sướng khôn tả.`;
 			expect(plan.unusedImages.map((i) => i.path)).toContain('OEBPS/images/unused_large.jpg');
 			expect(plan.unusedFonts.map((f) => f.path)).toContain('OEBPS/fonts/font_orphan.otf');
 			expect(plan.duplicateResources.length).toBeGreaterThan(0);
-			expect(plan.estimatedSavingsBytes).toBeGreaterThanOrEqual(8000 + 12000 + 2000);
+			expect(plan.savingsBreakdown.duplicateResources).toBeGreaterThanOrEqual(2000);
+			// estimatedSavingsBytes excludes duplicate resources by default
+			expect(plan.estimatedSavingsBytes).toBeGreaterThanOrEqual(8000 + 12000);
 
 			// Execute optimization
 			const report = await optimizeEpub(

@@ -97,6 +97,8 @@ export function extractHtmlReferences(htmlContent: string): {
 				fonts.push(u);
 			} else if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
 				images.push(u);
+			} else if (ext === '.css') {
+				styles.push(u);
 			}
 		}
 	}
@@ -104,7 +106,14 @@ export function extractHtmlReferences(htmlContent: string): {
 	// 5. Inline style="..." attributes on arbitrary HTML tags (e.g. style="background: url(...)")
 	const inlineStyleAttrRegex = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
 	while ((m = inlineStyleAttrRegex.exec(htmlContent)) !== null) {
-		const styleContent = m[1] ?? m[2] ?? '';
+		const rawStyleContent = m[1] ?? m[2] ?? '';
+		const styleContent = rawStyleContent
+			.replace(/&quot;/g, '"')
+			.replace(/&apos;/g, "'")
+			.replace(/&#34;/g, '"')
+			.replace(/&#39;/g, "'")
+			.replace(/&#x22;/gi, '"')
+			.replace(/&#x27;/gi, "'");
 		const inlineUrls = extractCssUrls(styleContent);
 		for (const u of inlineUrls) {
 			const ext = u.substring(u.lastIndexOf('.')).toLowerCase();
@@ -112,6 +121,8 @@ export function extractHtmlReferences(htmlContent: string): {
 				fonts.push(u);
 			} else if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
 				images.push(u);
+			} else if (ext === '.css') {
+				styles.push(u);
 			}
 		}
 	}

@@ -4,6 +4,31 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Hoàn thành Rà soát Bổ sung Trước P1 theo TASKS.md)
+
+- Thêm/sửa:
+  - `src/lib/epub-editor/cleaner/reference-extractor.ts`:
+    - Giải mã các thực thể HTML/XML (`&quot;`, `&apos;`, `&#34;`, `&#39;`, `&#x22;`, `&#x27;`) trong thuộc tính nội dòng `style="..."` trước khi trích xuất URL ảnh.
+    - Quét cú pháp `@import "file.css"` bên trong thẻ `<style>` và bổ sung file stylesheet vào danh sách `styles` để bảo vệ tài nguyên CSS không bị xóa nhầm.
+  - `src/lib/epub-editor/cleaner/cleaner-engine.ts`:
+    - Đặt mặc định `deduplicateResources: false` trong `cleanEpub()` để ngăn ngừa rủi ro tráo nhầm tài nguyên khi gọi dọn dẹp mặc định.
+    - Loại bỏ dung lượng file trùng lặp khỏi `estimatedSavingsBytes` trong `analyzeOptimizationPlan()`.
+  - `src/lib/epub-editor/components/EpubEditorCodePane.svelte`:
+    - Sau khi chuyển file bằng `view.setState(targetState)`, lập tức reconfigure lại `wrapCompartment` và `themeCompartment` đồng bộ với trạng thái bật/tắt Wrap và Dark/Light mode hiện tại.
+  - `src/lib/epub-packer/parser/txt-parser.ts`:
+    - Tách các ký tự đóng định dạng `*`, `_` và `/` (khi đang mở khối in nghiêng) ra khỏi đuôi URL được che, bảo toàn định dạng inline khi URL nằm trong dấu định dạng (`*https://a.com*`, `/xem https://a.com/`, `_http://a.com/x_`).
+  - `src/lib/epub-editor/epub-book-ops.ts` & `src/lib/epub-editor/epub-editor-state.svelte.ts`:
+    - Đổi regex nhận diện ID heading thành `/(?:^|\s)id\s*=\s*["']([^"']+)["']/i`, ngăn chặn việc hiểu nhầm `data-id="..."` là thuộc tính `id`.
+    - Kiểm tra ID tự sinh (`section-X-Y`) không trùng với bất kỳ ID nào đã có sẵn trong trang XHTML.
+    - `rebuildEpubToc()` trả về danh sách `modifiedPages`, và `rebuildToc()` tự động thêm toàn bộ các trang này vào `dirtyPaths` để phản ánh trạng thái đã sửa và kiểm tra khi xuất sách.
+  - `tests-e2e/epub-workflow.spec.ts`:
+    - Bổ sung kịch bản kiểm thử E2E Playwright: kiểm tra phân lập Undo/Redo khi chuyển tab giữa 2 file (Mở A → Sửa → Chuyển B → Ctrl+Z không làm hỏng B).
+  - Loại bỏ hoàn toàn `UI_DIRECTION.md` theo yêu cầu người dùng.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (403/403 pass, 19 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `reference-extractor.ts`, `cleaner-engine.ts`, `EpubEditorCodePane.svelte`, `txt-parser.ts`, `epub-book-ops.ts`, `epub-editor-state.svelte.ts`, `TASKS.md`, `README.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để Toàn bộ 9 Lỗi Dữ liệu, Sai chuẩn EPUB & Bảo mật theo TASKS.md)
 
 - Thêm/sửa:

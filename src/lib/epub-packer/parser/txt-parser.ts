@@ -36,10 +36,30 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 
 	// 1. Mask URLs (http://, https://) so slashes and underscores inside URLs are not misidentified
 	const urls: string[] = [];
-	t = t.replace(/https?:\/\/[^\s<>"')]+/gi, (urlMatch) => {
+	t = t.replace(/https?:\/\/[^\s<>"')]+/gi, (urlMatch, offset, fullStr) => {
+		let url = urlMatch;
+		let trailing = '';
+		const prefix = fullStr.slice(0, offset);
+		// Check if an italic delimiter is currently open before this match
+		const slashCount = (prefix.match(/\//g) || []).length;
+		const isItalicOpen = slashCount % 2 === 1;
+
+		while (url.length > 0) {
+			const last = url[url.length - 1];
+			if (last === '*' || last === '_') {
+				trailing = last + trailing;
+				url = url.slice(0, -1);
+			} else if (last === '/' && isItalicOpen) {
+				trailing = last + trailing;
+				url = url.slice(0, -1);
+			} else {
+				break;
+			}
+		}
+
 		const uIdx = urls.length;
-		urls.push(urlMatch);
-		return `XURLPLACEHOLDER${uIdx}X`;
+		urls.push(url);
+		return `XURLPLACEHOLDER${uIdx}X${trailing}`;
 	});
 
 	const customTags: string[] = [];

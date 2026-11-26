@@ -427,6 +427,11 @@ export class EpubEditorState {
 			this.editBuffer.set(res.ncxPath, res.tocNcx);
 			this.dirtyPaths.add(res.ncxPath);
 
+			// Mark modified pages (where heading IDs were generated) as dirty
+			for (const p of res.modifiedPages ?? []) {
+				this.dirtyPaths.add(p);
+			}
+
 			this.files = await parseZipEntries(this.zip, this.editBuffer);
 			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';
 			return true;

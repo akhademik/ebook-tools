@@ -337,6 +337,52 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(page.getByRole('button', { name: 'Code' })).toBeVisible();
 	});
 
+	test('should isolate Undo/Redo per file when switching tabs in Editor Modal (Open A -> Switch B -> Undo)', async ({
+		page
+	}) => {
+		test.setTimeout(60000);
+		await ensureEpubFixture();
+		await page.goto('/epub-editor');
+		await page.waitForLoadState('networkidle');
+
+		// Upload EPUB
+		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
+		await fileInput.setInputFiles(fixtureEpubPath);
+
+		// Open Editor Modal
+		const openEditorBtn = page.getByRole('button', { name: /Mở trình chỉnh sửa/i });
+		await expect(openEditorBtn).toBeVisible({ timeout: 25000 });
+		await openEditorBtn.click();
+		await expect(page.getByText('Cấu trúc file')).toBeVisible();
+
+		// Click on Chapter 1
+		const ch1Item = page.locator('[title*="text/ch1.xhtml"]').first();
+		await expect(ch1Item).toBeVisible();
+		await ch1Item.click();
+
+		// Verify CodeMirror content contains Chapter 1
+		const cmContent = page.locator('.cm-content');
+		await expect(cmContent).toBeVisible();
+		await expect(cmContent).toContainText('Chương 1: Mở Đầu');
+
+		// Switch to Chapter 2
+		const ch2Item = page.locator('[title*="text/ch2.xhtml"]').first();
+		await expect(ch2Item).toBeVisible();
+		await ch2Item.click();
+
+		// Verify CodeMirror content now displays Chapter 2
+		await expect(cmContent).toContainText('Chương 2: Diễn Biến');
+
+		// Press Undo (Control+z) on Chapter 2
+		await cmContent.focus();
+		await page.keyboard.press('Control+z');
+
+		// Chapter 2 MUST NOT be corrupted by Chapter 1
+		await expect(cmContent).toContainText('Chương 2: Diễn Biến');
+		await expect(cmContent).not.toContainText('Chương 1: Mở Đầu');
+	});
+
 	test('should open PDF Splitter and verify options interface', async ({ page }) => {
 		await page.goto('/pdf');
 		await expect(page.getByRole('heading', { name: /Tách trang PDF/i })).toBeVisible();

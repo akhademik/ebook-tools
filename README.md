@@ -148,7 +148,6 @@ ebook-tools/
 ├── .github/workflows/ci.yml         # GitHub Actions CI pipeline
 ├── AI_WORKFLOW.md                   # Quy trình làm việc & kiểm định bắt buộc
 ├── DESIGN_SYSTEM.md                 # Quy chuẩn thiết kế UI & Design Tokens
-├── UI_DIRECTION.md                  # Định hướng làm mới giao diện người dùng
 └── CHANGELOG.md                     # Lịch sử chi tiết các phiên bản và cập nhật
 ```
 
@@ -188,34 +187,39 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 07:15
+- Cập nhật lần cuối: 2026-11-26 07:50
 - Đã hoàn thành:
-  - **Khắc phục Triệt để Toàn bộ 9 Điểm Lỗi Dữ liệu, Sai chuẩn EPUB & Bảo mật (theo TASKS.md)**:
+  - **Khắc phục Triệt để Toàn bộ 9 Điểm Lỗi Dữ liệu, Sai chuẩn EPUB & Bảo mật (theo TASKS.md P0)**:
     - **Sửa Lỗi Undo Ghi Nhầm File trong Editor (`EpubEditorCodePane.svelte`)**:
       - Tách riêng `EditorState` cho từng file thông qua bộ nhớ đệm `SvelteMap<string, EditorState>`.
       - Chuyển file bằng `view.setState()` thay vì dispatch thay đổi nội dung trên cùng một state, bảo toàn 100% ngăn xếp Undo/Redo riêng biệt cho mỗi trang, loại bỏ nguy cơ bấm Ctrl+Z làm ghi đè nội dung file này vào file khác.
+      - Tự động reconfigure `wrapCompartment` và `themeCompartment` ngay sau `view.setState()`, bảo đảm file vừa chuyển kế thừa tức thì cấu hình Wrap và Theme hiện tại.
     - **Chuẩn hóa File `mimetype` khi Xuất EPUB (`exportEpubBlob` trong `editor-ops.ts`)**:
       - Đảm bảo file `mimetype` luôn sử dụng phương thức nén `STORE` (không nén) và được đặt ở vị trí byte đầu tiên của archive ZIP (offset 0), tuân thủ nghiêm ngặt đặc tả OCF 3.3 §3.3.2.
     - **Chống Biến Dạng Metadata khi Chứa Ký Tự `$` (`updateBookMetadata` trong `epub-book-ops.ts`)**:
       - Thay thế toàn bộ chuỗi template replacement bằng hàm callback `(_match, p1, p2) => ...`, ngăn chặn việc JavaScript diễn giải nhầm các pattern `$1`, `$2`, `$$` thành thẻ XML mở/đóng, bảo vệ cấu trúc `content.opf`.
     - **Khắc phục Liên Kết Mục Lục Bị Hỏng (`rebuildEpubToc` trong `epub-book-ops.ts`)**:
       - Khi tự động sinh mã định danh anchor (`#section-X-Y`) cho các tiêu đề heading chưa có ID, hệ thống tự động ghi thuộc tính `id="section-X-Y"` ngược lại vào thẻ heading trong file XHTML tương ứng (cập nhật `editBuffer`/`zip`), đảm bảo mọi liên kết mục lục đều nhảy chính xác đến vị trí tiêu đề.
+      - Đổi regex nhận diện ID thành `/(?:^|\s)id\s*=\s*["']([^"']+)["']/i` để không nhận nhầm `data-id="..."`.
+      - Tự động kiểm tra chống trùng ID tự sinh với mọi ID có sẵn trên trang.
+      - Tự động đưa các trang được thêm ID vào `dirtyPaths` của `EpubEditorState`.
     - **Bảo Toàn Thuộc Tính `linear="no"` khi Sắp Xếp Lại Spine (`reorderOpfSpine` trong `epub-book-ops.ts`)**:
       - Trích xuất và bảo lưu nguyên vẹn toàn bộ thẻ `<itemref>` gốc kèm các thuộc tính `linear="no"`, `properties="..."`, `id="..."` khi tái cấu trúc thứ tự spine trong `content.opf`.
     - **Chuẩn Hóa Bộ Phân Tích Định Dạng TXT Inline (`applyInlineFormatting` trong `txt-parser.ts`)**:
       - Tự động mask toàn bộ URL (`https?://[^\s]+`) trước khi quét cú pháp định dạng inline.
-      - Siết chặt ranh giới ký tự/từ cho dấu in nghiêng `/`, in đậm `*`, và gạch chân `_` với negative lookbehind/lookahead `(?<![\p{L}\p{N}])` và `(?![\p{L}\p{N}])`, triệt tiêu hoàn toàn hiện tượng làm hỏng URL (`https:/<i>a.com</i>...`), ký hiệu đơn vị (`km/h/s`) và biến snake_case (`file_name_here`).
+      - Tách các ký tự đóng định dạng `*`, `_`, `/` (khi đang mở khối in nghiêng) ra khỏi URL để hỗ trợ chính xác `*https://a.com*`, `/xem https://a.com/`, `_http://a.com/x_`.
+      - Siết chặt ranh giới ký tự/từ cho dấu in nghiêng `/`, in đậm `*`, và gạch chân `_` với negative lookbehind/lookahead `(?<![\p{L}\p{N}])` và `(?![\p{L}\p{N}])`, triệt tiêu hoàn toàn hiện tượng làm hỏng URL, ký hiệu đơn vị (`km/h/s`) và biến snake_case (`file_name_here`).
     - **Vá Lỗ Hổng Bảo Mật PDF.js CVE-2024-4367 (`isEvalSupported: false`)**:
       - Đặt cờ bảo mật `isEvalSupported: false` tại tất cả các điểm gọi `getDocument()` trong `pdf-splitter-state.svelte.ts`, `pdf-splitter.ts`, và `pdf.ts`, vô hiệu hóa đường dẫn mã thực thi JavaScript độc hại khi người dùng mở các file PDF không rõ nguồn gốc.
     - **Mở Rộng Quét Tài Nguyên Tránh Xóa Nhầm & Bảo Vệ Khử Trùng Lặp (`reference-extractor.ts` & `cleaner-engine.ts`)**:
-      - Bổ sung quét ảnh trong thuộc tính nội dòng `style="background: url(...)"`, thuộc tính `srcset` trên `<img>`/`<source>`, và quét file stylesheet nhúng qua `@import "file.css"`.
-      - Nâng cấp thuật toán thay thế file trùng lặp (`cleanEpub`): sử dụng đường dẫn tương đối chuẩn xác (`getRelativePath`) và regex bọc chặt trong dấu ngoặc kép/đơn, loại bỏ nguy cơ thay thế chuỗi con sai lệch (như `1.jpg` ăn vào `11.jpg`).
+      - Bổ sung quét ảnh trong thuộc tính nội dòng `style="background: url(...)"` (hỗ trợ giải mã thực thể `&quot;`, `&apos;`, `&#34;`, `&#39;`), thuộc tính `srcset` trên `<img>`/`<source>`, và quét file stylesheet nhúng qua `@import "file.css"` trong `<style>`.
+      - Đặt mặc định an toàn `deduplicateResources: false` trong options của `cleanEpub()`, loại bỏ trùng lặp khỏi dung lượng tiết kiệm dự kiến.
     - **Chất Lượng Mã Nguồn & Kiểm Thử Toàn Diện**:
-      - Bổ sung 6 test case mới nâng tổng số test lên **399/399 unit tests pass 100% (19 test files)**.
+      - Bổ sung 4 unit test mới và 1 E2E test Playwright, nâng tổng số test lên **403/403 unit tests pass 100% (19 test files)**.
       - Toàn bộ pipeline: 0 lỗi format, 0 lỗi TypeScript (svelte-check), 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
-  - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).
+  - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập.
 
 ---
 

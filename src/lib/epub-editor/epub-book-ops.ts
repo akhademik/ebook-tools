@@ -280,9 +280,17 @@ export function reorderOpfSpine(opfXml: string, opfPath: string, newSpinePaths: 
 export async function rebuildEpubToc(
 	zip: JSZip,
 	editBuffer?: Map<string, string>
-): Promise<{ navXhtml: string; tocNcx: string; navPath: string; ncxPath: string } | null> {
+): Promise<{
+	navXhtml: string;
+	tocNcx: string;
+	navPath: string;
+	ncxPath: string;
+	modifiedPages: string[];
+} | null> {
 	const opfPath = await findOpfPath(zip);
 	if (!opfPath) return null;
+
+	const modifiedPages: string[] = [];
 
 	const getFileText = async (path: string): Promise<string> => {
 		if (editBuffer && editBuffer.has(path)) {
@@ -370,6 +378,14 @@ export async function rebuildEpubToc(
 			pageTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
 		}
 
+		// Collect all existing IDs in the page to prevent collision when auto-generating IDs
+		const existingIds = new Set<string>();
+		const allIdRegex = /(?:^|\s)id\s*=\s*["']([^"']+)["']/gi;
+		let mId: RegExpExecArray | null;
+		while ((mId = allIdRegex.exec(html)) !== null) {
+			existingIds.add(mId[1]);
+		}
+
 		// Extract headings & ensure missing IDs are written to XHTML
 		const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
 		const headings: Array<{ id: string; title: string; level: number }> = [];
@@ -381,11 +397,16 @@ export async function rebuildEpubToc(
 			const inner = innerContent.replace(/<[^>]+>/g, '').trim();
 			if (!inner) return match;
 
-			const idMatch = /\bid\s*=\s*["']([^"']+)["']/i.exec(attrs);
+			const idMatch = /(?:^|\s)id\s*=\s*["']([^"']+)["']/i.exec(attrs);
 			let hId = idMatch ? idMatch[1] : '';
 
 			if (!hId) {
-				hId = `section-${level}-${++hCounter}`;
+				let candidateId = `section-${level}-${++hCounter}`;
+				while (existingIds.has(candidateId)) {
+					candidateId = `section-${level}-${++hCounter}`;
+				}
+				existingIds.add(candidateId);
+				hId = candidateId;
 				pageHtmlModified = true;
 				const updatedAttrs = attrs ? ` id="${hId}"${attrs}` : ` id="${hId}"`;
 				headings.push({ id: hId, title: inner, level });
@@ -397,6 +418,7 @@ export async function rebuildEpubToc(
 		});
 
 		if (pageHtmlModified) {
+			modifiedPages.push(pagePath);
 			if (editBuffer) {
 				editBuffer.set(pagePath, updatedHtml);
 			} else {
@@ -481,6 +503,7 @@ export async function rebuildEpubToc(
 		navXhtml,
 		tocNcx,
 		navPath: navResolvedPath,
-		ncxPath: ncxResolvedPath
+		ncxPath: ncxResolvedPath,
+		modifiedPages
 	};
 }
