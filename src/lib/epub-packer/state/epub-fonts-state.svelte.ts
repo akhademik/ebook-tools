@@ -2,6 +2,9 @@
 
 export class EpubFontsState {
 	jacketFont = $state<string>('default');
+	jacketTitleFont = $state<string>('default');
+	jacketAuthorFont = $state<string>('default');
+	jacketMetaFont = $state<string>('default');
 	h1Font = $state<string>('default');
 	h2Font = $state<string>('default');
 	h2SubFont = $state<string>('default');

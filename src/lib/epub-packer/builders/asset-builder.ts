@@ -37,6 +37,24 @@ export function resolveActiveFonts(fonts: EpubFontsConfig | null): string[] {
 	if (fonts && fonts.blobs) {
 		if (fonts.jacketFont && fonts.jacketFont !== 'default' && fonts.blobs[fonts.jacketFont])
 			activeFonts.push(fonts.jacketFont);
+		if (
+			fonts.jacketTitleFont &&
+			fonts.jacketTitleFont !== 'default' &&
+			fonts.blobs[fonts.jacketTitleFont]
+		)
+			activeFonts.push(fonts.jacketTitleFont);
+		if (
+			fonts.jacketAuthorFont &&
+			fonts.jacketAuthorFont !== 'default' &&
+			fonts.blobs[fonts.jacketAuthorFont]
+		)
+			activeFonts.push(fonts.jacketAuthorFont);
+		if (
+			fonts.jacketMetaFont &&
+			fonts.jacketMetaFont !== 'default' &&
+			fonts.blobs[fonts.jacketMetaFont]
+		)
+			activeFonts.push(fonts.jacketMetaFont);
 		if (fonts.h1Font && fonts.h1Font !== 'default' && fonts.blobs[fonts.h1Font])
 			activeFonts.push(fonts.h1Font);
 		if (fonts.h2Font && fonts.h2Font !== 'default' && fonts.blobs[fonts.h2Font])

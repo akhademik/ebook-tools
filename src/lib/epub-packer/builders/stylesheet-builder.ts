@@ -303,13 +303,83 @@ export function buildJacketCss(
 	if (!jacket || !jacket.enabled) return '';
 	const template = JACKET_TEMPLATES.find((t) => t.id === jacket.templateId);
 	let css = template ? template.css : '';
-	if (fonts && fonts.jacketFont && fonts.jacketFont !== 'default') {
-		const jFont = findFont(fonts.jacketFont);
-		if (jFont) {
-			const declaration = getFontCSSDeclaration(fonts.jacketFont);
-			css = `${declaration}\nbody, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }\n${css}`;
+
+	const fontFaceIds = new Set<string>();
+	const fontDeclarations: string[] = [];
+
+	const candidateFontIds = [
+		fonts?.jacketFont,
+		fonts?.jacketTitleFont,
+		fonts?.jacketAuthorFont,
+		fonts?.jacketMetaFont
+	].filter((id): id is string => Boolean(id && id !== 'default'));
+
+	for (const fontId of candidateFontIds) {
+		const f = findFont(fontId);
+		if (f && !fontFaceIds.has(f.id)) {
+			fontFaceIds.add(f.id);
+			const decl = getFontCSSDeclaration(fontId);
+			if (decl) fontDeclarations.push(decl);
 		}
 	}
+
+	let header = fontDeclarations.join('\n\n');
+
+	if (fonts?.jacketFont && fonts.jacketFont !== 'default') {
+		const jFont = findFont(fonts.jacketFont);
+		if (jFont) {
+			const baseRule = `body, p, span, div, hr, h1, h2 { font-family: "${jFont.cssFamily}", serif !important; }`;
+			header = header ? `${header}\n\n${baseRule}` : baseRule;
+		}
+	}
+
+	const injectFontIntoRules = (
+		cssText: string,
+		targetPattern: RegExp,
+		fontFamily: string
+	): string => {
+		return cssText.replace(
+			/([^{}]+)\{([^{}]+)\}/g,
+			(match: string, selectors: string, declarations: string) => {
+				const sels = selectors.split(',').map((s: string) => s.trim());
+				const matches = sels.some((s: string) => targetPattern.test(s));
+				if (matches) {
+					return `${selectors}{\n\tfont-family: "${fontFamily}", serif !important;${declarations}}`;
+				}
+				return match;
+			}
+		);
+	};
+
+	if (fonts?.jacketTitleFont && fonts.jacketTitleFont !== 'default') {
+		const fTitle = findFont(fonts.jacketTitleFont);
+		if (fTitle) {
+			css = injectFontIntoRules(css, /\.(?:title|original)\b(?!\s*::)/, fTitle.cssFamily);
+		}
+	}
+
+	if (fonts?.jacketAuthorFont && fonts.jacketAuthorFont !== 'default') {
+		const fAuthor = findFont(fonts.jacketAuthorFont);
+		if (fAuthor) {
+			css = injectFontIntoRules(
+				css,
+				/\.(?:author|byline|translator)\b(?!\s*::)/,
+				fAuthor.cssFamily
+			);
+		}
+	}
+
+	if (fonts?.jacketMetaFont && fonts.jacketMetaFont !== 'default') {
+		const fMeta = findFont(fonts.jacketMetaFont);
+		if (fMeta) {
+			css = injectFontIntoRules(css, /\.(?:meta|tag)\b(?!\s*::)/, fMeta.cssFamily);
+		}
+	}
+
+	if (header) {
+		css = `${header}\n\n${css}`;
+	}
+
 	return css
 		.replace(/\/\*[\s\S]*?\*\//g, '')
 		.replace(/\n{3,}/g, '\n\n')

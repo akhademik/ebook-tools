@@ -4,6 +4,15 @@
 
 ---
 
+## Trạng thái hệ thống
+
+- Cập nhật lần cuối: 2026-11-26 17:35
+- Đã hoàn thành: Hoàn thiện logic và giao diện chọn 3 cặp font cho trang Jacket (Trang giới thiệu sách) với zero CSS specificity errors, deduplication font binary; đạt chuẩn kiểm tra pipeline toàn diện (446/446 tests pass).
+- Đang dở: Không có
+- Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (_data) (P3).
+
+---
+
 ## 🌟 Điểm nổi bật cốt lõi
 
 - 🔒 **Bảo mật & Riêng tư Tuyệt đối (100% Client-Side)**: Mọi thao tác giải nén, bóc tách AI, chỉnh sửa và đóng gói file PDF, EPUB, TXT diễn ra hoàn toàn trên thiết bị của bạn. Không cần kết nối internet, không lo rò rỉ bản thảo.

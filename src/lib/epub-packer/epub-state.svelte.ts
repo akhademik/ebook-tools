@@ -162,8 +162,11 @@ export class EpubState {
 				distributor: this.jacket.distributor.trim(),
 				translator: this.jacket.translator.trim()
 			};
-			const fontsSnapshot = {
+			const fontsSnapshot: EpubFontsConfig = {
 				jacketFont: this.fonts.jacketFont,
+				jacketTitleFont: this.fonts.jacketTitleFont,
+				jacketAuthorFont: this.fonts.jacketAuthorFont,
+				jacketMetaFont: this.fonts.jacketMetaFont,
 				h1Font: this.fonts.h1Font,
 				h2Font: this.fonts.h2Font,
 				h2SubFont: this.fonts.h2SubFont,
@@ -213,41 +216,27 @@ export class EpubState {
 
 					const fontBlobs: Record<string, Blob> = {};
 					const neededFonts: string[] = [];
-					if (
-						fontsSnapshot.jacketFont !== 'default' &&
-						!neededFonts.includes(fontsSnapshot.jacketFont)
-					) {
-						neededFonts.push(fontsSnapshot.jacketFont);
-					}
-					if (fontsSnapshot.h1Font !== 'default' && !neededFonts.includes(fontsSnapshot.h1Font)) {
-						neededFonts.push(fontsSnapshot.h1Font);
-					}
-					if (fontsSnapshot.h2Font !== 'default' && !neededFonts.includes(fontsSnapshot.h2Font)) {
-						neededFonts.push(fontsSnapshot.h2Font);
-					}
-					if (
-						fontsSnapshot.h2SubFont !== 'default' &&
-						!neededFonts.includes(fontsSnapshot.h2SubFont)
-					) {
-						neededFonts.push(fontsSnapshot.h2SubFont);
-					}
-					if (
-						fontsSnapshot.dropcapFont !== 'default' &&
-						!neededFonts.includes(fontsSnapshot.dropcapFont)
-					) {
-						neededFonts.push(fontsSnapshot.dropcapFont);
-					}
-					if (
-						fontsSnapshot.quoteFont !== 'default' &&
-						!neededFonts.includes(fontsSnapshot.quoteFont)
-					) {
-						neededFonts.push(fontsSnapshot.quoteFont);
-					}
-					if (
-						fontsSnapshot.quoteAuthorFont !== 'default' &&
-						!neededFonts.includes(fontsSnapshot.quoteAuthorFont)
-					) {
-						neededFonts.push(fontsSnapshot.quoteAuthorFont);
+					const fontKeys: (keyof EpubFontsConfig)[] = [
+						'jacketFont',
+						'jacketTitleFont',
+						'jacketAuthorFont',
+						'jacketMetaFont',
+						'h1Font',
+						'h2Font',
+						'h2SubFont',
+						'dropcapFont',
+						'quoteFont',
+						'quoteAuthorFont'
+					];
+					for (const k of fontKeys) {
+						const fontName = fontsSnapshot[k];
+						if (
+							typeof fontName === 'string' &&
+							fontName !== 'default' &&
+							!neededFonts.includes(fontName)
+						) {
+							neededFonts.push(fontName);
+						}
 					}
 					// Always embed Bookerly font if available
 					if (findFont('Bookerly') && !neededFonts.includes('Bookerly')) {

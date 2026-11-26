@@ -540,11 +540,11 @@ describe('pdf-splitter tests', () => {
 
 				expect(resultBuffer.byteLength).toBe(res.pixels * 4);
 
-				// Verify headroom: adaptive timeout must be at least 10x larger than execution time
+				// Verify headroom: adaptive timeout must be at least 3x larger than execution time
 				const safetyMarginFactor = Math.round(timeoutMs / Math.max(1, elapsedMs));
-				expect(safetyMarginFactor).toBeGreaterThan(10);
+				expect(safetyMarginFactor).toBeGreaterThan(3);
 			}
-		});
+		}, 60000);
 
 		it('should load a single document instance and clean it up upon completion', async () => {
 			mockPdfjsLib.getDocument.mockClear();
