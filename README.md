@@ -187,8 +187,14 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 13:45
+- Cập nhật lần cuối: 2026-11-26 14:02
 - Đã hoàn thành:
+  - **Hoàn thiện Kiểm soát ZIP An toàn, Chuẩn hóa Metadata & Kiểm chứng Abort Nén (`TASKS.md`)**:
+    - **P1: Kiểm chứng Thực tế Dừng Stream khi JSZip đang Nén (`tests/epub-packer-lifecycle.test.ts`)**: Tái cấu trúc spy trên `generateAsync` để chuyển tiếp luồng thật, kích hoạt `ac.abort()` từ callback `wrappedUpdate` khi JSZip thực sự phát ra tiến độ nén, kiểm chứng Promise reject với `AbortError` từ bên trong stream nén.
+    - **P2: Bổ sung Nhánh Cộng dồn Hạn ngạch 150MB khi ZIP Ảnh Thiếu Metadata (`EpubImagesState`)**: Thêm kiểm tra `cumulativeZipImageBytes + blob.size > MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE` và cộng dồn dung lượng blob thực tế khi `preUncompressedSize === null`, triệt tiêu lỗ hổng bypass 150MB.
+    - **P2: Chuẩn hóa Trích xuất Metadata ZIP qua Helper Tập trung (`zip.ts`)**: Tạo module `src/lib/utils/zip.ts` (`getZipEntryUncompressedSize`) với type guards phòng vệ, loại bỏ hoàn toàn các điểm ép kiểu `(zip.files[name] as any)._data` rải rác.
+    - **P3: Đồng nhất Trạng thái Ảnh bìa & Triệt tiêu Rò rỉ Dữ liệu Cũ (`EpubImagesState`)**: Bổ sung `clearCoverData()` dọn dẹp toàn bộ dữ liệu ảnh bìa cũ khi người dùng chọn file mới không hợp lệ hoặc gặp lỗi, đảm bảo UI và dữ liệu đóng gói đồng nhất tuyệt đối.
+    - Nâng tổng số test lên **443/443 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
   - **Khắc phục Triệt để Toàn bộ 5 Vấn đề Cốt lõi P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
     - **P1: Khóa Mutex Tuần tự hóa Tuyệt đối cho `processEpub()` (`EpubState`)**: Bổ sung `isLockingPack` mutex lock kiểm tra `processing || isLockingPack`, ngăn chặn re-entrancy / race condition khi người dùng spam click hoặc có nhiều lệnh gọi đồng thời cùng vượt qua `await activePackagingPromise`.
     - **P2: Kiểm soát Dung lượng & Hạn ngạch An toàn cho PDF trong ZIP Ảnh (`EpubImagesState`, `constants.ts`)**: Áp dụng kiểm tra trước `preUncompressedSize > MAX_IMAGE_FILE_SIZE` (30MB) đối với PDF trong ZIP tương tự như ảnh; tính dung lượng PDF vào hạn ngạch cộng dồn 150MB (`MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE`), triệt tiêu rủi ro zip-bomb / cạn RAM.

@@ -7,3 +7,4 @@ export * from './pdf';
 export * from './image-bg-remove-ml';
 export * from './path';
 export * from './crypto';
+export * from './zip';

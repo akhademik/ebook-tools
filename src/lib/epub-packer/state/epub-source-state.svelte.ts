@@ -14,7 +14,7 @@ import {
 	assignSequentialChapterIds,
 	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
-import { slugify, Logger } from '$lib/utils';
+import { slugify, Logger, getZipEntryUncompressedSize } from '$lib/utils';
 import {
 	MAX_TXT_FILE_SIZE,
 	MAX_ZIP_FILE_SIZE,
@@ -358,12 +358,7 @@ export class EpubSourceState {
 				const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
 
 				// Kiểm tra kích thước giải nén TRƯỚC KHI cấp phát bộ nhớ chuỗi nếu có metadata
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const entryData = (zip.files[name] as any)._data;
-				const preUncompressedSize =
-					entryData && typeof entryData.uncompressedSize === 'number'
-						? (entryData.uncompressedSize as number)
-						: null;
+				const preUncompressedSize = getZipEntryUncompressedSize(zip.files[name]);
 
 				if (preUncompressedSize !== null) {
 					if (preUncompressedSize > MAX_ZIP_SINGLE_MD_SIZE) {

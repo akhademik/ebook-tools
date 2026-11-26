@@ -4,6 +4,30 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Hoàn thiện Kiểm soát ZIP An toàn, Chuẩn hóa Metadata & Kiểm chứng Abort Nén theo TASKS.md)
+
+- Thêm/sửa:
+  - **1. P1: Kiểm chứng Thực tế Dừng Stream khi JSZip đang Nén (`tests/epub-packer-lifecycle.test.ts`)**:
+    - Tái cấu trúc spy trên `JSZip.prototype.generateAsync` để chuyển tiếp thực sự sang `origGenerateAsync.call()`.
+    - Kích hoạt `ac.abort()` từ bên trong callback `wrappedUpdate` khi JSZip thực sự phát ra tiến độ nén các file.
+    - Kiểm chứng Promise của `buildEpubBlob` bị reject chính xác với lỗi `AbortError` từ bên trong luồng nén của JSZip, đảm bảo không có Blob nào được tạo ra.
+  - **2. P2: Bổ sung Nhánh Cộng dồn Hạn ngạch 150MB khi ZIP Ảnh Thiếu Metadata (`EpubImagesState`)**:
+    - Bổ sung kiểm tra `cumulativeZipImageBytes + blob.size > MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE` (150MB) và cộng dồn dung lượng blob thực tế vào `cumulativeZipImageBytes` khi `preUncompressedSize === null`.
+    - Bảo đảm hạn mức 150MB luôn được thực thi nghiêm ngặt ngay cả khi file ZIP không có trường metadata kích thước giải nén.
+  - **3. P2: Chuẩn hóa Trích xuất Metadata ZIP qua Helper Tập trung (`zip.ts`)**:
+    - Tạo module [src/lib/utils/zip.ts](file:///home/hajtran/dev/ebook-tools/src/lib/utils/zip.ts) với hàm `getZipEntryUncompressedSize(entry)`.
+    - Đóng gói an toàn việc đọc `entry._data.uncompressedSize` với type guard phòng vệ (`typeof === 'number'`, `Number.isFinite`, `>= 0`), loại bỏ toàn bộ ép kiểu `as any` rải rác trong `EpubImagesState` và `EpubSourceState`.
+  - **4. P3: Đồng nhất Trạng thái Ảnh bìa & Triệt tiêu Rủi ro Rò rỉ Dữ liệu Cũ (`EpubImagesState`)**:
+    - Bổ sung hàm `clearCoverData()` dọn dẹp sạch: thu hồi Object URL nếu có, gán `coverFile = null`, `coverOriginalUrl = null`, `coverWidth = 0`, `coverHeight = 0` và reset vùng crop.
+    - Tự động gọi `clearCoverData()` khi file ảnh bìa mới vượt quá dung lượng cho phép (> 30MB/300MB), thiếu thư viện PDF.js hoặc gặp lỗi đọc/trích xuất.
+    - Đảm bảo trạng thái giao diện và dữ liệu đóng gói hoàn toàn đồng nhất, không còn tình trạng giao diện báo lỗi file mới nhưng sách đóng gói vẫn lấy ảnh cũ.
+  - **Bổ sung Bộ kiểm thử Đơn vị Chuyên sâu**:
+    - Nâng tổng số test lên **443/443 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (443/443 pass, 21 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/utils/zip.ts`, `src/lib/utils/index.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/state/epub-images-state.svelte.ts`, `tests/epub-packer-lifecycle.test.ts`, `TASKS.md`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Giải quyết Trọn vẹn 5 Vấn đề P1 & P2: Mutex Lock Đóng gói, Generation Tokens & Kiểm soát PDF trong ZIP)
 
 - Thêm/sửa:

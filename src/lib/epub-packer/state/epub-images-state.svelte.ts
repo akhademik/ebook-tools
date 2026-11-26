@@ -8,7 +8,12 @@ import {
 	MAX_ILLUSTRATION_COUNT,
 	MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE
 } from '$lib/constants';
-import { Logger, processOrnamentImage, renderPdfPageToBlob } from '$lib/utils';
+import {
+	Logger,
+	processOrnamentImage,
+	renderPdfPageToBlob,
+	getZipEntryUncompressedSize
+} from '$lib/utils';
 
 const RESERVED_ILLUSTRATION_FILENAMES = new Set([
 	'cover.jpg',
@@ -148,12 +153,7 @@ export class EpubImagesState {
 								break;
 							}
 
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							const entryData = (zip.files[name] as any)._data;
-							const preUncompressedSize =
-								entryData && typeof entryData.uncompressedSize === 'number'
-									? (entryData.uncompressedSize as number)
-									: null;
+							const preUncompressedSize = getZipEntryUncompressedSize(zip.files[name]);
 
 							if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
 								if (preUncompressedSize !== null) {
@@ -182,6 +182,22 @@ export class EpubImagesState {
 								const blob = await zip.files[name].async('blob');
 								if (this.illustrationGeneration !== currentGen) return;
 								if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
+
+								if (preUncompressedSize === null) {
+									if (
+										cumulativeZipImageBytes + blob.size >
+										MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE
+									) {
+										Logger.warn(
+											'[EpubImagesState]',
+											'Cumulative image uncompressed size exceeded limit without pre-check'
+										);
+										this.illustrationError =
+											'Tổng dung lượng giải nén ảnh từ ZIP vượt quá giới hạn an toàn (150MB).';
+										break;
+									}
+									cumulativeZipImageBytes += blob.size;
+								}
 
 								const rawFileName = sanitizeUploadedIllustrationFileName(
 									name.split('/').pop() || name
@@ -539,15 +555,25 @@ export class EpubImagesState {
 		this.coverCropRight = 0;
 	}
 
+	clearCoverData(): void {
+		if (this.coverOriginalUrl && this.coverOriginalUrl.startsWith('blob:')) {
+			URL.revokeObjectURL(this.coverOriginalUrl);
+		}
+		this.coverFile = null;
+		this.coverOriginalUrl = null;
+		this.coverWidth = 0;
+		this.coverHeight = 0;
+		this.resetCoverCrop();
+	}
+
 	async handleCoverFile(file: File | null): Promise<void> {
 		if (!file) return;
 		const currentGen = ++this.coverGeneration;
-		this.coverFile = file;
-		this.resetCoverCrop();
 
 		const isPdf = /\.pdf$/i.test(file.name);
 		const maxAllowed = isPdf ? MAX_PDF_FILE_SIZE : MAX_IMAGE_FILE_SIZE;
 		if (file.size > maxAllowed) {
+			this.clearCoverData();
 			this.coverStatus = isPdf
 				? 'Dung lượng file PDF bìa vượt quá giới hạn (tối đa 300MB).'
 				: 'Dung lượng ảnh bìa vượt quá giới hạn (tối đa 30MB).';
@@ -555,10 +581,15 @@ export class EpubImagesState {
 			return;
 		}
 
+		// Dọn dẹp ảnh bìa cũ trước khi xử lý ảnh mới để đảm bảo dữ liệu đồng nhất
+		this.clearCoverData();
+		this.coverFile = file;
+
 		if (isPdf) {
 			const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 			if (!globalPdfjs) {
 				Logger.error('[EpubImagesState]', 'pdfjsLib is missing');
+				this.clearCoverData();
 				this.coverStatus = 'Không thể tải ảnh bìa từ PDF do thiếu thư viện PDF.js';
 				this.coverIsError = true;
 				return;
@@ -600,6 +631,7 @@ export class EpubImagesState {
 				this.coverIsError = false;
 			} catch (err: unknown) {
 				if (this.coverGeneration !== currentGen) return;
+				this.clearCoverData();
 				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubImagesState]', 'Error extracting PDF page 1', err);
 				this.coverStatus = 'Lỗi trích xuất PDF: ' + errorMsg;
@@ -610,7 +642,12 @@ export class EpubImagesState {
 			reader.onload = (e) => {
 				if (this.coverGeneration !== currentGen) return;
 				const dataUrl = (e.target?.result as string) || null;
-				if (!dataUrl) return;
+				if (!dataUrl) {
+					this.clearCoverData();
+					this.coverStatus = 'Không thể nạp file ảnh bìa.';
+					this.coverIsError = true;
+					return;
+				}
 				const img = new Image();
 				img.onload = () => {
 					if (this.coverGeneration !== currentGen) return;
@@ -625,10 +662,17 @@ export class EpubImagesState {
 				};
 				img.onerror = () => {
 					if (this.coverGeneration !== currentGen) return;
+					this.clearCoverData();
 					this.coverStatus = 'Không thể nạp file ảnh bìa.';
 					this.coverIsError = true;
 				};
 				img.src = dataUrl;
+			};
+			reader.onerror = () => {
+				if (this.coverGeneration !== currentGen) return;
+				this.clearCoverData();
+				this.coverStatus = 'Không thể đọc file ảnh bìa.';
+				this.coverIsError = true;
 			};
 			reader.readAsDataURL(file);
 		}
@@ -636,14 +680,7 @@ export class EpubImagesState {
 
 	removeCoverFile(): void {
 		this.coverGeneration++;
-		if (this.coverOriginalUrl && this.coverOriginalUrl.startsWith('blob:')) {
-			URL.revokeObjectURL(this.coverOriginalUrl);
-		}
-		this.coverFile = null;
-		this.coverOriginalUrl = null;
-		this.coverWidth = 0;
-		this.coverHeight = 0;
-		this.resetCoverCrop();
+		this.clearCoverData();
 	}
 
 	async getOptimizedCoverBlob(params?: {

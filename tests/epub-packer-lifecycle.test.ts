@@ -13,6 +13,7 @@ import {
 	MAX_IMAGES_ZIP_ENTRIES,
 	MAX_ILLUSTRATION_COUNT
 } from '$lib/constants';
+import { getZipEntryUncompressedSize } from '../src/lib/utils/zip';
 
 describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 	describe('1. P1: EpubSourceState Generation Token & Race Condition', () => {
@@ -832,6 +833,75 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			}
 		});
 
+		it('should clear existing cover data when selecting an invalid or oversized cover file', async () => {
+			const imagesState = new EpubImagesState();
+
+			// 1. Set a valid initial cover
+			imagesState.coverOriginalUrl = 'data:image/jpeg;base64,validCoverA';
+			imagesState.coverWidth = 400;
+			imagesState.coverHeight = 600;
+			imagesState.coverCropTop = 10;
+
+			// 2. User selects an oversized cover file (> 30MB)
+			const oversizedFile = new File(['a'.repeat(100)], 'huge-cover.jpg', {
+				type: 'image/jpeg'
+			});
+			Object.defineProperty(oversizedFile, 'size', { value: 35 * 1024 * 1024 });
+
+			await imagesState.handleCoverFile(oversizedFile);
+
+			// Must be marked error AND cover data must be completely wiped to prevent stale packing
+			expect(imagesState.coverIsError).toBe(true);
+			expect(imagesState.coverStatus).toContain('Dung lượng ảnh bìa vượt quá giới hạn');
+			expect(imagesState.coverOriginalUrl).toBeNull();
+			expect(imagesState.coverFile).toBeNull();
+			expect(imagesState.coverWidth).toBe(0);
+			expect(imagesState.coverHeight).toBe(0);
+			expect(imagesState.coverCropTop).toBe(0);
+		});
+
+		it('should track cumulative image size and abort when metadata is missing (preUncompressedSize === null)', async () => {
+			const imagesState = new EpubImagesState();
+			// Mock ZIP with 7 images, each 25MB (7 * 25 = 175MB > 150MB), with NO _data metadata
+			const mockZip = {
+				files: {} as Record<string, { dir: boolean; async: () => Promise<Blob> }>
+			};
+
+			for (let i = 1; i <= 7; i++) {
+				const blob = new Blob([new Uint8Array(100)], { type: 'image/jpeg' });
+				Object.defineProperty(blob, 'size', { value: 25 * 1024 * 1024 });
+				mockZip.files[`img_${i}.jpg`] = {
+					dir: false,
+					async: vi.fn().mockResolvedValue(blob)
+				};
+			}
+
+			vi.spyOn(JSZip, 'loadAsync').mockResolvedValueOnce(mockZip as unknown as JSZip);
+
+			const file = new File(['zip-bytes'], 'no-meta-images.zip', { type: 'application/zip' });
+			await imagesState.handleIllustrationFiles(file);
+
+			expect(imagesState.illustrationError).toContain(
+				'Tổng dung lượng giải nén ảnh từ ZIP vượt quá giới hạn an toàn (150MB).'
+			);
+			// 6 images * 25MB = 150MB allowed, 7th image pushes to 175MB and gets stopped
+			expect(imagesState.illustrationFiles.length).toBe(6);
+		});
+
+		it('getZipEntryUncompressedSize should safely extract size or return null', () => {
+			expect(getZipEntryUncompressedSize(null)).toBeNull();
+			expect(getZipEntryUncompressedSize(undefined)).toBeNull();
+			expect(getZipEntryUncompressedSize({} as never)).toBeNull();
+			expect(getZipEntryUncompressedSize({ _data: null } as never)).toBeNull();
+			expect(
+				getZipEntryUncompressedSize({ _data: { uncompressedSize: '123' } } as never)
+			).toBeNull();
+			expect(getZipEntryUncompressedSize({ _data: { uncompressedSize: -5 } } as never)).toBeNull();
+			expect(getZipEntryUncompressedSize({ _data: { uncompressedSize: 1048576 } } as never)).toBe(
+				1048576
+			);
+		});
+
 		it('should abort generateAsync mid-compression when signal is aborted during progress callback', async () => {
 			const ac = new AbortController();
 			const chapters: EpubChapterItem[] = [
@@ -841,6 +911,13 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 					title: 'Chap 1',
 					fileName: 'chap_01',
 					html: '<p>Content for chapter</p>'
+				},
+				{
+					id: '2',
+					xmlId: 'item-1',
+					title: 'Chap 2',
+					fileName: 'chap_02',
+					html: '<p>Content for chapter 2</p>'
 				}
 			];
 			const meta: EpubMetadata = {
@@ -851,22 +928,29 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			};
 
 			const origGenerateAsync = JSZip.prototype.generateAsync;
+			let updateCallCount = 0;
 			vi.spyOn(JSZip.prototype, 'generateAsync').mockImplementation(function (
 				this: JSZip,
 				options: unknown,
 				onUpdate?: (metadata: { percent: number; currentFile: string | null }) => void
 			) {
-				// Abort the controller right on the progress tick to test mid-compression abort
-				ac.abort();
-				if (onUpdate) {
-					onUpdate({ percent: 10, currentFile: 'test' });
-				}
-				return origGenerateAsync.call(this, options as never, onUpdate as never);
+				// Wrap onUpdate to abort the controller during active compression when JSZip emits progress
+				const wrappedUpdate = (metadata: { percent: number; currentFile: string | null }) => {
+					updateCallCount++;
+					if (updateCallCount === 1) {
+						ac.abort();
+					}
+					if (onUpdate) {
+						onUpdate(metadata);
+					}
+				};
+				return origGenerateAsync.call(this, options as never, wrappedUpdate as never);
 			});
 
 			await expect(
 				buildEpubBlob(meta, chapters, undefined, false, null, null, null, null, [], ac.signal)
 			).rejects.toThrow('Packing aborted during compression');
+			expect(updateCallCount).toBeGreaterThanOrEqual(1);
 		});
 	});
 
