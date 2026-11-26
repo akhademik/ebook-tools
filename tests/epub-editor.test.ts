@@ -709,5 +709,32 @@ describe('EPUB Editor unit tests', () => {
 			expect(state.dirtyPaths.has('OEBPS/nav.xhtml')).toBe(true);
 			expect(state.dirtyPaths.has('OEBPS/toc.ncx')).toBe(true);
 		});
+
+		it('should trigger flushEditorSync before export, validate, analyze, and render', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file('content.opf', '<package/>');
+			state.zip = zip;
+
+			let flushCount = 0;
+			state.flushEditorSync = () => {
+				flushCount++;
+			};
+
+			state.validateDirty();
+			expect(flushCount).toBe(1);
+
+			await state.exportEpub(true);
+			expect(flushCount).toBe(2);
+
+			await state.analyzeForClean();
+			expect(flushCount).toBe(3);
+
+			state.previewTarget = 'test.xhtml';
+			await state.renderPreview();
+			expect(flushCount).toBe(4);
+		});
 	});
 });

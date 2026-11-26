@@ -25,6 +25,31 @@
 	const fileStates = new SvelteMap<string, EditorState>();
 	let isInternalUpdate = false;
 	let isInternalSync = false;
+	let syncDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	let lastSyncedDoc = '';
+
+	function flushDocSync() {
+		if (syncDebounceTimer) {
+			clearTimeout(syncDebounceTimer);
+			syncDebounceTimer = null;
+		}
+		if (!view || !editorState.editorTarget) return;
+		const target = editorState.editorTarget;
+		const newDoc = view.state.doc.toString();
+		if (newDoc !== lastSyncedDoc) {
+			lastSyncedDoc = newDoc;
+			editorState.updateFileContent(target, newDoc);
+		}
+	}
+
+	function scheduleDocSync() {
+		if (syncDebounceTimer) {
+			clearTimeout(syncDebounceTimer);
+		}
+		syncDebounceTimer = setTimeout(() => {
+			flushDocSync();
+		}, 250);
+	}
 
 	const languageCompartment = new Compartment();
 	const themeCompartment = new Compartment();
@@ -71,12 +96,17 @@
 				languageCompartment.of(getLanguageExtension(target)),
 				themeCompartment.of(isDarkMode() ? oneDark : []),
 				wrapCompartment.of(lineWrap ? EditorView.lineWrapping : []),
+				EditorView.domEventHandlers({
+					blur: () => {
+						flushDocSync();
+					}
+				}),
 				EditorView.updateListener.of((update) => {
 					if (update.docChanged && !isInternalUpdate && editorState.editorTarget) {
-						const newDoc = update.state.doc.toString();
-						currentLength = newDoc.length;
+						currentLength = update.state.doc.length;
 						currentLineCount = update.state.doc.lines;
-						editorState.updateFileContent(editorState.editorTarget, newDoc);
+						editorState.dirtyPaths.add(editorState.editorTarget);
+						scheduleDocSync();
 					}
 
 					// Sync text selection from Code Editor to Live Preview
@@ -157,12 +187,23 @@
 			parent: editorContainerEl
 		});
 		activeTarget = currentTarget;
+		lastSyncedDoc = initialContent;
 
 		// Attach scroll event for sync-scroll
 		view.scrollDOM.addEventListener('scroll', handleEditorScroll, { passive: true });
 	}
 
-	// Register hooks for syncing scroll and selection from preview
+	// Register hooks for syncing scroll, selection and flushing from preview
+	$effect(() => {
+		editorState.flushEditorSync = flushDocSync;
+		return () => {
+			flushDocSync();
+			if (editorState.flushEditorSync === flushDocSync) {
+				editorState.flushEditorSync = undefined;
+			}
+		};
+	});
+
 	$effect(() => {
 		editorState.scrollEditorTo = (ratio: number) => {
 			if (!view || isInternalSync || !editorState.syncViewEnabled) return;
@@ -216,6 +257,7 @@
 
 		if (view) {
 			if (target !== activeTarget) {
+				flushDocSync();
 				// Save active file's EditorState before switching
 				if (activeTarget) {
 					fileStates.set(activeTarget, view.state);
@@ -223,7 +265,11 @@
 
 				// Restore or create EditorState for the new target file
 				let targetState = fileStates.get(target);
-				if (!targetState || targetState.doc.toString() !== expectedContent) {
+				if (
+					!targetState ||
+					targetState.doc.length !== expectedContent.length ||
+					targetState.doc.toString() !== expectedContent
+				) {
 					targetState = createStateForFile(target, expectedContent);
 					fileStates.set(target, targetState);
 				}
@@ -236,19 +282,23 @@
 					]
 				});
 				activeTarget = target;
+				lastSyncedDoc = expectedContent;
 				currentLength = expectedContent.length;
 				currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
 			} else {
-				// Same file active: check if content changed externally
-				const currentDoc = view.state.doc.toString();
-				if (currentDoc !== expectedContent) {
-					isInternalUpdate = true;
-					view.dispatch({
-						changes: { from: 0, to: currentDoc.length, insert: expectedContent }
-					});
-					isInternalUpdate = false;
-					currentLength = expectedContent.length;
-					currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
+				// Same file active: check if content changed externally (not from this editor)
+				if (expectedContent !== lastSyncedDoc) {
+					const currentDoc = view.state.doc.toString();
+					if (currentDoc !== expectedContent) {
+						isInternalUpdate = true;
+						view.dispatch({
+							changes: { from: 0, to: currentDoc.length, insert: expectedContent }
+						});
+						isInternalUpdate = false;
+						lastSyncedDoc = expectedContent;
+						currentLength = expectedContent.length;
+						currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
+					}
 				}
 			}
 		}
@@ -283,6 +333,7 @@
 	});
 
 	onDestroy(() => {
+		flushDocSync();
 		if (view) {
 			view.scrollDOM.removeEventListener('scroll', handleEditorScroll);
 		}

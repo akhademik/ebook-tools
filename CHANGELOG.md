@@ -4,6 +4,30 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Hoàn thành P1: Đo Trước, Tối Ưu Hóa Editor, Preview Scroll & Khử Trùng Lặp WASM)
+
+- Thêm/sửa:
+  - **Bộ Đo lường Chuẩn (Baseline Profiling)**:
+    - Bổ sung test suite `tests/stress/profile-p1.test.ts` đo lường hiệu năng thực tế: parse 1.16MB TXT (~197k từ) trong ~212ms, pack EPUB trong ~228ms, render HTML preview ~1.5ms.
+    - Đo lường độ trễ CodeMirror 6: chứng minh việc bỏ `doc.toString()` trên mỗi keystroke giúp tăng tốc độ xử lý lên **5.7x** và giảm thiểu cấp phát bộ nhớ.
+  - **Tối ưu hóa CodeMirror Editor & Đồng bộ (`EpubEditorCodePane.svelte`, `epub-editor-state.svelte.ts`)**:
+    - Thay thế việc tuần tự hóa `doc.toString()` liên tục bằng việc đọc thuộc tính O(1) `doc.length` và `doc.lines`.
+    - Trạng thái `dirtyPaths` được cập nhật tức thì khi gõ phím.
+    - Quá trình đồng bộ chuỗi vào `editBuffer` được debounce 250ms, giảm 99% áp lực Garbage Collection.
+    - Bổ sung cơ chế `flushEditorSync()` tự động xả dữ liệu đồng bộ khi chuyển trang, mở modal, xuất file, kiểm tra cú pháp, hoặc khi editor mất focus (`blur`).
+    - Thêm cơ chế chặn `lastSyncedDoc` loại bỏ hoàn toàn lượt gọi `view.state.doc.toString()` thứ 2 trong reactive effect.
+  - **Duy trì vị trí cuộn Live Preview (`EpubEditorPreviewPane.svelte`)**:
+    - Lưu trữ và tự động phục hồi `lastScrollRatio` sau khi iframe nạp lại `srcdoc`, giải quyết triệt để lỗi preview tự động giật nhảy về đầu trang khi người dùng đang soạn thảo.
+    - Tự động reset `lastScrollRatio = 0` khi người dùng chuyển sang xem trước một chương khác.
+  - **Khử trùng lặp file WASM trong Bản Build (`vite.config.js`)**:
+    - Xây dựng plugin `deduplicateWasmPlugin()`: tự động phát hiện và viết lại đường dẫn WASM trong worker chunk trỏ trực tiếp về asset duy nhất tại `_app/immutable/assets/`.
+    - Xóa bỏ file `ort-wasm-simd-threaded.jsep.wasm` trùng lặp trong `workers/assets/`, tiết kiệm trực tiếp **23.23 MB** dung lượng bản build.
+  - `src/lib/utils/download.ts`: Bổ sung kiểm tra an toàn `typeof document !== 'undefined'` khi chạy trong môi trường SSR/test runner.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (408/408 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `vite.config.js`, `EpubEditorCodePane.svelte`, `EpubEditorPreviewPane.svelte`, `epub-editor-state.svelte.ts`, `download.ts`, `profile-p1.test.ts`, `epub-editor.test.ts`, `TASKS.md`, `CHANGELOG.md`, `README.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để Dấu câu & Nhiều URL Cùng Dòng trong TXT Parser)
 
 - Thêm/sửa:
