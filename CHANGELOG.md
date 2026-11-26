@@ -4,6 +4,20 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size)
+
+- Thêm/sửa:
+  - **Tinh giản Bộ chọn Phông chữ (`FontSelect.svelte`, `DESIGN_SYSTEM.md`)**:
+    - Trạng thái đóng / Mặc định (Trigger button): Chỉ hiển thị duy nhất tên font (ví dụ: `Bookerly` hoặc `{activeFont.name}`), loại bỏ phần `- Text mẫu` dư thừa do đã có khung xem trước trang sách phản ánh trực tiếp.
+    - Danh sách xổ xuống (Dropdown list): Hiển thị tinh gọn `[Tên font] - Text mẫu`, loại bỏ mã kỹ thuật thừa `• {font.id}` giúp danh sách thoáng mắt, gọn gàng và dễ nhìn.
+  - **Mở rộng Toàn bộ Kích thước Khung Xem Trước Phông Chữ (`EpubFontSettingsSection.svelte`)**:
+    - Chuyển đổi lưới bố cục từ `items-start` sang `items-stretch`, đặt `h-full w-full flex-1` cho thẻ preview để co giãn phủ kín toàn bộ chiều cao của cột trên Desktop.
+    - Nâng cấp kích cỡ typography trong preview (H1: `text-2xl sm:text-3xl`, H2: `text-xl sm:text-2xl`, H2 Sub: `text-base sm:text-lg`, Paragraph: `text-base sm:text-lg`, Quote: `text-base sm:text-lg`, Quote Author: `text-sm sm:text-base`, Dropcap: `3.2em`), giúp người dùng quan sát trực quan độ sắc nét của kiểu chữ trên cả Desktop và Mobile.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (416/416 pass, 20 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/components/FontSelect.svelte`, `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`, `DESIGN_SYSTEM.md`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để Lỗi Flaky E2E Test Playwright khi Kiểm tra Cuộn Preview)
 
 - Thêm/sửa:

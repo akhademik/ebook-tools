@@ -90,7 +90,7 @@
 		aria-haspopup="listbox"
 	>
 		{#if compact}
-			<div class="flex items-center min-w-0 mr-2">
+			<div class="flex items-center min-w-0 mr-2 truncate">
 				{#if !activeFont || value === 'default'}
 					<span
 						class="text-xs text-text-color truncate font-medium"
@@ -100,34 +100,25 @@
 					</span>
 				{:else}
 					<span
-						class="text-xs truncate font-normal"
+						class="text-xs truncate font-medium text-text-color"
 						style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
 					>
 						{activeFont.name}
-					</span>
-					<span class="font-mono text-xs text-text-mute ml-1.5 shrink-0 hidden sm:inline">
-						({activeFont.id})
 					</span>
 				{/if}
 			</div>
 		{:else}
-			<div class="flex items-center min-w-0 mr-2 text-left gap-2 truncate">
+			<div class="flex items-center min-w-0 mr-2 text-left truncate">
 				{#if !activeFont || value === 'default'}
-					<span class="text-sm font-medium text-text-color shrink-0"> Bookerly </span>
-					<span class="text-text-mute shrink-0 text-xs select-none"> - </span>
-					<span class="text-sm text-text-mute truncate" style="font-family: 'Bookerly', serif;">
-						Text mẫu
+					<span class="text-sm font-medium text-text-color truncate">
+						{placeholder || 'Bookerly'}
 					</span>
 				{:else}
-					<span class="text-sm font-medium text-text-color shrink-0">
-						{activeFont.name}
-					</span>
-					<span class="text-text-mute shrink-0 text-xs select-none"> - </span>
 					<span
-						class="text-sm text-text-mute truncate"
+						class="text-sm font-medium text-text-color truncate"
 						style="font-family: '{activeFont.id}', '{activeFont.cssFamily}', '{activeFont.name}', sans-serif;"
 					>
-						Text mẫu
+						{activeFont.name}
 					</span>
 				{/if}
 			</div>
@@ -238,9 +229,6 @@
 								style="font-family: '{font.id}', '{font.cssFamily}', '{font.name}', sans-serif;"
 							>
 								Text mẫu
-							</span>
-							<span class="text-xs text-text-mute/70 font-mono shrink-0 hidden sm:inline">
-								• {font.id}
 							</span>
 						</div>
 						{#if isSelected}

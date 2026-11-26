@@ -187,7 +187,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 11:43
+- Cập nhật lần cuối: 2026-11-26 11:55
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
@@ -196,6 +196,11 @@ pnpm test:e2e
     - Đã deflake `profile-p1.test.ts` và toàn bộ 24 kịch bản Playwright E2E kiểm chứng pass 100%.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size (`FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**:
+    - Ô chọn phông chữ khi ở trạng thái bình thường chỉ hiển thị duy nhất tên phông (`[Tên font]`), loại bỏ phần `- Text mẫu` để giao diện gọn gàng, không trùng lặp thông tin với khung xem trước.
+    - Danh sách chọn phông dropdown chỉ hiển thị `[Tên font] - Text mẫu`, loại bỏ hậu tố mã ID `• {font.id}` giúp giao diện thanh thoát và dễ nhìn.
+    - Mở rộng toàn bộ kích thước khung xem trước (`items-stretch`, `h-full flex-1`), phủ kín chiều cao cột song song với danh sách bộ chọn phông trên Desktop.
+    - Tăng kích thước typography trong preview (H1: 24-30px, Body: 16-18px, Quote: 16-18px, Dropcap: 3.2em) giúp xem trước rõ nét trên cả Desktop và Mobile.
   - **Khắc phục Triệt để Lỗi Flaky E2E Playwright trên CI/CD (`tests-e2e/epub-workflow.spec.ts`)**:
     - Bổ sung độ cao nội dung cho fixture `ch1.xhtml` và áp dụng `waitForFunction` với safe optional-chaining khi kiểm tra cuộn iframe preview, giải quyết dứt điểm lỗi crash `Cannot read properties of null (reading 'scrollTop')`.
     - Toàn bộ **24/24 E2E tests** chạy tự động trên Chromium pass 100%.
