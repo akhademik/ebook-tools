@@ -1,108 +1,138 @@
 # ⚒️ Ebook Forge — Bộ Công Cụ Chế Bản Sách Điện Tử
 
-> **Ebook Forge**: Bộ công cụ chuẩn hóa, đóng gói, biên tập và kiểm định sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn — file được xử lý cục bộ và không tải lên bất kỳ máy chủ nào.
+> **Ebook Forge** là bộ công cụ chuẩn hóa, đóng gói, biên tập và kiểm định sách điện tử hiệu năng cao, hoạt động **100% ngoại tuyến (offline)** trực tiếp trên trình duyệt web của bạn — toàn bộ dữ liệu được xử lý an toàn trong bộ nhớ máy tính cục bộ và tuyệt đối không tải lên bất kỳ máy chủ nào.
 
 ---
 
-## 🚀 Các công cụ chính
+## 🌟 Điểm nổi bật cốt lõi
 
-### 1. ✏️ Chỉnh sửa & Kiểm định EPUB Trực quan (EPUB Editor & Validator Suite)
+- 🔒 **Bảo mật & Riêng tư Tuyệt đối (100% Client-Side)**: Mọi thao tác giải nén, bóc tách AI, chỉnh sửa và đóng gói file PDF, EPUB, TXT diễn ra hoàn toàn trên thiết bị của bạn. Không cần kết nối internet, không lo rò rỉ bản thảo.
+- ⚡ **Tốc độ cao & Xử lý Dung lượng lớn**: Tối ưu hóa bộ nhớ chuyên sâu, xử lý mượt mà các pho tiểu thuyết và bộ sách đồ sộ hàng trăm chương, hàng nghìn trang.
+- 📖 **Chuẩn Mực Xuất Bản Quốc Tế**: Hỗ trợ chuẩn EPUB 3.0 và EPUB 2, tối ưu hóa hiển thị sắc nét trên các dòng máy đọc sách chuyên dụng (Kobo, Kindle, Boox) cũng như các ứng dụng đọc sách di động (Apple Books, Google Play Books).
+- 🎨 **Giao diện Solarized Thanh lịch**: Thiết kế êm dịu cho mắt với tông màu ấm Cream/Sand (Light Mode) và Deep Navy Teal (Dark Mode), phù hợp cho việc đọc và chế bản trong thời gian dài.
 
-Bộ công cụ biên tập, tối ưu và xem trước file `.epub` toàn diện ngay trên trình duyệt web:
+---
 
-- **Trình soạn thảo mã nguồn chuyên nghiệp**: Tích hợp CodeMirror 6 với syntax highlighting cho HTML, XHTML và CSS, hỗ trợ tự động căn lề, đóng mở thẻ thông minh và phím tắt chuẩn.
-- **Xem trước thời gian thực (Live Preview)**: Khung xem trước song song hiển thị tức thì các thay đổi về bố cục, kiểu dáng CSS và hình ảnh.
-- **Tự động giải mã Font nhúng (Font De-obfuscation)**: Tự động nhận diện và đảo ngược thuật toán mã hóa font theo chuẩn **IDPF** và **Adobe Mangling** (TTF, OTF, WOFF, WOFF2), hiển thị trung thực typography gốc của sách.
+## 🚀 Các công cụ & Tính năng chính
+
+### 1. ✏️ Biên tập & Kiểm định EPUB Trực quan (EPUB Editor & Validator Suite)
+
+Không gian làm việc toàn diện để duyệt, sửa đổi, kiểm tra và tối ưu file `.epub` có sẵn:
+
+- **Trình soạn thảo mã nguồn chuyên nghiệp**: Tích hợp CodeMirror 6 hỗ trợ highlight cú pháp HTML, XHTML, CSS, tự động căn lề, đóng mở thẻ thông minh và phím tắt chuẩn.
+- **Xem trước thời gian thực (Live Preview)**: Khung xem trước song song phản hồi tức thì mọi thay đổi về văn bản, bố cục, hình ảnh và kiểu dáng CSS. Tự động giữ nguyên vị trí cuộn khi chỉnh sửa mã nguồn.
 - **Đồng bộ hai chiều thông minh (Sync-View)**:
-  - **Sync-Scroll**: Cuộn mã nguồn bên editor thì khung preview tự động cuộn theo vị trí tương ứng và ngược lại.
-  - **Sync-Highlight**: Bôi đen một đoạn văn bản bên editor sẽ tự động tìm và làm nổi bật (amber highlight) trong preview; bôi đen bên preview sẽ đưa editor cuộn thẳng tới dòng mã nguồn liên quan.
-- **Không gian làm việc linh hoạt**:
-  - Thanh phân chia kéo thả (Resizable Split Pane) tùy biến tỷ lệ Editor / Preview.
-  - Chế độ xem **100% Real View**
-  - Thanh điều hướng cây file (File Tree Sidebar) có thể thu gọn tối đa để mở rộng không gian làm việc.
+  - _Sync-Scroll_: Cuộn mã nguồn bên editor thì khung preview tự động cuộn đến vị trí tương ứng và ngược lại.
+  - _Sync-Highlight_: Bôi đen văn bản bên editor sẽ tự động làm nổi bật đoạn văn tương ứng trong preview; bôi đen bên preview sẽ cuộn editor đến đúng dòng mã nguồn.
+- **Tự động giải mã Phông chữ (Font De-obfuscation)**: Tự động phát hiện và đảo ngược thuật toán mã hóa phông theo chuẩn IDPF và Adobe Mangling (TTF, OTF, WOFF, WOFF2), hiển thị trung thực typography gốc của sách.
 - **Dọn rác & Tối ưu dung lượng (EPUB Optimizer / Cleaner)**:
-  - Tự động quét toàn bộ cây tài nguyên sách để lập kế hoạch tối ưu (**Optimization Plan**) chi tiết.
-  - Phát hiện hình ảnh, font chữ, file CSS và trang XHTML mồ côi (không được tham chiếu trong OPF spine/manifest hoặc HTML).
-  - Phát hiện tài nguyên trùng lặp nội dung dựa trên mã băm SHA-1 (Duplicate Detection).
-  - Ước tính dung lượng tiết kiệm (Potential Savings) và dọn sạch an toàn chỉ với 1 cú click.
-- **Kiểm định & Tương thích máy đọc sách (EPUB Validator)**:
-  - Kiến trúc kiểm định DOM/XML nhiều tầng (**ValidationContext** + **ValidationRules**).
-  - Kiểm tra chuẩn xác theo các hồ sơ: **Generic EPUB**, **EPUB 3.0** và tiêu chuẩn khắt khe của **Kobo e-Reader**.
-  - Quét toàn diện: Cấu trúc ZIP & mimetype, `META-INF/container.xml`, OPF manifest/spine, tính hợp lệ của NCX/NAV TOC, cú pháp XHTML, ID trùng lặp, magic bytes của font chữ và hiển thị ảnh bìa sleep screen.
-- **Quản lý Thông tin sách & Tái tạo Mục lục Tự động (Book Operations)**:
-  - Chỉnh sửa trực tiếp Metadata sách (Tiêu đề, Tác giả, Ngôn ngữ, Nhà xuất bản, Identifier/ISBN, Ngày phát hành) trong `content.opf`.
-  - 1-click tự động tái tạo đồng bộ mục lục thông qua mô hình trung gian **TocTree** thống nhất giữa `nav.xhtml` (EPUB 3) và `toc.ncx` (EPUB 2 / Kobo).
-- **Kiểm tra cú pháp & Đóng gói an toàn**: Tự động kiểm tra lỗi cú pháp XML/XHTML trước khi lưu/xuất, cảnh báo khi đóng tab chưa lưu và đóng gói tải về file `.epub` hoàn chỉnh chuẩn kỹ thuật.
+  - Tự động quét toàn bộ cây tài nguyên sách để lập kế hoạch tối ưu chi tiết.
+  - Phát hiện và dọn dẹp an toàn các file hình ảnh, phông chữ, stylesheet và trang nội dung mồ côi (không được sử dụng trong sách).
+  - Nhận diện tài nguyên trùng lặp nội dung dựa trên mã băm để tiết kiệm tối đa dung lượng file.
+- **Kiểm định chuẩn xuất bản (EPUB Validator)**:
+  - Kiểm tra tính hợp lệ của cấu trúc sách theo hồ sơ chuẩn: **Generic EPUB**, **EPUB 3.0** và tiêu chuẩn khắt khe của **Kobo e-Reader**.
+  - Quét toàn diện: Cấu trúc container, OPF manifest/spine, tính toàn vẹn của mục lục NCX/NAV, cú pháp XHTML, ID trùng lặp, magic bytes phông chữ và ảnh bìa sleep screen.
+- **Quản lý Thông tin sách & Tái tạo Mục lục 1-Click**:
+  - Chỉnh sửa trực tiếp siêu dữ liệu (Metadata): Tiêu đề, Tác giả, Ngôn ngữ, Nhà xuất bản, ISBN/Identifier, Ngày phát hành.
+  - Tự động quét các thẻ tiêu đề (H1, H2, H3...) trong sách để tái tạo đồng bộ mục lục điều hướng (`nav.xhtml` và `toc.ncx`) chỉ với một cú nhấp chuột.
 
 ---
 
-### 2. 📦 Đóng gói EPUB (EPUB Packer)
+### 2. 📦 Đóng gói EPUB Tự động (EPUB Packer)
 
-Tự động chuyển đổi văn bản thô `.txt` hoặc gói file Markdown `.zip` thành sách điện tử định dạng `.epub` tiêu chuẩn:
+Biến các tệp văn bản thô `.txt` hoặc gói file Markdown `.zip` thành tác phẩm sách điện tử chuẩn mực:
 
-- **Hỗ trợ cú pháp quy ước nhanh cho file `.txt`**:
-  - `@@ Tiêu đề` (`@@t`, `@@p`): Tiêu đề chính / tách chương thành file XHTML riêng, tự động đưa vào mục lục (TOC).
-  - `@ Tiêu đề` (`@t`, `@p`): Tiêu đề phụ / chương nhỏ trong file, hiển thị trong mục lục.
-  - `@! Tiêu đề` (`@!t`, `@!p`): Tiêu đề phụ, không đưa vào mục lục.
-  - `[new] ... [/new]`: Gom toàn bộ nội dung bên trong thành 1 trang XHTML độc lập.
-  - `[letter] ... [/letter]`, `[letter-box] ... [/letter-box]`, `[poem] ... [/poem]`: Khối định dạng thư từ, hộp viền bọc nội dung (không nối dòng, hỗ trợ lồng thẻ), bài thơ có căn lề và thụt đầu dòng riêng biệt.
-  - `~ Lời thoại` / `> Tác giả`: Khối trích dẫn blockquote (hỗ trợ `~t`, `~p`, `~`) và tên tác giả footer (hỗ trợ căn lề độc lập `>t`, `>p`, `>c` hoặc tự động ăn theo căn lề trích dẫn `>`).
-  - Dropcap chữ cái đầu chương `[c]`, tắt tự động dropcap đầu đoạn sau tiêu đề bằng `!D Nội dung`, ảnh minh họa theo thẻ `[hinh-1]`, ngắt phân cảnh lớn `###` (• • •), ngắt phân cảnh nhỏ `##` (*), ngắt phân cảnh trống `#`, in đậm `*đậm*`, in nghiêng `/nghiêng/`, gạch chân `_chân_`.
-  - Chú thích chân trang tự động: `{n}` trong nội dung liên kết tự động tới khối `Chú thích:` / `{n} Nội dung chú thích` ở cuối sách dạng pop-up footnote EPUB 3 (`<aside epub:type="footnote">`).
-- **Xử lý bìa & Tùy biến Jacket (Trang lót sách)**:
-  - Hỗ trợ tải ảnh bìa trực tiếp hoặc trích xuất từ trang đầu tiên của file PDF bìa.
-  - Tích hợp công cụ cắt chỉnh tỉ lệ bìa trực quan.
-  - Hỗ trợ nhiều mẫu Jacket (trang lót) trình bày trang trọng thông tin tác phẩm, tác giả, dịch giả và nhà xuất bản.
-- **Tự động hóa thông minh (Heuristic Chapter Detection)**:
-  - Tự động nhận diện cấu trúc chương dựa trên thuật toán tính điểm heuristic (tiêu đề in hoa, độ dài chuỗi, số La Mã, từ khóa `Chương`/`Chapter`/`Hồi`/`Quyển`).
-  - **Khuyến nghị**: Với các file text OCR chưa chuẩn hóa (dòng ngắt tự do, đoạn văn bản in hoa ngẫu nhiên), người dùng nên gán tiền tố tường minh `@@` ở đầu mỗi tên chương để đảm bảo việc phân chương và dựng cây mục lục TOC đạt độ chính xác 100%.
+- **Hệ thống Cú pháp Quy ước Nhanh (Quy chuẩn định dạng file `.txt`)**:
+
+| Ký hiệu / Cú pháp                | Ý nghĩa & Kết quả hiển thị                                                                                                           |
+| :------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `@@ Tiêu đề` (`@@t`, `@@p`)      | Tiêu đề chính: Tách thành một file/chương XHTML riêng, tự động đưa vào Mục lục (TOC). Hỗ trợ căn trái (`@@t`) hoặc căn phải (`@@p`). |
+| `@ Tiêu đề` (`@t`, `@p`)         | Tiêu đề phụ: Nằm trong cùng chương, hiển thị trong Mục lục.                                                                          |
+| `@! Tiêu đề` (`@!t`, `@!p`)      | Tiêu đề phụ: Nằm trong cùng chương, **không** đưa vào Mục lục.                                                                       |
+| `[new] ... [/new]`               | Gom toàn bộ khối nội dung bên trong thành một trang XHTML độc lập (lời nói đầu, giới thiệu, thông tin xuất bản...).                  |
+| `[letter] ... [/letter]`         | Khối định dạng thư từ, điện tín (giữ nguyên ngắt dòng, lùi dòng trang trọng).                                                        |
+| `[letter-box] ... [/letter-box]` | Khối văn bản đóng khung viền trang nhã (hỗ trợ lồng ghép nhiều thẻ con).                                                             |
+| `[poem] ... [/poem]`             | Khối thơ ca: Căn lề thụt đầu dòng riêng biệt, giữ nguyên cấu trúc khổ thơ.                                                           |
+| `~ Lời thoại` / `> Tác giả`      | Khối trích dẫn đối thoại (`~`, `~t`, `~p`) và tên tác giả trích dẫn (`>`, `>t`, `>p`, `>c` - tự động căn đều theo lề trích dẫn).     |
+| `[c]`                            | Tạo chữ hoa đầu dòng lớn trang trí (Dropcap) cho đoạn văn.                                                                           |
+| `!D Nội dung`                    | Tắt tự động dropcap đầu đoạn sau tiêu đề.                                                                                            |
+| `{n}` ... `{n} Chú thích`        | Chú thích chân trang tự động (Footnotes popup chuẩn EPUB 3: bấm vào số chú thích hiển thị bảng giải thích).                          |
+| `[hinh-1]`, `[hinh-2]`           | Đánh dấu vị trí chèn ảnh minh họa tương ứng với file ảnh tải lên.                                                                    |
+| `###` / `##` / `#`               | Đường phân đoạn cảnh lớn (`• • •`), phân cảnh nhỏ (`*`), hoặc phân cảnh khoảng trắng.                                                |
+| `*chữ đậm*`                      | Định dạng chữ in đậm.                                                                                                                |
+| `/chữ nghiêng/`                  | Định dạng chữ in nghiêng.                                                                                                            |
+| `_chữ gạch chân_`                | Định dạng chữ gạch chân.                                                                                                             |
+
+- **Xử lý Bìa Sách Chuyên Nghiệp**:
+  - Tải ảnh bìa trực tiếp từ máy tính hoặc tự động trích xuất trang bìa đầu tiên từ file PDF.
+  - Tích hợp công cụ cắt chỉnh tỉ lệ khung hình bìa trực quan ngay trên giao diện.
+- **Tùy biến Trang lót (Book Jacket)**:
+  - Cung cấp nhiều mẫu trang lót trang trọng trình bày đầy đủ tựa sách, tác giả, dịch giả, năm sáng tác và nhà xuất bản.
+- **Kho Phông Chữ Nhúng Tuyển Chọn (40+ Fonts)**:
+  - Tích hợp sẵn bộ sưu tập phông chữ Việt hóa và bản quyền chuyên dùng cho sách (Bookerly, Georgia, Noto Serif, UTM, SVN...).
+  - Cho phép tùy biến độc lập phông chữ cho: Nội dung chính, Tiêu đề chương (H1), Khối trích dẫn và Tên tác giả trích dẫn.
+  - Cơ chế tối ưu thông minh: Tự động loại bỏ trùng lặp để chỉ nhúng phông thực tế được sử dụng, giảm thiểu tối đa dung lượng sách.
+- **Nhận diện Chương Thông minh (Heuristic Chapter Detection)**:
+  - Tự động nhận diện cấu trúc phân chương cho các file văn bản chưa gán nhãn dựa trên từ khóa (`Chương`, `Hồi`, `Quyển`, `Chapter`, số La Mã).
 
 ---
 
 ### 3. 🎨 Tẩy Nền Hoa Văn Tự Động bằng AI (ML Ornament Background Removal)
 
-Công cụ xử lý hoa văn, họa tiết đầu chương và phân đoạn trang sách hoàn toàn tự động trên trình duyệt:
+Công cụ chuẩn bị đồ họa sách điện tử hoàn toàn tự động:
 
-- **Tích hợp mô hình Machine Learning WebAssembly**: Sử dụng `@imgly/background-removal` chạy trực tiếp trong Web Worker của trình duyệt, phân tách chủ thể hoa văn và xóa nền chính xác mà không gửi dữ liệu ra máy chủ bên ngoài.
-- **Tự động xén biên trong suốt (Auto-Crop Canvas)**: Thuật toán quét pixel biên tự động loại bỏ toàn bộ khoảng trống vô nghĩa xung quanh hoa văn sau khi tách nền.
-- **Chuẩn hóa đồ họa sách điện tử**: Chuyển đổi sang thang độ xám (Grayscale), tăng độ tương phản chi tiết và nén định dạng ảnh tối ưu, sẵn sàng chèn tự động vào đầu chương và phân đoạn trang EPUB.
-
----
-
-### 4. 📄 Tách trang PDF → JPG (PDF Processor)
-
-- Trích xuất các trang từ file tài liệu PDF thành bộ ảnh JPG độc lập đóng gói dạng `.zip`.
-- Chuyển đổi ảnh sang thang độ xám (Grayscale) và tăng độ tương phản, tối ưu hóa cho các phần mềm nhận dạng chữ OCR.
-- Xem trước trực quan và thiết lập vùng cắt bỏ **Header / Footer** hàng loạt cho toàn bộ trang sách với xử lý song song đa luồng.
+- **Tách nền thông minh ngay trong trình duyệt**: Ứng dụng mô hình Machine Learning WebAssembly chạy trực tiếp trên máy của bạn, tự động bóc tách hoa văn, họa tiết đầu chương và phân đoạn trang sách mà không gửi ảnh ra bên ngoài.
+- **Tự động xén biên trong suốt (Auto-Crop)**: Tự động phát hiện và loại bỏ các khoảng trống thừa xung quanh họa tiết sau khi tách nền.
+- **Tối ưu hóa máy đọc sách E-Ink**: Tự động chuyển đổi sang thang độ xám (Grayscale), tăng độ tương phản chi tiết để hoa văn hiển thị sắc sảo, không bị răng cưa hay lem mực trên màn hình e-ink.
 
 ---
 
-### 5. 💻 Desktop App: TXT → PDF CJK
+### 4. 📄 Tách Trang & Xử Lý Tài Liệu PDF (PDF Processor)
 
-- Ứng dụng desktop độc lập dành cho Windows chuyên xử lý văn bản chữ Hán / Nôm / CJK sang file PDF chất lượng cao.
-- Tự động phát hiện và sửa lỗi các ký tự PUA (chữ hiếm bị mã hóa sai) sang ký tự chuẩn.
-- Nhúng sẵn font chữ toàn diện (Noto Serif CJK + HanaMin) đảm bảo hiển thị đầy đủ mọi ký tự cổ/hiếm, tương thích tối đa với máy đọc sách và làm tài liệu đầu vào chuẩn cho NotebookLM.
+- **Trích xuất ảnh hàng loạt**: Chuyển đổi các trang tài liệu PDF thành bộ ảnh JPG độc lập với độ phân giải tùy chọn, đóng gói tải về dưới dạng `.zip`.
+- **Bộ lọc tăng cường cho OCR**: Chuyển ảnh sang thang độ xám và tăng độ tương phản, tối ưu hóa chất lượng hình ảnh phục vụ các công cụ nhận dạng chữ quang học (OCR).
+- **Cắt bỏ Header / Footer hàng loạt**: Xem trước trực quan và thiết lập vùng xén đầu trang / chân trang đồng loạt cho toàn bộ tài liệu để loại bỏ số trang và tiêu đề lặp lại.
 
 ---
 
-## ⚡ Hướng dẫn Cài đặt & Sử dụng
+### 5. 💻 Ứng Dụng Desktop: TXT → PDF CJK
 
-### Yêu cầu hệ thống
+- Phần mềm máy tính độc lập dành cho Windows chuyên xử lý các văn bản chữ Hán / Nôm / CJK sang file tài liệu PDF chất lượng cao.
+- **Sửa lỗi mã hóa ký tự**: Tự động nhận diện và khôi phục các ký tự thuộc vùng PUA (chữ hiếm, chữ Nôm dị thể bị mã hóa lệch) về chuẩn Unicode chính xác.
+- **Bộ phông chữ toàn diện**: Tích hợp sẵn các đại phông Noto Serif CJK và HanaMin, đảm bảo không bị lỗi ô vuông trống (tofu) đối với bất kỳ ký tự cổ hay chữ hiếm nào.
 
-- **Node.js**: Phiên bản 20.19+ hoặc 22.12 trở lên (yêu cầu tối thiểu từ Vite 8).
-- **pnpm**: Phiên bản 10 trở lên (khuyến nghị `pnpm@11.22.0` đồng bộ với `packageManager` trong `package.json`).
+---
 
-### Khởi chạy ứng dụng
+## 🛡️ Cam kết Quyền riêng tư & An toàn Dữ liệu
+
+Ebook Forge được phát triển theo triết lý **Privacy-First (Ưu tiên quyền riêng tư)**:
+
+1. **100% Client-Side**: Toàn bộ quá trình đọc tệp, bóc tách AI, giải nén, biên tập và xuất bản file diễn ra trong bộ nhớ trình duyệt máy tính của bạn.
+2. **Không Lưu Trữ Trên Máy Chủ**: Không có bất kỳ tệp tin, hình ảnh, văn bản hay bản thảo nào được tải lên máy chủ lưu trữ.
+3. **Hoạt Động Không Cần Mạng**: Bạn hoàn toàn có thể ngắt kết nối internet sau khi trang web đã tải xong mà vẫn sử dụng đầy đủ mọi tính năng.
+
+---
+
+## ⚡ Hướng dẫn Khởi chạy Nhanh (Dành cho Tự Host / Local)
+
+Nếu bạn muốn tự chạy Ebook Forge trên máy tính cá nhân hoặc máy chủ riêng:
+
+### Yêu cầu
+
+- **Node.js**: Phiên bản 20.19+ hoặc 22.12 trở lên.
+- **pnpm**: Phiên bản 10 trở lên.
+
+### Khởi chạy
 
 ```bash
 # 1. Cài đặt các gói phụ thuộc
 pnpm install
 
-# 2. Khởi chạy ở chế độ phát triển
+# 2. Khởi chạy máy chủ phát triển
 pnpm dev
 ```
 
-Truy cập ứng dụng tại địa chỉ: `http://localhost:5173`
+Mở trình duyệt và truy cập: `http://localhost:5173`
 
 ### Đóng gói ứng dụng (Production Build)
 
@@ -112,193 +142,7 @@ pnpm build
 
 ---
 
-## 📂 Cấu trúc Thư mục & Modules Thực tế (Project Architecture)
+## 📜 Lịch sử Phát triển & Giấy phép
 
-Dự án được tổ chức theo cấu trúc module hóa phân định trách nhiệm rõ ràng (Single Responsibility):
-
-```
-ebook-tools/
-├── src/
-│   ├── routes/                      # SvelteKit Pages & Routes
-│   │   ├── +page.svelte             # Trang chủ / Tổng quan Dashboard
-│   │   ├── +layout.svelte           # Khung layout ứng dụng (Sidebar, Theme, Header)
-│   │   ├── epub-packer/             # Công cụ Đóng gói EPUB (TXT, MD Zip -> EPUB)
-│   │   ├── epub-editor/             # Bộ Biên tập, Tối ưu hóa & Kiểm định EPUB
-│   │   ├── epub-to-txt/             # Công cụ Trích xuất EPUB -> TXT
-│   │   ├── pdf/                     # Công cụ Tách trang PDF -> JPG
-│   │   ├── txt-to-pdf/              # Giới thiệu & Tải phần mềm Desktop CJK
-│   │   └── epub/+page.ts            # Route chuyển hướng HTTP 308 sang /epub-packer
-│   ├── lib/
-│   │   ├── components/              # 5 UI components dùng chung (Button, DropZone, FontSelect, Input, PageHeader)
-│   │   ├── epub-packer/             # Core logic đóng gói EPUB (parsers, builders, templates, state)
-│   │   ├── epub-editor/             # Core logic biên tập EPUB (cleaner, editor, validator, components, state)
-│   │   ├── epub-to-txt/             # Core logic trích xuất text từ file EPUB
-│   │   ├── pdf-splitter/            # Logic tách trang tài liệu PDF
-│   │   ├── utils/                   # Tiện ích chung & AI Worker tách nền hoa văn (image-bg-remove-ml)
-│   │   ├── types/                   # Định nghĩa TypeScript tập trung (strict mode)
-│   │   └── constants.ts             # Các ngưỡng giới hạn kích thước file
-│   └── assets/
-│       ├── fonts/                   # 40 phông chữ chuẩn hóa nhúng sách điện tử
-│       └── fonts-metadata.json      # Metadata font được trích xuất tự động qua script prebuild
-├── static/                          # Tài nguyên tĩnh
-│   └── vendor/pdfjs/                # Thư viện PDF.js biên dịch sẵn phục vụ xử lý PDF phía client
-├── tests/                           # 17 test suites (366 unit/integration tests qua Vitest)
-├── tests-e2e/                       # Kịch bản kiểm thử trình duyệt thực tế qua Playwright
-├── scripts/                         # Script tự động hóa lúc build (generate-fonts-meta.js)
-├── .github/workflows/ci.yml         # GitHub Actions CI pipeline
-├── AI_WORKFLOW.md                   # Quy trình làm việc & kiểm định bắt buộc
-├── DESIGN_SYSTEM.md                 # Quy chuẩn thiết kế UI & Design Tokens
-└── CHANGELOG.md                     # Lịch sử chi tiết các phiên bản và cập nhật
-```
-
-> **Ghi chú về Git Hooks**: Dự án sử dụng **Husky** (`.husky/pre-commit`) kết hợp với `lint-staged` để tự động định dạng và bắt lỗi ESLint trước mỗi commit, kết hợp cùng GitHub Actions CI tự động ([ci.yml](.github/workflows/ci.yml)).
-
----
-
-## 🧪 Quy chuẩn Kiểm thử & Chất lượng Mã nguồn (Quality Gates)
-
-Dự án tuân thủ quy trình kiểm thử và chất lượng nghiêm ngặt theo [AI_WORKFLOW.md](AI_WORKFLOW.md):
-
-```bash
-# 1. Kiểm tra kiểu dữ liệu TypeScript & Svelte Rune (0 errors, 0 warnings)
-pnpm check
-
-# 2. Kiểm tra định dạng & cú pháp ESLint
-pnpm lint
-
-# 3. Quét mã rác, file thừa và dependencies không dùng
-pnpm knip
-
-# 4. Chạy toàn bộ Unit & Integration Tests (366 tests)
-pnpm test
-
-# 5. Chạy Kiểm thử Giao diện Trình duyệt Thật (Playwright E2E)
-pnpm test:e2e
-```
-
----
-
-## 🛡️ Quyền riêng tư & Bảo mật
-
-- **100% Client-Side**: Toàn bộ quá trình đọc, giải nén, bóc tách AI, chỉnh sửa và đóng gói file PDF, EPUB, TXT diễn ra hoàn toàn trong bộ nhớ trình duyệt máy tính của bạn.
-- **An toàn dữ liệu**: file được xử lý trực tiếp trên thiết bị của bạn và tuyệt đối không tải lên bất kỳ máy chủ bên ngoài nào.
-
----
-
-## Trạng thái hệ thống
-
-- Cập nhật lần cuối: 2026-11-26 14:02
-- Đã hoàn thành:
-  - **Hoàn thiện Kiểm soát ZIP An toàn, Chuẩn hóa Metadata & Kiểm chứng Abort Nén (`TASKS.md`)**:
-    - **P1: Kiểm chứng Thực tế Dừng Stream khi JSZip đang Nén (`tests/epub-packer-lifecycle.test.ts`)**: Tái cấu trúc spy trên `generateAsync` để chuyển tiếp luồng thật, kích hoạt `ac.abort()` từ callback `wrappedUpdate` khi JSZip thực sự phát ra tiến độ nén, kiểm chứng Promise reject với `AbortError` từ bên trong stream nén.
-    - **P2: Bổ sung Nhánh Cộng dồn Hạn ngạch 150MB khi ZIP Ảnh Thiếu Metadata (`EpubImagesState`)**: Thêm kiểm tra `cumulativeZipImageBytes + blob.size > MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE` và cộng dồn dung lượng blob thực tế khi `preUncompressedSize === null`, triệt tiêu lỗ hổng bypass 150MB.
-    - **P2: Chuẩn hóa Trích xuất Metadata ZIP qua Helper Tập trung (`zip.ts`)**: Tạo module `src/lib/utils/zip.ts` (`getZipEntryUncompressedSize`) với type guards phòng vệ, loại bỏ hoàn toàn các điểm ép kiểu `(zip.files[name] as any)._data` rải rác.
-    - **P3: Đồng nhất Trạng thái Ảnh bìa & Triệt tiêu Rò rỉ Dữ liệu Cũ (`EpubImagesState`)**: Bổ sung `clearCoverData()` dọn dẹp toàn bộ dữ liệu ảnh bìa cũ khi người dùng chọn file mới không hợp lệ hoặc gặp lỗi, đảm bảo UI và dữ liệu đóng gói đồng nhất tuyệt đối.
-    - Nâng tổng số test lên **443/443 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
-  - **Khắc phục Triệt để Toàn bộ 5 Vấn đề Cốt lõi P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
-    - **P1: Khóa Mutex Tuần tự hóa Tuyệt đối cho `processEpub()` (`EpubState`)**: Bổ sung `isLockingPack` mutex lock kiểm tra `processing || isLockingPack`, ngăn chặn re-entrancy / race condition khi người dùng spam click hoặc có nhiều lệnh gọi đồng thời cùng vượt qua `await activePackagingPromise`.
-    - **P2: Kiểm soát Dung lượng & Hạn ngạch An toàn cho PDF trong ZIP Ảnh (`EpubImagesState`, `constants.ts`)**: Áp dụng kiểm tra trước `preUncompressedSize > MAX_IMAGE_FILE_SIZE` (30MB) đối với PDF trong ZIP tương tự như ảnh; tính dung lượng PDF vào hạn ngạch cộng dồn 150MB (`MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE`), triệt tiêu rủi ro zip-bomb / cạn RAM.
-    - **P2: Khử Hoàn toàn Race Condition trong Import Ảnh Minh họa (`EpubImagesState`)**: Áp dụng cơ chế **Generation Token** (`illustrationGeneration`) và danh sách làm việc tạm thời (`workingList`); kiểm tra token sau mỗi thao tác bất đồng bộ; loại bỏ hoàn toàn khả năng import cũ kết thúc muộn ghi đè hoặc chèn thêm ảnh vào danh sách mới.
-    - **P2: Khử Race Condition khi Đổi Ảnh bìa Liên tục (`EpubImagesState`)**: Áp dụng **Cover Generation Token** (`coverGeneration`); kiểm tra tính hợp lệ của token trong callback của FileReader, PDF renderer và Image.onload trước khi gán `coverOriginalUrl`.
-    - **P2: Kiểm chứng Thực tế Hủy Nén JSZip giữa chừng (`zip-writer.ts`, `tests/epub-packer-lifecycle.test.ts`)**: Viết unit test mô phỏng thực tế bắt tín hiệu `AbortSignal` trong callback tiến độ `onUpdate` của `JSZip.prototype.generateAsync`, kiểm chứng Promise bị reject chuẩn xác với lỗi `AbortError`.
-    - Nâng tổng số test lên **440/440 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
-  - **Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
-    - **P1/P2: Snapshot Bất biến Toàn diện cho Ảnh bìa & Cắt góc (`EpubImagesState`, `EpubState`)**: Nhận `coverSnapshot` độc lập (URL và 4 thông số crop `coverCropTop/Bottom/Left/Right`), cô lập hoàn toàn hàm tối ưu ảnh khỏi việc người dùng chỉnh sửa crop hoặc chọn ảnh mới trong lúc đang đóng gói sách.
-    - **P2: Giới hạn ZIP Markdown Kiểm tra Đúng Thời điểm & Đo Byte Thực tế (`EpubSourceState`, `constants.ts`)**: Kiểm tra `entryData.uncompressedSize` trước khi gọi `.async('string')`, ngăn chặn giải nén chuỗi lớn vào RAM; đo kích thước byte thực tế UTF-8 qua `TextEncoder`; bổ sung hạn ngạch tổng số entries trong archive (`MAX_ZIP_TOTAL_ENTRIES = 2000`).
-    - **P2: Hạn ngạch & Kiểm tra Trước Tương tự cho ZIP Ảnh Minh họa (`EpubImagesState`, `constants.ts`)**: Thiết lập `MAX_IMAGES_ZIP_ENTRIES = 500`, `MAX_ILLUSTRATION_COUNT = 200`, `MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE = 150MB`; kiểm tra `entryData.uncompressedSize` trước khi gọi `.async('blob')` để loại bỏ ảnh đơn lẻ quá 30MB và dừng nạp ngay khi chạm ngưỡng 150MB.
-    - **P2: Hủy Bỏ Thực Sự Tác vụ Đóng gói Cũ khi Đổi Nguồn Sách (`EpubState`, `zip-writer.ts`)**: Tích hợp `packAbortController` và `activePackagingPromise`; truyền `signal` vào `buildEpubBlob`, `assembleEpubZip` và bắt sự kiện hủy trong `zip.generateAsync` qua hook `onUpdate`; tự động chờ tác vụ cũ giải phóng tài nguyên CPU/RAM trước khi bắt đầu đóng gói sách mới.
-    - Nâng tổng số test lên **435/435 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
-  - **Khắc phục Triệt để Các Rủi ro P1 & P2 Nền tảng trong EPUB Packer**:
-    - **P1: Generation Token nạp nguồn sách (`EpubSourceState`)**: Ngăn chặn tình trạng race condition khi chọn liên tiếp file TXT/ZIP, tác vụ cũ hoàn thành muộn sẽ bị ngắt sớm và không thể ghi đè dữ liệu lên file mới.
-    - **P1: Snapshot Bất biến & Pack Generation (`EpubState`)**: Chụp snapshot toàn bộ dữ liệu ngay lúc bấm đóng gói, ngăn chặn việc đổi sách giữa chừng làm lẫn metadata sách A vào nội dung sách B, tự động hủy bỏ kết quả đóng gói cũ khi người dùng nạp sách mới.
-    - **P2: Hạn ngạch an toàn bộ nhớ khi giải nén ZIP (`constants.ts`, `EpubSourceState`)**: Chặn tối đa 1.000 file `.md`, 15MB/file, và 60MB tổng dung lượng văn bản giải nén, chống đứng máy và cạn RAM.
-    - **P2: Cô lập Namespace tài nguyên ảnh & Chống trùng OPF ID (`zip-writer.ts`, `opf-builder.ts`, `EpubImagesState`)**: Tự động đổi tên ảnh minh họa trùng với ảnh bìa (`cover.jpg`) hoặc hoa văn thành `illus_*`, đảm bảo không bị ghi đè mất file bìa; tự sinh mã ID phân biệt trong OPF manifest triệt tiêu 100% nguy cơ trùng ID.
-  - **Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size (`FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**:
-    - Ô chọn phông chữ khi ở trạng thái bình thường chỉ hiển thị duy nhất tên phông (`[Tên font]`), loại bỏ phần `- Text mẫu` để giao diện gọn gàng, không trùng lặp thông tin với khung xem trước.
-    - Danh sách chọn phông dropdown chỉ hiển thị `[Tên font] - Text mẫu`, loại bỏ hậu tố mã ID `• {font.id}` giúp giao diện thanh thoát và dễ nhìn.
-    - Mở rộng toàn bộ kích thước khung xem trước (`items-stretch`, `h-full flex-1`), phủ kín chiều cao cột song song với danh sách bộ chọn phông trên Desktop.
-    - Tăng kích thước typography trong preview (H1: 24-30px, Body: 16-18px, Quote: 16-18px, Dropcap: 3.2em) giúp xem trước rõ nét trên cả Desktop và Mobile.
-  - **Khắc phục Triệt để Lỗi Flaky E2E Playwright trên CI/CD (`tests-e2e/epub-workflow.spec.ts`)**:
-    - Bổ sung độ cao nội dung cho fixture `ch1.xhtml` và áp dụng `waitForFunction` với safe optional-chaining khi kiểm tra cuộn iframe preview, giải quyết dứt điểm lỗi crash `Cannot read properties of null (reading 'scrollTop')`.
-    - Toàn bộ **24/24 E2E tests** chạy tự động trên Chromium pass 100%.
-  - **Tối ưu Co giãn Blockquote & Căn phải Tác giả Chuẩn Typography (`quotes.css`, `EpubFontSettingsSection.svelte`)**:
-    - Áp dụng `display: table; width: fit-content; max-width: 100%; margin: 1.2em auto;` cho `blockquote.center` (cũng như `.left` và `.right`), giúp khối quote tự co giãn ôm sát nội dung.
-    - Footer tác giả trích dẫn (`footer.right`) căn thẳng hàng tuyệt đối với mép phải của văn bản trích dẫn thay vì căn ra mép lề toàn trang sách.
-    - Cập nhật đồng bộ trong preview của `EpubFontSettingsSection.svelte`.
-    - Nâng tổng số test lên **416/416 unit tests pass 100% (20 test files)**.
-  - **Khắc phục Lỗi Duplicate Selector "blockquote footer" & Nâng cấp CI/CD Node.js 24 (`stylesheet-builder.ts`, `.github/workflows/ci.yml`)**:
-    - Tự động hòa trộn `font-family` vào rule `blockquote footer {` có sẵn trong `quotes.css` thay vì tạo khối trùng lặp, giải quyết triệt để lỗi EPUBCheck `Unexpected duplicate selector "blockquote footer"`.
-    - Nâng cấp toàn diện GitHub Actions (`actions/checkout@v5`, `pnpm/action-setup@v6`, `actions/setup-node@v5`, `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true`) giải quyết dứt điểm cảnh báo deprecation Node 20 trên GitHub Actions runners.
-  - **Hỗ trợ Tùy chỉnh Font cho Trích dẫn & Tác giả (`quoteFont`, `quoteAuthorFont`, `EpubFontSettingsSection.svelte`)**:
-    - Bổ sung 2 bộ chọn phông: Font cho Trích dẫn (`quoteFont`) và Font cho Tác giả trích dẫn (`quoteAuthorFont`).
-    - Cập nhật khung xem trước trang sách với lời trích dẫn căn giữa (`~`) và tác giả căn phải (`>`).
-    - Tích hợp trọn vẹn vào quy trình đóng gói EPUB (`packEpub`, `prepareFinalCss`, `resolveActiveFonts`), tự động nhúng file font và sinh rule CSS tương ứng.
-    - Cơ chế khử trùng lặp (Deduplication) 100%: nếu H1, Quote, Quote Author cùng chọn chung 1 phông thì `@font-face` chỉ được khai báo duy nhất 1 lần ở đầu file CSS và chỉ có 1 file font được nhúng vào EPUB ZIP.
-    - Nâng tổng số test lên **415/415 unit tests pass 100% (20 test files)**.
-  - **Tinh gọn Bộ chọn Phông chữ (`FontSelect.svelte`, `DESIGN_SYSTEM.md`)**:
-    - Chuyển đổi toàn bộ ô chọn phông chữ từ cấu trúc 2 tầng (52px `h-13`) sang **1 dòng ngang duy nhất (44px `h-11`)**, đồng bộ chuẩn kích thước của `Input.svelte` và `Button.svelte`.
-    - Định dạng hiển thị trực quan: `[Tên font] - Text mẫu`, trong đó `Text mẫu` được áp dụng trực tiếp `font-family` của phông chữ tương ứng để người dùng xem trước nhanh.
-    - Tinh giản nhãn mặc định từ `Mặc định (Bookerly)` thành `Bookerly` gọn gàng trên cả ô input và danh sách dropdown.
-  - **Khắc phục Triệt để Race Conditions & Đồng bộ Yêu cầu Hệ thống trong PDF Splitter (`PdfSplitterState`, `pdf-splitter.ts`)**:
-    - Áp dụng cơ chế **Generation Token** (`processGenerationToken`, `previewGenerationToken`, `fileGenerationToken`) cô lập hoàn toàn trạng thái giữa các tác vụ bất đồng bộ.
-    - `handleFile()` tự động hủy tác vụ xử lý đang chạy (`cancelProcessTask()`) và hủy phiên tải preview cũ, ngăn chặn hoàn toàn việc file PDF cũ ghi đè kết quả lên file PDF mới chọn.
-    - Khắc phục lỗi reset nhầm cờ `processing = false` khi tác vụ cũ bị hủy và kết thúc muộn trong `finally`, đảm bảo tác vụ mới luôn duy trì đúng trạng thái.
-    - Khắc phục race condition trong `loadPreview()`: hỗ trợ `AbortSignal` trong `loadPdfPreview` để dừng vòng lặp render sớm và vô hiệu hóa kết quả preview đến muộn.
-    - Cập nhật tài liệu yêu cầu hệ thống: **Node.js 20.19+ hoặc 22.12+** (chuẩn Vite 8) và khuyến nghị **pnpm 10+ / 11+**.
-    - Bổ sung 4 unit tests kiểm thử race condition, nâng tổng số test lên **413/413 unit tests pass 100% (20 test files)**.
-  - **Giai đoạn P1 (Nền tảng Tối Ưu & Khử Trùng WASM theo TASKS.md)**:
-    - **Lập Số Liệu Gốc (Baseline Profiling qua `tests/stress/profile-p1.test.ts`)**:
-      - Phân tích & đóng gói văn bản lớn (1.16MB, ~197.600 từ, 200 chương): Parse ~212ms, Pack ~228ms, Heap delta ~4.4MB.
-      - Soạn thảo CodeMirror 6: Thuộc tính O(1) `doc.length`/`doc.lines` thay thế tuần tự hóa `doc.toString()` trên mỗi phím bấm, giảm áp lực Garbage Collection.
-      - Kết xuất Live Preview HTML: ~1.5ms cho mỗi trang XHTML kèm style và inline assets.
-    - **Tối ưu hóa CodeMirror Editor & Đồng bộ (`EpubEditorCodePane.svelte`, `epub-editor-state.svelte.ts`)**:
-      - Dùng thuộc tính O(1) `doc.length` và `doc.lines`; cập nhật tức thì trạng thái `dirtyPaths`.
-      - Debounce đồng bộ chuỗi 250ms; bổ sung cơ chế `flushEditorSync()` tự động xả dữ liệu đồng bộ khi chuyển trang, mở modal, xuất file hoặc khi editor mất focus (`blur`).
-      - Ngăn chặn hoàn toàn lượt gọi `view.state.doc.toString()` thứ 2 trong reactive effect khi thay đổi xuất phát từ chính editor nhờ cờ `lastSyncedDoc`.
-    - **Duy trì Vị trí Cuộn Live Preview (`EpubEditorPreviewPane.svelte`)**:
-      - Lưu trữ và tự động phục hồi `lastScrollRatio` sau khi iframe nạp lại `srcdoc`, giải quyết triệt để lỗi preview tự động giật nhảy về đầu trang khi người dùng đang soạn thảo trang hoặc CSS.
-      - Tự động reset `lastScrollRatio = 0` khi người dùng chuyển sang xem trước một chương khác.
-    - **Khử Trùng Lặp File WASM trong Bản Build (`vite.config.js`)**:
-      - Xây dựng plugin `deduplicateWasmPlugin()` quét đệ quy toàn bộ `workers/`: tự động phát hiện và viết lại đường dẫn WASM trỏ trực tiếp về asset duy nhất tại `_app/immutable/assets/`.
-      - Xóa bỏ file `ort-wasm-simd-threaded.jsep.wasm` trùng lặp trong `workers/assets/`, tiết kiệm trực tiếp **23.23 MB** dung lượng bản build production.
-    - **Chất Lượng Mã Nguồn & Kiểm Thử Toàn Diện**:
-      - Nâng tổng số test lên **409/409 unit tests pass 100% (20 test files)**.
-      - Toàn bộ pipeline: 0 lỗi format, 0 lỗi TypeScript (svelte-check), 0 lỗi ESLint, 0 lỗi Knip, production build pass.
-  - **Khắc phục Triệt để Toàn bộ Điểm Lỗi Dữ liệu, Sai chuẩn EPUB, Ngữ pháp TXT & Bảo mật (P0)**:
-    - **Chuẩn Hóa Bộ Phân Tích Định Dạng TXT Inline (`applyInlineFormatting` trong `txt-parser.ts`)**:
-      - Tự động mask toàn bộ URL (`https?://[^\s]+`) trước khi quét cú pháp định dạng inline.
-      - Tách các ký tự đóng định dạng `*`, `_`, `/` và các dấu câu kết thúc `.,;:!?` ra khỏi URL để hỗ trợ chính xác `*https://a.com*.`, `/xem https://a.com/.`, `/xem https://a.com/, rồi đi`.
-      - Hỗ trợ nhiều URL trên cùng một dòng mà không làm sai lệch tính chẵn lẻ của dấu in nghiêng (`https://x.com/p /xem https://a.com/`).
-      - Siết chặt ranh giới ký tự/từ cho dấu in nghiêng `/`, in đậm `*`, và gạch chân `_` với negative lookbehind/lookahead `(?<![\p{L}\p{N}])` và `(?![\p{L}\p{N}])`, triệt tiêu hoàn toàn hiện tượng làm hỏng URL, ký hiệu đơn vị (`km/h/s`) và biến snake_case (`file_name_here`).
-    - **Sửa Lỗi Undo Ghi Nhầm File trong Editor (`EpubEditorCodePane.svelte`)**:
-      - Tách riêng `EditorState` cho từng file thông qua bộ nhớ đệm `SvelteMap<string, EditorState>`.
-      - Chuyển file bằng `view.setState()` thay vì dispatch thay đổi nội dung trên cùng một state, bảo toàn 100% ngăn xếp Undo/Redo riêng biệt cho mỗi trang, loại bỏ nguy cơ bấm Ctrl+Z làm ghi đè nội dung file này vào file khác.
-      - Tự động reconfigure `wrapCompartment` và `themeCompartment` ngay sau `view.setState()`, bảo đảm file vừa chuyển kế thừa tức thì cấu hình Wrap và Theme hiện tại.
-    - **Chuẩn hóa File `mimetype` khi Xuất EPUB (`exportEpubBlob` trong `editor-ops.ts`)**:
-      - Đảm bảo file `mimetype` luôn sử dụng phương thức nén `STORE` (không nén) và được đặt ở vị trí byte đầu tiên của archive ZIP (offset 0), tuân thủ nghiêm ngặt đặc tả OCF 3.3 §3.3.2.
-    - **Chống Biến Dạng Metadata khi Chứa Ký Tự `$` (`updateBookMetadata` trong `epub-book-ops.ts`)**:
-      - Thay thế toàn bộ chuỗi template replacement bằng hàm callback `(_match, p1, p2) => ...`, ngăn chặn việc JavaScript diễn giải nhầm các pattern `$1`, `$2`, `$$` thành thẻ XML mở/đóng, bảo vệ cấu trúc `content.opf`.
-    - **Khắc phục Liên Kết Mục Lục Bị Hỏng (`rebuildEpubToc` trong `epub-book-ops.ts`)**:
-      - Khi tự động sinh mã định danh anchor (`#section-X-Y`) cho các tiêu đề heading chưa có ID, hệ thống tự động ghi thuộc tính `id="section-X-Y"` ngược lại vào thẻ heading trong file XHTML tương ứng (cập nhật `editBuffer`/`zip`), đảm bảo mọi liên kết mục lục đều nhảy chính xác đến vị trí tiêu đề.
-      - Đổi regex nhận diện ID thành `/(?:^|\s)id\s*=\s*["']([^"']+)["']/i` để không nhận nhầm `data-id="..."`.
-      - Tự động kiểm tra chống trùng ID tự sinh với mọi ID có sẵn trên trang.
-      - Tự động đưa các trang được thêm ID vào `dirtyPaths` của `EpubEditorState`.
-    - **Bảo Toàn Thuộc Tính `linear="no"` khi Sắp Xếp Lại Spine (`reorderOpfSpine` trong `epub-book-ops.ts`)**:
-      - Trích xuất và bảo lưu nguyên vẹn toàn bộ thẻ `<itemref>` gốc kèm các thuộc tính `linear="no"`, `properties="..."`, `id="..."` khi tái cấu trúc thứ tự spine trong `content.opf`.
-    - **Vá Lỗ Hổng Bảo Mật PDF.js CVE-2024-4367 (`isEvalSupported: false`)**:
-      - Đặt cờ bảo mật `isEvalSupported: false` tại tất cả các điểm gọi `getDocument()` trong `pdf-splitter-state.svelte.ts`, `pdf-splitter.ts`, và `pdf.ts`, vô hiệu hóa đường dẫn mã thực thi JavaScript độc hại khi người dùng mở các file PDF không rõ nguồn gốc.
-    - **Mở Rộng Quét Tài Nguyên Tránh Xóa Nhầm & Bảo Vệ Khử Trùng Lặp (`reference-extractor.ts` & `cleaner-engine.ts`)**:
-      - Bổ sung quét ảnh trong thuộc tính nội dòng `style="background: url(...)"` (hỗ trợ giải mã thực thể `&quot;`, `&apos;`, `&#34;`, `&#39;`), thuộc tính `srcset` trên `<img>`/`<source>`, và quét file stylesheet nhúng qua `@import "file.css"` trong `<style>`.
-      - Đặt mặc định an toàn `deduplicateResources: false` trong options của `cleanEpub()`, loại bỏ trùng lặp khỏi dung lượng tiết kiệm dự kiến.
-    - **Chất Lượng Mã Nguồn & Kiểm Thử Toàn Diện**:
-      - Bổ sung 5 unit test mới và 1 E2E test Playwright, nâng tổng số test lên **404/404 unit tests pass 100% (19 test files)**.
-      - Toàn bộ pipeline: 0 lỗi format, 0 lỗi TypeScript (svelte-check), 0 lỗi ESLint, 0 lỗi Knip, production build pass.
-- Đang dở: Không.
-- Biết trước còn thiếu / nợ kỹ thuật:
-  - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập.
-
----
-
-## 📜 Nhật ký thay đổi (Changelog)
-
-Chi tiết toàn bộ lịch sử phát triển, cập nhật tính năng và sửa lỗi qua các phiên bản được lưu trữ tập trung tại [CHANGELOG.md](CHANGELOG.md).
+- **Lịch sử cập nhật**: Xem chi tiết các mốc phát triển, tính năng mới và cải tiến qua các phiên bản tại [CHANGELOG.md](CHANGELOG.md).
+- **Giấy phép**: Dự án được phát hành theo giấy phép mã nguồn mở [MIT License](LICENSE).
