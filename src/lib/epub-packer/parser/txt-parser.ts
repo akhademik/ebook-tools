@@ -571,7 +571,7 @@ export function parseTxtToChapters(
 				const authorFooters: string[] = [];
 				let nextLineIdx = lineIdx + 1;
 
-				while (nextLineIdx < preprocessedLines.length && authorFooters.length < 3) {
+				while (nextLineIdx < preprocessedLines.length) {
 					const candidateRaw = preprocessedLines[nextLineIdx];
 					if (candidateRaw.trim() === '') {
 						// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
@@ -805,7 +805,7 @@ export function parseTxtToChapters(
 			const authorFooters: string[] = [];
 			let nextLineIdx = lineIdx + 1;
 
-			while (nextLineIdx < preprocessedLines.length && authorFooters.length < 3) {
+			while (nextLineIdx < preprocessedLines.length) {
 				const candidateRaw = preprocessedLines[nextLineIdx];
 				if (candidateRaw.trim() === '') {
 					// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch

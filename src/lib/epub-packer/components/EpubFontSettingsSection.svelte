@@ -50,7 +50,7 @@
 			<div>
 				<FontSelect
 					id="h2-sub-font-select"
-					label="Font cho H2 Sub"
+					label="Font tiêu đề nhỏ (H2 - Sub)"
 					bind:value={epubState.fonts.h2SubFont}
 				/>
 			</div>
@@ -64,14 +64,14 @@
 			<div>
 				<FontSelect
 					id="quote-font-select"
-					label="Font cho Trích dẫn (Quote ~)"
+					label="Font cho Trích dẫn (~)"
 					bind:value={epubState.fonts.quoteFont}
 				/>
 			</div>
 			<div>
 				<FontSelect
 					id="quote-author-font-select"
-					label="Font cho Tác giả trích dẫn (Author >)"
+					label="Font cho Tác giả trích dẫn (>)"
 					bind:value={epubState.fonts.quoteAuthorFont}
 				/>
 			</div>
@@ -139,7 +139,7 @@
 						To Be, or Not To Be, That's the question.
 					</p>
 					<footer
-						class="text-sm sm:text-base block opacity-80"
+						class="text-sm sm:text-base block"
 						style="font-family: {quoteAuthorFontInfo
 							? `"${quoteAuthorFontInfo.id}", "${quoteAuthorFontInfo.cssFamily}", "${quoteAuthorFontInfo.name}", sans-serif`
 							: `'Bookerly', serif`}; text-align: right;"

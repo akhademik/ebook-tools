@@ -118,24 +118,28 @@
 <!-- 5-step navigation bar -->
 <nav
 	aria-label="Các bước đóng gói EPUB"
-	class="mb-8 pb-3 border-b border-border-color/60 overflow-x-auto"
+	class="mb-8 pb-3 pt-1 px-1 border-b border-border-color/60 overflow-x-auto"
 >
 	<ol
-		class="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative min-w-max sm:min-w-0"
+		class="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative min-w-max sm:min-w-0 p-1"
 	>
 		{#each steps as step (step.id)}
 			{@const isActive = currentStep === step.id}
 			{@const isDisabled = step.id > 1 && !hasChapters}
 			{@const isDone = step.isCompleted || currentStep > step.id}
-			<li class="shrink-0 sm:shrink min-w-[140px] sm:min-w-0">
+			<li class="shrink-0 sm:shrink min-w-35 sm:min-w-0">
 				<button
 					type="button"
 					disabled={isDisabled}
 					onclick={() => goToStep(step.id)}
 					aria-current={isActive ? 'step' : undefined}
-					class="w-full text-left group flex items-start gap-3 p-2 rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {isActive
-						? 'bg-accent-soft/70 ring-1 ring-accent-color/30'
-						: 'hover:bg-panel-2/60'}"
+					class="w-full text-left group flex items-start gap-3 p-2.5 rounded-xl border transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 {isActive
+						? 'bg-accent-soft/70 border-accent-color/60 shadow-xs ring-1 ring-accent-color/30'
+						: isDisabled
+							? 'bg-panel-2/30 border-border-color/40 opacity-50'
+							: isDone
+								? 'bg-panel-2/50 border-border-color hover:border-accent-color/50 hover:bg-panel-2/80'
+								: 'bg-panel-2/30 border-border-color/60 hover:border-border-color hover:bg-panel-2/60'}"
 				>
 					<!-- Circle: Number or Checkmark -->
 					<span
@@ -233,10 +237,10 @@
 
 	<!-- Step 3: Bìa và hoa văn -->
 	<div class={currentStep === 3 ? 'block' : 'hidden'}>
-		<div class="modern-card rounded-2xl p-4 sm:p-6 shadow-sm border border-border-color">
-			<div class="mb-5 pb-3 border-b border-border-color">
-				<h2 class="text-base sm:text-lg font-bold text-text-color font-sans">Bìa và hoa văn</h2>
-				<p class="text-xs sm:text-sm text-text-mute mt-0.5">
+		<div class="modern-card rounded-2xl p-5 sm:p-7 shadow-sm border border-border-color">
+			<div class="mb-6 pb-4 border-b border-border-color">
+				<h2 class="text-lg sm:text-xl font-bold text-text-color font-sans">Bìa và hoa văn</h2>
+				<p class="text-sm text-text-mute mt-1">
 					Thêm ảnh bìa sách, họa tiết trang trí đầu chương và ảnh minh họa cho nội dung
 				</p>
 			</div>

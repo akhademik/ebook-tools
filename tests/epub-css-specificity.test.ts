@@ -228,8 +228,8 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 				xmlId: 'ch1',
 				fileName: 'chap_01',
 				title: 'Chương 1',
-				html: '<h1 class="main-chap">Tiêu đề</h1><h2 class="side-chap">Phụ đề</h2><p class="has-dropcap"><span class="dropcap">T</span>ext</p>',
-				features: { hasHeadings: true, hasCenterPage: true }
+				html: '<h1 class="main-chap">Tiêu đề</h1><h2 class="side-chap">Phụ đề</h2><p class="has-dropcap"><span class="dropcap">T</span>ext</p><blockquote><p>Quote</p></blockquote>',
+				features: { hasHeadings: true, hasCenterPage: true, hasQuotes: true }
 			}
 		];
 		const fonts: EpubFontsConfig = {
@@ -238,6 +238,8 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			h2Font: 'Minh-Tu',
 			h2SubFont: 'Bookerly',
 			dropcapFont: 'Minh-Tu',
+			quoteFont: 'Minh-Tu',
+			quoteAuthorFont: 'Minh-Tu',
 			jacketFont: 'default'
 		};
 		const ornaments: OrnamentsConfig = {
@@ -326,6 +328,24 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		expect(idxNoteP).toBeLessThan(idxBqCenterP);
 		expect(idxNoteP).toBeLessThan(idxH1MainP);
 		expect(idxNoteP).toBeLessThan(idxLetterFirstChild);
+	});
+
+	it('should guarantee quote font does not trigger descending specificity', () => {
+		const chapters: EpubChapterItem[] = [
+			{
+				xmlId: 'ch1',
+				fileName: 'chap_01',
+				title: 'Chương 1',
+				html: '<blockquote><p>Quote</p></blockquote><div class="letter"><p>Letter</p></div>',
+				features: { hasQuotes: true }
+			}
+		];
+		const fonts: EpubFontsConfig = {
+			quoteFont: 'Minh-Tu'
+		};
+		const css = prepareFinalCss(chapters, undefined, fonts, null);
+		const errors = findDescendingSpecificityErrors(css);
+		expect(errors).toEqual([]);
 	});
 });
 
