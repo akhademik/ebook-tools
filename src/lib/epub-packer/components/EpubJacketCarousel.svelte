@@ -72,6 +72,20 @@
 		epubState.jacket.jacketTemplateId = JACKET_TEMPLATES[currentIdx].id;
 	}
 
+	let previewSize = $state<'standard' | 'large' | 'xl'>('large');
+
+	const maxPreviewWidth = $derived.by(() => {
+		switch (previewSize) {
+			case 'standard':
+				return 380;
+			case 'xl':
+				return 520;
+			case 'large':
+			default:
+				return 460;
+		}
+	});
+
 	function getFontFamily(fontId: string): string | null {
 		if (!fontId || fontId === 'default') return null;
 		const font = findFont(fontId);
@@ -117,8 +131,49 @@
 			</p>
 		</div>
 
-		<!-- Nav buttons & template counter -->
-		<div class="flex items-center gap-2 shrink-0">
+		<!-- Nav buttons, template counter & size controls -->
+		<div class="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap shrink-0">
+			<!-- 3 size presets -->
+			<div
+				class="flex items-center bg-panel border border-field-border rounded-xl p-0.5"
+				role="group"
+				aria-label="Kích thước xem trước"
+			>
+				<button
+					type="button"
+					onclick={() => (previewSize = 'standard')}
+					class="px-2.5 py-1 text-xs rounded-lg font-medium transition-all cursor-pointer {previewSize ===
+					'standard'
+						? 'bg-panel-2 text-accent-color font-semibold shadow-xs'
+						: 'text-text-mute hover:text-text-color'}"
+					title="Cỡ vừa (380px)"
+				>
+					Vừa
+				</button>
+				<button
+					type="button"
+					onclick={() => (previewSize = 'large')}
+					class="px-2.5 py-1 text-xs rounded-lg font-medium transition-all cursor-pointer {previewSize ===
+					'large'
+						? 'bg-panel-2 text-accent-color font-semibold shadow-xs'
+						: 'text-text-mute hover:text-text-color'}"
+					title="Cỡ lớn (460px - Mặc định)"
+				>
+					Lớn
+				</button>
+				<button
+					type="button"
+					onclick={() => (previewSize = 'xl')}
+					class="px-2.5 py-1 text-xs rounded-lg font-medium transition-all cursor-pointer {previewSize ===
+					'xl'
+						? 'bg-panel-2 text-accent-color font-semibold shadow-xs'
+						: 'text-text-mute hover:text-text-color'}"
+					title="Cỡ cực đại (520px)"
+				>
+					Cực đại
+				</button>
+			</div>
+
 			<span class="text-xs text-text-mute font-medium mr-1">
 				Mẫu <strong class="text-text-color">{currentIdx + 1}</strong> / {JACKET_TEMPLATES.length}
 			</span>
@@ -228,21 +283,23 @@
 		</button>
 
 		<!-- The live book page -->
-		<div
-			class="preview-wrap shadow-xl"
-			style={baseFontFamily
-				? `--jacket-font: ${baseFontFamily}; font-family: ${baseFontFamily} !important;`
-				: undefined}
-		>
-			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-			{@html currentTemplate.render(
-				previewTitle,
-				previewOriginalTitle,
-				previewAuthor,
-				previewTranslator,
-				previewPublisher,
-				previewDistributor
-			)}
+		<div class="preview-container" style="--max-jacket-w: {maxPreviewWidth}px;">
+			<div
+				class="preview-wrap shadow-xl"
+				style={baseFontFamily
+					? `--jacket-font: ${baseFontFamily}; font-family: ${baseFontFamily} !important;`
+					: undefined}
+			>
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+				{@html currentTemplate.render(
+					previewTitle,
+					previewOriginalTitle,
+					previewAuthor,
+					previewTranslator,
+					previewPublisher,
+					previewDistributor
+				)}
+			</div>
 		</div>
 
 		<!-- Side next button on large screens -->
@@ -279,20 +336,36 @@
 </div>
 
 <style>
+	.preview-container {
+		container-type: inline-size;
+		width: 100%;
+		max-width: var(--max-jacket-w, 460px);
+		display: flex;
+		justify-content: center;
+		transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		margin: 0 auto;
+	}
+
 	.preview-wrap {
 		background: #ffffff;
-		margin: 1.5em auto;
-		width: 380px;
-		max-width: 100%;
-		height: 540px;
+		margin: 0 auto;
+		width: 100%;
+		aspect-ratio: 19 / 27;
 		border: 1px solid #cccccc;
-		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+		box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
 		border-radius: 4px;
 		color: #000000;
 		box-sizing: border-box;
 		overflow: hidden;
 		position: relative;
 		text-align: left;
+		font-size: calc(100cqi * (16 / 380));
+	}
+
+	@supports not (font-size: 100cqi) {
+		.preview-wrap {
+			font-size: clamp(12.5px, 3.8vw, 22px);
+		}
 	}
 
 	:global(.preview-wrap, .preview-wrap *) {

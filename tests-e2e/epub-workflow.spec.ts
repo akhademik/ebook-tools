@@ -124,8 +124,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		const previewWrap = page.locator('.preview-wrap');
 		await expect(previewWrap).toBeVisible();
 
-		// Select font inside carousel using FontSelect
-		const fontTrigger = page.locator('#jacket-modal-font-select-btn');
+		// Select font inside carousel using FontSelect (Title & Original font)
+		const fontTrigger = page.locator('#jacket-font-title-btn');
 		await expect(fontTrigger).toBeVisible();
 		await fontTrigger.click();
 
@@ -183,8 +183,8 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 
 		// Verify template name and font badge in carousel
 		await expect(page.getByText('Đang chọn: (2/10)')).toBeVisible();
-		await expect(page.locator('#jacket-modal-font-select-btn')).toContainText('Bookerly');
-		await expect(page.locator('#jacket-modal-font-select')).toHaveValue('Bookerly');
+		await expect(page.locator('#jacket-font-title-btn')).toContainText('Bookerly');
+		await expect(page.locator('#jacket-font-title')).toHaveValue('Bookerly');
 
 		// 4. Test FontSelect live preview dropdown for H1 font and H2 Sub font
 		// Switch to Step 4: Phông chữ
