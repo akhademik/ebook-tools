@@ -1411,7 +1411,8 @@ URL bình thường https://a.com/ kết thúc bằng dấu gạch chéo.`;
 Câu 1: *https://a.com*.
 Câu 2: /xem https://a.com/.
 Câu 3: /xem https://a.com/, rồi đi
-Câu 4: https://x.com/p /xem https://a.com/ tiếp tục`;
+Câu 4: https://x.com/p /xem https://a.com/ tiếp tục
+Câu 5: /https://a.com/ đứng ngay sau dấu mở nghiêng`;
 
 			const chapters = parseTxtToChapters(txt, {}, 'Book Test');
 			const html = chapters[0].html;
@@ -1420,6 +1421,7 @@ Câu 4: https://x.com/p /xem https://a.com/ tiếp tục`;
 			expect(html).toContain('<i>xem https://a.com</i>.');
 			expect(html).toContain('<i>xem https://a.com</i>, rồi đi');
 			expect(html).toContain('https://x.com/p <i>xem https://a.com</i> tiếp tục');
+			expect(html).toContain('<i>https://a.com</i> đứng ngay sau dấu mở nghiêng');
 		});
 	});
 });

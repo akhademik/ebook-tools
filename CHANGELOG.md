@@ -10,8 +10,9 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
   - `src/lib/epub-packer/parser/txt-parser.ts`:
     - Bổ sung tách các ký tự dấu câu `.,;:!?` ở cuối URL sang `trailing`, giải quyết triệt để lỗi không nhận diện định dạng khi có dấu câu ngay sau (`*https://a.com*.`, `/xem https://a.com/.`, `/xem https://a.com/, rồi đi`).
     - Làm sạch các URL xuất hiện trước khỏi `prefix` và dùng ranh giới mở in nghiêng `(?<![\p{L}\p{N}])\/[^\s/]` để xác định trạng thái mở thẻ chính xác khi có nhiều URL trên cùng một dòng (`https://x.com/p /xem https://a.com/`).
+    - Bổ sung ký tự tiếp theo `(fullStr[offset] || 'x')` vào `cleanPrefix` khi đếm dấu mở in nghiêng, khắc phục triệt để lỗi lùi cho trường hợp URL đứng ngay sau dấu mở `/https://a.com/`.
   - Unit Tests:
-    - Bổ sung test suite kiểm tra cả 4 trường hợp dấu câu và nhiều URL trên cùng dòng trong `tests/epub-packer.test.ts`.
+    - Bổ sung test cases kiểm tra cả 5 trường hợp dấu câu, nhiều URL và URL đứng sát dấu mở trong `tests/epub-packer.test.ts`.
 - Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (404/404 pass, 19 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
 - File chính bị ảnh hưởng: `txt-parser.ts`, `epub-packer.test.ts`, `TASKS.md`, `README.md`.
 

@@ -43,7 +43,9 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 
 		// Remove preceding URLs so their slashes don't distort italic delimiter tracking
 		const cleanPrefix = prefix.replace(/https?:\/\/[^\s<>"')]+/gi, '');
-		const openMatches = (cleanPrefix.match(/(?<![\p{L}\p{N}])\/[^\s/]/gu) || []).length;
+		const openMatches = (
+			(cleanPrefix + (fullStr[offset] || 'x')).match(/(?<![\p{L}\p{N}])\/[^\s/]/gu) || []
+		).length;
 		const closeMatches = (cleanPrefix.match(/(?<=[^\s/])\/(?![\p{L}\p{N}])/gu) || []).length;
 		const isItalicOpen = openMatches > closeMatches;
 

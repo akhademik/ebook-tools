@@ -1,12 +1,12 @@
 # Báo cáo rà soát & Khắc phục lỗi (Đã hoàn thành 100%)
 
-> Toàn bộ các lỗi chỉ ra dưới đây đã được khắc phục triệt để và bổ sung unit test kiểm chứng tự động vào pipeline CI (404/404 tests pass).
+> Toàn bộ các lỗi rà soát (kể cả ca lùi `/https://a.com/`) đã được khắc phục triệt để và bổ sung unit test kiểm chứng tự động vào pipeline CI (404/404 tests pass).
 
 ## Đã sửa xong (Các mục sót trước P1)
 
 ### 1. Dấu câu ngay sau URL được định dạng
 
-- **Hiện tượng**: `*https://a.com*.`, `/xem https://a.com/.`, `/xem https://a.com/, rồi đi` không được định dạng do regex URL nuốt dấu câu `.` và `,`. Vòng lặp `while` bị chặn lại và không bóc được dấu đóng `*`, `/`.
+- **Hiện tượng**: `*https://a.com*.`, `/xem https://a.com/.`, `/xem https://a.com/, rồi đi` không được định dạng do regex URL nuốt dấu câu `.` và `,`.
 - **Cách sửa**: Bổ sung bóc tách các dấu câu `.,;:!?` trong vòng lặp `while` sang `trailing` trong `txt-parser.ts`.
 - **Trạng thái**: ✅ **Đã sửa** (`txt-parser.ts`, kèm unit test).
 
@@ -16,7 +16,13 @@
 - **Cách sửa**: Làm sạch các URL trước đó khỏi `prefix` trước khi kiểm tra trạng thái mở in nghiêng bằng `(?<![\p{L}\p{N}])\/[^\s/]`.
 - **Trạng thái**: ✅ **Đã sửa** (`txt-parser.ts`, kèm unit test).
 
-### 3. Khử trùng lặp (Deduplication)
+### 3. Ca lùi `/https://a.com/` đứng ngay sau dấu mở in nghiêng
+
+- **Hiện tượng**: Khi URL đứng ngay sau dấu `/` mở in nghiêng, `cleanPrefix` bị cắt ngay trước `h`, không còn ký tự sau `/` khiến regex mở in nghiêng không khớp.
+- **Cách sửa**: Bổ sung ký tự tiếp theo `(fullStr[offset] || 'x')` khi tính `openMatches` trong `txt-parser.ts`.
+- **Trạng thái**: ✅ **Đã sửa** (`txt-parser.ts`, kèm unit test).
+
+### 4. Khử trùng lặp (Deduplication)
 
 - **Hiện trạng**: Đã tắt mặc định an toàn (`deduplicateResources: false`) và loại bỏ khỏi dung lượng tiết kiệm dự kiến. Sẽ nâng cấp logic triệt để (canonical path + manifest cleanup) ở giai đoạn chuyên biệt.
 - **Trạng thái**: ⚠️ **An toàn (Tắt mặc định)** (`cleaner-engine.ts`).
