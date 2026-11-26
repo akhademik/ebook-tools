@@ -124,8 +124,8 @@
 					phông chữ Bookerly mặc định của sách.
 				</p>
 				<blockquote
-					class="my-5 border-l-0 text-center"
-					style="margin: 1.5em 0; text-align: center;"
+					class="my-5 mx-auto border-l-0 text-center"
+					style="display: table; margin: 1.5em auto; text-align: center;"
 				>
 					<p
 						class="text-sm leading-relaxed"

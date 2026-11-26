@@ -4,6 +4,21 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Tối ưu Canh lề Trích dẫn: Co giãn Blockquote theo Nội dung và Căn phải Tác giả Chuẩn Typography)
+
+- Thêm/sửa:
+  - **Tối ưu Co giãn Blockquote và Canh lề Tác giả Trích dẫn (`quotes.css`, `EpubFontSettingsSection.svelte`)**:
+    - Chuyển `blockquote.center`, `blockquote.left`, `blockquote.right` sang mô hình `display: table; width: fit-content; max-width: 100%;` kết hợp `margin: 1.2em auto;`.
+    - Giúp khối trích dẫn tự động co giãn (`shrink-to-fit`) chuẩn theo đúng chiều rộng thực của văn bản trích dẫn (ví dụ: _"to be, or not to be, that's the question"_), thay vì trải dài 100% toàn bộ chiều ngang trang sách.
+    - Nhờ đó, dòng tác giả trích dẫn (`footer.right` hoặc `blockquote footer`) khi căn phải sẽ căn thẳng hàng tuyệt đối với từ cuối cùng của lời trích dẫn (tên tác giả _"william shakespeare"_ căn thẳng mép phải với _"question"_), bảo toàn tính thẩm mỹ typography chuẩn mực của sách xuất bản.
+    - Cập nhật đồng bộ trong khung xem trước phông chữ `EpubFontSettingsSection.svelte` để giao diện phản ánh trực quan sự căn lề chuẩn xác này.
+  - **Bổ sung Kiểm thử Đơn vị & Tương thích Specificity (`tests/epub-css-specificity.test.ts`)**:
+    - Thêm test case xác thực `blockquote.center` xuất ra CSS có `display: table`, `fit-content`, `margin: 1.2em auto` và 0 lỗi descending specificity. Nâng tổng số test lên **416/416 unit tests pass 100% (20 test files)**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (416/416 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/css-template/quotes.css`, `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`, `tests/epub-css-specificity.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Lỗi Duplicate Selector "blockquote footer" & Nâng cấp CI/CD lên Chuẩn Node.js 24)
 
 - Thêm/sửa:

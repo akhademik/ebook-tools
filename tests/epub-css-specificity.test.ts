@@ -557,4 +557,24 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 		const active = resolveActiveFonts(fonts);
 		expect(active).toEqual(['Bookerly']);
 	});
+
+	it('should shrink-wrap blockquote.center with display: table and auto margins so footer aligns with quote', () => {
+		const chapters: EpubChapterItem[] = [
+			{
+				xmlId: 'ch1',
+				fileName: 'chap_01',
+				title: 'Chương 1',
+				html: '<blockquote class="center"><p>to be, or not to be, that\'s the question</p><footer class="right">william shakespeare</footer></blockquote>',
+				features: { hasQuotes: true } as any
+			}
+		];
+		const css = getDynamicCss(chapters);
+		expect(css).toContain('blockquote.center {');
+		expect(css).toContain('display: table;');
+		expect(css).toContain('margin: 1.2em auto;');
+		expect(css).toContain('max-width: 100%;');
+
+		const errors = findDescendingSpecificityErrors(css);
+		expect(errors).toEqual([]);
+	});
 });
