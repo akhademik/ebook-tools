@@ -736,5 +736,21 @@ describe('EPUB Editor unit tests', () => {
 			await state.renderPreview();
 			expect(flushCount).toBe(4);
 		});
+
+		it('should accurately update content and dirtyPaths via updateFileContent', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+			state.originalContents.set('OEBPS/text/a.xhtml', 'original a');
+			state.originalContents.set('OEBPS/text/b.xhtml', 'original b');
+
+			state.updateFileContent('OEBPS/text/a.xhtml', 'modified a');
+			expect(state.editBuffer.get('OEBPS/text/a.xhtml')).toBe('modified a');
+			expect(state.dirtyPaths.has('OEBPS/text/a.xhtml')).toBe(true);
+			expect(state.dirtyPaths.has('OEBPS/text/b.xhtml')).toBe(false);
+
+			// Reverting to original content cleans dirtyPaths
+			state.updateFileContent('OEBPS/text/a.xhtml', 'original a');
+			expect(state.dirtyPaths.has('OEBPS/text/a.xhtml')).toBe(false);
+		});
 	});
 });

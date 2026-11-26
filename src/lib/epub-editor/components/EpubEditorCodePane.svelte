@@ -33,8 +33,8 @@
 			clearTimeout(syncDebounceTimer);
 			syncDebounceTimer = null;
 		}
-		if (!view || !editorState.editorTarget) return;
-		const target = editorState.editorTarget;
+		if (!view || !activeTarget) return;
+		const target = activeTarget;
 		const newDoc = view.state.doc.toString();
 		if (newDoc !== lastSyncedDoc) {
 			lastSyncedDoc = newDoc;

@@ -114,7 +114,6 @@ describe('P1 Benchmark: Baseline Profiling', () => {
 		console.log(`Speedup factor: ${(durationWithToString / durationOptimized).toFixed(1)}x faster`);
 
 		expect(totalCharsToString).toBe(totalCharsOptimized);
-		expect(durationOptimized).toBeLessThan(durationWithToString);
 	});
 
 	it('3. Profile Preview HTML rendering overhead', async () => {

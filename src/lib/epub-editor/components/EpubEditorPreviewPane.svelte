@@ -57,9 +57,6 @@
 			win.addEventListener(
 				'scroll',
 				() => {
-					if (isInternalSync || !editorState.syncViewEnabled) return;
-					if (editorState.editorTarget !== editorState.previewTarget) return;
-
 					const scrollElement = doc.scrollingElement || doc.documentElement || doc.body;
 					const maxScroll = scrollElement.scrollHeight - win.innerHeight;
 					if (maxScroll > 0) {

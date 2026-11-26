@@ -4,6 +4,27 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để 4 Điểm Rà soát P1: Ghi đè File, Scroll Preview khi Sửa CSS & Sót WASM)
+
+- Thêm/sửa:
+  - **Sửa lỗi Ghi nhầm File do Debounce (`EpubEditorCodePane.svelte`)**:
+    - Chuyển `target` trong `flushDocSync()` từ `editorState.editorTarget` sang `activeTarget`, bảo đảm nội dung luôn được lưu vào đúng file mà `view.state` đang đại diện ngay cả khi chuyển file nhanh (< 250ms) bằng code hoặc không qua sự kiện `blur`.
+  - **Sửa lỗi Preview Nhảy về Đầu Trang khi Sửa CSS (`EpubEditorPreviewPane.svelte`)**:
+    - Ghi nhận `lastScrollRatio` vô điều kiện trên mọi sự kiện `scroll` của iframe preview; chỉ đặt điều kiện `editorTarget === previewTarget && syncViewEnabled` khi cuộn ngược sang Code Editor. Nhờ đó, vị trí cuộn được bảo toàn hoàn hảo khi người dùng sửa CSS.
+  - **Sửa Triệt để Khử Trùng WASM & Assertion Build (`vite.config.js`)**:
+    - Quét đệ quy toàn bộ thư mục `workers/` (bao gồm `image-bg-remove.worker-*.js` ở gốc `workers/` và các bundle trong `workers/assets/`).
+    - Viết lại đường dẫn tương đối chính xác (`../assets/<mainWasm>` và `../../assets/<mainWasm>`).
+    - Bổ sung assertion kiểm tra sau khi xóa: fail build ngay lập tức nếu còn sót bất kỳ chuỗi tham chiếu nào tới file WASM đã xóa.
+  - **Chống Flaky Test Benchmark (`tests/stress/profile-p1.test.ts`)**:
+    - Bỏ assertion so sánh cứng thời gian thực `durationOptimized < durationWithToString`, giữ nguyên đo lường và kiểm tra tính toàn vẹn ký tự `totalCharsToString === totalCharsOptimized`.
+  - **Bổ sung E2E Browser Tests (`tests-e2e/epub-workflow.spec.ts`)**:
+    - Thêm 2 kịch bản Playwright E2E kiểm chứng: chuyển file siêu nhanh bằng `el.click()` không làm mất nội dung hay ghi nhầm file; và sửa CSS sau khi cuộn preview không làm mất vị trí cuộn.
+  - Cập nhật trạng thái P1 thành đang hoàn thiện / in progress trong `TASKS.md` và `README.md`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (409/409 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `EpubEditorCodePane.svelte`, `EpubEditorPreviewPane.svelte`, `vite.config.js`, `profile-p1.test.ts`, `epub-editor.test.ts`, `epub-workflow.spec.ts`, `TASKS.md`, `CHANGELOG.md`, `README.md`.
+
+---
+
 ## 2026-11-26 (Hoàn thành P1: Đo Trước, Tối Ưu Hóa Editor, Preview Scroll & Khử Trùng Lặp WASM)
 
 - Thêm/sửa:

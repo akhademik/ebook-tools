@@ -383,6 +383,129 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(cmContent).not.toContainText('Chương 1: Mở Đầu');
 	});
 
+	test('should not overwrite target file when switching file rapidly without blur', async ({
+		page
+	}) => {
+		test.setTimeout(60000);
+		await ensureEpubFixture();
+		await page.goto('/epub-editor');
+		await page.waitForLoadState('networkidle');
+
+		// Upload EPUB
+		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
+		await fileInput.setInputFiles(fixtureEpubPath);
+
+		// Open Editor Modal
+		const openEditorBtn = page.getByRole('button', { name: /Mở trình chỉnh sửa/i });
+		await expect(openEditorBtn).toBeVisible({ timeout: 25000 });
+		await openEditorBtn.click();
+		await expect(page.getByText('Cấu trúc file')).toBeVisible();
+
+		// Click on Chapter 1
+		const ch1Item = page.locator('[title*="text/ch1.xhtml"]').first();
+		await expect(ch1Item).toBeVisible();
+		await ch1Item.click();
+
+		const cmContent = page.locator('.cm-content');
+		await expect(cmContent).toBeVisible();
+		await expect(cmContent).toContainText('Chương 1: Mở Đầu');
+
+		// Type text into Chapter 1
+		await cmContent.focus();
+		await page.keyboard.press('End');
+		await page.keyboard.type('\n<p>DÒNG_VỪA_GÕ_VÀO_CH1</p>');
+
+		// Programmatically click Chapter 2 immediately in < 250ms without blur
+		await page.evaluate(() => {
+			const el = document.querySelector('[title*="text/ch2.xhtml"]') as HTMLElement | null;
+			el?.click();
+		});
+
+		// Verify Chapter 2 was loaded and NOT corrupted with Chapter 1's content
+		await expect(cmContent).toContainText('Chương 2: Diễn Biến');
+		await expect(cmContent).not.toContainText('DÒNG_VỪA_GÕ_VÀO_CH1');
+
+		// Switch back to Chapter 1
+		await page.evaluate(() => {
+			const el = document.querySelector('[title*="text/ch1.xhtml"]') as HTMLElement | null;
+			el?.click();
+		});
+
+		// Verify Chapter 1 safely preserved its newly typed text
+		await expect(cmContent).toContainText('Chương 1: Mở Đầu');
+		await expect(cmContent).toContainText('DÒNG_VỪA_GÕ_VÀO_CH1');
+	});
+
+	test('should preserve preview scroll position when editing CSS of active page', async ({
+		page
+	}) => {
+		test.setTimeout(60000);
+		await ensureEpubFixture();
+		await page.goto('/epub-editor');
+		await page.waitForLoadState('networkidle');
+
+		// Upload EPUB
+		const fileInput = page.locator('input[type="file"]').first();
+		await expect(fileInput).toBeAttached();
+		await fileInput.setInputFiles(fixtureEpubPath);
+
+		// Open Editor Modal
+		const openEditorBtn = page.getByRole('button', { name: /Mở trình chỉnh sửa/i });
+		await expect(openEditorBtn).toBeVisible({ timeout: 25000 });
+		await openEditorBtn.click();
+		await expect(page.getByText('Cấu trúc file')).toBeVisible();
+
+		// Double-click on Chapter 1 to set it as previewTarget
+		const ch1Item = page.locator('[title*="text/ch1.xhtml"]').first();
+		await expect(ch1Item).toBeVisible();
+		await ch1Item.dblclick();
+
+		// Wait for preview iframe
+		const iframeEl = page.locator('iframe[title="Trang xem trước EPUB"]');
+		await expect(iframeEl).toBeVisible();
+
+		// Scroll preview iframe programmatically
+		await page.evaluate(() => {
+			const iframe = document.querySelector(
+				'iframe[title="Trang xem trước EPUB"]'
+			) as HTMLIFrameElement;
+			if (iframe?.contentWindow) {
+				iframe.contentWindow.scrollTo(0, 150);
+				iframe.contentWindow.dispatchEvent(new Event('scroll'));
+			}
+		});
+
+		// Switch editorTarget to CSS
+		const cssItem = page.locator('[title*="styles/main.css"]').first();
+		await expect(cssItem).toBeVisible();
+		await cssItem.click();
+
+		const cmContent = page.locator('.cm-content');
+		await expect(cmContent).toBeVisible();
+		await expect(cmContent).toContainText('body { margin: 0');
+
+		// Edit CSS
+		await cmContent.focus();
+		await page.keyboard.press('End');
+		await page.keyboard.type('\nbody { color: rgb(1, 2, 3); }');
+
+		// Wait for debounced preview reload (350ms)
+		await page.waitForTimeout(600);
+
+		// Scroll position should NOT be 0
+		const scrollAfter = await page.evaluate(() => {
+			const iframe = document.querySelector(
+				'iframe[title="Trang xem trước EPUB"]'
+			) as HTMLIFrameElement;
+			return (
+				iframe?.contentWindow?.scrollY || iframe?.contentDocument?.documentElement.scrollTop || 0
+			);
+		});
+
+		expect(scrollAfter).toBeGreaterThan(0);
+	});
+
 	test('should open PDF Splitter and verify options interface', async ({ page }) => {
 		await page.goto('/pdf');
 		await expect(page.getByRole('heading', { name: /Tách trang PDF/i })).toBeVisible();

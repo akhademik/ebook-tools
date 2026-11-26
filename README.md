@@ -187,27 +187,32 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 09:10
+- Cập nhật lần cuối: 2026-11-26 09:30
+- Đang dở / Đang hoàn thiện:
+  - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
+    - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
+    - Đã sửa bảo toàn vị trí cuộn preview khi sửa CSS (`lastScrollRatio` ghi nhận vô điều kiện).
+    - Đã mở rộng `deduplicateWasmPlugin` quét đệ quy toàn bộ thư mục `workers/` và thêm assertion fail build nếu còn sót tham chiếu cũ.
+    - Đã deflake `profile-p1.test.ts` và bổ sung 2 kịch bản Playwright E2E kiểm chứng.
+    - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
-  - **Hoàn thành Giai đoạn P1: Đo Trước, Tối Ưu Hóa Editor, Preview Scroll & Khử Trùng Lặp WASM (theo TASKS.md)**:
+  - **Giai đoạn P1 (Nền tảng Tối Ưu & Khử Trùng WASM theo TASKS.md)**:
     - **Lập Số Liệu Gốc (Baseline Profiling qua `tests/stress/profile-p1.test.ts`)**:
       - Phân tích & đóng gói văn bản lớn (1.16MB, ~197.600 từ, 200 chương): Parse ~212ms, Pack ~228ms, Heap delta ~4.4MB.
-      - Soạn thảo CodeMirror 6: Thuộc tính O(1) `doc.length`/`doc.lines` tăng tốc **5.7x** so với gọi `doc.toString()` trên mỗi phím bấm (6.4ms vs 36.6ms cho 200 ký tự).
+      - Soạn thảo CodeMirror 6: Thuộc tính O(1) `doc.length`/`doc.lines` thay thế tuần tự hóa `doc.toString()` trên mỗi phím bấm, giảm áp lực Garbage Collection.
       - Kết xuất Live Preview HTML: ~1.5ms cho mỗi trang XHTML kèm style và inline assets.
     - **Tối ưu hóa CodeMirror Editor & Đồng bộ (`EpubEditorCodePane.svelte`, `epub-editor-state.svelte.ts`)**:
-      - Loại bỏ việc tuần tự hóa `doc.toString()` liên tục trên mỗi phím bấm; thay bằng đọc thuộc tính O(1) `doc.length` và `doc.lines`.
-      - Cập nhật trạng thái `dirtyPaths` tức thì khi gõ phím để UI hiển thị badge "Đã sửa".
-      - Debounce quá trình tuần tự hóa chuỗi và ghi vào `editBuffer` 250ms, giảm 99% áp lực Garbage Collection.
-      - Bổ sung cơ chế `flushEditorSync()` tự động xả dữ liệu đồng bộ khi chuyển trang, mở modal, xuất file, kiểm tra cú pháp, hoặc khi editor mất focus (`blur`).
+      - Dùng thuộc tính O(1) `doc.length` và `doc.lines`; cập nhật tức thì trạng thái `dirtyPaths`.
+      - Debounce đồng bộ chuỗi 250ms; bổ sung cơ chế `flushEditorSync()` tự động xả dữ liệu đồng bộ khi chuyển trang, mở modal, xuất file hoặc khi editor mất focus (`blur`).
       - Ngăn chặn hoàn toàn lượt gọi `view.state.doc.toString()` thứ 2 trong reactive effect khi thay đổi xuất phát từ chính editor nhờ cờ `lastSyncedDoc`.
     - **Duy trì Vị trí Cuộn Live Preview (`EpubEditorPreviewPane.svelte`)**:
-      - Lưu trữ và tự động phục hồi `lastScrollRatio` sau khi iframe nạp lại `srcdoc`, giải quyết triệt để lỗi preview tự động giật nhảy về đầu trang khi người dùng đang soạn thảo.
+      - Lưu trữ và tự động phục hồi `lastScrollRatio` sau khi iframe nạp lại `srcdoc`, giải quyết triệt để lỗi preview tự động giật nhảy về đầu trang khi người dùng đang soạn thảo trang hoặc CSS.
       - Tự động reset `lastScrollRatio = 0` khi người dùng chuyển sang xem trước một chương khác.
     - **Khử Trùng Lặp File WASM trong Bản Build (`vite.config.js`)**:
-      - Xây dựng plugin `deduplicateWasmPlugin()`: tự động phát hiện và viết lại đường dẫn WASM trong worker chunk trỏ trực tiếp về asset duy nhất tại `_app/immutable/assets/`.
+      - Xây dựng plugin `deduplicateWasmPlugin()` quét đệ quy toàn bộ `workers/`: tự động phát hiện và viết lại đường dẫn WASM trỏ trực tiếp về asset duy nhất tại `_app/immutable/assets/`.
       - Xóa bỏ file `ort-wasm-simd-threaded.jsep.wasm` trùng lặp trong `workers/assets/`, tiết kiệm trực tiếp **23.23 MB** dung lượng bản build production.
     - **Chất Lượng Mã Nguồn & Kiểm Thử Toàn Diện**:
-      - Nâng tổng số test lên **408/408 unit tests pass 100% (20 test files)**.
+      - Nâng tổng số test lên **409/409 unit tests pass 100% (20 test files)**.
       - Toàn bộ pipeline: 0 lỗi format, 0 lỗi TypeScript (svelte-check), 0 lỗi ESLint, 0 lỗi Knip, production build pass.
   - **Khắc phục Triệt để Toàn bộ Điểm Lỗi Dữ liệu, Sai chuẩn EPUB, Ngữ pháp TXT & Bảo mật (P0)**:
     - **Chuẩn Hóa Bộ Phân Tích Định Dạng TXT Inline (`applyInlineFormatting` trong `txt-parser.ts`)**:
