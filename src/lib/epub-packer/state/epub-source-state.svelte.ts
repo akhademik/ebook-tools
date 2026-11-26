@@ -18,6 +18,7 @@ import { slugify, Logger } from '$lib/utils';
 import {
 	MAX_TXT_FILE_SIZE,
 	MAX_ZIP_FILE_SIZE,
+	MAX_ZIP_TOTAL_ENTRIES,
 	MAX_ZIP_MARKDOWN_FILES,
 	MAX_ZIP_SINGLE_MD_SIZE,
 	MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE
@@ -316,9 +317,18 @@ export class EpubSourceState {
 				return;
 			}
 
-			const mdFiles = Object.keys(zip.files).filter(
-				(name) => name.endsWith('.md') && !zip.files[name].dir
-			);
+			const allZipEntries = Object.keys(zip.files);
+			if (allZipEntries.length > MAX_ZIP_TOTAL_ENTRIES) {
+				Logger.warn(
+					'[EpubSourceState]',
+					`Too many total entries in zip: ${allZipEntries.length} (max ${MAX_ZIP_TOTAL_ENTRIES})`
+				);
+				this.parseStatus = `File .ZIP chứa quá nhiều tệp hoặc thư mục (${allZipEntries.length} mục, tối đa cho phép ${MAX_ZIP_TOTAL_ENTRIES} mục).`;
+				this.parseIsError = true;
+				return;
+			}
+
+			const mdFiles = allZipEntries.filter((name) => name.endsWith('.md') && !zip.files[name].dir);
 
 			if (mdFiles.length === 0) {
 				Logger.warn('[EpubSourceState]', 'No .md files found in zip');
@@ -345,25 +355,54 @@ export class EpubSourceState {
 					return;
 				}
 
+				const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
+
+				// Kiểm tra kích thước giải nén TRƯỚC KHI cấp phát bộ nhớ chuỗi nếu có metadata
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const entryData = (zip.files[name] as any)._data;
+				const preUncompressedSize =
+					entryData && typeof entryData.uncompressedSize === 'number'
+						? (entryData.uncompressedSize as number)
+						: null;
+
+				if (preUncompressedSize !== null) {
+					if (preUncompressedSize > MAX_ZIP_SINGLE_MD_SIZE) {
+						this.parseStatus = `File Markdown "${baseName}" có kích thước vượt quá giới hạn (${Math.round(preUncompressedSize / (1024 * 1024))}MB, tối đa 15MB/file).`;
+						this.parseIsError = true;
+						return;
+					}
+					if (totalUncompressedBytes + preUncompressedSize > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
+						this.parseStatus = `Tổng dung lượng văn bản giải nén từ file .ZIP vượt quá giới hạn an toàn (tối đa 60MB).`;
+						this.parseIsError = true;
+						return;
+					}
+				}
+
 				const text = await zip.files[name].async('string');
 				if (this.fileLoadGeneration !== gen) return;
 
-				const textSize = text.length;
-				if (textSize > MAX_ZIP_SINGLE_MD_SIZE) {
-					const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
-					this.parseStatus = `File Markdown "${baseName}" có kích thước vượt quá giới hạn (${Math.round(textSize / (1024 * 1024))}MB, tối đa 15MB/file).`;
+				// Đếm kích thước byte thực tế thay vì chỉ đếm UTF-16 code units
+				const actualByteLength =
+					typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(text).length : text.length;
+
+				const entryBytes =
+					preUncompressedSize !== null
+						? Math.max(actualByteLength, preUncompressedSize)
+						: actualByteLength;
+
+				if (entryBytes > MAX_ZIP_SINGLE_MD_SIZE) {
+					this.parseStatus = `File Markdown "${baseName}" có kích thước vượt quá giới hạn (${Math.round(entryBytes / (1024 * 1024))}MB, tối đa 15MB/file).`;
 					this.parseIsError = true;
 					return;
 				}
 
-				totalUncompressedBytes += textSize;
+				totalUncompressedBytes += entryBytes;
 				if (totalUncompressedBytes > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
 					this.parseStatus = `Tổng dung lượng văn bản giải nén từ file .ZIP vượt quá giới hạn an toàn (tối đa 60MB).`;
 					this.parseIsError = true;
 					return;
 				}
 
-				const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
 				files.push({
 					path: name,
 					baseName,

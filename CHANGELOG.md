@@ -4,6 +4,35 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để 4 Vấn đề Cốt lõi P1 & P2 còn lại trong EPUB Packer theo TASKS.md)
+
+- Thêm/sửa:
+  - **1. P1/P2: Snapshot Bất biến Toàn diện cho Ảnh bìa & Cắt góc (`EpubImagesState`, `EpubState`)**:
+    - Mở rộng `getOptimizedCoverBlob(params?: CoverSnapshotParams)` để nhận trực tiếp snapshot `{ coverOriginalUrl, coverCropTop, coverCropBottom, coverCropLeft, coverCropRight }`.
+    - `EpubState.processEpub()` chụp snapshot URL và 4 thông số crop ngay tại thời điểm người dùng bấm nút Đóng gói và truyền trực tiếp vào `getOptimizedCoverBlob(coverSnapshot)`.
+    - Callback `img.onload` đọc giá trị an toàn từ snapshot, triệt tiêu 100% rủi ro người dùng thay đổi vùng crop hoặc chọn ảnh mới làm ảnh hưởng kết quả của sách đang đóng gói.
+  - **2. P2: Giới hạn ZIP Markdown Kiểm tra Đúng Thời điểm & Đo Byte Thực tế (`EpubSourceState`, `constants.ts`)**:
+    - Bổ sung hạn ngạch `MAX_ZIP_TOTAL_ENTRIES = 2000` kiểm tra tổng số lượng entry trước khi duyệt file.
+    - Kiểm tra `entryData.uncompressedSize` của từng file `.md` trước khi gọi `zip.files[name].async('string')`, ngăn chặn việc giải nén file kích thước khổng lồ (zip-bomb) vào bộ nhớ.
+    - Kiểm tra trước tổng dung lượng cộng dồn `totalUncompressedBytes + preUncompressedSize > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE` (60MB) để dừng sớm trước khi nén quá tải.
+    - Sử dụng `new TextEncoder().encode(text).length` để tính toán byte UTF-8 thực tế thay vì đếm đơn vị UTF-16 (`text.length`).
+  - **3. P2: Áp dụng Hạn ngạch & Kiểm tra Trước Tương tự cho ZIP Ảnh Minh họa (`EpubImagesState`, `constants.ts`)**:
+    - Thiết lập các hạn ngạch an toàn: `MAX_IMAGES_ZIP_ENTRIES = 500` entries, `MAX_ILLUSTRATION_COUNT = 200` ảnh, `MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE = 150MB`.
+    - Kiểm tra `entryData.uncompressedSize` trước khi gọi `zip.files[name].async('blob')`: bỏ qua ảnh đơn lẻ vượt quá 30MB (`MAX_IMAGE_FILE_SIZE`) và dừng nạp ngay khi tổng dung lượng giải nén ảnh vượt 150MB.
+  - **4. P2: Hủy Bỏ Thực Sự Tác vụ Đóng gói Cũ khi Đổi Nguồn Sách (`EpubState`, `zip-writer.ts`)**:
+    - Quản lý vòng đời đóng gói với `packAbortController: AbortController | null` và `activePackagingPromise: Promise<void> | null`.
+    - Gọi `packAbortController.abort()` ngay khi nạp sách mới (`onFileLoaded`).
+    - Bổ sung `signal?: AbortSignal` cho `buildEpubBlob` và `assembleEpubZip`, ném `DOMException('Packing aborted', 'AbortError')` khi nhận tín hiệu hủy.
+    - Bắt tín hiệu hủy giữa chừng trong quá trình nén JSZip DEFLATE level 6 qua hook `onUpdate` của `zip.generateAsync`.
+    - `processEpub()` chủ động chờ `await activePackagingPromise` trước khi bắt đầu đợt đóng gói mới, tránh chạy song song 2 tiến trình nén nặng gây cạn kiệt RAM và CPU.
+  - **Bổ sung Bộ kiểm thử Đơn vị Chuyên sâu (`tests/epub-packer-lifecycle.test.ts`)**:
+    - Thêm 10 unit tests mới kiểm thử snapshot ảnh bìa & crop, pre-check kích thước ZIP entry trước khi async, kiểm tra hạn mức ảnh minh họa, hủy tiến trình nén bằng `AbortSignal`, và tuần tự hóa tác vụ đóng gói.
+    - Nâng tổng số test lên **435/435 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (435/435 pass, 21 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/constants.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/state/epub-images-state.svelte.ts`, `src/lib/epub-packer/builders/zip-writer.ts`, `tests/epub-packer-lifecycle.test.ts`, `TASKS.md`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 trong EPUB Packer theo TASKS.md)
 
 - Thêm/sửa:

@@ -75,8 +75,10 @@ export async function assembleEpubZip(
 	fonts: EpubFontsConfig | null,
 	ornaments: OrnamentsConfig | null,
 	images: IllustrationImageItem[],
-	preserveParagraphs: boolean
+	preserveParagraphs: boolean,
+	signal?: AbortSignal
 ): Promise<void> {
+	if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
 	// File mimetype bắt buộc không nén (compression: STORE)
 	zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
 
@@ -165,6 +167,7 @@ export async function assembleEpubZip(
 		const imagesFolder = oebps.folder('images');
 		if (imagesFolder) {
 			for (const img of safeImages) {
+				if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
 				if (img.blob) {
 					const data = await resolveZipBinaryData(img.blob);
 					imagesFolder.file(img.fileName, data, { compression: 'STORE' });
@@ -177,6 +180,7 @@ export async function assembleEpubZip(
 		const fontsFolder = oebps.folder('fonts');
 		if (fontsFolder) {
 			for (const fontName of activeFonts) {
+				if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
 				const blob = fonts.blobs[fontName];
 				const fileName = getFontFileName(fontName);
 				if (fileName && blob) {
@@ -190,6 +194,7 @@ export async function assembleEpubZip(
 	const textFolder = oebps.folder('text');
 	if (textFolder) {
 		for (let i = 0; i < chapters.length; i++) {
+			if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
 			const chapter = chapters[i];
 			const isJacket = chapter.fileName === 'jacket';
 			const isCover = chapter.fileName === 'cover';
@@ -221,7 +226,8 @@ export async function buildEpubBlob(
 	coverBlob: CoverBlobItem | null = null,
 	fonts: EpubFontsConfig | null = null,
 	ornaments: OrnamentsConfig | null = null,
-	images: IllustrationImageItem[] = []
+	images: IllustrationImageItem[] = [],
+	signal?: AbortSignal
 ): Promise<Blob> {
 	Logger.debug('[EpubPacker]', 'buildEpubBlob called', {
 		chaptersCount: chapters.length,
@@ -232,6 +238,8 @@ export async function buildEpubBlob(
 		ornamentsConfig: ornaments,
 		imagesCount: images?.length || 0
 	});
+
+	if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
 
 	if (!chapters.length) {
 		Logger.error('[EpubPacker]', 'buildEpubBlob error: chapters array is empty!');
@@ -255,16 +263,26 @@ export async function buildEpubBlob(
 		fonts,
 		ornaments,
 		images,
-		preserveParagraphs
+		preserveParagraphs,
+		signal
 	);
 
+	if (signal?.aborted) throw new DOMException('Packing aborted', 'AbortError');
+
 	Logger.debug('[EpubPacker]', 'All chapters added to zip, generating blob with JSZip...');
-	const blob = await zip.generateAsync({
-		type: 'blob',
-		mimeType: 'application/epub+zip',
-		compression: 'DEFLATE',
-		compressionOptions: { level: 6 }
-	});
+	const blob = await zip.generateAsync(
+		{
+			type: 'blob',
+			mimeType: 'application/epub+zip',
+			compression: 'DEFLATE',
+			compressionOptions: { level: 6 }
+		},
+		() => {
+			if (signal?.aborted) {
+				throw new DOMException('Packing aborted during compression', 'AbortError');
+			}
+		}
+	);
 	Logger.info(
 		'[EpubPacker]',
 		`Blob generated successfully, size: ${blob.size}, type: ${blob.type}`

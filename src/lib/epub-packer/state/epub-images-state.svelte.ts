@@ -1,6 +1,13 @@
 import JSZip from 'jszip';
 import type { CoverBlobItem, IllustrationImageItem } from '$lib/types';
-import { MAX_IMAGE_FILE_SIZE, MAX_IMAGES_ZIP_FILE_SIZE, MAX_PDF_FILE_SIZE } from '$lib/constants';
+import {
+	MAX_IMAGE_FILE_SIZE,
+	MAX_IMAGES_ZIP_FILE_SIZE,
+	MAX_PDF_FILE_SIZE,
+	MAX_IMAGES_ZIP_ENTRIES,
+	MAX_ILLUSTRATION_COUNT,
+	MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE
+} from '$lib/constants';
 import { Logger, processOrnamentImage, renderPdfPageToBlob } from '$lib/utils';
 
 const RESERVED_ILLUSTRATION_FILENAMES = new Set([
@@ -106,10 +113,59 @@ export class EpubImagesState {
 						const zipData =
 							typeof file.arrayBuffer === 'function' ? await file.arrayBuffer() : file;
 						const zip = await JSZip.loadAsync(zipData);
-						for (const name of Object.keys(zip.files)) {
+						const zipEntries = Object.keys(zip.files);
+						if (zipEntries.length > MAX_IMAGES_ZIP_ENTRIES) {
+							Logger.warn(
+								'[EpubImagesState]',
+								`Images zip contains too many entries: ${zipEntries.length} (max ${MAX_IMAGES_ZIP_ENTRIES})`
+							);
+							this.illustrationError = `File ZIP ảnh chứa quá nhiều tệp (${zipEntries.length} mục, tối đa ${MAX_IMAGES_ZIP_ENTRIES}).`;
+							continue;
+						}
+
+						let cumulativeZipImageBytes = 0;
+						for (const name of zipEntries) {
 							if (zip.files[name].dir) continue;
 
+							if (this.illustrationFiles.length >= MAX_ILLUSTRATION_COUNT) {
+								Logger.warn(
+									'[EpubImagesState]',
+									`Reached maximum illustration count limit: ${MAX_ILLUSTRATION_COUNT}`
+								);
+								break;
+							}
+
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							const entryData = (zip.files[name] as any)._data;
+							const preUncompressedSize =
+								entryData && typeof entryData.uncompressedSize === 'number'
+									? (entryData.uncompressedSize as number)
+									: null;
+
 							if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(name)) {
+								if (preUncompressedSize !== null) {
+									if (preUncompressedSize > MAX_IMAGE_FILE_SIZE) {
+										Logger.warn(
+											'[EpubImagesState]',
+											`Skipping uncompressed image exceeding limit: ${name} (${preUncompressedSize} bytes)`
+										);
+										continue;
+									}
+									if (
+										cumulativeZipImageBytes + preUncompressedSize >
+										MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE
+									) {
+										Logger.warn(
+											'[EpubImagesState]',
+											'Cumulative image uncompressed size exceeded limit'
+										);
+										this.illustrationError =
+											'Tổng dung lượng giải nén ảnh từ ZIP vượt quá giới hạn an toàn (150MB).';
+										break;
+									}
+									cumulativeZipImageBytes += preUncompressedSize;
+								}
+
 								const blob = await zip.files[name].async('blob');
 								if (blob.size > MAX_IMAGE_FILE_SIZE) continue;
 								const rawFileName = sanitizeUploadedIllustrationFileName(
@@ -494,17 +550,33 @@ export class EpubImagesState {
 		this.resetCoverCrop();
 	}
 
-	async getOptimizedCoverBlob(): Promise<CoverBlobItem | null> {
-		if (!this.coverOriginalUrl) return null;
+	async getOptimizedCoverBlob(params?: {
+		coverOriginalUrl?: string | null;
+		coverCropTop?: number;
+		coverCropBottom?: number;
+		coverCropLeft?: number;
+		coverCropRight?: number;
+	}): Promise<CoverBlobItem | null> {
+		const originalUrl =
+			params?.coverOriginalUrl !== undefined ? params.coverOriginalUrl : this.coverOriginalUrl;
+		if (!originalUrl) return null;
+		const cropTop = params?.coverCropTop !== undefined ? params.coverCropTop : this.coverCropTop;
+		const cropBottom =
+			params?.coverCropBottom !== undefined ? params.coverCropBottom : this.coverCropBottom;
+		const cropLeft =
+			params?.coverCropLeft !== undefined ? params.coverCropLeft : this.coverCropLeft;
+		const cropRight =
+			params?.coverCropRight !== undefined ? params.coverCropRight : this.coverCropRight;
+
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			img.onload = () => {
 				const w = img.naturalWidth;
 				const h = img.naturalHeight;
-				const safeTop = Math.max(0, Math.min(this.coverCropTop, h - 1));
-				const safeBottom = Math.max(0, Math.min(this.coverCropBottom, h - 1 - safeTop));
-				const safeLeft = Math.max(0, Math.min(this.coverCropLeft, w - 1));
-				const safeRight = Math.max(0, Math.min(this.coverCropRight, w - 1 - safeLeft));
+				const safeTop = Math.max(0, Math.min(cropTop, h - 1));
+				const safeBottom = Math.max(0, Math.min(cropBottom, h - 1 - safeTop));
+				const safeLeft = Math.max(0, Math.min(cropLeft, w - 1));
+				const safeRight = Math.max(0, Math.min(cropRight, w - 1 - safeLeft));
 
 				const croppedW = w - safeLeft - safeRight;
 				const croppedH = h - safeTop - safeBottom;
@@ -548,7 +620,7 @@ export class EpubImagesState {
 				);
 			};
 			img.onerror = (err) => reject(new Error('Lỗi tải ảnh bìa: ' + err));
-			img.src = this.coverOriginalUrl!;
+			img.src = originalUrl;
 		});
 	}
 }

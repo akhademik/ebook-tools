@@ -187,21 +187,19 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 12:30
-- Đang dở / Đang hoàn thiện:
-  - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
-    - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
-    - Đã sửa bảo toàn vị trí cuộn preview khi sửa CSS (`lastScrollRatio` ghi nhận vô điều kiện).
-    - Đã mở rộng `deduplicateWasmPlugin` quét đệ quy toàn bộ thư mục `workers/` và thêm assertion fail build nếu còn sót tham chiếu cũ.
-    - Đã deflake `profile-p1.test.ts` và toàn bộ 24 kịch bản Playwright E2E kiểm chứng pass 100%.
-    - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
+- Cập nhật lần cuối: 2026-11-26 12:50
 - Đã hoàn thành:
-  - **Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 trong EPUB Packer theo TASKS.md**:
+  - **Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
+    - **P1/P2: Snapshot Bất biến Toàn diện cho Ảnh bìa & Cắt góc (`EpubImagesState`, `EpubState`)**: Nhận `coverSnapshot` độc lập (URL và 4 thông số crop `coverCropTop/Bottom/Left/Right`), cô lập hoàn toàn hàm tối ưu ảnh khỏi việc người dùng chỉnh sửa crop hoặc chọn ảnh mới trong lúc đang đóng gói sách.
+    - **P2: Giới hạn ZIP Markdown Kiểm tra Đúng Thời điểm & Đo Byte Thực tế (`EpubSourceState`, `constants.ts`)**: Kiểm tra `entryData.uncompressedSize` trước khi gọi `.async('string')`, ngăn chặn giải nén chuỗi lớn vào RAM; đo kích thước byte thực tế UTF-8 qua `TextEncoder`; bổ sung hạn ngạch tổng số entries trong archive (`MAX_ZIP_TOTAL_ENTRIES = 2000`).
+    - **P2: Hạn ngạch & Kiểm tra Trước Tương tự cho ZIP Ảnh Minh họa (`EpubImagesState`, `constants.ts`)**: Thiết lập `MAX_IMAGES_ZIP_ENTRIES = 500`, `MAX_ILLUSTRATION_COUNT = 200`, `MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE = 150MB`; kiểm tra `entryData.uncompressedSize` trước khi gọi `.async('blob')` để loại bỏ ảnh đơn lẻ quá 30MB và dừng nạp ngay khi chạm ngưỡng 150MB.
+    - **P2: Hủy Bỏ Thực Sự Tác vụ Đóng gói Cũ khi Đổi Nguồn Sách (`EpubState`, `zip-writer.ts`)**: Tích hợp `packAbortController` và `activePackagingPromise`; truyền `signal` vào `buildEpubBlob`, `assembleEpubZip` và bắt sự kiện hủy trong `zip.generateAsync` qua hook `onUpdate`; tự động chờ tác vụ cũ giải phóng tài nguyên CPU/RAM trước khi bắt đầu đóng gói sách mới.
+    - Nâng tổng số test lên **435/435 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
+  - **Khắc phục Triệt để Các Rủi ro P1 & P2 Nền tảng trong EPUB Packer**:
     - **P1: Generation Token nạp nguồn sách (`EpubSourceState`)**: Ngăn chặn tình trạng race condition khi chọn liên tiếp file TXT/ZIP, tác vụ cũ hoàn thành muộn sẽ bị ngắt sớm và không thể ghi đè dữ liệu lên file mới.
     - **P1: Snapshot Bất biến & Pack Generation (`EpubState`)**: Chụp snapshot toàn bộ dữ liệu ngay lúc bấm đóng gói, ngăn chặn việc đổi sách giữa chừng làm lẫn metadata sách A vào nội dung sách B, tự động hủy bỏ kết quả đóng gói cũ khi người dùng nạp sách mới.
     - **P2: Hạn ngạch an toàn bộ nhớ khi giải nén ZIP (`constants.ts`, `EpubSourceState`)**: Chặn tối đa 1.000 file `.md`, 15MB/file, và 60MB tổng dung lượng văn bản giải nén, chống đứng máy và cạn RAM.
     - **P2: Cô lập Namespace tài nguyên ảnh & Chống trùng OPF ID (`zip-writer.ts`, `opf-builder.ts`, `EpubImagesState`)**: Tự động đổi tên ảnh minh họa trùng với ảnh bìa (`cover.jpg`) hoặc hoa văn thành `illus_*`, đảm bảo không bị ghi đè mất file bìa; tự sinh mã ID phân biệt trong OPF manifest triệt tiêu 100% nguy cơ trùng ID.
-    - Bổ sung 9 unit tests chuyên sâu trong `tests/epub-packer-lifecycle.test.ts`, nâng tổng số test lên **425/425 unit tests pass 100% (21 test files)**.
   - **Tinh Giản Hiển Thị Bộ Chọn Phông FontSelect & Mở Rộng Khung Preview Full-Size (`FontSelect.svelte`, `EpubFontSettingsSection.svelte`)**:
     - Ô chọn phông chữ khi ở trạng thái bình thường chỉ hiển thị duy nhất tên phông (`[Tên font]`), loại bỏ phần `- Text mẫu` để giao diện gọn gàng, không trùng lặp thông tin với khung xem trước.
     - Danh sách chọn phông dropdown chỉ hiển thị `[Tên font] - Text mẫu`, loại bỏ hậu tố mã ID `• {font.id}` giúp giao diện thanh thoát và dễ nhìn.
