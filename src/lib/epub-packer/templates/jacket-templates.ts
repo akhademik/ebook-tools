@@ -17,7 +17,7 @@ const formatTranslator = (t?: string): string => {
 	if (!t) return '';
 	const trimmed = t.trim();
 	if (/dịch$/i.test(trimmed)) return trimmed;
-	return trimmed + ' dịch';
+	return trimmed;
 };
 
 export const JACKET_SAMPLE_PLACEHOLDERS = {

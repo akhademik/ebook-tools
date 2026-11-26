@@ -54,6 +54,9 @@ export interface IllustrationImageItem {
 
 export interface EpubFontsConfig {
 	jacketFont?: string;
+	jacketTitleFont?: string;
+	jacketAuthorFont?: string;
+	jacketMetaFont?: string;
 	h1Font?: string;
 	h2Font?: string;
 	h2SubFont?: string;

@@ -72,95 +72,141 @@
 		epubState.jacket.jacketTemplateId = JACKET_TEMPLATES[currentIdx].id;
 	}
 
-	const activeFont = $derived(
-		epubState.fonts.jacketFont && epubState.fonts.jacketFont !== 'default'
-			? findFont(epubState.fonts.jacketFont)
-			: null
-	);
-
-	const jacketFontFamily = $derived.by(() => {
-		if (!epubState.fonts.jacketFont || epubState.fonts.jacketFont === 'default') {
-			return '"Bookerly", serif';
-		}
-		const font = activeFont || findFont(epubState.fonts.jacketFont);
-		if (!font) {
-			return `"${epubState.fonts.jacketFont}", serif`;
-		}
+	function getFontFamily(fontId: string): string | null {
+		if (!fontId || fontId === 'default') return null;
+		const font = findFont(fontId);
+		if (!font) return `"${fontId}", serif`;
 		const familyCandidates = [font.id, font.cssFamily, font.name]
 			.map((s) => s.trim())
 			.filter((s) => s.length > 0);
 		const uniqueFamilies = [...new Set(familyCandidates)];
 		return uniqueFamilies.map((f) => `"${f}"`).join(', ') + ', serif';
+	}
+
+	const titleFontFamily = $derived(getFontFamily(epubState.fonts.jacketTitleFont));
+	const authorFontFamily = $derived(getFontFamily(epubState.fonts.jacketAuthorFont));
+	const metaFontFamily = $derived(getFontFamily(epubState.fonts.jacketMetaFont));
+
+	const baseFontFamily = $derived.by(() => {
+		if (!epubState.fonts.jacketFont || epubState.fonts.jacketFont === 'default') {
+			return '"Bookerly", serif';
+		}
+		return getFontFamily(epubState.fonts.jacketFont) || '"Bookerly", serif';
 	});
 </script>
 
 <svelte:head>
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html `<style id="jacket-template-css">${currentTemplate.css}</style>`}
-	{#if jacketFontFamily}
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-		{@html `<style id="jacket-font-override">.preview-wrap, .preview-wrap p, .preview-wrap div, .preview-wrap span, .preview-wrap h1, .preview-wrap h2, .preview-wrap hr, .preview-wrap * { font-family: ${jacketFontFamily} !important; }</style>`}
-	{/if}
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html `<style id="jacket-font-override">
+		.preview-wrap, .preview-wrap * { font-family: ${baseFontFamily} !important; }
+		${titleFontFamily ? `.preview-wrap .title, .preview-wrap .original { font-family: ${titleFontFamily} !important; }` : ''}
+		${authorFontFamily ? `.preview-wrap .author, .preview-wrap .byline, .preview-wrap .translator { font-family: ${authorFontFamily} !important; }` : ''}
+		${metaFontFamily ? `.preview-wrap .meta, .preview-wrap .tag { font-family: ${metaFontFamily} !important; }` : ''}
+	</style>`}
 </svelte:head>
 
 <div class="mt-8 pt-6 border-t border-border-color">
 	<!-- Carousel Header & Toolbar -->
-	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+	<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
 		<div>
-			<h3 class="text-base font-bold text-text-color font-sans">Trang giới thiệu sách (Jacket)</h3>
+			<h3 class="text-base font-bold text-text-color font-sans">Trang giới thiệu sách</h3>
 			<p class="text-xs text-text-mute mt-0.5">
 				Chọn mẫu trang lót sách và tùy biến phông chữ hiển thị
 			</p>
 		</div>
 
-		<!-- Toolbar controls: Font selector + Nav buttons -->
-		<div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-			<div class="flex items-center gap-2">
-				<span class="text-xs text-text-mute font-semibold whitespace-nowrap">Phông chữ:</span>
-				<div class="w-44 sm:w-48">
-					<FontSelect
-						id="jacket-modal-font-select"
-						bind:value={epubState.fonts.jacketFont}
-						compact={true}
-					/>
-				</div>
+		<!-- Nav buttons & template counter -->
+		<div class="flex items-center gap-2 shrink-0">
+			<span class="text-xs text-text-mute font-medium mr-1">
+				Mẫu <strong class="text-text-color">{currentIdx + 1}</strong> / {JACKET_TEMPLATES.length}
+			</span>
+			<button
+				type="button"
+				onclick={prev}
+				class="h-9 px-3 bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold rounded-xl active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
+				aria-label="Mẫu trước"
+			>
+				<svg
+					class="w-3.5 h-3.5"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+				</svg>
+				Trước
+			</button>
+			<button
+				type="button"
+				onclick={next}
+				class="h-9 px-3 bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold rounded-xl active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
+				aria-label="Mẫu tiếp theo"
+			>
+				Tiếp
+				<svg
+					class="w-3.5 h-3.5"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					stroke-width="2"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<!-- 3-Font Typography Selector Toolbar (Phương án 1 Mockup) -->
+	<div class="bg-panel-2/70 border border-border-color rounded-xl p-3.5 sm:p-4 mb-4">
+		<div class="flex items-center justify-between mb-2.5"></div>
+
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+			<!-- Cặp 1: Tác phẩm + Tựa gốc -->
+			<div>
+				<label
+					for="jacket-font-title"
+					class="text-xs font-semibold text-accent-color mb-1.5 block truncate"
+				>
+					🏷️ Tác phẩm + Tựa gốc
+				</label>
+				<FontSelect
+					id="jacket-font-title"
+					bind:value={epubState.fonts.jacketTitleFont}
+					compact={true}
+				/>
 			</div>
 
-			<div class="flex items-center gap-1.5 shrink-0">
-				<button
-					type="button"
-					onclick={prev}
-					class="h-9 px-3 bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold rounded-xl active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
-					aria-label="Mẫu trước"
+			<!-- Cặp 2: Tác giả + Dịch giả -->
+			<div>
+				<label
+					for="jacket-font-author"
+					class="text-xs font-semibold text-accent-color mb-1.5 block truncate"
 				>
-					<svg
-						class="w-3.5 h-3.5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-					</svg>
-					Trước
-				</button>
-				<button
-					type="button"
-					onclick={next}
-					class="h-9 px-3 bg-panel-2 border border-field-border text-text-color hover:border-accent-color font-sans text-xs font-semibold rounded-xl active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1"
-					aria-label="Mẫu tiếp theo"
+					✍️ Tác giả + Dịch giả
+				</label>
+				<FontSelect
+					id="jacket-font-author"
+					bind:value={epubState.fonts.jacketAuthorFont}
+					compact={true}
+				/>
+			</div>
+
+			<!-- Cặp 3: NXB + Nhà phát hành -->
+			<div>
+				<label
+					for="jacket-font-meta"
+					class="text-xs font-semibold text-accent-color mb-1.5 block truncate"
 				>
-					Tiếp
-					<svg
-						class="w-3.5 h-3.5"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-					</svg>
-				</button>
+					🏛️ NXB + Nhà phát hành
+				</label>
+				<FontSelect
+					id="jacket-font-meta"
+					bind:value={epubState.fonts.jacketMetaFont}
+					compact={true}
+				/>
 			</div>
 		</div>
 	</div>
@@ -184,8 +230,8 @@
 		<!-- The live book page -->
 		<div
 			class="preview-wrap shadow-xl"
-			style={jacketFontFamily
-				? `--jacket-font: ${jacketFontFamily}; font-family: ${jacketFontFamily} !important;`
+			style={baseFontFamily
+				? `--jacket-font: ${baseFontFamily}; font-family: ${baseFontFamily} !important;`
 				: undefined}
 		>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->

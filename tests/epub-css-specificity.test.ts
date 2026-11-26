@@ -347,6 +347,43 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		const errors = findDescendingSpecificityErrors(css);
 		expect(errors).toEqual([]);
 	});
+
+	it('should guarantee buildJacketCss generates zero descending specificity errors across all 10 templates with 3 font pairs', () => {
+		const fonts: EpubFontsConfig = {
+			jacketFont: 'Bookerly',
+			jacketTitleFont: 'Minh-Tu',
+			jacketAuthorFont: 'Kermel',
+			jacketMetaFont: 'Bookerly'
+		};
+
+		for (let templateId = 1; templateId <= 10; templateId++) {
+			const jacket = {
+				enabled: true,
+				templateId,
+				title: 'Mật Mã Da Vinci',
+				originalTitle: 'The Da Vinci Code',
+				author: 'Dan Brown',
+				translator: 'Đỗ Thu Hà',
+				publisher: '1980 Books',
+				distributor: 'NXB Văn hóa'
+			};
+			const jacketCss = buildJacketCss(jacket, fonts);
+			const errors = findDescendingSpecificityErrors(jacketCss);
+			expect(errors).toEqual([]);
+
+			// Assert title font injection
+			expect(jacketCss).toContain('font-family: "AH-MinhTu", serif !important;');
+			// Assert author font injection
+			expect(jacketCss).toContain('font-family: "iCiel Kermel", serif !important;');
+			// Assert meta font injection
+			expect(jacketCss).toContain('font-family: "Bookerly", serif !important;');
+
+			// Deduplication check: Bookerly @font-face is declared only once even if used in jacketFont & jacketMetaFont
+			const bookerlyFaceMatches =
+				jacketCss.match(/@font-face\s*\{[^}]*font-family:\s*"Bookerly"/g) || [];
+			expect(bookerlyFaceMatches.length).toBe(1);
+		}
+	});
 });
 
 describe('EPUB 3 Accessibility & WAI-ARIA Calibre Compliance', () => {
@@ -576,6 +613,21 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 
 		const active = resolveActiveFonts(fonts);
 		expect(active).toEqual(['Bookerly']);
+	});
+
+	it('should resolve active fonts with deduplication when jacket font pairs are specified', () => {
+		const fonts: EpubFontsConfig = {
+			jacketTitleFont: 'Minh-Tu',
+			jacketAuthorFont: 'Kermel',
+			jacketMetaFont: 'Minh-Tu',
+			blobs: {
+				'Minh-Tu': new Blob(['mock-minh-tu-bytes']),
+				Kermel: new Blob(['mock-kermel-bytes'])
+			}
+		};
+
+		const active = resolveActiveFonts(fonts);
+		expect(active).toEqual(['Minh-Tu', 'Kermel']);
 	});
 
 	it('should shrink-wrap blockquote.center with display: table and auto margins so footer aligns with quote', () => {

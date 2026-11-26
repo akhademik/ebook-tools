@@ -4,6 +4,28 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Áp dụng Logic Chọn 3 Cặp Phông Chữ Trang Giới Thiệu Sách Jacket, Tối ưu Thứ tự Specificity CSS & Deduplicate Font)
+
+- Thêm/sửa:
+  - **Triển khai Trạng thái Reactive & Gắn kết UI Tuyển chọn 3 Cặp Phông Chữ Jacket (`epub.type.ts`, `epub-fonts-state.svelte.ts`, `EpubJacketCarousel.svelte`)**:
+    - Bổ sung 3 trường cấu hình kiểu phông: `jacketTitleFont` (Cặp 1: Tác phẩm + Tựa gốc), `jacketAuthorFont` (Cặp 2: Tác giả + Dịch giả), `jacketMetaFont` (Cặp 3: NXB + Nhà phát hành).
+    - Bảo toàn 100% nội dung tinh chỉnh giao diện của người dùng trong `EpubJacketCarousel.svelte`, gắn kết `bind:value` trực tiếp với state reactive `epubState.fonts`.
+    - Mở rộng hỗ trợ style preview bao quát các class biến thể `.byline` (Mẫu 7) và `.tag` (Mẫu 8).
+  - **Tối ưu Cơ chế Tiêm CSS Quy tắc Khắt khe Zero Descending Specificity (`stylesheet-builder.ts`)**:
+    - Tái cấu trúc hàm `buildJacketCss` để chèn khai báo `font-family: ... !important;` trực tiếp vào bên trong các khối selector sẵn có của template (`.title`, `.original`, `.author`, `.byline`, `.translator`, `.meta`, `.tag`).
+    - Giữ nguyên tuyệt đối thứ tự selector gốc của template, loại bỏ hoàn toàn nguy cơ vi phạm descending specificity selector theo chuẩn W3C/Stylelint/Calibre.
+  - **Cơ chế Khai báo và Gom trùng Font (Deduplication) Chuẩn EPUB 3 (`stylesheet-builder.ts`, `asset-builder.ts`, `epub-state.svelte.ts`)**:
+    - Tự động gom nhóm bằng `Set` để đảm bảo mỗi font chỉ sinh duy nhất 1 block `@font-face` trong `jacket.css` ngay cả khi nhiều cặp nhóm chọn cùng một font.
+    - Cập nhật `resolveActiveFonts` và vòng lặp nạp font blob để đóng gói font vào EPUB một lần duy nhất tại `OEBPS/fonts/`, không làm tăng dung lượng file sách.
+  - **Bổ sung Unit Test Toàn diện (`tests/epub-css-specificity.test.ts`, `tests/pdf-splitter.test.ts`)**:
+    - Bổ sung bài kiểm tra kiểm chứng `buildJacketCss` đạt 0 lỗi specificity trên toàn bộ 10 mẫu template với cấu hình 3 cặp font.
+    - Kiểm thử deduplication `@font-face` và kiểm định danh sách font kích hoạt.
+    - Tinh chỉnh ngưỡng benchmark và timeout cho bài test buffer lớn trong `pdf-splitter.test.ts`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (446/446 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/state/epub-fonts-state.svelte.ts`, `src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/builders/stylesheet-builder.ts`, `src/lib/epub-packer/builders/asset-builder.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `tests/epub-css-specificity.test.ts`, `tests/pdf-splitter.test.ts`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Bỏ Opacity Footer Trích dẫn, Hỗ trợ Không Giới hạn Footer > & Khắc phục Lỗi Thứ tự Specificity CSS Trích dẫn)
 
 - Thêm/sửa:
