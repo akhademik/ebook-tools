@@ -1360,5 +1360,34 @@ Nội dung...
 			expect(state.jacket.translator).toBe('Nguyễn Hiến Lê');
 			expect(state.metadata.publisher).toBe('Nhà xuất bản Trẻ');
 		});
+
+		it('should safely parse inline formatting without corrupting URLs, units or snake_case', () => {
+			const txt = `@@ Chương 1
+Truy cập https://a.com/b/c để xem chi tiết.
+Vận tốc trung bình là 60 km/h/s trong thí nghiệm.
+Đọc file tại file_name_here và database_connection_string.
+Đoạn văn có *chữ đậm*, /chữ nghiêng/ và _chữ gạch chân_ chuẩn.`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Book Test');
+			expect(chapters).toHaveLength(1);
+			const html = chapters[0].html;
+
+			// URL must remain intact without <i> tags
+			expect(html).toContain('https://a.com/b/c');
+			expect(html).not.toContain('https:/<i>');
+
+			// km/h/s must remain intact without <i>h</i>
+			expect(html).toContain('60 km/h/s');
+			expect(html).not.toContain('<i>h</i>');
+
+			// file_name_here must remain intact without <u>name</u>
+			expect(html).toContain('file_name_here');
+			expect(html).not.toContain('file<u>name</u>here');
+
+			// Valid inline formatting must be converted
+			expect(html).toContain('<b>chữ đậm</b>');
+			expect(html).toContain('<i>chữ nghiêng</i>');
+			expect(html).toContain('<u>chữ gạch chân</u>');
+		});
 	});
 });

@@ -4,6 +4,33 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để Toàn bộ 9 Lỗi Dữ liệu, Sai chuẩn EPUB & Bảo mật theo TASKS.md)
+
+- Thêm/sửa:
+  - `src/lib/epub-editor/components/EpubEditorCodePane.svelte`:
+    - Quản lý `EditorState` độc lập cho từng file thông qua `SvelteMap<string, EditorState>`.
+    - Chuyển file bằng `view.setState()` thay vì dispatch thay đổi nội dung, bảo toàn lịch sử Undo/Redo cho từng trang, ngăn chặn việc Ctrl+Z ghi đè nội dung file này vào file khác.
+  - `src/lib/epub-editor/editor/editor-ops.ts`:
+    - Chuẩn hóa hàm `exportEpubBlob()`: đảm bảo file `mimetype` được lưu dưới dạng không nén (`STORE`) và luôn là entry đầu tiên trong archive ZIP theo chuẩn OCF 3.3.
+  - `src/lib/epub-editor/epub-book-ops.ts`:
+    - Sửa `updateBookMetadata()`: dùng callback function `(_match, p1, p2) => ...` trong `String.replace()`, ngăn chặn biến dạng XML khi metadata chứa pattern `$1`, `$2`, `$$`.
+    - Sửa `rebuildEpubToc()`: tự động ghi thuộc tính `id="section-X-Y"` ngược lại vào thẻ heading trong file XHTML tương ứng khi tự động sinh anchor ID cho mục lục.
+    - Sửa `reorderOpfSpine()`: bảo tồn nguyên vẹn toàn bộ thuộc tính của thẻ `<itemref>` gốc (`linear="no"`, `properties`, v.v.) khi sắp xếp lại spine.
+  - `src/lib/epub-packer/parser/txt-parser.ts`:
+    - Tự động mask URL (`https?://...`) trước khi xử lý inline formatting.
+    - Ràng buộc ranh giới ký tự/từ cho dấu in nghiêng `/`, in đậm `*`, và gạch chân `_` với lookaround Unicode `(?<![\p{L}\p{N}])` và `(?![\p{L}\p{N}])`, triệt tiêu lỗi làm hỏng URL, đơn vị `km/h/s` và biến snake_case `file_name_here`.
+  - `src/lib/pdf-splitter/pdf-splitter.ts`, `src/lib/pdf-splitter/pdf-splitter-state.svelte.ts`, `src/lib/utils/pdf.ts`, `src/lib/types/pdf-splitter.type.ts`:
+    - Truyền tham số `isEvalSupported: false` vào tất cả các lời gọi `getDocument()`, vô hiệu hóa lỗ hổng thực thi mã tùy ý CVE-2024-4367 trong PDF.js.
+  - `src/lib/epub-editor/cleaner/reference-extractor.ts`:
+    - Bổ sung quét ảnh trong thuộc tính nội dòng `style="background: url(...)"`, thuộc tính `srcset` trên `<img>`/`<source>`, và quét CSS stylesheet trong cú pháp `@import "file.css"`.
+  - `src/lib/epub-editor/cleaner/cleaner-engine.ts` & `src/lib/utils/path.ts`:
+    - Bổ sung hàm `getRelativePath()` và chuẩn hóa cơ chế thay thế tài nguyên trùng lặp (deduplication) bằng đường dẫn tương đối an toàn, tránh lỗi thay thế chuỗi con sai lệch (như `1.jpg` ăn vào `11.jpg`).
+  - Unit Tests:
+    - Bổ sung 6 test case mới trong `tests/epub-book-ops.test.ts`, `tests/epub-editor.test.ts`, `tests/epub-packer.test.ts`, `tests/epub-cleaner.test.ts`, và `tests/pdf-splitter.test.ts`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (399/399 pass, 19 test files) | knip ✅ (0 issues) | build ✅
+
+---
+
 ## 2026-11-25 (Khắc phục Triệt để Lỗi CSS Specificity Inversion `.note p` & Nâng cấp Test Suite CSS Calibre)
 
 - Thêm/sửa:

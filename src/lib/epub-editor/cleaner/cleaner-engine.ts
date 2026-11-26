@@ -1,6 +1,6 @@
 // src/lib/epub-editor/cleaner/cleaner-engine.ts
 import type JSZip from 'jszip';
-import { resolveRelativePath } from '$lib/utils';
+import { resolveRelativePath, getRelativePath } from '$lib/utils';
 import type {
 	EpubOptimizationPlan,
 	EpubAnalysisResult,
@@ -340,11 +340,21 @@ export async function cleanEpub(
 				let modified = false;
 
 				for (const [dupPath, origPath] of replacementMap.entries()) {
+					const relToDup = getRelativePath(tf, dupPath);
+					const relToOrig = getRelativePath(tf, origPath);
 					const dupName = dupPath.split('/').pop()!;
-					const origName = origPath.split('/').pop()!;
 
-					if (content.includes(dupName)) {
-						content = content.replaceAll(dupName, origName);
+					const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+					// Safely match exact quoted attributes (src="...", href="...") or url(...)
+					// Prevents corrupting partial names (e.g. 1.jpg inside 11.jpg)
+					const pattern = new RegExp(
+						`((?:src|href|xlink:href)\\s*=\\s*["']|url\\s*\\(\\s*['"]?)(?:${escapeRegex(relToDup)}|${escapeRegex(dupName)})(["']|\\s*\\))`,
+						'gi'
+					);
+
+					if (pattern.test(content)) {
+						content = content.replace(pattern, (_m, p1, p2) => `${p1}${relToOrig}${p2}`);
 						modified = true;
 					}
 				}

@@ -61,8 +61,27 @@ describe('Book-Level Operations (Metadata, Spine, TOC Rebuild)', () => {
 		expect(updated).toContain('<dc:identifier id="BookId">urn:uuid:xyz-789</dc:identifier>');
 	});
 
-	it('should reorder spine itemrefs in OPF XML', () => {
-		const reordered = reorderOpfSpine(sampleOpf, 'OEBPS/content.opf', [
+	it('should safely handle dollar signs ($1, $$, $2) in book metadata without XML distortion', () => {
+		const updated = updateBookMetadata(sampleOpf, {
+			title: 'Sách Giá $100 & Tập $1 và $2',
+			author: 'Tác Giả $1',
+			identifier: 'urn:uuid:price-$1-dollar'
+		});
+
+		const newMeta = extractBookMetadata(updated);
+		expect(newMeta.title).toBe('Sách Giá $100 &amp; Tập $1 và $2');
+		expect(newMeta.author).toBe('Tác Giả $1');
+		expect(newMeta.identifier).toBe('urn:uuid:price-$1-dollar');
+		expect(updated).not.toContain('<dc:title>Sách Giá <dc:title>');
+	});
+
+	it('should reorder spine itemrefs in OPF XML while preserving linear="no" and other attributes', () => {
+		const opfWithLinear = sampleOpf.replace(
+			'<itemref idref="c1"/>',
+			'<itemref idref="c1" linear="no" properties="page-spread-left"/>'
+		);
+
+		const reordered = reorderOpfSpine(opfWithLinear, 'OEBPS/content.opf', [
 			'OEBPS/text/ch2.xhtml',
 			'OEBPS/text/ch1.xhtml'
 		]);
@@ -73,6 +92,40 @@ describe('Book-Level Operations (Metadata, Spine, TOC Rebuild)', () => {
 		const c2Index = spineContent.indexOf('idref="c2"');
 		const c1Index = spineContent.indexOf('idref="c1"');
 		expect(c2Index).toBeLessThan(c1Index);
+		expect(spineContent).toContain(
+			'<itemref idref="c1" linear="no" properties="page-spread-left"/>'
+		);
+	});
+
+	it('should write missing section ids back to XHTML when rebuilding TOC', async () => {
+		const zip = new JSZip();
+		zip.file('mimetype', 'application/epub+zip');
+		zip.file(
+			'META-INF/container.xml',
+			'<container version="1.0"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>'
+		);
+		zip.file('OEBPS/content.opf', sampleOpf);
+		// Note: h2 here has NO id attribute!
+		zip.file(
+			'OEBPS/text/ch1.xhtml',
+			`<html><head><title>Chương Một</title></head><body><h1>Tiêu đề chính</h1><h2>Tiểu mục không có ID</h2><p>Nội dung</p></body></html>`
+		);
+		zip.file(
+			'OEBPS/text/ch2.xhtml',
+			`<html><head><title>Chương Hai</title></head><body><h1>Chương Hai</h1></body></html>`
+		);
+
+		const editBuffer = new Map<string, string>();
+		const tocResult = await rebuildEpubToc(zip, editBuffer);
+		expect(tocResult).toBeTruthy();
+
+		// TOC should link to generated anchor
+		expect(tocResult!.navXhtml).toMatch(/ch1\.xhtml#section-2-\d+/);
+
+		// XHTML in editBuffer MUST contain that id attribute
+		const updatedCh1 = editBuffer.get('OEBPS/text/ch1.xhtml');
+		expect(updatedCh1).toBeDefined();
+		expect(updatedCh1).toMatch(/<h2 id="section-2-\d+">Tiểu mục không có ID<\/h2>/);
 	});
 
 	it('should rebuild nav.xhtml and toc.ncx based on chapter headings', async () => {

@@ -65,14 +65,14 @@ export async function renderPdfPageToBlob(
 		throw new Error('Thư viện PDF.js chưa sẵn sàng.');
 	}
 
-	let docSource: { url?: string; data?: ArrayBuffer | Uint8Array };
+	let docSource: { url?: string; data?: ArrayBuffer | Uint8Array; isEvalSupported?: boolean };
 	let url: string | null = null;
 
 	if (typeof Blob !== 'undefined' && pdfInput instanceof Blob) {
 		url = URL.createObjectURL(pdfInput);
-		docSource = { url };
+		docSource = { url, isEvalSupported: false };
 	} else if (pdfInput instanceof ArrayBuffer || pdfInput instanceof Uint8Array) {
-		docSource = { data: pdfInput };
+		docSource = { data: pdfInput, isEvalSupported: false };
 	} else {
 		throw new Error('Định dạng dữ liệu đầu vào PDF không hợp lệ.');
 	}

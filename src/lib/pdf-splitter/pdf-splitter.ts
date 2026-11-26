@@ -304,20 +304,20 @@ async function openPdfDocument(
 	initPdfWorker();
 
 	let objectUrl: string | null = null;
-	let docSource: { url: string } | { data: Uint8Array };
+	let docSource: { url?: string; data?: Uint8Array; isEvalSupported?: boolean };
 
 	if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
 		try {
 			objectUrl = URL.createObjectURL(file);
-			docSource = { url: objectUrl };
+			docSource = { url: objectUrl, isEvalSupported: false };
 		} catch {
 			objectUrl = null;
 			const buf = await file.arrayBuffer();
-			docSource = { data: new Uint8Array(buf) };
+			docSource = { data: new Uint8Array(buf), isEvalSupported: false };
 		}
 	} else {
 		const buf = await file.arrayBuffer();
-		docSource = { data: new Uint8Array(buf) };
+		docSource = { data: new Uint8Array(buf), isEvalSupported: false };
 	}
 
 	let doc: PdfJsDocument;

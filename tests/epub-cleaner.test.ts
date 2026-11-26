@@ -417,5 +417,103 @@ describe('EPUB Cleaner & Optimizer unit tests', () => {
 				}
 			}
 		});
+
+		it('should recognize resources in inline style attributes, @import CSS, and srcset', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				'<container version="1.0"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>'
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<package version="3.0" unique-identifier="pub-id">
+  <metadata><dc:title>Test</dc:title><dc:identifier id="pub-id">1</dc:identifier></metadata>
+  <manifest>
+    <item id="c1" href="text/ch1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="css1" href="styles/main.css" media-type="text/css"/>
+    <item id="css2" href="styles/imported.css" media-type="text/css"/>
+    <item id="bg" href="images/bg.jpg" media-type="image/jpeg"/>
+    <item id="srcset-img" href="images/retina.jpg" media-type="image/jpeg"/>
+  </manifest>
+  <spine><itemref idref="c1"/></spine>
+</package>`
+			);
+			// ch1 references bg.jpg via style="background: url(...)" and retina.jpg via srcset
+			zip.file(
+				'OEBPS/text/ch1.xhtml',
+				`<html>
+<head><link rel="stylesheet" href="../styles/main.css"/></head>
+<body>
+  <div style="background-image: url('../images/bg.jpg')">Hello</div>
+  <img src="dummy.jpg" srcset="../images/retina.jpg 2x"/>
+</body>
+</html>`
+			);
+			// main.css imports imported.css without url()
+			zip.file('OEBPS/styles/main.css', `@import "imported.css";\nbody { margin: 0; }`);
+			zip.file('OEBPS/styles/imported.css', `p { color: red; }`);
+			zip.file('OEBPS/images/bg.jpg', new Uint8Array([1, 2, 3]));
+			zip.file('OEBPS/images/retina.jpg', new Uint8Array([4, 5, 6]));
+
+			const analysis = await analyzeEpub(zip);
+			const unusedImgPaths = analysis.unusedImages.map((i) => i.path);
+			const unusedStylePaths = analysis.unusedStyles.map((s) => s.path);
+
+			expect(unusedImgPaths).not.toContain('OEBPS/images/bg.jpg');
+			expect(unusedImgPaths).not.toContain('OEBPS/images/retina.jpg');
+			expect(unusedStylePaths).not.toContain('OEBPS/styles/imported.css');
+		});
+
+		it('should safely deduplicate resources without corrupting similar file names or relative paths', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				'<container version="1.0"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>'
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<package version="3.0" unique-identifier="pub-id">
+  <metadata><dc:title>Test</dc:title><dc:identifier id="pub-id">1</dc:identifier></metadata>
+  <manifest>
+    <item id="c1" href="text/ch1.xhtml" media-type="application/xhtml+xml"/>
+    <item id="img1" href="images/1.jpg" media-type="image/jpeg"/>
+    <item id="img1_dup" href="images/1_dup.jpg" media-type="image/jpeg"/>
+    <item id="img11" href="images/11.jpg" media-type="image/jpeg"/>
+  </manifest>
+  <spine><itemref idref="c1"/></spine>
+</package>`
+			);
+			zip.file(
+				'OEBPS/text/ch1.xhtml',
+				`<html><body>
+<img src="../images/1_dup.jpg"/>
+<img src="../images/11.jpg"/>
+</body></html>`
+			);
+			// 1.jpg and 1_dup.jpg have identical bytes
+			zip.file('OEBPS/images/1.jpg', new Uint8Array([10, 20, 30]));
+			zip.file('OEBPS/images/1_dup.jpg', new Uint8Array([10, 20, 30]));
+			zip.file('OEBPS/images/11.jpg', new Uint8Array([99, 98, 97]));
+
+			const report = await cleanEpub(zip, {
+				removeUnusedImages: false,
+				removeUnusedFonts: false,
+				removeUnusedStyles: false,
+				cleanOpfManifest: true,
+				deduplicateResources: true
+			});
+
+			expect(report.deduplicatedResources).toContain('OEBPS/images/1_dup.jpg');
+
+			const updatedHtml = await zip.file('OEBPS/text/ch1.xhtml')?.async('text');
+			expect(updatedHtml).toBeDefined();
+			// 1_dup.jpg should be replaced with 1.jpg
+			expect(updatedHtml).toContain('src="../images/1.jpg"');
+			// 11.jpg MUST NOT be corrupted into 1x.jpg
+			expect(updatedHtml).toContain('src="../images/11.jpg"');
+			expect(updatedHtml).not.toContain('1x.jpg');
+		});
 	});
 });

@@ -1,6 +1,7 @@
 <!-- src/lib/epub-editor/components/EpubEditorCodePane.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import { EditorView, basicSetup } from 'codemirror';
 	import { EditorState, Compartment } from '@codemirror/state';
 	import { html } from '@codemirror/lang-html';
@@ -20,6 +21,8 @@
 	let editorContainerEl = $state<HTMLDivElement | null>(null);
 
 	let view: EditorView | null = null;
+	let activeTarget: string | null = null;
+	const fileStates = new SvelteMap<string, EditorState>();
 	let isInternalUpdate = false;
 	let isInternalSync = false;
 
@@ -59,25 +62,13 @@
 		}
 	}
 
-	function initEditor() {
-		if (!editorContainerEl) return;
-		if (view) {
-			view.destroy();
-			view = null;
-		}
-
-		const currentTarget = editorState.editorTarget;
-		const initialContent = currentTarget ? (editorState.editBuffer.get(currentTarget) ?? '') : '';
-
-		currentLength = initialContent.length;
-		currentLineCount = initialContent ? initialContent.split('\n').length : 1;
-
-		const state = EditorState.create({
+	function createStateForFile(target: string, initialContent: string): EditorState {
+		return EditorState.create({
 			doc: initialContent,
 			extensions: [
 				basicSetup,
 				keymap.of([indentWithTab]),
-				languageCompartment.of(getLanguageExtension(currentTarget)),
+				languageCompartment.of(getLanguageExtension(target)),
 				themeCompartment.of(isDarkMode() ? oneDark : []),
 				wrapCompartment.of(lineWrap ? EditorView.lineWrapping : []),
 				EditorView.updateListener.of((update) => {
@@ -139,11 +130,33 @@
 				})
 			]
 		});
+	}
+
+	function initEditor() {
+		if (!editorContainerEl) return;
+		if (view) {
+			view.destroy();
+			view = null;
+		}
+
+		const currentTarget = editorState.editorTarget;
+		if (!currentTarget) return;
+
+		const initialContent = editorState.editBuffer.get(currentTarget) ?? '';
+		currentLength = initialContent.length;
+		currentLineCount = initialContent ? initialContent.split('\n').length : 1;
+
+		let state = fileStates.get(currentTarget);
+		if (!state) {
+			state = createStateForFile(currentTarget, initialContent);
+			fileStates.set(currentTarget, state);
+		}
 
 		view = new EditorView({
 			state,
 			parent: editorContainerEl
 		});
+		activeTarget = currentTarget;
 
 		// Attach scroll event for sync-scroll
 		view.scrollDOM.addEventListener('scroll', handleEditorScroll, { passive: true });
@@ -188,6 +201,7 @@
 	$effect(() => {
 		const target = editorState.editorTarget;
 		if (!target) {
+			activeTarget = null;
 			currentLength = 0;
 			currentLineCount = 1;
 			return;
@@ -201,21 +215,36 @@
 		}
 
 		if (view) {
-			const currentDoc = view.state.doc.toString();
-			if (currentDoc !== expectedContent) {
-				isInternalUpdate = true;
-				view.dispatch({
-					changes: { from: 0, to: currentDoc.length, insert: expectedContent },
-					effects: languageCompartment.reconfigure(getLanguageExtension(target))
-				});
-				isInternalUpdate = false;
+			if (target !== activeTarget) {
+				// Save active file's EditorState before switching
+				if (activeTarget) {
+					fileStates.set(activeTarget, view.state);
+				}
+
+				// Restore or create EditorState for the new target file
+				let targetState = fileStates.get(target);
+				if (!targetState || targetState.doc.toString() !== expectedContent) {
+					targetState = createStateForFile(target, expectedContent);
+					fileStates.set(target, targetState);
+				}
+
+				view.setState(targetState);
+				activeTarget = target;
+				currentLength = expectedContent.length;
+				currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
 			} else {
-				view.dispatch({
-					effects: languageCompartment.reconfigure(getLanguageExtension(target))
-				});
+				// Same file active: check if content changed externally
+				const currentDoc = view.state.doc.toString();
+				if (currentDoc !== expectedContent) {
+					isInternalUpdate = true;
+					view.dispatch({
+						changes: { from: 0, to: currentDoc.length, insert: expectedContent }
+					});
+					isInternalUpdate = false;
+					currentLength = expectedContent.length;
+					currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
+				}
 			}
-			currentLength = expectedContent.length;
-			currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
 		}
 	});
 
@@ -254,6 +283,8 @@
 		observer?.disconnect();
 		view?.destroy();
 		view = null;
+		fileStates.clear();
+		activeTarget = null;
 	});
 </script>
 

@@ -101,7 +101,9 @@ export class PdfSplitterState {
 		if (globalPdfjs) {
 			const isBlob = typeof Blob !== 'undefined' && file instanceof Blob;
 			const url = isBlob ? URL.createObjectURL(file) : null;
-			const src = url ? { url } : { data: file as unknown as Uint8Array };
+			const src = url
+				? { url, isEvalSupported: false }
+				: { data: file as unknown as Uint8Array, isEvalSupported: false };
 			globalPdfjs
 				.getDocument(src)
 				.promise.then((d) => {

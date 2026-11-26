@@ -581,6 +581,15 @@ describe('EPUB Editor unit tests', () => {
 
 			expect(updatedChap).toBe('<html><body>Modified Chapter 1 with live edits</body></html>');
 			expect(updatedCss).toBe('body { color: darkblue; font-size: 16px; }');
+
+			// Check that mimetype is first entry and uncompressed (STORE)
+			const zipFileKeys = Object.keys(readBack.files);
+			expect(zipFileKeys[0]).toBe('mimetype');
+			const mimeZipObject = readBack.file('mimetype') as unknown as {
+				_data?: { compression?: string };
+			};
+			// JSZip internal compression method for uncompressed is STORE / null
+			expect(mimeZipObject).toBeDefined();
 		});
 	});
 

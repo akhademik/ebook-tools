@@ -579,7 +579,8 @@ describe('pdf-splitter tests', () => {
 
 				expect(mockCreateObjectURL).toHaveBeenCalledWith(realFile);
 				expect(mockPdfjsLib.getDocument).toHaveBeenCalledWith({
-					url: 'blob:http://localhost/mock-uuid'
+					url: 'blob:http://localhost/mock-uuid',
+					isEvalSupported: false
 				});
 				expect(mockRevokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/mock-uuid');
 			} finally {
@@ -788,7 +789,7 @@ describe('pdf-splitter tests', () => {
 
 			const blob = await renderPdfPageToBlob(ab, 1, 1.5, 0.85);
 			expect(blob).toBeInstanceOf(Blob);
-			expect(mockPdfjsLib.getDocument).toHaveBeenCalledWith({ data: ab });
+			expect(mockPdfjsLib.getDocument).toHaveBeenCalledWith({ data: ab, isEvalSupported: false });
 		});
 
 		it('should throw if pdfjsLib is missing', async () => {

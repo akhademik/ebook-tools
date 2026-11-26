@@ -188,78 +188,31 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-25 16:45
+- Cập nhật lần cuối: 2026-11-26 07:15
 - Đã hoàn thành:
-  - **Khắc phục Triệt để Lỗi CSS Specificity Inversion cho `.note p` & `style.css` (Calibre Audit Pass 100%)**:
-    - **Tái cấu trúc thứ tự nối file CSS theo độ ưu tiên tăng dần đơn điệu (Monotonically Ascending Specificity)**:
-      - Đưa `breaksCss` và `notesCss` (chứa các quy tắc specificity `(0, 1, 1)` cho thẻ `p`: `.note p`, `p.scene-break-small`, `p.scene-break-big`) lên trước `quotesCss` (nơi chứa các quy tắc `(0, 1, 2)` và `(0, 2, 1)` như `blockquote.center p`, `h1.main-chap + p`, `.letter p:first-child`, `.letter-box .poem p`).
-      - Chuyển `blockquote` và `blockquote p` chuẩn về `base.css` ngay sau `p`, thiết lập chuỗi specificity thẻ `p` chuẩn mực từ đầu: `(0, 0, 1)` -> `(0, 0, 2)` -> `(0, 1, 1)`.
-      - Tách độc lập các selector `footer.left`, `footer.right`, `footer.center` `(0, 1, 1)` đứng trước `blockquote footer.*` `(0, 1, 2)` trong `quotes.css`.
-      - Khắc phục `marker` của `fontSubchapterRules` trong `prepareFinalCss` để chèn đúng vị trí trước `.subchapter-ornament + h2.side-chap` `(0, 2, 1)`.
-    - **Nâng cấp Bộ kiểm thử Nạp CSS Thật (`tests/epub-css-specificity.test.ts`)**:
-      - Tích hợp `vi.hoisted` nạp nội dung thực tế từ đĩa cho toàn bộ 9 file CSS mẫu, loại bỏ triệt để hiện tượng Vitest stub rỗng.
-      - Bổ sung test case kiểm tra vị trí tuyệt đối của `.note p` đứng trước toàn bộ 12 selector `p` có độ ưu tiên cao từ báo cáo của Calibre.
-      - Đảm bảo 100% không còn lỗi Stylelint `no-descending-specificity` trên mọi kịch bản sách.
-  - **Rà soát & Chuẩn hóa Đặt tên CSS, Dọn dẹp Style Thừa (CSS Cleanup & Normalization)**:
-    - **Dọn dẹp style thừa trong `notes.css`**: Loại bỏ quy tắc rác `aside.footnote { display: block; color: green; ... }`; bổ sung selector `.note, .notes .note` và `.note p, .notes .note p` đảm bảo đoạn văn footnote không bị thụt đầu dòng thừa (`text-indent: 0`) và căn trái rõ ràng.
-    - **Loại bỏ class trùng lặp trong `quotes.css`**: Bỏ các class độc lập `.center`, `.left`, `.right` khai báo thừa trong `quotes.css` (đã được định nghĩa toàn cục chuẩn mực trong `headings.css`).
-    - **Tinh gọn markup H2 Markdown (`epub-markdown-utils.ts`)**: Loại bỏ thẻ bọc thừa `<span class="ch-title">` khi render `<h2>`, đồng nhất chuẩn thẻ tiêu đề với `<h1>` và `<h3>`.
-    - **Chuẩn hóa đặt tên Jacket 10 (`intro-css.css` & `jacket-templates.ts`)**: Đổi tên selector `.jacket-10b` thành `.jacket-10` đồng bộ với thứ tự đánh số `.jacket-1` đến `.jacket-9`.
-    - **Bảo toàn Typography Mặc định**: Duy trì phông chữ Bookerly luôn được nhúng mặc định cho nội dung thẻ `<p>` theo đúng chủ đích thiết kế của người dùng.
-  - **Tách riêng CSS Trang Lót (`styles/jacket.css`) chuẩn EPUB 3 Best Practice**:
-    - Thay thế việc nhúng CSS nội dòng (`<style>`) trong `jacket.xhtml` bằng file stylesheet độc lập `OEBPS/styles/jacket.css`, liên kết qua `<link rel="stylesheet" type="text/css" href="../styles/jacket.css"/>`.
-    - Tự động đăng ký `styles/jacket.css` trong `<manifest>` của `content.opf` (`<item id="css-jacket" href="styles/jacket.css" media-type="text/css"/>`).
-    - Cách ly hoàn toàn trang lót khỏi các quy tắc mặc định của ruột sách trong `style.css` (không bị thụt đầu dòng 1.25em, không bị căn đều justify).
-    - Tối ưu dung lượng: chỉ sinh ra `styles/jacket.css` và manifest item khi người dùng bật tùy chọn Jacket.
-  - **Loại bỏ Triệt để Chú thích (CSS Comments) trong File EPUB Thành phẩm**:
-    - Xóa sạch toàn bộ các comment chú thích tiếng Việt còn sót trong các file CSS mẫu (`base.css`, `center-page.css`, `ornaments.css`).
-    - Tích hợp cơ chế tự động lọc và xóa sạch comment CSS (`/\*[\s\S]*?\*\//g`) và thu gọn khoảng trắng trong hàm `prepareFinalCss`, `getDynamicCss`, `buildJacketCss` và thẻ `<style>` của `buildChapterXhtml`. Đảm bảo file `style.css` và mọi trang xhtml trong EPUB thành phẩm luôn 100% sạch sẽ, tinh gọn và không chứa bất kỳ comment nào.
-  - **Tích hợp Tự động Siêu dữ liệu Credit Đóng gói Sách (`content.opf`)**:
-    - Tự động bổ sung metadata credit người chế bản số (`<dc:contributor id="packer">akhademik &amp; vc</dc:contributor>`) kèm tinh chỉnh vai trò chuẩn W3C EPUB 3 (`<meta refines="#packer" property="role" scheme="marc:relators">mrk</meta>`), thuộc tính sắp xếp thư mục số (`<meta refines="#packer" property="file-as">akhademik &amp; vc</meta>`) và thông tin generator (`<meta name="generator" content="akhademik &amp; vc"/>`).
-    - Cho phép tùy biến qua trường `contributor` trong `EpubMetadata` với giá trị mặc định là `'akhademik & vc'`.
-  - **Khắc phục Triệt để Lỗi Calibre Audit, CSS Descending Specificity & Tiêu chuẩn Accessibility EPUB 3**:
-    - **Kiến trúc CSS 5 tầng độ ưu tiên (Layered Specificity Pipeline)**: Phân tách stylesheet và các quy tắc font thành 5 tầng riêng biệt theo chuẩn W3C CSS Specificity `(A, B, C)`. Loại bỏ hoàn toàn lỗi Stylelint `no-descending-specificity` của Calibre (lỗi đảo ngược thứ tự ưu tiên giữa `.subchapter-ornament + h2`, `.subchapter-ornament + h2.side-chap`, `h1.main-chap + h2.side-chap`, `h2.h2-sub`, `.side-chap + .side-chap`).
-    - **Bộ kiểm thử tự động Specificity & W3C Accessibility (`tests/epub-css-specificity.test.ts`)**: Tích hợp thuật toán tính specificity chuẩn W3C và kiểm tra Stylelint tự động trong pipeline CI, cam kết 100% không tái phát lỗi specificity dưới mọi cấu hình font và hoa văn.
-    - **Tiêu chuẩn Accessibility EPUB 3 & W3C Accessibility 1.1**: Tự động bổ sung metadata trợ năng trong `content.opf` (`schema:accessMode`, `schema:accessModeSufficient`, `schema:accessibilityFeature`, `schema:accessibilityHazard`, `schema:accessibilitySummary`).
-    - **Khắc phục Cảnh báo Bìa sách**: Bổ sung `<title>Bìa sách</title>` và `role="img" aria-label="Bìa sách"` vào thẻ `<svg>` và `<image>` trong trang bìa `cover.xhtml`.
-    - **Khắc phục WAI-ARIA Roles cho EPUB**: Tự động chèn `role="doc-toc"` cho `<nav epub:type="toc">`, `role="doc-noteref"` cho `<a class="noteref">`, `role="doc-footnote"` cho `<aside epub:type="footnote">`, và `role="doc-backlink"` cho `<a class="notenum">`, hoàn toàn thỏa mãn bộ kiểm tra khắt khe của Calibre và EPUBCheck.
-  - **Loại bỏ thẻ `<title>` mặc định cho trang căn giữa (`[new:center]`) không tiêu đề**:
-    - Khi khối `[new:center]` (trang đề tặng, lời tựa, trích dẫn căn giữa) không có heading `@@`/`@`, hệ thống không còn chèn thẻ tiêu đề giả lập `<title>Giới Thiệu</title>` vào thẻ `<head>` của file XHTML thành phẩm, giữ cho tài liệu sạch sẽ và tránh làm các máy đọc sách (Kobo, Kindle, Apple Books) hiển thị tiêu đề running header/runner không mong muốn.
-    - Tắt cảnh báo thiếu tiêu đề khi đóng khối `[new:center]`, bảo toàn tính năng gán heading nếu người dùng chủ động đặt `@` hoặc `@@`.
-  - **Xem trước Trang lót sách (Jacket Preview) đồng bộ Placeholder & Dữ liệu nhập thực tế**:
-    - Tách và xuất cấu hình mẫu chuẩn `JACKET_SAMPLE_PLACEHOLDERS` dùng chung làm giá trị gợi ý (`placeholder`) cho các ô nhập liệu tiêu đề, tác giả, tác phẩm gốc, dịch giả, nhà xuất bản, đơn vị liên kết.
-    - Khung xem trước bìa lót (Jacket Preview) tự động chuyển đổi thông minh: hiển thị toàn bộ sách mẫu chân thực khi chưa nhập dữ liệu; ngay khi người dùng nhập bất kỳ trường thông tin nào, chuyển sang chế độ hiển thị động theo đúng dữ liệu người dùng nhập, đảm bảo không lẫn lộn dữ liệu mẫu vào sách thực tế.
-  - **Bắt lỗi Đồng bộ `postMessage` & Timeout Thích ứng Pixel PDF Splitter**:
-    - Bọc `worker.postMessage()` bằng xử lý lỗi đồng bộ, hủy timer và xóa job tức thì nếu gửi thất bại, triệt tiêu nguy cơ timer ma hủy nhầm worker.
-    - Tính toán timeout động theo số lượng pixel thực tế (`calculateGrayscaleTimeout`) từ 15s đến tối đa 60s, loại bỏ tình trạng timeout giả trên các trang quét dung lượng lớn (10–25MP).
-  - **Hoàn thiện Triệt để Độ tin cậy & Quản lý Bộ nhớ PDF Splitter**:
-    - **Worker Timeout Failover**: Kích hoạt `handleWorkerFailure()` ngay khi timeout 15s phát sinh, terminate worker đơ và failover toàn bộ job sang Main Thread, tránh nhân đôi tải CPU.
-    - **Exception-safe Reference Counting**: Đảm bảo `activeGrayscaleTasks` luôn được giải phóng trong `finally` kể cả khi nạp tài liệu PDF lỗi.
-    - **Cửa sổ trượt tải ZIP an toàn (Sliding Window)**: Tự động kích hoạt tải và duy trì an toàn 2 phần ZIP gần nhất trong RAM, bảo vệ người dùng không bị mất file nếu trình duyệt chặn quyền tải nhiều file, đồng thời kiểm soát trần RAM cố định.
-  - **Khắc phục Worker Hang/Timeout & Bảo vệ Đồng thời PDF Splitter**:
-    - Xử lý triệt để lỗi treo Promise vĩnh viễn khi Web Worker gặp sự cố bằng cách duyệt và reject toàn bộ pending jobs, kích hoạt fallback sang Main Thread mượt mà.
-    - Thêm timeout an toàn 15 giây cho mỗi job gửi tới Worker.
-    - Quản lý vòng đời Worker theo reference count (`activeGrayscaleTasks`), ngăn việc hủy sớm worker dùng chung.
-  - **Tối ưu hóa RAM cho PDF Splitter & EPUB Packer**:
-    - **PDF Splitter**: Bổ sung cơ chế `autoDownloadParts` tự động tải và giải phóng RAM từng phần ZIP (40–80MB/phần) ngay khi đóng gói xong, giữ RAM luôn dưới ngưỡng an toàn kể cả khi tách PDF hàng nghìn trang mà không chọn thư mục đĩa.
-    - **EPUB Packer**: Loại bỏ hoàn toàn việc chuyển đổi thừa `await blob.arrayBuffer()` trong `zip-writer.ts`, truyền trực tiếp `Blob` vào JSZip giúp loại bỏ việc nhân bản bộ nhớ heap cho tất cả ảnh minh họa, ảnh bìa, hoa văn và font chữ.
-  - **Tối ưu tốc độ Xem trước PDF (Preview) với Màu Gốc Mặc định**: Bỏ hoàn toàn việc tính toán grayscale ở mức pixel canvas trong `loadPdfPreview()`, hiển thị trực tiếp màu gốc ở 96 DPI giúp tăng tốc tải preview thêm 25–40% (0ms tải CPU). Chỉ áp dụng chuyển đổi sang ảnh xám qua Web Worker khi người dùng bấm nút "Bắt đầu tách trang".
-  - **Tối ưu hóa Hiệu năng PDF Splitter (Giai đoạn 1)**:
-    - Chuyển toàn bộ vòng lặp xử lý ảnh đen trắng & độ tương phản sang Web Worker `src/lib/pdf-splitter/pdf-grayscale.worker.ts` với cơ chế zero-copy ArrayBuffer transfer, giải phóng hoàn toàn Main Thread giúp giao diện duy trì 60 FPS, thanh tiến trình mượt mà và nút "Hủy" phản hồi tức thì.
-    - Tách riêng tỷ lệ render xem trước `PREVIEW_DPI = 96` (thay vì 200 DPI in ấn), tăng tốc độ xem trước file PDF nhanh gấp 4–6 lần và giảm 77% dung lượng bộ nhớ Canvas.
-  - **Khắc phục Race Condition & Cache Preview EPUB Editor (Giai đoạn 3)**:
-    - Bổ sung `latestPreviewRequestId` ngăn chặn triệt để tình trạng render chậm của chương cũ ghi đè lên chương mới khi người dùng chuyển trang nhanh.
-    - Tích hợp bộ nhớ đệm `assetDataUrlCache` (`SvelteMap`) tái sử dụng Data URL của hình ảnh và phông chữ nhúng, giảm thời gian dựng lại Preview khi gõ chỉnh sửa từ ~300ms xuống dưới 10ms.
-  - **Hoàn thiện UI Solarized Clean & Crisp**: Chuẩn hóa toàn bộ token màu ngữ nghĩa (`--color-danger`, `--color-warn`, `--color-ok`), loại bỏ hoàn toàn các class màu cứng `red-500`, `emerald-*`, `amber-*`.
-  - **Nâng cấp cỡ chữ & Typography**: Nâng toàn bộ font chữ nhỏ dưới 12px lên tối thiểu `text-xs` (12px), loại bỏ `font-mono` ở các nhãn chữ tiếng Việt và nút bấm. Tối ưu typography trong `EpubCleanerModal` với `font-sans tabular-nums`.
-  - **Khôi phục khối gợi ý quy trình**: Bổ sung sơ đồ 4 bước _"Gợi ý quy trình xử lý sách quét"_ (PDF → OCR ngoài → Đóng gói EPUB → Sửa EPUB) trên trang Tổng quan.
-  - **Đồng bộ hóa luồng đóng gói EPUB**: Bố trí bảng điều khiển tóm tắt thông tin sách tập trung tại Bước 5 (Đóng gói), giải phóng 100% không gian hiển thị cho các bước cắt bìa, hoa văn và chọn phông.
-  - **Khôi phục Husky & lint-staged**: Tích hợp Git hook pre-commit với `lint-staged` tự động format (Prettier) và lint (ESLint) các file staged trước khi commit. Chặt chẽ hóa script prepare `svelte-kit sync && (husky || true)`.
-  - **Tối ưu hóa kho lưu trữ**: Bỏ theo dõi `graphify-out/` trong Git (chỉ dùng cục bộ cho AI, giảm hơn 26.000 dòng diff).
-  - **Chuẩn hóa bộ test E2E**: Chuyển đường dẫn ảnh chụp sang `testInfo.outputPath()` chuẩn CI/mọi máy, bổ sung các assertion kiểm tra responsive, chống tràn ngang và điều hướng bàn phím.
-  - **Kiểm thử đóng gói TXT Footnotes & Unicode NFC**: Bổ sung test tự động `tests/txt-footnote-packing.test.ts` kiểm thử toàn diện bóc tách metadata, tạo chú thích `{1}`/`<aside epub:type="footnote">`, phân giải backlink và đóng gói file EPUB ZIP chuẩn hóa Unicode NFC.
-  - **Tách nhật ký phát triển**: Chuyển toàn bộ lịch sử chi tiết sang [CHANGELOG.md](CHANGELOG.md), tinh gọn README.
-  - **Chất lượng mã nguồn**: Toàn bộ 393/393 unit/integration tests pass (19 test files), 21/21 E2E browser tests pass, 0 lỗi TypeScript, 0 lỗi ESLint, 0 lỗi Knip, production build pass.
+  - **Khắc phục Triệt để Toàn bộ 9 Điểm Lỗi Dữ liệu, Sai chuẩn EPUB & Bảo mật (theo TASKS.md)**:
+    - **Sửa Lỗi Undo Ghi Nhầm File trong Editor (`EpubEditorCodePane.svelte`)**:
+      - Tách riêng `EditorState` cho từng file thông qua bộ nhớ đệm `SvelteMap<string, EditorState>`.
+      - Chuyển file bằng `view.setState()` thay vì dispatch thay đổi nội dung trên cùng một state, bảo toàn 100% ngăn xếp Undo/Redo riêng biệt cho mỗi trang, loại bỏ nguy cơ bấm Ctrl+Z làm ghi đè nội dung file này vào file khác.
+    - **Chuẩn hóa File `mimetype` khi Xuất EPUB (`exportEpubBlob` trong `editor-ops.ts`)**:
+      - Đảm bảo file `mimetype` luôn sử dụng phương thức nén `STORE` (không nén) và được đặt ở vị trí byte đầu tiên của archive ZIP (offset 0), tuân thủ nghiêm ngặt đặc tả OCF 3.3 §3.3.2.
+    - **Chống Biến Dạng Metadata khi Chứa Ký Tự `$` (`updateBookMetadata` trong `epub-book-ops.ts`)**:
+      - Thay thế toàn bộ chuỗi template replacement bằng hàm callback `(_match, p1, p2) => ...`, ngăn chặn việc JavaScript diễn giải nhầm các pattern `$1`, `$2`, `$$` thành thẻ XML mở/đóng, bảo vệ cấu trúc `content.opf`.
+    - **Khắc phục Liên Kết Mục Lục Bị Hỏng (`rebuildEpubToc` trong `epub-book-ops.ts`)**:
+      - Khi tự động sinh mã định danh anchor (`#section-X-Y`) cho các tiêu đề heading chưa có ID, hệ thống tự động ghi thuộc tính `id="section-X-Y"` ngược lại vào thẻ heading trong file XHTML tương ứng (cập nhật `editBuffer`/`zip`), đảm bảo mọi liên kết mục lục đều nhảy chính xác đến vị trí tiêu đề.
+    - **Bảo Toàn Thuộc Tính `linear="no"` khi Sắp Xếp Lại Spine (`reorderOpfSpine` trong `epub-book-ops.ts`)**:
+      - Trích xuất và bảo lưu nguyên vẹn toàn bộ thẻ `<itemref>` gốc kèm các thuộc tính `linear="no"`, `properties="..."`, `id="..."` khi tái cấu trúc thứ tự spine trong `content.opf`.
+    - **Chuẩn Hóa Bộ Phân Tích Định Dạng TXT Inline (`applyInlineFormatting` trong `txt-parser.ts`)**:
+      - Tự động mask toàn bộ URL (`https?://[^\s]+`) trước khi quét cú pháp định dạng inline.
+      - Siết chặt ranh giới ký tự/từ cho dấu in nghiêng `/`, in đậm `*`, và gạch chân `_` với negative lookbehind/lookahead `(?<![\p{L}\p{N}])` và `(?![\p{L}\p{N}])`, triệt tiêu hoàn toàn hiện tượng làm hỏng URL (`https:/<i>a.com</i>...`), ký hiệu đơn vị (`km/h/s`) và biến snake_case (`file_name_here`).
+    - **Vá Lỗ Hổng Bảo Mật PDF.js CVE-2024-4367 (`isEvalSupported: false`)**:
+      - Đặt cờ bảo mật `isEvalSupported: false` tại tất cả các điểm gọi `getDocument()` trong `pdf-splitter-state.svelte.ts`, `pdf-splitter.ts`, và `pdf.ts`, vô hiệu hóa đường dẫn mã thực thi JavaScript độc hại khi người dùng mở các file PDF không rõ nguồn gốc.
+    - **Mở Rộng Quét Tài Nguyên Tránh Xóa Nhầm & Bảo Vệ Khử Trùng Lặp (`reference-extractor.ts` & `cleaner-engine.ts`)**:
+      - Bổ sung quét ảnh trong thuộc tính nội dòng `style="background: url(...)"`, thuộc tính `srcset` trên `<img>`/`<source>`, và quét file stylesheet nhúng qua `@import "file.css"`.
+      - Nâng cấp thuật toán thay thế file trùng lặp (`cleanEpub`): sử dụng đường dẫn tương đối chuẩn xác (`getRelativePath`) và regex bọc chặt trong dấu ngoặc kép/đơn, loại bỏ nguy cơ thay thế chuỗi con sai lệch (như `1.jpg` ăn vào `11.jpg`).
+    - **Chất Lượng Mã Nguồn & Kiểm Thử Toàn Diện**:
+      - Bổ sung 6 test case mới nâng tổng số test lên **399/399 unit tests pass 100% (19 test files)**.
+      - Toàn bộ pipeline: 0 lỗi format, 0 lỗi TypeScript (svelte-check), 0 lỗi ESLint, 0 lỗi Knip, production build pass.
 - Đang dở: Không.
 - Biết trước còn thiếu / nợ kỹ thuật:
   - Tách thanh bước và nhóm menu trong `epub-packer/+page.svelte` và `+layout.svelte` thành component trình bày độc lập (thực hiện sau khi merge branch UI).

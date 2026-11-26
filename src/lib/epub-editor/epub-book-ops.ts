@@ -165,7 +165,7 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 				// Replace content preserving tag attributes
 				updated = updated.replace(
 					new RegExp(`(<(?:dc:)?${tagName}\\b[^>]*>)[\\s\\S]*?(<\\/(?:dc:)?${tagName}>)`, 'i'),
-					`$1${escapeXml(value.trim())}$2`
+					(_match, p1, p2) => `${p1}${escapeXml(value.trim())}${p2}`
 				);
 			}
 		} else if (value.trim()) {
@@ -173,7 +173,7 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 			const metaEndRegex = /<\/metadata>/i;
 			if (metaEndRegex.test(updated)) {
 				const newTag = `    <${dcPrefix}${tagName}>${escapeXml(value.trim())}</${dcPrefix}${tagName}>\n  `;
-				updated = updated.replace(metaEndRegex, `${newTag}</metadata>`);
+				updated = updated.replace(metaEndRegex, () => `${newTag}</metadata>`);
 			}
 		}
 	}
@@ -196,7 +196,10 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 				'i'
 			);
 			if (idRegex.test(updated)) {
-				updated = updated.replace(idRegex, `$1${escapeXml(newMeta.identifier)}$2`);
+				updated = updated.replace(
+					idRegex,
+					(_match, p1, p2) => `${p1}${escapeXml(newMeta.identifier)}${p2}`
+				);
 			} else {
 				replaceOrCreateTag('identifier', newMeta.identifier);
 			}
@@ -209,7 +212,7 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 	const modifiedTime = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 	const modRegex = /(<meta\b[^>]*property\s*=\s*["']dcterms:modified["'][^>]*>)[^<]*(<\/meta>)/i;
 	if (modRegex.test(updated)) {
-		updated = updated.replace(modRegex, `$1${modifiedTime}$2`);
+		updated = updated.replace(modRegex, (_match, p1, p2) => `${p1}${modifiedTime}${p2}`);
 	}
 
 	return updated;
@@ -217,6 +220,7 @@ export function updateBookMetadata(opfXml: string, newMeta: BookMetadataDetails)
 
 /**
  * Re-orders spine <itemref> elements in OPF based on a given array of file paths.
+ * Preserves all original itemref attributes (e.g. linear="no", properties, id).
  */
 export function reorderOpfSpine(opfXml: string, opfPath: string, newSpinePaths: string[]): string {
 	// Parse manifest to map resolvedPath -> id
@@ -234,18 +238,37 @@ export function reorderOpfSpine(opfXml: string, opfPath: string, newSpinePaths: 
 		}
 	}
 
-	// Generate new <itemref> list
+	// Parse existing <itemref> elements to preserve attributes (linear="no", properties, id, etc.)
+	const itemrefRegex = /<itemref\b([^>]*)\/?>/gi;
+	const idToItemrefTag = new Map<string, string>();
+	while ((m = itemrefRegex.exec(opfXml)) !== null) {
+		const fullTag = m[0];
+		const idrefMatch = /idref\s*=\s*["']([^"']+)["']/i.exec(m[1]);
+		if (idrefMatch) {
+			idToItemrefTag.set(idrefMatch[1], fullTag.trim());
+		}
+	}
+
+	// Generate new <itemref> list preserving original attributes
 	const newItemrefs: string[] = [];
 	for (const p of newSpinePaths) {
 		const id = pathToId.get(p);
 		if (id) {
-			newItemrefs.push(`    <itemref idref="${id}"/>`);
+			const existingTag = idToItemrefTag.get(id);
+			if (existingTag) {
+				newItemrefs.push(`    ${existingTag}`);
+			} else {
+				newItemrefs.push(`    <itemref idref="${id}"/>`);
+			}
 		}
 	}
 
 	const spineBlockRegex = /(<spine\b[^>]*>)([\s\S]*?)(<\/spine>)/i;
 	if (spineBlockRegex.test(opfXml) && newItemrefs.length > 0) {
-		return opfXml.replace(spineBlockRegex, `$1\n${newItemrefs.join('\n')}\n  $3`);
+		return opfXml.replace(
+			spineBlockRegex,
+			(_match, p1, _p2, p3) => `${p1}\n${newItemrefs.join('\n')}\n  ${p3}`
+		);
 	}
 
 	return opfXml;
@@ -347,26 +370,38 @@ export async function rebuildEpubToc(
 			pageTitle = titleMatch[1].replace(/<[^>]+>/g, '').trim();
 		}
 
-		// Extract headings
+		// Extract headings & ensure missing IDs are written to XHTML
 		const headingRegex = /<h([12])\b([^>]*)>([\s\S]*?)<\/h\1>/gi;
 		const headings: Array<{ id: string; title: string; level: number }> = [];
-		let hm: RegExpExecArray | null;
 		let hCounter = 0;
+		let pageHtmlModified = false;
 
-		while ((hm = headingRegex.exec(html)) !== null) {
-			const level = parseInt(hm[1], 10);
-			const attrs = hm[2];
-			const inner = hm[3].replace(/<[^>]+>/g, '').trim();
-			if (!inner) continue;
+		const updatedHtml = html.replace(headingRegex, (match, levelStr, attrs, innerContent) => {
+			const level = parseInt(levelStr, 10);
+			const inner = innerContent.replace(/<[^>]+>/g, '').trim();
+			if (!inner) return match;
 
 			const idMatch = /\bid\s*=\s*["']([^"']+)["']/i.exec(attrs);
-			const hId = idMatch ? idMatch[1] : `section-${level}-${++hCounter}`;
+			let hId = idMatch ? idMatch[1] : '';
 
-			headings.push({
-				id: hId,
-				title: inner,
-				level
-			});
+			if (!hId) {
+				hId = `section-${level}-${++hCounter}`;
+				pageHtmlModified = true;
+				const updatedAttrs = attrs ? ` id="${hId}"${attrs}` : ` id="${hId}"`;
+				headings.push({ id: hId, title: inner, level });
+				return `<h${levelStr}${updatedAttrs}>${innerContent}</h${levelStr}>`;
+			} else {
+				headings.push({ id: hId, title: inner, level });
+				return match;
+			}
+		});
+
+		if (pageHtmlModified) {
+			if (editBuffer) {
+				editBuffer.set(pagePath, updatedHtml);
+			} else {
+				zip.file(pagePath, updatedHtml);
+			}
 		}
 
 		if (headings.length > 0) {

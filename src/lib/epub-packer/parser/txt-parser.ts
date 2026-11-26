@@ -34,6 +34,14 @@ function stripHtmlTags(html: string): string {
 function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
 	let t = escapeXml(String(text || ''));
 
+	// 1. Mask URLs (http://, https://) so slashes and underscores inside URLs are not misidentified
+	const urls: string[] = [];
+	t = t.replace(/https?:\/\/[^\s<>"')]+/gi, (urlMatch) => {
+		const uIdx = urls.length;
+		urls.push(urlMatch);
+		return `XURLPLACEHOLDER${uIdx}X`;
+	});
+
 	const customTags: string[] = [];
 
 	if (Array.isArray(customDefinitions)) {
@@ -53,10 +61,12 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 		}
 	}
 
-	const boldRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
+	// 2. Bold: require word/letter boundaries around asterisks
+	const boldRegex = /(?<![\p{L}\p{N}])\*([^\s*][^*]*[^\s*]|\S)\*(?![\p{L}\p{N}])/gu;
 	t = t.replace(boldRegex, 'XBOLDXOPENX$1XBOLDXCLOSEX');
 
-	const italicRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
+	// 3. Italic: require non-letter/digit boundaries around slashes to prevent matching km/h/s, fractions, etc.
+	const italicRegex = /(?<![\p{L}\p{N}])\/([^\s/][^/]*[^\s/]|\S)\/(?![\p{L}\p{N}])/gu;
 	t = t.replace(italicRegex, (match, content) => {
 		const trimmed = content.trim();
 		if (/^\d+$/.test(trimmed)) {
@@ -68,7 +78,8 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 		return `XITALICXOPENX${content}XITALICXCLOSEX`;
 	});
 
-	const underlineRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
+	// 4. Underline: require non-letter/digit boundaries around underscores to prevent matching snake_case variables (file_name_here)
+	const underlineRegex = /(?<![\p{L}\p{N}])_([^\s_][^_]*[^\s_]|\S)_(?![\p{L}\p{N}])/gu;
 	t = t.replace(underlineRegex, 'XUNDERLINEXOPENX$1XUNDERLINEXCLOSEX');
 
 	// Restore all placeholders
@@ -82,6 +93,11 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 
 	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (_m, idx) => {
 		return customTags[Number(idx)];
+	});
+
+	// Restore masked URLs
+	t = t.replace(/XURLPLACEHOLDER(\d+)X/g, (_m, idx) => {
+		return urls[Number(idx)];
 	});
 
 	t = t.replace(/\{(\d+)\}/g, (_m, n) => {

@@ -10,10 +10,12 @@ export function formatByteSize(bytes: number): string {
 }
 
 /**
- * Helper to extract all url(...) targets from CSS string.
+ * Helper to extract all url(...) targets and @import targets from CSS string.
  */
 export function extractCssUrls(cssContent: string): string[] {
 	const urls: string[] = [];
+
+	// 1. url(...)
 	const urlRegex = /url\s*\(\s*(['"]?)([^'")]+)\1\s*\)/gi;
 	let match: RegExpExecArray | null;
 
@@ -23,6 +25,16 @@ export function extractCssUrls(cssContent: string): string[] {
 			urls.push(rawUrl);
 		}
 	}
+
+	// 2. @import "file.css" or @import 'file.css'
+	const importRegex = /@import\s+['"]([^'"]+)['"]/gi;
+	while ((match = importRegex.exec(cssContent)) !== null) {
+		const rawUrl = match[1].trim();
+		if (rawUrl && !/^(data:|blob:|https?:\/\/)/i.test(rawUrl)) {
+			urls.push(rawUrl);
+		}
+	}
+
 	return urls;
 }
 
@@ -75,7 +87,7 @@ export function extractHtmlReferences(htmlContent: string): {
 		}
 	}
 
-	// 4. Inline <style> tags and inline style="..." attributes
+	// 4. Inline <style> tags
 	const styleTagRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
 	while ((m = styleTagRegex.exec(htmlContent)) !== null) {
 		const inlineUrls = extractCssUrls(m[1]);
@@ -89,7 +101,34 @@ export function extractHtmlReferences(htmlContent: string): {
 		}
 	}
 
-	// 5. <a href="..."> navigation links
+	// 5. Inline style="..." attributes on arbitrary HTML tags (e.g. style="background: url(...)")
+	const inlineStyleAttrRegex = /\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+	while ((m = inlineStyleAttrRegex.exec(htmlContent)) !== null) {
+		const styleContent = m[1] ?? m[2] ?? '';
+		const inlineUrls = extractCssUrls(styleContent);
+		for (const u of inlineUrls) {
+			const ext = u.substring(u.lastIndexOf('.')).toLowerCase();
+			if (['.ttf', '.otf', '.woff', '.woff2'].includes(ext)) {
+				fonts.push(u);
+			} else if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'].includes(ext)) {
+				images.push(u);
+			}
+		}
+	}
+
+	// 6. srcset="..." attributes on <img> or <source>
+	const srcsetRegex = /\bsrcset\s*=\s*["']([^"']+)["']/gi;
+	while ((m = srcsetRegex.exec(htmlContent)) !== null) {
+		const candidateList = m[1].split(',');
+		for (const candidate of candidateList) {
+			const candidateUrl = candidate.trim().split(/\s+/)[0];
+			if (candidateUrl && !/^(data:|blob:|https?:\/\/)/i.test(candidateUrl)) {
+				images.push(candidateUrl);
+			}
+		}
+	}
+
+	// 7. <a href="..."> navigation links
 	const aRegex = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>/gi;
 	while ((m = aRegex.exec(htmlContent)) !== null) {
 		const href = m[1].trim();
