@@ -4,6 +4,22 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Hiển thị Viền Wrapper Thanh Điều hướng 5 Bước EPUB Packer)
+
+- Thêm/sửa:
+  - **Khắc phục Cắt xén Viền Top/Left trên Thanh Điều hướng 5 Bước (`epub-packer/+page.svelte`)**:
+    - Bổ sung `pt-1 px-1` cho thẻ `<nav>` và đệm trong `p-1` cho danh sách `<ol>` (vùng cuộn `overflow-x-auto`), ngăn chặn triệt để hiện tượng viền trên (top) và viền trái (left) của các nút bước (Step 1–5) bị container scroll cắt xén.
+    - Chuẩn hóa các nút bước thành wrapper hoàn chỉnh với `border` cố định (`rounded-xl p-2.5 border`):
+      - Trạng thái Active: `border-accent-color/60 bg-accent-soft/70 shadow-xs ring-1 ring-accent-color/30`.
+      - Trạng thái Completed: `border-border-color bg-panel-2/50 hover:border-accent-color/50`.
+      - Trạng thái Inactive: `border-border-color/60 bg-panel-2/30 hover:border-border-color`.
+      - Trạng thái Disabled: `border-border-color/40 bg-panel-2/30 opacity-50`.
+    - Đồng bộ đệm thẻ card Bước 3 (Bìa và hoa văn) thành `p-5 sm:p-7` và tiêu đề `text-lg sm:text-xl` đồng nhất với tất cả các bước khác (Bước 1, 2, 4, 5).
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (443/443 pass) | knip ✅ (0 issues) | graphify ✅
+- File chính bị ảnh hưởng: `src/routes/epub-packer/+page.svelte`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Hoàn thiện Kiểm soát ZIP An toàn, Chuẩn hóa Metadata & Kiểm chứng Abort Nén theo TASKS.md)
 
 - Thêm/sửa:

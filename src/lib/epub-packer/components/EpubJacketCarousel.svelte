@@ -167,7 +167,7 @@
 
 	<!-- Carousel Live Preview Stage -->
 	<div
-		class="relative bg-panel-2/60 rounded-2xl border border-border-color p-4 sm:p-8 flex items-center justify-center min-h-[580px] overflow-hidden"
+		class="relative bg-panel-2/60 rounded-2xl border border-border-color p-4 sm:p-8 flex items-center justify-center min-h-145 overflow-hidden"
 	>
 		<!-- Side prev button on large screens -->
 		<button
