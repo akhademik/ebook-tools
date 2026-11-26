@@ -98,7 +98,7 @@ Trong Tailwind v4, các biến trên được tích hợp qua `@theme`:
 ### 4.4 Bộ chọn Phông chữ (`FontSelect.svelte`)
 
 - **Vị trí**: `src/lib/components/FontSelect.svelte`
-- **Kiểu dáng**: Chiều cao 52px, dòng nhỏ tên phông + dòng mẫu chữ typography thực tế.
+- **Kiểu dáng**: Chiều cao chuẩn 44px (`h-11`), hiển thị gọn gàng trên 1 dòng duy nhất gồm tên phông + dấu gạch nối + chữ xem trước (`[Tên font] - Text mẫu`) áp dụng trực tiếp typeface thực tế.
 - **Hành vi**: Giữ nguyên toàn bộ logic hiện có (live preview, tìm kiếm, cuộn tự động đến mục đang chọn, thẻ select ẩn `sr-only`).
 
 ### 4.5 Thẻ Card Hiện Đại (`.modern-card`)

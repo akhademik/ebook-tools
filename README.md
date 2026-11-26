@@ -187,7 +187,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 10:10
+- Cập nhật lần cuối: 2026-11-26 10:55
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
@@ -196,6 +196,16 @@ pnpm test:e2e
     - Đã deflake `profile-p1.test.ts` và bổ sung 2 kịch bản Playwright E2E kiểm chứng.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Hỗ trợ Tùy chỉnh Font cho Trích dẫn & Tác giả (`quoteFont`, `quoteAuthorFont`, `EpubFontSettingsSection.svelte`)**:
+    - Bổ sung 2 bộ chọn phông: Font cho Trích dẫn (`quoteFont`) và Font cho Tác giả trích dẫn (`quoteAuthorFont`).
+    - Cập nhật khung xem trước trang sách với lời trích dẫn căn giữa (`~`) và tác giả căn phải (`>`).
+    - Tích hợp trọn vẹn vào quy trình đóng gói EPUB (`packEpub`, `prepareFinalCss`, `resolveActiveFonts`), tự động nhúng file font và sinh rule CSS tương ứng.
+    - Cơ chế khử trùng lặp (Deduplication) 100%: nếu H1, Quote, Quote Author cùng chọn chung 1 phông thì `@font-face` chỉ được khai báo duy nhất 1 lần ở đầu file CSS và chỉ có 1 file font được nhúng vào EPUB ZIP.
+    - Nâng tổng số test lên **415/415 unit tests pass 100% (20 test files)**.
+  - **Tinh gọn Bộ chọn Phông chữ (`FontSelect.svelte`, `DESIGN_SYSTEM.md`)**:
+    - Chuyển đổi toàn bộ ô chọn phông chữ từ cấu trúc 2 tầng (52px `h-13`) sang **1 dòng ngang duy nhất (44px `h-11`)**, đồng bộ chuẩn kích thước của `Input.svelte` và `Button.svelte`.
+    - Định dạng hiển thị trực quan: `[Tên font] - Text mẫu`, trong đó `Text mẫu` được áp dụng trực tiếp `font-family` của phông chữ tương ứng để người dùng xem trước nhanh.
+    - Tinh giản nhãn mặc định từ `Mặc định (Bookerly)` thành `Bookerly` gọn gàng trên cả ô input và danh sách dropdown.
   - **Khắc phục Triệt để Race Conditions & Đồng bộ Yêu cầu Hệ thống trong PDF Splitter (`PdfSplitterState`, `pdf-splitter.ts`)**:
     - Áp dụng cơ chế **Generation Token** (`processGenerationToken`, `previewGenerationToken`, `fileGenerationToken`) cô lập hoàn toàn trạng thái giữa các tác vụ bất đồng bộ.
     - `handleFile()` tự động hủy tác vụ xử lý đang chạy (`cancelProcessTask()`) và hủy phiên tải preview cũ, ngăn chặn hoàn toàn việc file PDF cũ ghi đè kết quả lên file PDF mới chọn.

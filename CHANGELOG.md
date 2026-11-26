@@ -4,6 +4,41 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Bổ sung Chọn Phông chữ cho Quote/Tác giả, Khử trùng @font-face Tuyệt đối & Cập nhật Preview)
+
+- Thêm/sửa:
+  - **Bổ sung Tùy chọn Phông chữ cho Trích dẫn (Quote) và Tác giả Trích dẫn (Quote Author)**:
+    - Mở rộng kiểu dữ liệu `EpubFontsConfig` trong `src/lib/types/epub.type.ts` với `quoteFont?: string; quoteAuthorFont?: string;`.
+    - Bổ sung quản lý reactive state `quoteFont` và `quoteAuthorFont` trong `EpubFontsState` (`epub-fonts-state.svelte.ts`) và đồng bộ hóa trong `EpubState` (`epub-state.svelte.ts`).
+    - Thêm 2 bộ chọn phông `FontSelect` cho Quote và Quote Author vào `EpubFontSettingsSection.svelte`.
+    - Cập nhật khung xem trước phông chữ (Preview) chuẩn văn bản mẫu từ `TASKS.md`: H1 ("Đây là chapter lớn"), H2 ("Đây là chapter nhỏ"), H2 phụ ("Đây là chapter nhỏ tiếp nối"), đoạn văn có Dropcap, và blockquote có nội dung trích dẫn căn giữa (`text-align: center`) và tác giả trích dẫn căn phải (`text-align: right`).
+  - **Đóng gói EPUB & Cơ chế Khử trùng Phông chữ Tuyệt đối (Font Deduplication)**:
+    - Bổ sung phông Quote và Quote Author vào `resolveActiveFonts` (`asset-builder.ts`), khử trùng tệp font đóng gói vào file EPUB ZIP bằng `Set`.
+    - Tối ưu hóa `prepareFinalCss` (`stylesheet-builder.ts`):
+      - Tiêm quy tắc font cho `blockquote, blockquote p` và `blockquote footer` khi người dùng tùy biến font quote/author.
+      - Khử trùng khai báo `@font-face` thông qua `fontFaceIds` Set kết hợp kiểm tra phông đã có sẵn trong `base.css` hoặc `finalCss` (ví dụ `Bookerly`), bảo đảm mỗi phông chữ chỉ được khai báo `@font-face` đúng 1 lần duy nhất trong toàn bộ file CSS dù được dùng cho nhiều selector khác nhau.
+    - Cập nhật `quotes.css` mặc định `blockquote footer { text-align: right; }`.
+  - **Kiểm thử Đơn vị & Hồi quy (`tests/epub-css-specificity.test.ts`)**:
+    - Bổ sung 2 test cases kiểm thử tiêm font cho quote/author và kiểm tra xác thực không bị trùng lặp khai báo `@font-face` khi trùng lặp font. Toàn bộ 415/415 unit tests vượt qua thành công.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (415/415 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/state/epub-fonts-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/builders/asset-builder.ts`, `src/lib/epub-packer/builders/stylesheet-builder.ts`, `src/lib/epub-packer/templates/css-template/quotes.css`, `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`, `tests/epub-css-specificity.test.ts`, `TASKS.md`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-26 (Tinh gọn Bộ chọn Phông chữ FontSelect theo Chuẩn 1 Dòng và Cập nhật Design System)
+
+- Thêm/sửa:
+  - **Thu gọn và Chuyển đổi Ô chọn Font chữ (`FontSelect.svelte`)**:
+    - Chuyển ô input chọn phông từ cấu trúc 2 tầng (52px `h-13`) về **1 dòng ngang duy nhất (44px `h-11`)**, đồng bộ chuẩn kích thước của `Input.svelte` và `Button.svelte`.
+    - Định dạng hiển thị trực quan dạng `[Tên font] - Text mẫu`, trong đó `Text mẫu` được gán trực tiếp `font-family` tương ứng để người dùng nhìn thấy kiểu dáng font thực tế.
+    - Tinh giản nhãn mặc định từ `Mặc định (Bookerly)` thành `Bookerly` trên cả ô kích hoạt và danh sách menu thả xuống.
+  - **Cập nhật Quy chuẩn Thiết kế (`DESIGN_SYSTEM.md`)**:
+    - Cập nhật mục 4.4 theo chuẩn giao diện 1 dòng (44px) cho `FontSelect.svelte`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (413/413 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `FontSelect.svelte`, `DESIGN_SYSTEM.md`, `README.md`, `CHANGELOG.md`, `TASKS.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để Race Conditions & Đồng bộ Yêu cầu Hệ thống trong PDF Splitter)
 
 - Thêm/sửa:

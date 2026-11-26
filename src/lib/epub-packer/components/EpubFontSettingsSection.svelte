@@ -21,12 +21,18 @@
 	const dropcapFontInfo = $derived(
 		epubState.fonts.dropcapFont !== 'default' ? findFont(epubState.fonts.dropcapFont) : null
 	);
+	const quoteFontInfo = $derived(
+		epubState.fonts.quoteFont !== 'default' ? findFont(epubState.fonts.quoteFont) : null
+	);
+	const quoteAuthorFontInfo = $derived(
+		epubState.fonts.quoteAuthorFont !== 'default' ? findFont(epubState.fonts.quoteAuthorFont) : null
+	);
 </script>
 
 <div class="animate-fade-in">
 	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap) -->
-		<div class="flex flex-col gap-4">
+		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap, Quote, Quote Author) -->
+		<div class="flex flex-col gap-3.5">
 			<div>
 				<FontSelect
 					id="h1-font-select"
@@ -53,6 +59,20 @@
 					id="dropcap-font-select"
 					label="Font cho Dropcap"
 					bind:value={epubState.fonts.dropcapFont}
+				/>
+			</div>
+			<div>
+				<FontSelect
+					id="quote-font-select"
+					label="Font cho Trích dẫn (Quote ~)"
+					bind:value={epubState.fonts.quoteFont}
+				/>
+			</div>
+			<div>
+				<FontSelect
+					id="quote-author-font-select"
+					label="Font cho Tác giả trích dẫn (Author >)"
+					bind:value={epubState.fonts.quoteAuthorFont}
 				/>
 			</div>
 		</div>
@@ -103,6 +123,27 @@
 					trí khác (h2 sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) sử dụng
 					phông chữ Bookerly mặc định của sách.
 				</p>
+				<blockquote
+					class="my-5 border-l-0 text-center"
+					style="margin: 1.5em 0; text-align: center;"
+				>
+					<p
+						class="text-sm leading-relaxed"
+						style="font-family: {quoteFontInfo
+							? `"${quoteFontInfo.id}", "${quoteFontInfo.cssFamily}", "${quoteFontInfo.name}", sans-serif`
+							: `'Bookerly', serif`}; text-align: center; margin-bottom: 0.4em;"
+					>
+						To Be, or Not To Be, That's the question.
+					</p>
+					<footer
+						class="text-xs block opacity-80"
+						style="font-family: {quoteAuthorFontInfo
+							? `"${quoteAuthorFontInfo.id}", "${quoteAuthorFontInfo.cssFamily}", "${quoteAuthorFontInfo.name}", sans-serif`
+							: `'Bookerly', serif`}; text-align: right;"
+					>
+						W. Shakespeare
+					</footer>
+				</blockquote>
 			</div>
 		</div>
 	</div>

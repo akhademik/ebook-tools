@@ -145,18 +145,37 @@ export function prepareFinalCss(
 			fonts.h2SubFont && fonts.h2SubFont !== 'default' ? findFont(fonts.h2SubFont) : null;
 		const fd =
 			fonts.dropcapFont && fonts.dropcapFont !== 'default' ? findFont(fonts.dropcapFont) : null;
+		const fq = fonts.quoteFont && fonts.quoteFont !== 'default' ? findFont(fonts.quoteFont) : null;
+		const fqa =
+			fonts.quoteAuthorFont && fonts.quoteAuthorFont !== 'default'
+				? findFont(fonts.quoteAuthorFont)
+				: null;
 
 		// Deduplicate @font-face declarations
 		const fontFaceIds = new Set<string>();
-		for (const f of [f1, f2, f2Sub, fd]) {
+		for (const f of [f1, f2, f2Sub, fd, fq, fqa]) {
 			if (f && !fontFaceIds.has(f.id)) {
 				fontFaceIds.add(f.id);
-				fontFaces += getFontCSSDeclaration(f.id);
+				const alreadyDeclared =
+					finalCss.includes(f.fileName) ||
+					finalCss.includes(`font-family: '${f.cssFamily}'`) ||
+					finalCss.includes(`font-family: "${f.cssFamily}"`);
+				if (!alreadyDeclared) {
+					fontFaces += getFontCSSDeclaration(f.id);
+				}
 			}
 		}
 
 		if (f1) {
 			fontBaseRules += `\nh1 { font-family: "${f1.cssFamily}", serif !important; }`;
+		}
+
+		if (fq) {
+			fontBaseRules += `\nblockquote, blockquote p { font-family: "${fq.cssFamily}", serif !important; }`;
+		}
+
+		if (fqa) {
+			fontBaseRules += `\nblockquote footer { font-family: "${fqa.cssFamily}", serif !important; }`;
 		}
 
 		if (f2 && f2Sub) {

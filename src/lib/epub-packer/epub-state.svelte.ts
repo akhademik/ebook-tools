@@ -128,6 +128,15 @@ export class EpubState {
 			if (this.fonts.dropcapFont !== 'default' && !neededFonts.includes(this.fonts.dropcapFont)) {
 				neededFonts.push(this.fonts.dropcapFont);
 			}
+			if (this.fonts.quoteFont !== 'default' && !neededFonts.includes(this.fonts.quoteFont)) {
+				neededFonts.push(this.fonts.quoteFont);
+			}
+			if (
+				this.fonts.quoteAuthorFont !== 'default' &&
+				!neededFonts.includes(this.fonts.quoteAuthorFont)
+			) {
+				neededFonts.push(this.fonts.quoteAuthorFont);
+			}
 			// Always embed Bookerly font if available
 			if (findFont('Bookerly') && !neededFonts.includes('Bookerly')) {
 				neededFonts.push('Bookerly');
@@ -152,6 +161,8 @@ export class EpubState {
 				h2Font: this.fonts.h2Font,
 				h2SubFont: this.fonts.h2SubFont,
 				dropcapFont: this.fonts.dropcapFont,
+				quoteFont: this.fonts.quoteFont,
+				quoteAuthorFont: this.fonts.quoteAuthorFont,
 				blobs: fontBlobs
 			};
 
