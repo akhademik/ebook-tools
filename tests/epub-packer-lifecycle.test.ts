@@ -434,6 +434,90 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 
 			expect(imagesState.illustrationFiles.length).toBe(MAX_ILLUSTRATION_COUNT);
 		});
+
+		it('should skip PDF files inside illustration ZIP that exceed size limits based on _data.uncompressedSize', async () => {
+			const imagesState = new EpubImagesState();
+			const asyncSpy = vi.fn();
+			const mockZip = {
+				files: {
+					'giant.pdf': {
+						dir: false,
+						_data: { uncompressedSize: 400 * 1024 * 1024 }, // 400MB > MAX_PDF_FILE_SIZE
+						async: asyncSpy
+					},
+					'photo.jpg': {
+						dir: false,
+						_data: { uncompressedSize: 1000 },
+						async: vi.fn().mockResolvedValue(new Blob(['jpg-data'], { type: 'image/jpeg' }))
+					}
+				}
+			};
+			vi.spyOn(JSZip, 'loadAsync').mockResolvedValueOnce(mockZip as unknown as JSZip);
+
+			const file = new File(['mock-zip'], 'images-with-pdf.zip', { type: 'application/zip' });
+			await imagesState.handleIllustrationFiles(file);
+
+			expect(asyncSpy).not.toHaveBeenCalled();
+			expect(imagesState.illustrationFiles.length).toBe(1);
+			expect(imagesState.illustrationFiles[0].fileName).toBe('photo.jpg');
+		});
+
+		it('should discard results of slower illustration import if user initiates a new import', async () => {
+			const imagesState = new EpubImagesState();
+
+			let resolveZipA: (zip: unknown) => void = () => {};
+			const zipAPromise = new Promise((resolve) => {
+				resolveZipA = resolve;
+			});
+
+			const mockZipA = {
+				files: {
+					'photoA.jpg': {
+						dir: false,
+						_data: { uncompressedSize: 500 },
+						async: vi.fn().mockResolvedValue(new Blob(['photoA'], { type: 'image/jpeg' }))
+					}
+				}
+			};
+
+			const mockZipB = {
+				files: {
+					'photoB.jpg': {
+						dir: false,
+						_data: { uncompressedSize: 500 },
+						async: vi.fn().mockResolvedValue(new Blob(['photoB'], { type: 'image/jpeg' }))
+					}
+				}
+			};
+
+			const fileA = new File(['zipA'], 'imagesA.zip', { type: 'application/zip' });
+			const fileB = new File(['zipB-content-different'], 'imagesB.zip', {
+				type: 'application/zip'
+			});
+
+			vi.spyOn(JSZip, 'loadAsync').mockImplementation(async (data: unknown) => {
+				if (data instanceof ArrayBuffer && data.byteLength === fileA.size) {
+					return (await zipAPromise) as JSZip;
+				}
+				return mockZipB as unknown as JSZip;
+			});
+
+			// 1. Start loading A
+			const pA = imagesState.handleIllustrationFiles(fileA);
+			expect(imagesState.illustrationGeneration).toBe(1);
+
+			// 2. Quickly load B before A resolves
+			await imagesState.handleIllustrationFiles(fileB);
+			expect(imagesState.illustrationGeneration).toBe(2);
+			expect(imagesState.illustrationFiles.map((f) => f.fileName)).toEqual(['photoB.jpg']);
+
+			// 3. Now A resolves late
+			resolveZipA(mockZipA);
+			await pA;
+
+			// 4. Verify A was discarded and did not overwrite or append to B
+			expect(imagesState.illustrationFiles.map((f) => f.fileName)).toEqual(['photoB.jpg']);
+		});
 	});
 
 	describe('3. P1: EpubState Generation Token & Snapshot Isolation', () => {
@@ -629,6 +713,160 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			resolveFetch(new Response(new Blob(['font-bytes'])));
 			await packPromise;
 			expect(state.activePackagingPromise).toBeNull();
+		});
+
+		it('should ignore concurrent processEpub calls while packaging is active or locking', async () => {
+			const state = new EpubState();
+			state.source.epubChapters = [
+				{
+					id: '1',
+					xmlId: 'item-0',
+					title: 'Chương 1',
+					fileName: 'chap_01',
+					html: '<p>Nội dung 1</p>'
+				}
+			];
+			state.metadata.title = 'Sách Test Mutex';
+
+			let releaseGate: () => void = () => {};
+			const fetchGatePromise = new Promise<void>((resolve) => {
+				releaseGate = resolve;
+			});
+			state.fonts.h1Font = 'SVN-Georgia-Bold';
+			vi.stubGlobal(
+				'fetch',
+				vi.fn().mockImplementation(async () => {
+					await fetchGatePromise;
+					return new Response(new Blob(['font-bytes']));
+				})
+			);
+
+			// Call 1 starts
+			const p1 = state.processEpub();
+			expect(state.processing).toBe(true);
+			const firstGen = state.packGeneration;
+
+			// Call 2 starts while p1 is in flight
+			const p2 = state.processEpub();
+
+			// Verify packGeneration did not increment again for p2
+			expect(state.packGeneration).toBe(firstGen);
+
+			releaseGate();
+			await p1;
+			await p2;
+
+			expect(state.packGeneration).toBe(firstGen);
+			expect(state.status).toContain('Hoàn tất');
+		});
+
+		it('should discard slower cover file result if a newer cover file is selected', async () => {
+			const imagesState = new EpubImagesState();
+
+			let resolveBlobA: (b: Blob) => void = () => {};
+			const pdfBlobPromise = new Promise<Blob>((resolve) => {
+				resolveBlobA = resolve;
+			});
+
+			vi.stubGlobal('window', { pdfjsLib: {} });
+			const pdfUtil = await import('../src/lib/utils/pdf');
+			vi.spyOn(pdfUtil, 'renderPdfPageToBlob').mockImplementationOnce(
+				() => pdfBlobPromise as Promise<Blob>
+			);
+
+			const fileA = new File(['pdfA'], 'coverA.pdf', { type: 'application/pdf' });
+			const fileB = new File(['jpgB'], 'coverB.jpg', { type: 'image/jpeg' });
+
+			// 1. Start loading cover A (PDF)
+			const pA = imagesState.handleCoverFile(fileA);
+			expect(imagesState.coverGeneration).toBe(1);
+
+			// 2. Mock FileReader for fileB
+			let readerOnload: ((e: { target: { result: unknown } }) => void) | null = null;
+			class MockFileReader {
+				set onload(fn: (e: { target: { result: unknown } }) => void) {
+					readerOnload = fn;
+				}
+				readAsDataURL() {
+					setTimeout(() => {
+						if (readerOnload) readerOnload({ target: { result: 'data:image/jpeg;base64,coverB' } });
+					}, 0);
+				}
+				readAsArrayBuffer(blob: Blob) {
+					blob.arrayBuffer().then((buf) => {
+						if (readerOnload) readerOnload({ target: { result: buf } });
+					});
+				}
+			}
+			vi.stubGlobal('FileReader', MockFileReader);
+
+			class MockCoverImage {
+				naturalWidth = 100;
+				naturalHeight = 150;
+				onload: (() => void) | null = null;
+				set src(_: string) {
+					setTimeout(() => {
+						if (this.onload) this.onload();
+					}, 0);
+				}
+			}
+			vi.stubGlobal('Image', MockCoverImage);
+
+			try {
+				// User loads cover B
+				await imagesState.handleCoverFile(fileB);
+				expect(imagesState.coverGeneration).toBe(2);
+
+				await new Promise((r) => setTimeout(r, 20));
+				expect(imagesState.coverOriginalUrl).toBe('data:image/jpeg;base64,coverB');
+
+				// 3. Now cover A finishes late
+				resolveBlobA(new Blob(['pdf-cover-bytes'], { type: 'image/jpeg' }));
+				await pA;
+				await new Promise((r) => setTimeout(r, 20));
+
+				// Cover A must NOT have overwritten cover B
+				expect(imagesState.coverOriginalUrl).toBe('data:image/jpeg;base64,coverB');
+			} finally {
+				vi.unstubAllGlobals();
+			}
+		});
+
+		it('should abort generateAsync mid-compression when signal is aborted during progress callback', async () => {
+			const ac = new AbortController();
+			const chapters: EpubChapterItem[] = [
+				{
+					id: '1',
+					xmlId: 'item-0',
+					title: 'Chap 1',
+					fileName: 'chap_01',
+					html: '<p>Content for chapter</p>'
+				}
+			];
+			const meta: EpubMetadata = {
+				title: 'Mid Abort Book',
+				author: 'Author',
+				language: 'vi',
+				identifier: 'test-mid-abort'
+			};
+
+			const origGenerateAsync = JSZip.prototype.generateAsync;
+			vi.spyOn(JSZip.prototype, 'generateAsync').mockImplementation(function (
+				this: JSZip,
+				options: unknown,
+				onUpdate?: (metadata: { percent: number; currentFile: string | null }) => void
+			) {
+				// Abort the controller right on the progress tick to test mid-compression abort
+				ac.abort();
+				if (onUpdate) {
+					onUpdate({ percent: 10, currentFile: 'test' });
+				}
+				return origGenerateAsync.call(this, options as never, onUpdate as never);
+			});
+
+			await expect(
+				buildEpubBlob(meta, chapters, undefined, false, null, null, null, null, [], ac.signal)
+			).rejects.toThrow('Packing aborted during compression');
 		});
 	});
 

@@ -187,8 +187,15 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 12:50
+- Cập nhật lần cuối: 2026-11-26 13:45
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Toàn bộ 5 Vấn đề Cốt lõi P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
+    - **P1: Khóa Mutex Tuần tự hóa Tuyệt đối cho `processEpub()` (`EpubState`)**: Bổ sung `isLockingPack` mutex lock kiểm tra `processing || isLockingPack`, ngăn chặn re-entrancy / race condition khi người dùng spam click hoặc có nhiều lệnh gọi đồng thời cùng vượt qua `await activePackagingPromise`.
+    - **P2: Kiểm soát Dung lượng & Hạn ngạch An toàn cho PDF trong ZIP Ảnh (`EpubImagesState`, `constants.ts`)**: Áp dụng kiểm tra trước `preUncompressedSize > MAX_IMAGE_FILE_SIZE` (30MB) đối với PDF trong ZIP tương tự như ảnh; tính dung lượng PDF vào hạn ngạch cộng dồn 150MB (`MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE`), triệt tiêu rủi ro zip-bomb / cạn RAM.
+    - **P2: Khử Hoàn toàn Race Condition trong Import Ảnh Minh họa (`EpubImagesState`)**: Áp dụng cơ chế **Generation Token** (`illustrationGeneration`) và danh sách làm việc tạm thời (`workingList`); kiểm tra token sau mỗi thao tác bất đồng bộ; loại bỏ hoàn toàn khả năng import cũ kết thúc muộn ghi đè hoặc chèn thêm ảnh vào danh sách mới.
+    - **P2: Khử Race Condition khi Đổi Ảnh bìa Liên tục (`EpubImagesState`)**: Áp dụng **Cover Generation Token** (`coverGeneration`); kiểm tra tính hợp lệ của token trong callback của FileReader, PDF renderer và Image.onload trước khi gán `coverOriginalUrl`.
+    - **P2: Kiểm chứng Thực tế Hủy Nén JSZip giữa chừng (`zip-writer.ts`, `tests/epub-packer-lifecycle.test.ts`)**: Viết unit test mô phỏng thực tế bắt tín hiệu `AbortSignal` trong callback tiến độ `onUpdate` của `JSZip.prototype.generateAsync`, kiểm chứng Promise bị reject chuẩn xác với lỗi `AbortError`.
+    - Nâng tổng số test lên **440/440 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
   - **Khắc phục Triệt để Toàn bộ 4 Rủi ro P1 & P2 còn lại trong EPUB Packer (`TASKS.md`)**:
     - **P1/P2: Snapshot Bất biến Toàn diện cho Ảnh bìa & Cắt góc (`EpubImagesState`, `EpubState`)**: Nhận `coverSnapshot` độc lập (URL và 4 thông số crop `coverCropTop/Bottom/Left/Right`), cô lập hoàn toàn hàm tối ưu ảnh khỏi việc người dùng chỉnh sửa crop hoặc chọn ảnh mới trong lúc đang đóng gói sách.
     - **P2: Giới hạn ZIP Markdown Kiểm tra Đúng Thời điểm & Đo Byte Thực tế (`EpubSourceState`, `constants.ts`)**: Kiểm tra `entryData.uncompressedSize` trước khi gọi `.async('string')`, ngăn chặn giải nén chuỗi lớn vào RAM; đo kích thước byte thực tế UTF-8 qua `TextEncoder`; bổ sung hạn ngạch tổng số entries trong archive (`MAX_ZIP_TOTAL_ENTRIES = 2000`).

@@ -4,6 +4,36 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Giải quyết Trọn vẹn 5 Vấn đề P1 & P2: Mutex Lock Đóng gói, Generation Tokens & Kiểm soát PDF trong ZIP)
+
+- Thêm/sửa:
+  - **1. P1: Khóa Mutex Bảo đảm Tuần tự hóa Tuyệt đối cho `processEpub()` (`EpubState`)**:
+    - Bổ sung cờ mutex `isLockingPack = false`.
+    - Thiết lập cổng kiểm tra kép `if (this.processing || this.isLockingPack) return;` ngay khi nhận lệnh đóng gói.
+    - Đặt `this.isLockingPack = true` trước khi chờ tác vụ cũ giải phóng tài nguyên (`await this.activePackagingPromise`) và giải phóng khóa trong khối `finally`.
+    - Loại bỏ hoàn toàn rủi ro nhiều lần gọi `processEpub()` cùng vượt qua await và khởi chạy các tác vụ đóng gói song song ghi đè `activePackagingPromise`.
+  - **2. P2: Kiểm soát Dung lượng & Hạn ngạch An toàn cho PDF trong ZIP Ảnh (`EpubImagesState`, `constants.ts`)**:
+    - Áp dụng kiểm tra trước `preUncompressedSize > MAX_IMAGE_FILE_SIZE` (30MB) đối với file PDF trong ZIP tương tự như ảnh thông thường.
+    - Tích hợp dung lượng PDF vào tổng hạn ngạch giải nén cộng dồn `cumulativeZipImageBytes + size > MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE` (150MB).
+    - Ngăn chặn triệt để nguy cơ ZIP kích thước nhỏ chứa PDF giải nén khổng lồ gây tràn bộ nhớ (OOM/zip-bomb).
+  - **3. P2: Khử Hoàn toàn Race Condition trong Import Ảnh Minh họa (`EpubImagesState`)**:
+    - Bổ sung cơ chế **Generation Token** (`illustrationGeneration`) tự động tăng dần mỗi khi gọi `handleIllustrationFiles()`, `removeIllustrationFile()`, hoặc `clearIllustrationFiles()`.
+    - Tách biệt hoàn toàn luồng xử lý trên danh sách làm việc tạm thời (`workingList`).
+    - Kiểm tra `this.illustrationGeneration !== currentGen` sau mỗi tác vụ bất đồng bộ (`arrayBuffer`, `loadAsync`, `async('blob')`, `renderPdfPageToBlob`).
+    - Chỉ gán `this.illustrationFiles = workingList` và reset `illustrationIsProcessing = false` khi token của tác vụ còn hiệu lực, loại bỏ rủi ro import cũ ghi đè hoặc chèn thêm vào import mới.
+  - **4. P2: Khử Race Condition khi Đổi Ảnh bìa Liên tục (`EpubImagesState`)**:
+    - Bổ sung **Cover Generation Token** (`coverGeneration`) tăng dần mỗi khi gọi `handleCoverFile()` hoặc `removeCoverFile()`.
+    - Đặt chốt kiểm tra `this.coverGeneration !== currentGen` trong callback của FileReader, PDF renderer và Image.onload trước khi gán `coverOriginalUrl`.
+    - Đảm bảo chỉ có file ảnh bìa mới nhất được áp dụng, các tác vụ cũ bị loại bỏ an toàn.
+  - **5. P2: Kiểm chứng Thực tế Hủy Nén JSZip giữa chừng (`zip-writer.ts`, `tests/epub-packer-lifecycle.test.ts`)**:
+    - Viết unit test mô phỏng thực tế: Spying vào hook tiến độ `onUpdate` của `JSZip.prototype.generateAsync`, kích hoạt `controller.abort()` giữa stream nén và kiểm chứng Promise của `buildEpubBlob` bị reject chính xác với lỗi `AbortError`.
+  - **Bổ sung Bộ kiểm thử Đơn vị Chuyên sâu**:
+    - Thêm 5 unit tests mới cho toàn bộ các tình huống trên, nâng tổng số test lên **440/440 unit tests pass 100% (21 test files)** và **24/24 E2E tests pass 100%**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (440/440 pass, 21 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/state/epub-images-state.svelte.ts`, `tests/epub-packer-lifecycle.test.ts`, `TASKS.md`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để 4 Vấn đề Cốt lõi P1 & P2 còn lại trong EPUB Packer theo TASKS.md)
 
 - Thêm/sửa:
