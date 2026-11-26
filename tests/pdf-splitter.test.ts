@@ -1089,5 +1089,98 @@ describe('pdf-splitter tests', () => {
 
 			expect(mockAnchor.click).toHaveBeenCalled();
 		});
+
+		it('should not prematurely clear processing flag when a second processPdf is launched while first is in-flight', async () => {
+			const fakeFile = new File(['mock-pdf-content'], 'race-test.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const state = new PdfSplitterState();
+			state.handleFile(fakeFile);
+
+			const p1 = state.processPdf();
+			expect(state.processing).toBe(true);
+
+			const p2 = state.processPdf();
+			expect(state.processing).toBe(true);
+
+			await Promise.all([p1, p2]);
+			expect(state.processing).toBe(false);
+			expect(state.pdfZipBlob).toBeDefined();
+		});
+
+		it('should abort in-flight processPdf and prevent stale results from polluting state when handleFile is called', async () => {
+			const fileA = new File(['mock-pdf-a'], 'document-a.pdf', {
+				type: 'application/pdf'
+			});
+			const fileB = new File(['mock-pdf-b'], 'document-b.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const state = new PdfSplitterState();
+			state.handleFile(fileA);
+
+			const taskA = state.processPdf();
+			expect(state.processing).toBe(true);
+
+			// User switches to file B mid-flight
+			state.handleFile(fileB);
+			expect(state.processing).toBe(false);
+			expect(state.pdfSelectedFile?.name).toBe('document-b.pdf');
+
+			await taskA;
+
+			// Even after taskA completes/aborts, fileB's state must not be overwritten by taskA's results
+			expect(state.pdfSelectedFile?.name).toBe('document-b.pdf');
+			expect(state.pdfZipBlob).toBeNull();
+			expect(state.pdfZipParts).toEqual([]);
+		});
+
+		it('should cancel and ignore in-flight loadPreview when handleFile is called with a new file', async () => {
+			const fileA = new File(['mock-pdf-a'], 'doc-a.pdf', {
+				type: 'application/pdf'
+			});
+			const fileB = new File(['mock-pdf-b'], 'doc-b.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const state = new PdfSplitterState();
+			state.handleFile(fileA);
+
+			const prevA = state.loadPreview();
+			expect(state.loadingPreview).toBe(true);
+
+			// User switches to file B mid-flight
+			state.handleFile(fileB);
+			expect(state.loadingPreview).toBe(false);
+			expect(state.previewPages).toEqual([]);
+
+			await prevA;
+
+			// After prevA settles, previewPages must remain empty for file B
+			expect(state.previewPages).toEqual([]);
+			expect(state.loadingPreview).toBe(false);
+		});
+
+		it('should isolate rapid consecutive loadPreview requests to keep only the latest request results', async () => {
+			const file = new File(['mock-pdf'], 'doc-preview.pdf', {
+				type: 'application/pdf'
+			});
+			mockDoc.numPages = 2;
+
+			const state = new PdfSplitterState();
+			state.handleFile(file);
+
+			const prev1 = state.loadPreview();
+			const prev2 = state.loadPreview();
+
+			await Promise.all([prev1, prev2]);
+
+			expect(state.loadingPreview).toBe(false);
+			expect(state.previewPages.length).toBe(2);
+		});
 	});
 });

@@ -89,8 +89,8 @@ Công cụ xử lý hoa văn, họa tiết đầu chương và phân đoạn tra
 
 ### Yêu cầu hệ thống
 
-- **Node.js**: Phiên bản 18 trở lên.
-- **pnpm**: Phiên bản 9 trở lên (bắt buộc sử dụng `pnpm`).
+- **Node.js**: Phiên bản 20.19+ hoặc 22.12 trở lên (yêu cầu tối thiểu từ Vite 8).
+- **pnpm**: Phiên bản 10 trở lên (khuyến nghị `pnpm@11.22.0` đồng bộ với `packageManager` trong `package.json`).
 
 ### Khởi chạy ứng dụng
 
@@ -187,7 +187,7 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 09:30
+- Cập nhật lần cuối: 2026-11-26 10:10
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
@@ -196,6 +196,13 @@ pnpm test:e2e
     - Đã deflake `profile-p1.test.ts` và bổ sung 2 kịch bản Playwright E2E kiểm chứng.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Race Conditions & Đồng bộ Yêu cầu Hệ thống trong PDF Splitter (`PdfSplitterState`, `pdf-splitter.ts`)**:
+    - Áp dụng cơ chế **Generation Token** (`processGenerationToken`, `previewGenerationToken`, `fileGenerationToken`) cô lập hoàn toàn trạng thái giữa các tác vụ bất đồng bộ.
+    - `handleFile()` tự động hủy tác vụ xử lý đang chạy (`cancelProcessTask()`) và hủy phiên tải preview cũ, ngăn chặn hoàn toàn việc file PDF cũ ghi đè kết quả lên file PDF mới chọn.
+    - Khắc phục lỗi reset nhầm cờ `processing = false` khi tác vụ cũ bị hủy và kết thúc muộn trong `finally`, đảm bảo tác vụ mới luôn duy trì đúng trạng thái.
+    - Khắc phục race condition trong `loadPreview()`: hỗ trợ `AbortSignal` trong `loadPdfPreview` để dừng vòng lặp render sớm và vô hiệu hóa kết quả preview đến muộn.
+    - Cập nhật tài liệu yêu cầu hệ thống: **Node.js 20.19+ hoặc 22.12+** (chuẩn Vite 8) và khuyến nghị **pnpm 10+ / 11+**.
+    - Bổ sung 4 unit tests kiểm thử race condition, nâng tổng số test lên **413/413 unit tests pass 100% (20 test files)**.
   - **Giai đoạn P1 (Nền tảng Tối Ưu & Khử Trùng WASM theo TASKS.md)**:
     - **Lập Số Liệu Gốc (Baseline Profiling qua `tests/stress/profile-p1.test.ts`)**:
       - Phân tích & đóng gói văn bản lớn (1.16MB, ~197.600 từ, 200 chương): Parse ~212ms, Pack ~228ms, Heap delta ~4.4MB.

@@ -4,6 +4,28 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để Race Conditions & Đồng bộ Yêu cầu Hệ thống trong PDF Splitter)
+
+- Thêm/sửa:
+  - **Khắc phục Race Condition khi Thay đổi File PDF (`handleFile` trong `pdf-splitter-state.svelte.ts`)**:
+    - Tự động hủy tác vụ xử lý đang chạy (`cancelProcessTask()`) và hủy phiên nạp preview khi người dùng chọn/kéo thả file PDF mới.
+    - Áp dụng `fileGenerationToken` ngăn chặn hoàn toàn việc kiểm tra số trang `getDocument().promise` của file cũ ghi đè lên file mới.
+  - **Khắc phục Race Condition khi Hủy và Khởi chạy lại Tác vụ (`processPdf` trong `pdf-splitter-state.svelte.ts`)**:
+    - Bổ sung cơ chế `processGenerationToken`: các callback `onProgress`, `catch`, và khối `finally` chỉ được cập nhật state nếu token tác vụ khớp với token hiện hành.
+    - Ngăn chặn hoàn toàn lỗi logic trong `finally` của tác vụ cũ tắt nhầm cờ `processing = false` của tác vụ mới đang chạy.
+  - **Khắc phục Race Condition khi Tải Preview (`loadPreview` trong `pdf-splitter-state.svelte.ts` & `loadPdfPreview` trong `pdf-splitter.ts`)**:
+    - Bổ sung `previewGenerationToken` cô lập các yêu cầu tải xem trước.
+    - Hỗ trợ tham số tùy chọn `signal?: AbortSignal` trong `loadPdfPreview` để dừng vòng lặp render sớm khi tác vụ bị hủy hoặc chuyển file.
+  - **Cập nhật Yêu cầu Hệ thống trong Tài liệu (`README.md`)**:
+    - Chuẩn hóa yêu cầu Node.js tối thiểu: **20.19+ hoặc 22.12+** theo yêu cầu chính thức từ Vite 8 (`vite: "^8.0.16"`).
+    - Khuyến nghị phiên bản pnpm: **10 trở lên** (đồng bộ với `pnpm@11.22.0`).
+  - **Bổ sung Kiểm thử Hồi quy (`tests/pdf-splitter.test.ts`)**:
+    - Thêm 4 test cases kiểm thử độc lập các trường hợp race condition: không tắt sớm cờ `processing` khi chạy kép `processPdf`, không ghi đè kết quả khi đổi file giữa chừng, không lưu preview cũ khi đổi file, và cô lập các lượt gọi `loadPreview` liên tiếp.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (413/413 pass, 20 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `pdf-splitter-state.svelte.ts`, `pdf-splitter.ts`, `tests/pdf-splitter.test.ts`, `README.md`, `CHANGELOG.md`, `TASKS.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Triệt để 4 Điểm Rà soát P1: Ghi đè File, Scroll Preview khi Sửa CSS & Sót WASM)
 
 - Thêm/sửa:
