@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Tối ưu Kích thước Jacket Preview Tự động Đồng dạng & Bổ sung 3 Nấc Cỡ Xem, Sửa Lỗi CI/CD Playwright)
+
+- Thêm/sửa:
+  - **Tối ưu Kích thước Khung Xem Trước Jacket Tự động Đồng dạng (`EpubJacketCarousel.svelte`)**:
+    - Áp dụng Container Query `font-size: calc(100cqi * (16 / 380))` và tỷ lệ `aspect-ratio: 19 / 27`, tự động co dãn chữ và bố cục hoàn toàn đồng dạng theo kích thước trang mà không bao giờ bị vỡ dòng hay lệch viền ở cả Desktop lẫn Mobile.
+    - Tích hợp bộ chuyển đổi 3 nấc kích thước trực quan ngay trên thanh công cụ: `Vừa` (380px), `Lớn` (460px - Mặc định mới), `Cực đại` (520px).
+  - **Khắc phục Lỗi CI/CD Playwright E2E (`tests-e2e/epub-workflow.spec.ts`)**:
+    - Đồng bộ selector kiểm thử font jacket sang `#jacket-font-title-btn` và `#jacket-font-title`, thay thế ID cũ `#jacket-modal-font-select-btn` sau khi nâng cấp giao diện 3 cặp font, giải quyết triệt để lỗi timeout khiến Playwright fail trên GitHub Actions.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (446/446 pass) | knip ✅ (0 issues) | build ✅
+- File chính bị ảnh hưởng: `src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `tests-e2e/epub-workflow.spec.ts`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Áp dụng Logic Chọn 3 Cặp Phông Chữ Trang Giới Thiệu Sách Jacket, Tối ưu Thứ tự Specificity CSS & Deduplicate Font)
 
 - Thêm/sửa:
