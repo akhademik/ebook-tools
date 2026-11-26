@@ -51,7 +51,12 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		);
 		zip.file(
 			'OEBPS/text/ch1.xhtml',
-			'<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="../styles/main.css"/></head><body><h1>Chương 1: Mở Đầu</h1><p>Nội dung thử nghiệm 1.</p></body></html>'
+			'<html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" href="../styles/main.css"/></head><body><h1>Chương 1: Mở Đầu</h1><p>Nội dung thử nghiệm 1.</p>' +
+				Array.from(
+					{ length: 30 },
+					(_, i) => `<p>Nội dung thử nghiệm đoạn ${i + 2} để kiểm tra cuộn trang.</p>`
+				).join('') +
+				'</body></html>'
 		);
 		zip.file(
 			'OEBPS/text/ch2.xhtml',
@@ -470,7 +475,14 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 			const iframe = document.querySelector(
 				'iframe[title="Trang xem trước EPUB"]'
 			) as HTMLIFrameElement;
-			if (iframe?.contentWindow) {
+			if (iframe?.contentWindow && iframe?.contentDocument) {
+				const scrollEl =
+					iframe.contentDocument.scrollingElement ||
+					iframe.contentDocument.documentElement ||
+					iframe.contentDocument.body;
+				if (scrollEl) {
+					scrollEl.scrollTop = 150;
+				}
 				iframe.contentWindow.scrollTo(0, 150);
 				iframe.contentWindow.dispatchEvent(new Event('scroll'));
 			}
@@ -490,17 +502,32 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await page.keyboard.press('End');
 		await page.keyboard.type('\nbody { color: rgb(1, 2, 3); }');
 
-		// Wait for debounced preview reload (350ms)
-		await page.waitForTimeout(600);
+		// Wait for debounced preview reload and scroll position restoration
+		await page
+			.waitForFunction(
+				() => {
+					const iframe = document.querySelector(
+						'iframe[title="Trang xem trước EPUB"]'
+					) as HTMLIFrameElement;
+					const win = iframe?.contentWindow;
+					const doc = iframe?.contentDocument;
+					const scrollEl = doc?.scrollingElement || doc?.documentElement || doc?.body;
+					const y = win?.scrollY ?? scrollEl?.scrollTop ?? 0;
+					return y > 0;
+				},
+				{ timeout: 5000 }
+			)
+			.catch(() => {});
 
 		// Scroll position should NOT be 0
 		const scrollAfter = await page.evaluate(() => {
 			const iframe = document.querySelector(
 				'iframe[title="Trang xem trước EPUB"]'
 			) as HTMLIFrameElement;
-			return (
-				iframe?.contentWindow?.scrollY || iframe?.contentDocument?.documentElement.scrollTop || 0
-			);
+			const win = iframe?.contentWindow;
+			const doc = iframe?.contentDocument;
+			const scrollEl = doc?.scrollingElement || doc?.documentElement || doc?.body;
+			return win?.scrollY || scrollEl?.scrollTop || 0;
 		});
 
 		expect(scrollAfter).toBeGreaterThan(0);

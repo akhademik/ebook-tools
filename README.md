@@ -187,15 +187,18 @@ pnpm test:e2e
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 11:20
+- Cập nhật lần cuối: 2026-11-26 11:43
 - Đang dở / Đang hoàn thiện:
   - **P1: Đo Trước, Tối Ưu Hóa & Rà Soát Thực Tế**:
     - Đã vá lỗi ghi nhầm file khi chuyển tab nhanh (`activeTarget` trong `flushDocSync`).
     - Đã sửa bảo toàn vị trí cuộn preview khi sửa CSS (`lastScrollRatio` ghi nhận vô điều kiện).
     - Đã mở rộng `deduplicateWasmPlugin` quét đệ quy toàn bộ thư mục `workers/` và thêm assertion fail build nếu còn sót tham chiếu cũ.
-    - Đã deflake `profile-p1.test.ts` và bổ sung 2 kịch bản Playwright E2E kiểm chứng.
+    - Đã deflake `profile-p1.test.ts` và toàn bộ 24 kịch bản Playwright E2E kiểm chứng pass 100%.
     - Đang tiếp tục đo đạc thực tế trên file TXT lớn, EPUB nhiều ảnh và PDF scan.
 - Đã hoàn thành:
+  - **Khắc phục Triệt để Lỗi Flaky E2E Playwright trên CI/CD (`tests-e2e/epub-workflow.spec.ts`)**:
+    - Bổ sung độ cao nội dung cho fixture `ch1.xhtml` và áp dụng `waitForFunction` với safe optional-chaining khi kiểm tra cuộn iframe preview, giải quyết dứt điểm lỗi crash `Cannot read properties of null (reading 'scrollTop')`.
+    - Toàn bộ **24/24 E2E tests** chạy tự động trên Chromium pass 100%.
   - **Tối ưu Co giãn Blockquote & Căn phải Tác giả Chuẩn Typography (`quotes.css`, `EpubFontSettingsSection.svelte`)**:
     - Áp dụng `display: table; width: fit-content; max-width: 100%; margin: 1.2em auto;` cho `blockquote.center` (cũng như `.left` và `.right`), giúp khối quote tự co giãn ôm sát nội dung.
     - Footer tác giả trích dẫn (`footer.right`) căn thẳng hàng tuyệt đối với mép phải của văn bản trích dẫn thay vì căn ra mép lề toàn trang sách.

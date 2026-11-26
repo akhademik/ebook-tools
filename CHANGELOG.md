@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để Lỗi Flaky E2E Test Playwright khi Kiểm tra Cuộn Preview)
+
+- Thêm/sửa:
+  - **Khắc phục Lỗi E2E Test "should preserve preview scroll position when editing CSS" (`tests-e2e/epub-workflow.spec.ts`)**:
+    - Fixture mẫu `ch1.xhtml` ban đầu chỉ có 1 câu ngắn (~60px), thấp hơn chiều cao khung nhìn của iframe preview (~500px), khiến tài liệu không phát sinh thanh cuộn (`maxScroll <= 0`) và lệnh `scrollTo(0, 150)` không cuộn được trên môi trường headless browser của CI.
+    - Bổ sung các đoạn văn bản đủ độ dài (30 đoạn văn) trong fixture `ch1.xhtml` đảm bảo tài liệu luôn có chiều cao thực tế (~1200px) để cuộn trang mượt mà.
+    - Sử dụng `page.waitForFunction()` đồng bộ trạng thái phục hồi cuộn kèm kiểm tra an toàn null (`win?.scrollY ?? scrollEl?.scrollTop`), loại bỏ hoàn toàn lỗi `TypeError: Cannot read properties of null (reading 'scrollTop')` khi iframe đang nạp lại `srcdoc`.
+    - Toàn bộ **24/24 E2E Playwright tests pass 100% (38.1s)**.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (416/416 pass, 20 test files) | test E2E ✅ (24/24 pass) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `tests-e2e/epub-workflow.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Tối ưu Canh lề Trích dẫn: Co giãn Blockquote theo Nội dung và Căn phải Tác giả Chuẩn Typography)
 
 - Thêm/sửa:
