@@ -4,6 +4,27 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Bỏ Opacity Footer Trích dẫn, Hỗ trợ Không Giới hạn Footer > & Khắc phục Lỗi Thứ tự Specificity CSS Trích dẫn)
+
+- Thêm/sửa:
+  - **Khắc phục lỗi thứ tự specificity CSS cho font trích dẫn (`blockquote p`) (`stylesheet-builder.ts`, `tests/epub-css-specificity.test.ts`)**:
+    - Chuyển việc tiêm quy tắc `blockquote, blockquote p { font-family: ... }` vào đúng vị trí cơ sở cạnh `blockquote p` trong `base.css` thay vì chèn vào cuối stylesheet, loại bỏ triệt để lỗi vi phạm thứ tự specificity (Expected selector "blockquote p" to come before selector ".letter p", v.v.) khi cấu hình font trích dẫn.
+    - Bổ sung unit test kiểm tra toàn diện trường hợp cấu hình đầy đủ font và trích dẫn theo tiêu chuẩn Calibre / stylelint.
+  - **Bỏ `opacity: 0.8;` trong CSS Footer Trích dẫn (`quotes.css`, `EpubFontSettingsSection.svelte`)**:
+    - Loại bỏ thuộc tính `opacity: 0.8;` khỏi `blockquote footer` trong `src/lib/epub-packer/templates/css-template/quotes.css`, đảm bảo tên tác giả/footer của trích dẫn hiển thị rõ nét với màu văn bản bình thường, không bị mờ.
+    - Đồng bộ gỡ bỏ class `opacity-80` trong khung xem trước của `EpubFontSettingsSection.svelte`.
+  - **Hỗ trợ Không Giới hạn Dòng Footer `>` Liền mạch Sau `~` (`txt-parser.ts`, `tests/epub-parser.test.ts`)**:
+    - Gỡ bỏ hoàn toàn giới hạn 3 dòng footer (`authorFooters.length < 3`) trong `src/lib/epub-packer/parser/txt-parser.ts` ở cả 2 nhánh phân tích (bên trong block và ngoài chương chính).
+    - Giờ đây người dùng có thể đặt bao nhiêu dòng footer `>` tùy ý ngay sau dòng trích dẫn `~` (tác giả, dịch giả, tác phẩm, nguồn, năm...), tất cả các dòng liền mạch đều được đóng gói chuẩn xác vào thẻ `<blockquote>`.
+  - **Khắc phục cảnh báo TypeScript trong tests/epub-parser.test.ts**:
+    - Bổ sung thuộc tính `path` cho mock `RawFileItem` trong `analyzeChapterCandidates` và chuẩn hóa type casting.
+  - **Cập nhật tiêu đề nhãn input cài đặt font (`EpubFontSettingsSection.svelte`)**:
+    - Cập nhật nhãn thân thiện cho các ô chọn font: `Font tiêu đề nhỏ (H2 - Sub)`, `Font cho Trích dẫn (~)`, `Font cho Tác giả trích dẫn (>)`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (444/444 pass) | knip ✅ (0 issues) | build ✅
+- File chính bị ảnh hưởng: `src/lib/epub-packer/builders/stylesheet-builder.ts`, `src/lib/epub-packer/templates/css-template/quotes.css`, `src/lib/epub-packer/components/EpubFontSettingsSection.svelte`, `src/lib/epub-packer/parser/txt-parser.ts`, `tests/epub-parser.test.ts`, `tests/epub-css-specificity.test.ts`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Khắc phục Hiển thị Viền Wrapper Thanh Điều hướng 5 Bước EPUB Packer)
 
 - Thêm/sửa:

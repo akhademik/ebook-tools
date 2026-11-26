@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import type { RawChapterItem } from '../src/lib/types/epub.type';
 
 import {
 	cleanHeaderFooterOcr,
@@ -549,6 +550,7 @@ describe('epub-parser tests', () => {
 			const files = [
 				{
 					baseName: 'File 1',
+					path: 'file1.md',
 					blocks: [
 						{ type: 'heading', level: 1, text: 'Chương I: Mở đầu' },
 						{ type: 'p', text: 'Đây là nội dung.' }
@@ -569,6 +571,7 @@ describe('epub-parser tests', () => {
 			const files = [
 				{
 					baseName: 'File 1',
+					path: 'file1.md',
 					blocks: [
 						// Score will be reduced because length > 80
 						{ type: 'heading', level: 1, text: 'Chương ' + 'A'.repeat(80) }
@@ -589,7 +592,7 @@ describe('epub-parser tests', () => {
 				{ isChapter: false, firstSourcePageNum: 12 },
 				{ isChapter: true, firstSourcePageNum: 20 },
 				{ isChapter: true, fileName: 'notes', isNotes: true }
-			];
+			] as unknown as RawChapterItem[];
 			const assigned = assignSequentialChapterIds(chapters);
 			expect(assigned).toHaveLength(5);
 			expect(assigned[0]).toEqual({
@@ -846,7 +849,7 @@ Tiếp tục lời mở đầu.`;
 			);
 		});
 
-		it('should support up to 3 consecutive seamless footers in blockquote, breaking on empty line', () => {
+		it('should support unlimited consecutive seamless footers in blockquote, breaking on empty line', () => {
 			const txt = `@@ Chương 1
 ~ Câu trích dẫn có 3 footer liền mạch
 > Dòng footer 1
@@ -859,11 +862,12 @@ Tiếp tục lời mở đầu.`;
 > Footer 2
 > Footer 3
 
-~p Trích dẫn vượt quá 3 footer liên tiếp
+~p Trích dẫn vượt quá 3 footer liên tiếp không giới hạn
 > Footer A
 > Footer B
 > Footer C
-> Footer D`;
+> Footer D
+> Footer E`;
 
 			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
 
@@ -880,11 +884,10 @@ Tiếp tục lời mở đầu.`;
 			expect(chapters[0].html).toContain('<p>&gt; Footer 2</p>');
 			expect(chapters[0].html).toContain('<p>&gt; Footer 3</p>');
 
-			// 3. Vượt quá 3 footer: 3 cái đầu gom vào quote, cái thứ 4 trở đi là <p>> ...</p>
+			// 3. Vượt quá 3 footer: Tất cả footer liền mạch đều gom vào quote không giới hạn số lượng
 			expect(chapters[0].html).toContain(
-				'<blockquote class="right"><p>Trích dẫn vượt quá 3 footer liên tiếp</p><footer>Footer A</footer><footer>Footer B</footer><footer>Footer C</footer></blockquote>'
+				'<blockquote class="right"><p>Trích dẫn vượt quá 3 footer liên tiếp không giới hạn</p><footer>Footer A</footer><footer>Footer B</footer><footer>Footer C</footer><footer>Footer D</footer><footer>Footer E</footer></blockquote>'
 			);
-			expect(chapters[0].html).toContain('<p>&gt; Footer D</p>');
 		});
 
 		it('should support multiple seamless footers inside [letter-box]', () => {
@@ -926,9 +929,8 @@ Tiếp tục lời mở đầu.`;
 				'<blockquote class="right"><p>Trích dẫn căn phải nhưng tác giả căn trái</p><footer class="left">Tác giả Trái</footer></blockquote>'
 			);
 			expect(chapters[0].html).toContain(
-				'<blockquote class="center"><p>Trích dẫn căn giữa với nhiều tác giả căn lề khác nhau</p><footer class="left">Tác giả Trái</footer><footer class="right">Tác giả Phải</footer><footer class="center">Tác giả Giữa</footer></blockquote>'
+				'<blockquote class="center"><p>Trích dẫn căn giữa với nhiều tác giả căn lề khác nhau</p><footer class="left">Tác giả Trái</footer><footer class="right">Tác giả Phải</footer><footer class="center">Tác giả Giữa</footer><footer>Tác giả Thứ Tư</footer></blockquote>'
 			);
-			expect(chapters[0].html).toContain('<p>&gt; Tác giả Thứ Tư</p>');
 		});
 
 		it('should support standalone footers with alignment inside [letter] and [poem]', () => {
@@ -1181,23 +1183,23 @@ Ghi chú: [1] đây là một dòng có ngoặc vuông nhưng KHÔNG phải mã 
 			// Verify Bức Thư Cuối chapter contains letter block
 			const chapLetter = chapters.find((c) => c.title === 'Chương 4: Bức Thư Cuối');
 			expect(chapLetter).toBeDefined();
-			expect(chapLetter.html).toContain('<div class="letter">');
-			expect(chapLetter.html).toContain('  <p>Hà Nội, ngày 12 tháng 8 năm 2026</p>');
-			expect(chapLetter.html).toContain('  <p>Con gái yêu của mẹ,</p>');
-			expect(chapLetter.html).toContain('<b>buồn</b>');
-			expect(chapLetter.html).toContain('<i>sống tử tế</i>');
-			expect(chapLetter.html).toContain('</div>');
+			expect(chapLetter!.html).toContain('<div class="letter">');
+			expect(chapLetter!.html).toContain('  <p>Hà Nội, ngày 12 tháng 8 năm 2026</p>');
+			expect(chapLetter!.html).toContain('  <p>Con gái yêu của mẹ,</p>');
+			expect(chapLetter!.html).toContain('<b>buồn</b>');
+			expect(chapLetter!.html).toContain('<i>sống tử tế</i>');
+			expect(chapLetter!.html).toContain('</div>');
 
 			// Verify it contains poem block
-			expect(chapLetter.html).toContain('<div class="poem">');
-			expect(chapLetter.html).toContain('  <p>Quê hương là chùm khế ngọt</p>');
-			expect(chapLetter.html).toContain('<b>Quê hương</b>');
-			expect(chapLetter.html).toContain('<i>rợp bướm</i>');
-			expect(chapLetter.html).toContain('</div>');
+			expect(chapLetter!.html).toContain('<div class="poem">');
+			expect(chapLetter!.html).toContain('  <p>Quê hương là chùm khế ngọt</p>');
+			expect(chapLetter!.html).toContain('<b>Quê hương</b>');
+			expect(chapLetter!.html).toContain('<i>rợp bướm</i>');
+			expect(chapLetter!.html).toContain('</div>');
 
 			// Verify [1] annotation is kept as text
-			expect(chapLetter.html).toContain('chú thích [1] ở cuối chương');
-			expect(chapLetter.html).toContain('Ghi chú: [1] đây là một dòng có ngoặc vuông');
+			expect(chapLetter!.html).toContain('chú thích [1] ở cuối chương');
+			expect(chapLetter!.html).toContain('Ghi chú: [1] đây là một dòng có ngoặc vuông');
 		});
 
 		it('should parse [chữ] dropcaps correctly', () => {
@@ -1875,7 +1877,7 @@ Chú thích:
 				const validation = validateTxtSyntax(txt);
 				expect(validation.isValid).toBe(true); // warning, not blocking error
 				expect(
-					validation.warnings.some((w) => w.message.includes("nằm sau dòng 'Chú thích:'"))
+					validation.warnings?.some((w) => w.message.includes("nằm sau dòng 'Chú thích:'"))
 				).toBe(true);
 
 				const warnings: string[] = [];
@@ -2059,7 +2061,7 @@ Nội dung bức thư
 				expect(val1.isValid).toBe(true);
 				expect(val1.errors).toHaveLength(0);
 				expect(
-					val1.warnings.some(
+					val1.warnings?.some(
 						(w) =>
 							w.message.toLowerCase().includes('trong khối [letter]') &&
 							w.message.includes("chỉ có '@@!' mới được chuyển")
@@ -2078,7 +2080,7 @@ Nội dung bức thư
 				expect(val2.isValid).toBe(true);
 				expect(val2.errors).toHaveLength(0);
 				expect(
-					val2.warnings.some(
+					val2.warnings?.some(
 						(w) =>
 							w.message.toLowerCase().includes('trong khối [poem]') &&
 							w.message.includes("chỉ có '@!' mới được chuyển")
