@@ -58,6 +58,8 @@ export interface EpubFontsConfig {
 	h2Font?: string;
 	h2SubFont?: string;
 	dropcapFont?: string;
+	quoteFont?: string;
+	quoteAuthorFont?: string;
 	blobs?: Record<string, Blob>;
 }
 

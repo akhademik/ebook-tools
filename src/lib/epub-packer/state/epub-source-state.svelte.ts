@@ -14,8 +14,15 @@ import {
 	assignSequentialChapterIds,
 	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
-import { slugify, Logger } from '$lib/utils';
-import { MAX_TXT_FILE_SIZE, MAX_ZIP_FILE_SIZE } from '$lib/constants';
+import { slugify, Logger, getZipEntryUncompressedSize } from '$lib/utils';
+import {
+	MAX_TXT_FILE_SIZE,
+	MAX_ZIP_FILE_SIZE,
+	MAX_ZIP_TOTAL_ENTRIES,
+	MAX_ZIP_MARKDOWN_FILES,
+	MAX_ZIP_SINGLE_MD_SIZE,
+	MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE
+} from '$lib/constants';
 
 export interface EpubSourceStateDependencies {
 	getTitle: () => string;
@@ -56,6 +63,7 @@ export class EpubSourceState {
 	parseWarnings = $state<string[]>([]);
 
 	deps: EpubSourceStateDependencies;
+	fileLoadGeneration = 0;
 	private parseAbortController: AbortController | null = null;
 
 	cancelParseTask(): void {
@@ -149,6 +157,7 @@ export class EpubSourceState {
 		}
 
 		const warnings: string[] = [];
+		const parseGen = this.fileLoadGeneration;
 		try {
 			const chapters = await parseTxtToChaptersAsync(
 				this.rawTxtText,
@@ -160,6 +169,10 @@ export class EpubSourceState {
 				},
 				fallbackTitle
 			);
+			if (this.fileLoadGeneration !== parseGen) {
+				Logger.debug('[EpubSourceState]', 'applyTxtGrouping superseded by newer file load');
+				return;
+			}
 			this.epubChapters = assignSequentialChapterIds(chapters);
 
 			// Resolve footnote backlinks
@@ -191,6 +204,7 @@ export class EpubSourceState {
 				this.epubChapters.length
 			);
 		} catch (err: unknown) {
+			if (this.fileLoadGeneration !== parseGen) return;
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.parseStatus = 'Đã hủy xử lý file TXT.';
 				return;
@@ -214,6 +228,9 @@ export class EpubSourceState {
 			`handleFile selected file: ${file?.name}, size: ${file?.size}, type: ${file?.type}`
 		);
 		if (!file) return;
+
+		this.cancelParseTask();
+		const currentGen = ++this.fileLoadGeneration;
 
 		const isZip = /\.zip$/i.test(file.name);
 		const isTxt = /\.txt$/i.test(file.name);
@@ -258,6 +275,10 @@ export class EpubSourceState {
 			try {
 				Logger.debug('[EpubSourceState]', 'Reading file.text()...');
 				const text = await file.text();
+				if (this.fileLoadGeneration !== currentGen) {
+					Logger.debug('[EpubSourceState]', 'Aborting TXT load: superseded by newer file load');
+					return;
+				}
 				Logger.debug(
 					'[EpubSourceState]',
 					'File text read successfully, character count:',
@@ -268,8 +289,10 @@ export class EpubSourceState {
 					.replace(/\r\n/g, '\n')
 					.normalize('NFC');
 				this.deps.onTxtParsed?.(this.rawTxtText);
+				if (this.fileLoadGeneration !== currentGen) return;
 				await this.applyTxtGrouping();
 			} catch (err: unknown) {
+				if (this.fileLoadGeneration !== currentGen) return;
 				const errorMsg = err instanceof Error ? err.message : String(err);
 				Logger.error('[EpubSourceState]', 'Error reading TXT file', err);
 				this.parseStatus = 'Lỗi khi đọc file .TXT: ' + errorMsg;
@@ -280,24 +303,101 @@ export class EpubSourceState {
 			this.parseStatus = 'Đang đọc các chương Markdown trong file .ZIP...';
 			const base = slugify(file.name.replace(/\.zip$/i, ''));
 			this.deps.onFileLoaded?.(base, file.name);
-			await this.loadZipContent(file);
+			await this.loadZipContent(file, currentGen);
 		}
 	}
 
-	async loadZipContent(file: File): Promise<void> {
-		Logger.debug('[EpubSourceState]', 'loadZipContent starting for:', file.name);
+	async loadZipContent(file: File, currentGen?: number): Promise<void> {
+		const gen = currentGen ?? this.fileLoadGeneration;
+		Logger.debug('[EpubSourceState]', `loadZipContent starting for: ${file.name}, gen: ${gen}`);
 		try {
 			const zip = await JSZip.loadAsync(file);
-			const files: Array<{ path: string; baseName: string; rawText: string }> = [];
-			const mdFiles = Object.keys(zip.files).filter(
-				(name) => name.endsWith('.md') && !zip.files[name].dir
-			);
+			if (this.fileLoadGeneration !== gen) {
+				Logger.debug('[EpubSourceState]', 'Aborting ZIP load: superseded after JSZip.loadAsync');
+				return;
+			}
+
+			const allZipEntries = Object.keys(zip.files);
+			if (allZipEntries.length > MAX_ZIP_TOTAL_ENTRIES) {
+				Logger.warn(
+					'[EpubSourceState]',
+					`Too many total entries in zip: ${allZipEntries.length} (max ${MAX_ZIP_TOTAL_ENTRIES})`
+				);
+				this.parseStatus = `File .ZIP chứa quá nhiều tệp hoặc thư mục (${allZipEntries.length} mục, tối đa cho phép ${MAX_ZIP_TOTAL_ENTRIES} mục).`;
+				this.parseIsError = true;
+				return;
+			}
+
+			const mdFiles = allZipEntries.filter((name) => name.endsWith('.md') && !zip.files[name].dir);
+
+			if (mdFiles.length === 0) {
+				Logger.warn('[EpubSourceState]', 'No .md files found in zip');
+				this.parseStatus = 'Không tìm thấy file .md nào trong file .ZIP.';
+				this.parseIsError = true;
+				return;
+			}
+
+			if (mdFiles.length > MAX_ZIP_MARKDOWN_FILES) {
+				Logger.warn('[EpubSourceState]', `Too many markdown files in zip: ${mdFiles.length}`);
+				this.parseStatus = `File .ZIP chứa quá nhiều file Markdown (${mdFiles.length} file, tối đa cho phép ${MAX_ZIP_MARKDOWN_FILES} file).`;
+				this.parseIsError = true;
+				return;
+			}
 
 			mdFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
+			const files: Array<{ path: string; baseName: string; rawText: string }> = [];
+			let totalUncompressedBytes = 0;
+
 			for (const name of mdFiles) {
-				const text = await zip.files[name].async('string');
+				if (this.fileLoadGeneration !== gen) {
+					Logger.debug('[EpubSourceState]', 'Aborting ZIP extraction loop: superseded');
+					return;
+				}
+
 				const baseName = name.replace(/\.md$/i, '').split('/').pop() || name;
+
+				// Kiểm tra kích thước giải nén TRƯỚC KHI cấp phát bộ nhớ chuỗi nếu có metadata
+				const preUncompressedSize = getZipEntryUncompressedSize(zip.files[name]);
+
+				if (preUncompressedSize !== null) {
+					if (preUncompressedSize > MAX_ZIP_SINGLE_MD_SIZE) {
+						this.parseStatus = `File Markdown "${baseName}" có kích thước vượt quá giới hạn (${Math.round(preUncompressedSize / (1024 * 1024))}MB, tối đa 15MB/file).`;
+						this.parseIsError = true;
+						return;
+					}
+					if (totalUncompressedBytes + preUncompressedSize > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
+						this.parseStatus = `Tổng dung lượng văn bản giải nén từ file .ZIP vượt quá giới hạn an toàn (tối đa 60MB).`;
+						this.parseIsError = true;
+						return;
+					}
+				}
+
+				const text = await zip.files[name].async('string');
+				if (this.fileLoadGeneration !== gen) return;
+
+				// Đếm kích thước byte thực tế thay vì chỉ đếm UTF-16 code units
+				const actualByteLength =
+					typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(text).length : text.length;
+
+				const entryBytes =
+					preUncompressedSize !== null
+						? Math.max(actualByteLength, preUncompressedSize)
+						: actualByteLength;
+
+				if (entryBytes > MAX_ZIP_SINGLE_MD_SIZE) {
+					this.parseStatus = `File Markdown "${baseName}" có kích thước vượt quá giới hạn (${Math.round(entryBytes / (1024 * 1024))}MB, tối đa 15MB/file).`;
+					this.parseIsError = true;
+					return;
+				}
+
+				totalUncompressedBytes += entryBytes;
+				if (totalUncompressedBytes > MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE) {
+					this.parseStatus = `Tổng dung lượng văn bản giải nén từ file .ZIP vượt quá giới hạn an toàn (tối đa 60MB).`;
+					this.parseIsError = true;
+					return;
+				}
+
 				files.push({
 					path: name,
 					baseName,
@@ -305,16 +405,12 @@ export class EpubSourceState {
 				});
 			}
 
-			if (files.length === 0) {
-				Logger.warn('[EpubSourceState]', 'No .md files found in zip');
-				this.parseStatus = 'Không tìm thấy file .md nào trong file .ZIP.';
-				this.parseIsError = true;
-				return;
-			}
+			if (this.fileLoadGeneration !== gen) return;
 
 			this.epubRawFiles = files;
 			this.applyGrouping();
 		} catch (err: unknown) {
+			if (this.fileLoadGeneration !== gen) return;
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubSourceState]', 'Error loading ZIP', err);
 			this.parseStatus = 'Lỗi khi đọc file .ZIP: ' + errorMsg;

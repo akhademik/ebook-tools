@@ -21,12 +21,18 @@
 	const dropcapFontInfo = $derived(
 		epubState.fonts.dropcapFont !== 'default' ? findFont(epubState.fonts.dropcapFont) : null
 	);
+	const quoteFontInfo = $derived(
+		epubState.fonts.quoteFont !== 'default' ? findFont(epubState.fonts.quoteFont) : null
+	);
+	const quoteAuthorFontInfo = $derived(
+		epubState.fonts.quoteAuthorFont !== 'default' ? findFont(epubState.fonts.quoteAuthorFont) : null
+	);
 </script>
 
 <div class="animate-fade-in">
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap) -->
-		<div class="flex flex-col gap-4">
+	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+		<!-- Cột 1: Bộ chọn phông chữ (H1, H2, H2 Sub, Dropcap, Quote, Quote Author) -->
+		<div class="flex flex-col gap-3.5">
 			<div>
 				<FontSelect
 					id="h1-font-select"
@@ -55,19 +61,33 @@
 					bind:value={epubState.fonts.dropcapFont}
 				/>
 			</div>
+			<div>
+				<FontSelect
+					id="quote-font-select"
+					label="Font cho Trích dẫn (Quote ~)"
+					bind:value={epubState.fonts.quoteFont}
+				/>
+			</div>
+			<div>
+				<FontSelect
+					id="quote-author-font-select"
+					label="Font cho Tác giả trích dẫn (Author >)"
+					bind:value={epubState.fonts.quoteAuthorFont}
+				/>
+			</div>
 		</div>
 
 		<!-- Cột 2: Khung Xem trước hiển thị nội dung chương -->
-		<div class="flex flex-col h-full">
+		<div class="flex flex-col h-full w-full">
 			<span class="text-xs font-semibold text-text-mute mb-2 block font-sans">
 				Xem trước trang sách (Preview)
 			</span>
 			<div
-				class="border border-border-color rounded-2xl p-4 sm:p-6 shadow-inner w-full flex-1"
+				class="border border-border-color rounded-2xl p-5 sm:p-7 shadow-inner w-full flex-1 flex flex-col justify-start"
 				style="background-color: #fbf8ef; color: #073642; font-family: 'Bookerly', serif;"
 			>
 				<h1
-					class="text-2xl font-bold mb-2 text-center"
+					class="text-2xl sm:text-3xl font-bold mb-3 text-center"
 					style="font-family: {h1FontInfo
 						? `"${h1FontInfo.id}", "${h1FontInfo.cssFamily}", "${h1FontInfo.name}", sans-serif`
 						: `'Bookerly', serif`};"
@@ -75,7 +95,7 @@
 					Đây là chapter lớn
 				</h1>
 				<h2
-					class="text-lg font-semibold text-center"
+					class="text-xl sm:text-2xl font-semibold text-center"
 					style="font-family: {h2FontInfo
 						? `"${h2FontInfo.id}", "${h2FontInfo.cssFamily}", "${h2FontInfo.name}", sans-serif`
 						: `'Bookerly', serif`}; color: #333333; margin-bottom: 0.25em;"
@@ -83,7 +103,7 @@
 					Đây là chapter nhỏ
 				</h2>
 				<h2
-					class="text-lg font-semibold text-center mb-4"
+					class="text-base sm:text-lg font-semibold text-center mb-5"
 					style="font-family: {h2SubFontInfo
 						? `"${h2SubFontInfo.id}", "${h2SubFontInfo.cssFamily}", "${h2SubFontInfo.name}", sans-serif`
 						: h2FontInfo
@@ -92,7 +112,10 @@
 				>
 					Đây là chapter nhỏ tiếp nối
 				</h2>
-				<p class="text-sm leading-relaxed text-gray-700" style="font-family: 'Bookerly', serif;">
+				<p
+					class="text-base sm:text-lg leading-relaxed text-gray-800"
+					style="font-family: 'Bookerly', serif;"
+				>
 					<span
 						class="dropcap"
 						style="font-family: {dropcapFontInfo
@@ -103,6 +126,27 @@
 					trí khác (h2 sub) sẽ được hiển thị bằng phông chữ đã chọn, trong khi đoạn văn (p) sử dụng
 					phông chữ Bookerly mặc định của sách.
 				</p>
+				<blockquote
+					class="my-6 mx-auto border-l-0 text-center"
+					style="display: table; margin: 1.5em auto; text-align: center;"
+				>
+					<p
+						class="text-base sm:text-lg leading-relaxed"
+						style="font-family: {quoteFontInfo
+							? `"${quoteFontInfo.id}", "${quoteFontInfo.cssFamily}", "${quoteFontInfo.name}", sans-serif`
+							: `'Bookerly', serif`}; text-align: center; margin-bottom: 0.4em;"
+					>
+						To Be, or Not To Be, That's the question.
+					</p>
+					<footer
+						class="text-sm sm:text-base block opacity-80"
+						style="font-family: {quoteAuthorFontInfo
+							? `"${quoteAuthorFontInfo.id}", "${quoteAuthorFontInfo.cssFamily}", "${quoteAuthorFontInfo.name}", sans-serif`
+							: `'Bookerly', serif`}; text-align: right;"
+					>
+						W. Shakespeare
+					</footer>
+				</blockquote>
 			</div>
 		</div>
 	</div>
@@ -111,9 +155,9 @@
 <style>
 	.dropcap {
 		float: left;
-		font-size: 3em;
-		line-height: 0.9;
-		margin-right: 0.08em;
+		font-size: 3.2em;
+		line-height: 0.85;
+		margin-right: 0.1em;
 		margin-top: 0.02em;
 		font-weight: bold;
 	}

@@ -70,6 +70,7 @@ export class EpubEditorState {
 	scrollPreviewTo?: (ratio: number) => void;
 	selectTextInEditor?: (text: string) => void;
 	selectTextInPreview?: (text: string) => void;
+	flushEditorSync?: () => void;
 
 	// Object URL tracker for memory leak prevention
 	private currentObjectUrls: string[] = [];
@@ -211,6 +212,7 @@ export class EpubEditorState {
 	}
 
 	async renderPreview(): Promise<void> {
+		this.flushEditorSync?.();
 		if (!this.previewTarget || !this.zip) {
 			this.previewSrcDoc = '';
 			return;
@@ -255,12 +257,14 @@ export class EpubEditorState {
 	}
 
 	validateDirty(): EpubValidationError[] {
+		this.flushEditorSync?.();
 		this.validationErrors = validateDirtyPages(this.dirtyPaths, this.editBuffer);
 		return this.validationErrors;
 	}
 
 	async exportEpub(ignoreValidation = false): Promise<Blob | null> {
 		if (!this.zip) return null;
+		this.flushEditorSync?.();
 
 		if (!ignoreValidation) {
 			const errors = this.validateDirty();
@@ -294,6 +298,7 @@ export class EpubEditorState {
 
 	async analyzeForClean(): Promise<EpubAnalysisResult | null> {
 		if (!this.zip) return null;
+		this.flushEditorSync?.();
 		this.cancelCleanupTask();
 		const ac = new AbortController();
 		this.cleanerAbortController = ac;
@@ -416,6 +421,7 @@ export class EpubEditorState {
 
 	async rebuildToc(): Promise<boolean> {
 		if (!this.zip) return false;
+		this.flushEditorSync?.();
 		try {
 			const res = await rebuildEpubToc(this.zip, this.editBuffer);
 			if (!res) return false;
@@ -426,6 +432,11 @@ export class EpubEditorState {
 
 			this.editBuffer.set(res.ncxPath, res.tocNcx);
 			this.dirtyPaths.add(res.ncxPath);
+
+			// Mark modified pages (where heading IDs were generated) as dirty
+			for (const p of res.modifiedPages ?? []) {
+				this.dirtyPaths.add(p);
+			}
 
 			this.files = await parseZipEntries(this.zip, this.editBuffer);
 			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';

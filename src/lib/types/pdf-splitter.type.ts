@@ -79,7 +79,11 @@ export interface PdfJsLib {
 	GlobalWorkerOptions?: {
 		workerSrc?: string;
 	};
-	getDocument: (src: { data?: ArrayBuffer | Uint8Array; url?: string }) => {
+	getDocument: (src: {
+		data?: ArrayBuffer | Uint8Array;
+		url?: string;
+		isEvalSupported?: boolean;
+	}) => {
 		promise: Promise<PdfJsDocument>;
 	};
 }

@@ -58,7 +58,7 @@ import { buildContentOpf } from '../src/lib/epub-packer/xml-builders/opf-builder
 import { buildNavXhtml } from '../src/lib/epub-packer/xml-builders/nav-builder';
 import { buildChapterXhtml } from '../src/lib/epub-packer/xml-builders/chapter-builder';
 import { parseTxtToChapters } from '../src/lib/epub-packer/parser/txt-parser';
-import { prepareChapters } from '../src/lib/epub-packer/builders/asset-builder';
+import { prepareChapters, resolveActiveFonts } from '../src/lib/epub-packer/builders/asset-builder';
 import type { EpubChapterItem, EpubFontsConfig, OrnamentsConfig } from '../src/lib/types';
 
 /**
@@ -478,5 +478,103 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 			'<link rel="stylesheet" type="text/css" href="../styles/style.css"/>'
 		);
 		expect(xhtml).not.toContain('<style>');
+	});
+
+	it('should inject quote and quote author fonts without duplicate @font-face declarations when fonts overlap', () => {
+		const chapters: EpubChapterItem[] = [
+			{
+				xmlId: 'ch1',
+				fileName: 'chap_01',
+				title: 'Chương 1',
+				html: '<h1>Tiêu đề</h1><blockquote><p>Quote text</p><footer>Author</footer></blockquote>',
+				features: { hasQuotes: true, hasHeadings: true } as any
+			}
+		];
+		const fonts: EpubFontsConfig = {
+			h1Font: 'Bookerly',
+			quoteFont: 'Bookerly',
+			quoteAuthorFont: 'Bookerly'
+		};
+
+		const finalCss = prepareFinalCss(chapters, undefined, fonts);
+
+		// Verify @font-face for Bookerly is injected only once
+		const fontFaceMatches = finalCss.match(/@font-face\s*\{[^}]*Bookerly/g) || [];
+		expect(fontFaceMatches.length).toBe(1);
+
+		// Verify style rules for h1, blockquote, and blockquote footer
+		expect(finalCss).toContain('h1 { font-family: "Bookerly", serif !important; }');
+		expect(finalCss).toContain(
+			'blockquote, blockquote p { font-family: "Bookerly", serif !important; }'
+		);
+		// Verify blockquote footer has font rule merged without duplicate selector
+		expect(finalCss).toContain('blockquote footer {\n\tfont-family: "Bookerly", serif !important;');
+		const footerMatches = finalCss.match(/blockquote footer\s*\{/g) || [];
+		expect(footerMatches.length).toBe(1);
+
+		// Also test custom font shared between H1, Quote and Quote Author
+		const customFonts: EpubFontsConfig = {
+			h1Font: 'Absolute-VH',
+			quoteFont: 'Absolute-VH',
+			quoteAuthorFont: 'Absolute-VH'
+		};
+		const customCss = prepareFinalCss(chapters, undefined, customFonts);
+		const customMatches = customCss.match(/@font-face\s*\{[^}]*Absolute-VH/g) || [];
+		expect(customMatches.length).toBe(1);
+		expect(customCss).toContain('h1 { font-family: "KKTTAbsolute", serif !important; }');
+		expect(customCss).toContain(
+			'blockquote, blockquote p { font-family: "KKTTAbsolute", serif !important; }'
+		);
+		expect(customCss).toContain(
+			'blockquote footer {\n\tfont-family: "KKTTAbsolute", serif !important;'
+		);
+		const customFooterMatches = customCss.match(/blockquote footer\s*\{/g) || [];
+		expect(customFooterMatches.length).toBe(1);
+
+		// Test when chapters do not have quotes: blockquote footer rule is added without duplicate
+		const noQuotesCss = prepareFinalCss(
+			[{ xmlId: 'ch1', fileName: 'chap_01', title: 'Chương 1', html: '<p>Text</p>' }],
+			undefined,
+			{ quoteAuthorFont: 'Bookerly' }
+		);
+		expect(noQuotesCss).toContain(
+			'blockquote footer { font-family: "Bookerly", serif !important; }'
+		);
+		const noQuotesFooterMatches = noQuotesCss.match(/blockquote footer\s*\{/g) || [];
+		expect(noQuotesFooterMatches.length).toBe(1);
+	});
+
+	it('should resolve active fonts with deduplication when quote and quoteAuthor fonts are specified', () => {
+		const fonts: EpubFontsConfig = {
+			h1Font: 'Bookerly',
+			quoteFont: 'Bookerly',
+			quoteAuthorFont: 'Bookerly',
+			blobs: {
+				Bookerly: new Blob(['mock-bookerly-bytes'])
+			}
+		};
+
+		const active = resolveActiveFonts(fonts);
+		expect(active).toEqual(['Bookerly']);
+	});
+
+	it('should shrink-wrap blockquote.center with display: table and auto margins so footer aligns with quote', () => {
+		const chapters: EpubChapterItem[] = [
+			{
+				xmlId: 'ch1',
+				fileName: 'chap_01',
+				title: 'Chương 1',
+				html: '<blockquote class="center"><p>to be, or not to be, that\'s the question</p><footer class="right">william shakespeare</footer></blockquote>',
+				features: { hasQuotes: true } as any
+			}
+		];
+		const css = getDynamicCss(chapters);
+		expect(css).toContain('blockquote.center {');
+		expect(css).toContain('display: table;');
+		expect(css).toContain('margin: 1.2em auto;');
+		expect(css).toContain('max-width: 100%;');
+
+		const errors = findDescendingSpecificityErrors(css);
+		expect(errors).toEqual([]);
 	});
 });

@@ -3,7 +3,7 @@ blockquote footer {
 	font-size: 0.9em;
 	margin-top: 0.4em;
 	opacity: 0.8;
-	text-align: inherit;
+	text-align: right;
 }
 
 footer.left {
@@ -67,19 +67,43 @@ blockquote footer.center {
 	margin: 0 0 0.8em 0;
 }
 
+blockquote.center {
+	display: table;
+	width: -moz-fit-content;
+	width: fit-content;
+	max-width: 100%;
+	margin: 1.2em auto;
+	text-align: center;
+}
+
+blockquote.left {
+	display: table;
+	width: -moz-fit-content;
+	width: fit-content;
+	max-width: 100%;
+	margin: 1.2em auto 1.2em 1.5em;
+	text-align: left;
+}
+
+blockquote.right {
+	display: table;
+	width: -moz-fit-content;
+	width: fit-content;
+	max-width: 100%;
+	margin: 1.2em 1.5em 1.2em auto;
+	text-align: right;
+}
+
 .poem,
 .poem p,
-blockquote.center,
 blockquote.center p {
 	text-align: center;
 }
 
-blockquote.left,
 blockquote.left p {
 	text-align: left;
 }
 
-blockquote.right,
 blockquote.right p {
 	text-align: right;
 }

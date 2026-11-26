@@ -45,6 +45,14 @@ export function resolveActiveFonts(fonts: EpubFontsConfig | null): string[] {
 			activeFonts.push(fonts.h2SubFont);
 		if (fonts.dropcapFont && fonts.dropcapFont !== 'default' && fonts.blobs[fonts.dropcapFont])
 			activeFonts.push(fonts.dropcapFont);
+		if (fonts.quoteFont && fonts.quoteFont !== 'default' && fonts.blobs[fonts.quoteFont])
+			activeFonts.push(fonts.quoteFont);
+		if (
+			fonts.quoteAuthorFont &&
+			fonts.quoteAuthorFont !== 'default' &&
+			fonts.blobs[fonts.quoteAuthorFont]
+		)
+			activeFonts.push(fonts.quoteAuthorFont);
 		if (fonts.blobs['Bookerly']) {
 			activeFonts.push('Bookerly');
 		}

@@ -1,6 +1,7 @@
 <!-- src/lib/epub-editor/components/EpubEditorCodePane.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import { EditorView, basicSetup } from 'codemirror';
 	import { EditorState, Compartment } from '@codemirror/state';
 	import { html } from '@codemirror/lang-html';
@@ -20,8 +21,35 @@
 	let editorContainerEl = $state<HTMLDivElement | null>(null);
 
 	let view: EditorView | null = null;
+	let activeTarget: string | null = null;
+	const fileStates = new SvelteMap<string, EditorState>();
 	let isInternalUpdate = false;
 	let isInternalSync = false;
+	let syncDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+	let lastSyncedDoc = '';
+
+	function flushDocSync() {
+		if (syncDebounceTimer) {
+			clearTimeout(syncDebounceTimer);
+			syncDebounceTimer = null;
+		}
+		if (!view || !activeTarget) return;
+		const target = activeTarget;
+		const newDoc = view.state.doc.toString();
+		if (newDoc !== lastSyncedDoc) {
+			lastSyncedDoc = newDoc;
+			editorState.updateFileContent(target, newDoc);
+		}
+	}
+
+	function scheduleDocSync() {
+		if (syncDebounceTimer) {
+			clearTimeout(syncDebounceTimer);
+		}
+		syncDebounceTimer = setTimeout(() => {
+			flushDocSync();
+		}, 250);
+	}
 
 	const languageCompartment = new Compartment();
 	const themeCompartment = new Compartment();
@@ -59,33 +87,26 @@
 		}
 	}
 
-	function initEditor() {
-		if (!editorContainerEl) return;
-		if (view) {
-			view.destroy();
-			view = null;
-		}
-
-		const currentTarget = editorState.editorTarget;
-		const initialContent = currentTarget ? (editorState.editBuffer.get(currentTarget) ?? '') : '';
-
-		currentLength = initialContent.length;
-		currentLineCount = initialContent ? initialContent.split('\n').length : 1;
-
-		const state = EditorState.create({
+	function createStateForFile(target: string, initialContent: string): EditorState {
+		return EditorState.create({
 			doc: initialContent,
 			extensions: [
 				basicSetup,
 				keymap.of([indentWithTab]),
-				languageCompartment.of(getLanguageExtension(currentTarget)),
+				languageCompartment.of(getLanguageExtension(target)),
 				themeCompartment.of(isDarkMode() ? oneDark : []),
 				wrapCompartment.of(lineWrap ? EditorView.lineWrapping : []),
+				EditorView.domEventHandlers({
+					blur: () => {
+						flushDocSync();
+					}
+				}),
 				EditorView.updateListener.of((update) => {
 					if (update.docChanged && !isInternalUpdate && editorState.editorTarget) {
-						const newDoc = update.state.doc.toString();
-						currentLength = newDoc.length;
+						currentLength = update.state.doc.length;
 						currentLineCount = update.state.doc.lines;
-						editorState.updateFileContent(editorState.editorTarget, newDoc);
+						editorState.dirtyPaths.add(editorState.editorTarget);
+						scheduleDocSync();
 					}
 
 					// Sync text selection from Code Editor to Live Preview
@@ -139,17 +160,50 @@
 				})
 			]
 		});
+	}
+
+	function initEditor() {
+		if (!editorContainerEl) return;
+		if (view) {
+			view.destroy();
+			view = null;
+		}
+
+		const currentTarget = editorState.editorTarget;
+		if (!currentTarget) return;
+
+		const initialContent = editorState.editBuffer.get(currentTarget) ?? '';
+		currentLength = initialContent.length;
+		currentLineCount = initialContent ? initialContent.split('\n').length : 1;
+
+		let state = fileStates.get(currentTarget);
+		if (!state) {
+			state = createStateForFile(currentTarget, initialContent);
+			fileStates.set(currentTarget, state);
+		}
 
 		view = new EditorView({
 			state,
 			parent: editorContainerEl
 		});
+		activeTarget = currentTarget;
+		lastSyncedDoc = initialContent;
 
 		// Attach scroll event for sync-scroll
 		view.scrollDOM.addEventListener('scroll', handleEditorScroll, { passive: true });
 	}
 
-	// Register hooks for syncing scroll and selection from preview
+	// Register hooks for syncing scroll, selection and flushing from preview
+	$effect(() => {
+		editorState.flushEditorSync = flushDocSync;
+		return () => {
+			flushDocSync();
+			if (editorState.flushEditorSync === flushDocSync) {
+				editorState.flushEditorSync = undefined;
+			}
+		};
+	});
+
 	$effect(() => {
 		editorState.scrollEditorTo = (ratio: number) => {
 			if (!view || isInternalSync || !editorState.syncViewEnabled) return;
@@ -188,6 +242,7 @@
 	$effect(() => {
 		const target = editorState.editorTarget;
 		if (!target) {
+			activeTarget = null;
 			currentLength = 0;
 			currentLineCount = 1;
 			return;
@@ -201,21 +256,51 @@
 		}
 
 		if (view) {
-			const currentDoc = view.state.doc.toString();
-			if (currentDoc !== expectedContent) {
-				isInternalUpdate = true;
+			if (target !== activeTarget) {
+				flushDocSync();
+				// Save active file's EditorState before switching
+				if (activeTarget) {
+					fileStates.set(activeTarget, view.state);
+				}
+
+				// Restore or create EditorState for the new target file
+				let targetState = fileStates.get(target);
+				if (
+					!targetState ||
+					targetState.doc.length !== expectedContent.length ||
+					targetState.doc.toString() !== expectedContent
+				) {
+					targetState = createStateForFile(target, expectedContent);
+					fileStates.set(target, targetState);
+				}
+
+				view.setState(targetState);
 				view.dispatch({
-					changes: { from: 0, to: currentDoc.length, insert: expectedContent },
-					effects: languageCompartment.reconfigure(getLanguageExtension(target))
+					effects: [
+						wrapCompartment.reconfigure(lineWrap ? EditorView.lineWrapping : []),
+						themeCompartment.reconfigure(isDarkMode() ? oneDark : [])
+					]
 				});
-				isInternalUpdate = false;
+				activeTarget = target;
+				lastSyncedDoc = expectedContent;
+				currentLength = expectedContent.length;
+				currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
 			} else {
-				view.dispatch({
-					effects: languageCompartment.reconfigure(getLanguageExtension(target))
-				});
+				// Same file active: check if content changed externally (not from this editor)
+				if (expectedContent !== lastSyncedDoc) {
+					const currentDoc = view.state.doc.toString();
+					if (currentDoc !== expectedContent) {
+						isInternalUpdate = true;
+						view.dispatch({
+							changes: { from: 0, to: currentDoc.length, insert: expectedContent }
+						});
+						isInternalUpdate = false;
+						lastSyncedDoc = expectedContent;
+						currentLength = expectedContent.length;
+						currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
+					}
+				}
 			}
-			currentLength = expectedContent.length;
-			currentLineCount = expectedContent ? expectedContent.split('\n').length : 1;
 		}
 	});
 
@@ -248,12 +333,15 @@
 	});
 
 	onDestroy(() => {
+		flushDocSync();
 		if (view) {
 			view.scrollDOM.removeEventListener('scroll', handleEditorScroll);
 		}
 		observer?.disconnect();
 		view?.destroy();
 		view = null;
+		fileStates.clear();
+		activeTarget = null;
 	});
 </script>
 

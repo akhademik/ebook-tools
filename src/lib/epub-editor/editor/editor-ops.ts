@@ -1,5 +1,5 @@
 // src/lib/epub-editor/editor/editor-ops.ts
-import type JSZip from 'jszip';
+import JSZip from 'jszip';
 import { resolveRelativePath } from '$lib/utils';
 import type { EpubFileCategory, EpubEditorFileItem } from './types';
 
@@ -197,13 +197,33 @@ export function extractLinkedCssPaths(html: string, baseHtmlPath: string): strin
 
 /**
  * Export the EPUB archive as a Blob with updated files from editBuffer.
+ * Ensures the 'mimetype' entry is uncompressed (STORE) and placed first in the archive,
+ * strictly complying with OCF 3.3 §3.3.2 specification.
  */
 export async function exportEpubBlob(zip: JSZip, editBuffer: Map<string, string>): Promise<Blob> {
 	for (const [path, content] of editBuffer.entries()) {
 		zip.file(path, content);
 	}
 
-	return await zip.generateAsync({
+	// Create a new clean JSZip archive to guarantee mimetype is first and uncompressed (STORE)
+	const newZip = new JSZip();
+
+	// 1. mimetype MUST be the first file in the ZIP, uncompressed (STORE)
+	const mimeFile = zip.file('mimetype');
+	const mimeContent = mimeFile ? (await mimeFile.async('text')).trim() : 'application/epub+zip';
+	newZip.file('mimetype', mimeContent, { compression: 'STORE' });
+
+	// 2. Add all other files
+	const allPaths = Object.keys(zip.files).filter((p) => p !== 'mimetype' && !zip.files[p].dir);
+	for (const path of allPaths) {
+		const file = zip.files[path];
+		if (file) {
+			const data = await file.async('uint8array');
+			newZip.file(path, data);
+		}
+	}
+
+	return await newZip.generateAsync({
 		type: 'blob',
 		mimeType: 'application/epub+zip',
 		compression: 'DEFLATE',

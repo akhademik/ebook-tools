@@ -66,6 +66,12 @@ export class PdfSplitterState {
 			: null
 	);
 
+	private processGenerationToken = 0;
+	private previewGenerationToken = 0;
+	private fileGenerationToken = 0;
+	private pdfAbortController: AbortController | null = null;
+	private previewAbortController: AbortController | null = null;
+
 	handleFile(file: File | null): void {
 		if (!file) return;
 		if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
@@ -78,6 +84,17 @@ export class PdfSplitterState {
 			this.isError = true;
 			return;
 		}
+
+		// Cancel any running process task and preview loading
+		this.cancelProcessTask();
+		if (this.previewAbortController) {
+			this.previewAbortController.abort();
+			this.previewAbortController = null;
+		}
+		this.previewGenerationToken++;
+		this.loadingPreview = false;
+
+		const fileToken = ++this.fileGenerationToken;
 		this.status = '';
 		this.isError = false;
 		this.pdfSelectedFile = file;
@@ -92,6 +109,7 @@ export class PdfSplitterState {
 		this.currentPreviewIndex = 0;
 		this.cropTopPx = 0;
 		this.cropBottomPx = 0;
+		this.totalDocPages = 0;
 
 		// Set adaptive byte threshold
 		this.maxPartBytes = this.isMobile ? DEFAULT_MOBILE_PART_BYTES : DEFAULT_DESKTOP_PART_BYTES;
@@ -101,10 +119,16 @@ export class PdfSplitterState {
 		if (globalPdfjs) {
 			const isBlob = typeof Blob !== 'undefined' && file instanceof Blob;
 			const url = isBlob ? URL.createObjectURL(file) : null;
-			const src = url ? { url } : { data: file as unknown as Uint8Array };
+			const src = url
+				? { url, isEvalSupported: false }
+				: { data: file as unknown as Uint8Array, isEvalSupported: false };
 			globalPdfjs
 				.getDocument(src)
 				.promise.then((d) => {
+					if (this.fileGenerationToken !== fileToken) {
+						d.destroy();
+						return;
+					}
 					this.totalDocPages = d.numPages;
 					d.destroy();
 				})
@@ -136,24 +160,42 @@ export class PdfSplitterState {
 
 	async loadPreview(): Promise<void> {
 		if (!this.pdfSelectedFile) return;
+		if (this.previewAbortController) {
+			this.previewAbortController.abort();
+			this.previewAbortController = null;
+		}
+		const ac = new AbortController();
+		this.previewAbortController = ac;
+		const currentToken = ++this.previewGenerationToken;
+
 		this.loadingPreview = true;
 		this.status = '';
 		this.isError = false;
 
 		try {
-			this.previewPages = await loadPdfPreview(
+			const pages = await loadPdfPreview(
 				this.pdfSelectedFile,
 				this.selectedPreviewCount,
-				this.keepColor
+				this.keepColor,
+				ac.signal
 			);
+			if (this.previewGenerationToken !== currentToken) return;
+			this.previewPages = pages;
 			this.currentPreviewIndex = 0;
 		} catch (err: unknown) {
+			if (this.previewGenerationToken !== currentToken) return;
+			if (err instanceof DOMException && err.name === 'AbortError') return;
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			Logger.error('[PdfSplitterState]', 'Failed to load preview', err);
 			this.status = 'Không tải được xem trước: ' + errorMsg;
 			this.isError = true;
 		} finally {
-			this.loadingPreview = false;
+			if (this.previewGenerationToken === currentToken) {
+				this.loadingPreview = false;
+				if (this.previewAbortController === ac) {
+					this.previewAbortController = null;
+				}
+			}
 		}
 	}
 
@@ -181,9 +223,8 @@ export class PdfSplitterState {
 		this.cropBottomPx = 0;
 	}
 
-	private pdfAbortController: AbortController | null = null;
-
 	cancelProcessTask(): void {
+		this.processGenerationToken++;
 		if (this.pdfAbortController) {
 			this.pdfAbortController.abort();
 			this.pdfAbortController = null;
@@ -195,6 +236,7 @@ export class PdfSplitterState {
 	async processPdf(): Promise<void> {
 		if (!this.pdfSelectedFile) return;
 		this.cancelProcessTask();
+		const currentToken = ++this.processGenerationToken;
 		const ac = new AbortController();
 		this.pdfAbortController = ac;
 
@@ -218,17 +260,22 @@ export class PdfSplitterState {
 				dirHandle: this.dirHandle,
 				autoDownloadParts: this.autoDownloadParts,
 				onProgress: (info) => {
+					if (this.processGenerationToken !== currentToken) return;
 					this.progressPercent = info.progressPercent;
 					this.status = info.progressLabel;
 				},
 				signal: ac.signal
 			});
+
+			if (this.processGenerationToken !== currentToken) return;
+
 			this.pdfZipBlob = res.zipBlob ?? null;
 			this.pdfZipParts = res.zipParts || [];
 			this.failedPages = res.failedPages || [];
 			this.degradedPages = res.degradedPages || [];
 			this.savedDirectoryName = res.savedDirectoryName || '';
 		} catch (err: unknown) {
+			if (this.processGenerationToken !== currentToken) return;
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.status = 'Đã hủy xử lý PDF.';
 				return;
@@ -238,9 +285,11 @@ export class PdfSplitterState {
 			this.status = 'Lỗi xử lý PDF: ' + errorMsg;
 			this.isError = true;
 		} finally {
-			this.processing = false;
-			if (this.pdfAbortController === ac) {
-				this.pdfAbortController = null;
+			if (this.processGenerationToken === currentToken) {
+				this.processing = false;
+				if (this.pdfAbortController === ac) {
+					this.pdfAbortController = null;
+				}
 			}
 		}
 	}

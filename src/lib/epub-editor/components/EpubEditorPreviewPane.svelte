@@ -10,6 +10,8 @@
 
 	let iframeEl = $state<HTMLIFrameElement | null>(null);
 	let isInternalSync = false;
+	let lastScrollRatio = 0;
+	let lastPreviewTarget: string | null = null;
 
 	function handleIframeLoad() {
 		if (!iframeEl) return;
@@ -18,6 +20,24 @@
 		if (!win || !doc) return;
 
 		try {
+			// Restore scroll position when iframe document is reloaded
+			if (lastScrollRatio > 0) {
+				const restoreScroll = () => {
+					if (!iframeEl) return;
+					const w = iframeEl.contentWindow;
+					const d = iframeEl.contentDocument;
+					if (!w || !d) return;
+					const scrollElement = d.scrollingElement || d.documentElement || d.body;
+					const maxScroll = scrollElement.scrollHeight - w.innerHeight;
+					if (maxScroll > 0) {
+						w.scrollTo({ top: lastScrollRatio * maxScroll, behavior: 'instant' });
+					}
+				};
+				restoreScroll();
+				requestAnimationFrame(restoreScroll);
+				setTimeout(restoreScroll, 60);
+			}
+
 			// Inject high-visibility golden selection styling and comfortable side padding into preview document
 			const style = doc.createElement('style');
 			style.textContent = `
@@ -37,9 +57,6 @@
 			win.addEventListener(
 				'scroll',
 				() => {
-					if (isInternalSync || !editorState.syncViewEnabled) return;
-					if (editorState.editorTarget !== editorState.previewTarget) return;
-
 					const scrollElement = doc.scrollingElement || doc.documentElement || doc.body;
 					const maxScroll = scrollElement.scrollHeight - win.innerHeight;
 					if (maxScroll > 0) {
@@ -47,6 +64,9 @@
 							Math.max((win.scrollY || scrollElement.scrollTop) / maxScroll, 0),
 							1
 						);
+						lastScrollRatio = ratio;
+						if (isInternalSync || !editorState.syncViewEnabled) return;
+						if (editorState.editorTarget !== editorState.previewTarget) return;
 						editorState.scrollEditorTo?.(ratio);
 					}
 				},
@@ -71,9 +91,19 @@
 		}
 	}
 
+	// Reset scroll ratio when switching preview target
+	$effect(() => {
+		const currentTarget = editorState.previewTarget;
+		if (currentTarget !== lastPreviewTarget) {
+			lastPreviewTarget = currentTarget;
+			lastScrollRatio = 0;
+		}
+	});
+
 	// Register hooks for syncing scroll and selection from Code Editor
 	$effect(() => {
 		editorState.scrollPreviewTo = (ratio: number) => {
+			lastScrollRatio = ratio;
 			if (!iframeEl || isInternalSync || !editorState.syncViewEnabled) return;
 			const doc = iframeEl.contentDocument;
 			const win = iframeEl.contentWindow;

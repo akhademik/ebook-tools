@@ -12,6 +12,13 @@ export function triggerDownload(blob: Blob | unknown, filename?: string | null):
 		return;
 	}
 	const safeFilename = filename || 'download';
+	if (typeof document === 'undefined') {
+		Logger.debug(
+			'[download]',
+			`Environment has no DOM document, skipping download click for ${safeFilename}`
+		);
+		return;
+	}
 	Logger.debug(
 		'[download]',
 		`Creating ObjectURL for safeFilename: ${safeFilename}, blob size: ${blob.size}`

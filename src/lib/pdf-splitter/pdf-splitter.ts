@@ -304,20 +304,20 @@ async function openPdfDocument(
 	initPdfWorker();
 
 	let objectUrl: string | null = null;
-	let docSource: { url: string } | { data: Uint8Array };
+	let docSource: { url?: string; data?: Uint8Array; isEvalSupported?: boolean };
 
 	if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
 		try {
 			objectUrl = URL.createObjectURL(file);
-			docSource = { url: objectUrl };
+			docSource = { url: objectUrl, isEvalSupported: false };
 		} catch {
 			objectUrl = null;
 			const buf = await file.arrayBuffer();
-			docSource = { data: new Uint8Array(buf) };
+			docSource = { data: new Uint8Array(buf), isEvalSupported: false };
 		}
 	} else {
 		const buf = await file.arrayBuffer();
-		docSource = { data: new Uint8Array(buf) };
+		docSource = { data: new Uint8Array(buf), isEvalSupported: false };
 	}
 
 	let doc: PdfJsDocument;
@@ -355,7 +355,8 @@ async function openPdfDocument(
 export async function loadPdfPreview(
 	pdfSelectedFile: File | null,
 	selectedPreviewCount: number,
-	_keepColor = false
+	_keepColor = false,
+	signal?: AbortSignal
 ): Promise<PdfPreviewPage[]> {
 	const globalPdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null;
 	if (!pdfSelectedFile || !globalPdfjs) {
@@ -377,6 +378,9 @@ export async function loadPdfPreview(
 		const pages: PdfPreviewPage[] = [];
 
 		for (let p = 1; p <= count; p++) {
+			if (signal?.aborted) {
+				throw new DOMException('Tải xem trước PDF đã bị hủy.', 'AbortError');
+			}
 			Logger.debug('[pdf-splitter]', `loadPdfPreview: rendering page ${p}`);
 			const page = await doc.getPage(p);
 			const viewport = getClampedViewport(page, PREVIEW_SCALE);

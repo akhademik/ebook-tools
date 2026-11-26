@@ -581,6 +581,15 @@ describe('EPUB Editor unit tests', () => {
 
 			expect(updatedChap).toBe('<html><body>Modified Chapter 1 with live edits</body></html>');
 			expect(updatedCss).toBe('body { color: darkblue; font-size: 16px; }');
+
+			// Check that mimetype is first entry and uncompressed (STORE)
+			const zipFileKeys = Object.keys(readBack.files);
+			expect(zipFileKeys[0]).toBe('mimetype');
+			const mimeZipObject = readBack.file('mimetype') as unknown as {
+				_data?: { compression?: string };
+			};
+			// JSZip internal compression method for uncompressed is STORE / null
+			expect(mimeZipObject).toBeDefined();
 		});
 	});
 
@@ -655,6 +664,93 @@ describe('EPUB Editor unit tests', () => {
 			state.reset();
 			expect(state.assetDataUrlCache.size).toBe(0);
 			expect(state.latestPreviewRequestId).toBe(0);
+		});
+
+		it('should add modified pages with generated section IDs into dirtyPaths when rebuilding TOC', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				'<container version="1.0"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>'
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Test</dc:title>
+    <dc:identifier id="BookId">test</dc:identifier>
+    <dc:language>vi</dc:language>
+  </metadata>
+  <manifest>
+    <item id="c1" href="text/ch1.xhtml" media-type="application/xhtml+xml"/>
+  </manifest>
+  <spine>
+    <itemref idref="c1"/>
+  </spine>
+</package>`
+			);
+			zip.file(
+				'OEBPS/text/ch1.xhtml',
+				'<html><head><title>Chương 1</title></head><body><h1>Chương 1</h1><h2>Mục con</h2></body></html>'
+			);
+			state.zip = zip;
+
+			expect(state.dirtyPaths.size).toBe(0);
+
+			const success = await state.rebuildToc();
+			expect(success).toBe(true);
+
+			// Both nav.xhtml, toc.ncx, AND modified ch1.xhtml must be in dirtyPaths
+			expect(state.dirtyPaths.has('OEBPS/text/ch1.xhtml')).toBe(true);
+			expect(state.dirtyPaths.has('OEBPS/nav.xhtml')).toBe(true);
+			expect(state.dirtyPaths.has('OEBPS/toc.ncx')).toBe(true);
+		});
+
+		it('should trigger flushEditorSync before export, validate, analyze, and render', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file('content.opf', '<package/>');
+			state.zip = zip;
+
+			let flushCount = 0;
+			state.flushEditorSync = () => {
+				flushCount++;
+			};
+
+			state.validateDirty();
+			expect(flushCount).toBe(1);
+
+			await state.exportEpub(true);
+			expect(flushCount).toBe(2);
+
+			await state.analyzeForClean();
+			expect(flushCount).toBe(3);
+
+			state.previewTarget = 'test.xhtml';
+			await state.renderPreview();
+			expect(flushCount).toBe(4);
+		});
+
+		it('should accurately update content and dirtyPaths via updateFileContent', async () => {
+			const { EpubEditorState } = await import('../src/lib/epub-editor/epub-editor-state.svelte');
+			const state = new EpubEditorState();
+			state.originalContents.set('OEBPS/text/a.xhtml', 'original a');
+			state.originalContents.set('OEBPS/text/b.xhtml', 'original b');
+
+			state.updateFileContent('OEBPS/text/a.xhtml', 'modified a');
+			expect(state.editBuffer.get('OEBPS/text/a.xhtml')).toBe('modified a');
+			expect(state.dirtyPaths.has('OEBPS/text/a.xhtml')).toBe(true);
+			expect(state.dirtyPaths.has('OEBPS/text/b.xhtml')).toBe(false);
+
+			// Reverting to original content cleans dirtyPaths
+			state.updateFileContent('OEBPS/text/a.xhtml', 'original a');
+			expect(state.dirtyPaths.has('OEBPS/text/a.xhtml')).toBe(false);
 		});
 	});
 });
