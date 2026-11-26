@@ -40,13 +40,16 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 		let url = urlMatch;
 		let trailing = '';
 		const prefix = fullStr.slice(0, offset);
-		// Check if an italic delimiter is currently open before this match
-		const slashCount = (prefix.match(/\//g) || []).length;
-		const isItalicOpen = slashCount % 2 === 1;
+
+		// Remove preceding URLs so their slashes don't distort italic delimiter tracking
+		const cleanPrefix = prefix.replace(/https?:\/\/[^\s<>"')]+/gi, '');
+		const openMatches = (cleanPrefix.match(/(?<![\p{L}\p{N}])\/[^\s/]/gu) || []).length;
+		const closeMatches = (cleanPrefix.match(/(?<=[^\s/])\/(?![\p{L}\p{N}])/gu) || []).length;
+		const isItalicOpen = openMatches > closeMatches;
 
 		while (url.length > 0) {
 			const last = url[url.length - 1];
-			if (last === '*' || last === '_') {
+			if (last === '*' || last === '_' || /[.,;:!?]/.test(last)) {
 				trailing = last + trailing;
 				url = url.slice(0, -1);
 			} else if (last === '/' && isItalicOpen) {

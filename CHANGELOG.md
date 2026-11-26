@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-26 (Khắc phục Triệt để Dấu câu & Nhiều URL Cùng Dòng trong TXT Parser)
+
+- Thêm/sửa:
+  - `src/lib/epub-packer/parser/txt-parser.ts`:
+    - Bổ sung tách các ký tự dấu câu `.,;:!?` ở cuối URL sang `trailing`, giải quyết triệt để lỗi không nhận diện định dạng khi có dấu câu ngay sau (`*https://a.com*.`, `/xem https://a.com/.`, `/xem https://a.com/, rồi đi`).
+    - Làm sạch các URL xuất hiện trước khỏi `prefix` và dùng ranh giới mở in nghiêng `(?<![\p{L}\p{N}])\/[^\s/]` để xác định trạng thái mở thẻ chính xác khi có nhiều URL trên cùng một dòng (`https://x.com/p /xem https://a.com/`).
+  - Unit Tests:
+    - Bổ sung test suite kiểm tra cả 4 trường hợp dấu câu và nhiều URL trên cùng dòng trong `tests/epub-packer.test.ts`.
+- Kết quả pipeline: format ✅ | lint ✅ | type check (0 err, 0 warn) ✅ | test unit ✅ (404/404 pass, 19 test files) | knip ✅ (0 issues) | build ✅ | graphify ✅
+- File chính bị ảnh hưởng: `txt-parser.ts`, `epub-packer.test.ts`, `TASKS.md`, `README.md`.
+
+---
+
 ## 2026-11-26 (Hoàn thành Rà soát Bổ sung Trước P1 theo TASKS.md)
 
 - Thêm/sửa:

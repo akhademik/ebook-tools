@@ -1405,5 +1405,21 @@ URL bình thường https://a.com/ kết thúc bằng dấu gạch chéo.`;
 			expect(html).toContain('<u>http://a.com/x</u>');
 			expect(html).toContain('https://a.com/');
 		});
+
+		it('should format URLs followed immediately by punctuation or multiple URLs on one line', () => {
+			const txt = `@@ Chương 1
+Câu 1: *https://a.com*.
+Câu 2: /xem https://a.com/.
+Câu 3: /xem https://a.com/, rồi đi
+Câu 4: https://x.com/p /xem https://a.com/ tiếp tục`;
+
+			const chapters = parseTxtToChapters(txt, {}, 'Book Test');
+			const html = chapters[0].html;
+
+			expect(html).toContain('<b>https://a.com</b>.');
+			expect(html).toContain('<i>xem https://a.com</i>.');
+			expect(html).toContain('<i>xem https://a.com</i>, rồi đi');
+			expect(html).toContain('https://x.com/p <i>xem https://a.com</i> tiếp tục');
+		});
 	});
 });
