@@ -6,10 +6,10 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 08:50
-- Đã hoàn thành: Xây dựng và gia cố lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT (`loadSafeEpubZip`, `inspectRawZipCentralDirectory`, `validateZipArchiveSafety`, `ZipExtractionBudget` với `reserve`/`updateReservation`/`commit`/`release` chống race condition đồng thời, từ chối tường minh ZIP64/multi-disk/CD lỗi, kiểm tra trùng lặp phân biệt hoa/thường theo chuẩn EPUB, và `readSafeZipEntryBytes`/`Text` không fallback `.async()` không giới hạn); toàn bộ pipeline đạt chuẩn (469/469 unit tests + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-27 08:56
+- Đã hoàn thành: Xây dựng và gia cố lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT (`loadSafeEpubZip`, `inspectRawZipCentralDirectory` đối chiếu toàn vẹn `parsedEntries === totalEntries` & `cursor === cdEnd`, `validateZipArchiveSafety`, `ZipExtractionBudget` với `reserve`/`updateReservation`/`commit`/`release` chống race condition đồng thời, từ chối tường minh ZIP64/multi-disk/CD lỗi, kiểm tra trùng lặp phân biệt hoa/thường theo chuẩn EPUB, và `readSafeZipEntryBytes`/`Text` không fallback `.async()` không giới hạn); toàn bộ pipeline đạt chuẩn (471/471 unit tests + 24/24 E2E tests pass).
 - Đang dở: Không có
-- Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3).
+- Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 
 ---
 

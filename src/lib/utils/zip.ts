@@ -532,6 +532,13 @@ export function inspectRawZipCentralDirectory(
 
 		cursor += headerTotalLen;
 	}
+
+	if (parsedEntries !== totalEntries || cursor !== cdEnd) {
+		throw new ZipSafetyError(
+			'INVALID_METADATA',
+			`Cấu trúc Central Directory không nhất quán (đọc được ${parsedEntries}/${totalEntries} entries, cursor ${cursor}/${cdEnd}).`
+		);
+	}
 }
 
 /**

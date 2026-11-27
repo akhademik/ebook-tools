@@ -270,6 +270,32 @@ describe('Shared ZIP Safety Layer', () => {
 				});
 			}
 		});
+
+		it('should reject when EOCD entry count disagrees with parsed Central Directory entries', async () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+			const eocdOffset = rawZip.byteLength - 22;
+			// Declare 2 entries in both entriesOnDisk and totalEntries while CD actually holds 1
+			view.setUint16(eocdOffset + 8, 2, true);
+			view.setUint16(eocdOffset + 10, 2, true);
+
+			expect(() => inspectRawZipCentralDirectory(rawZip)).toThrow(ZipSafetyError);
+			await expect(loadSafeEpubZip(rawZip)).rejects.toMatchObject({
+				code: 'INVALID_METADATA'
+			});
+		});
+
+		it('should reject when EOCD cdSize does not match Central Directory end cursor', async () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+			const eocdOffset = rawZip.byteLength - 22;
+			// Declare cdSize = 0 while totalEntries = 1
+			view.setUint32(eocdOffset + 12, 0, true);
+
+			await expect(loadSafeEpubZip(rawZip)).rejects.toMatchObject({
+				code: 'INVALID_METADATA'
+			});
+		});
 	});
 
 	describe('Pre-decompression quota checks & raw CD pre-flight', () => {

@@ -4,6 +4,18 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Xác nhận Toàn vẹn Sau Vòng lặp Central Directory: `parsedEntries === totalEntries` & `cursor === cdEnd`)
+
+- Thêm/sửa:
+  - **Kiểm tra Nhất quán Central Directory (`src/lib/utils/zip.ts`)**:
+    - Bổ sung kiểm tra `parsedEntries !== totalEntries || cursor !== cdEnd` ngay sau vòng lặp duyệt Central Directory trong `inspectRawZipCentralDirectory()`, ném `ZipSafetyError('INVALID_METADATA', ...)` khi số entry thực tế đọc được hoặc con trỏ kết thúc không khớp EOCD.
+  - **Bổ sung Unit Tests (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 2 test cho trường hợp EOCD khai báo nhiều entry hơn thực tế trong Central Directory và `cdSize` không khớp với điểm kết thúc thực tế của các entry.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (471/471 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Kiểm tra Chặt chẽ Central Directory: Từ chối ZIP Multi-Disk)
 
 - Thêm/sửa:
