@@ -253,6 +253,23 @@ describe('Shared ZIP Safety Layer', () => {
 
 			expect(() => inspectRawZipCentralDirectory(rawZip)).toThrow(ZipSafetyError);
 		});
+
+		it('should explicitly reject multi-disk ZIP archives (diskNumber, cdStartDisk, entriesOnDisk mismatch)', async () => {
+			for (const [fieldOffset, value] of [
+				[4, 1], // diskNumber !== 0
+				[6, 1], // cdStartDisk !== 0
+				[8, 0] // entriesOnDisk !== totalEntries (1)
+			] as const) {
+				const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+				const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+				const eocdOffset = rawZip.byteLength - 22;
+				view.setUint16(eocdOffset + fieldOffset, value, true);
+
+				await expect(loadSafeEpubZip(rawZip)).rejects.toMatchObject({
+					code: 'UNSUPPORTED_MULTIDISK'
+				});
+			}
+		});
 	});
 
 	describe('Pre-decompression quota checks & raw CD pre-flight', () => {

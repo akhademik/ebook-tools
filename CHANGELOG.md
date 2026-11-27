@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Kiểm tra Chặt chẽ Central Directory: Từ chối ZIP Multi-Disk)
+
+- Thêm/sửa:
+  - **Từ chối Tường minh ZIP Multi-Disk (`src/lib/utils/zip.ts`, `src/lib/types/zip.type.ts`)**:
+    - Bổ sung mã lỗi `UNSUPPORTED_MULTIDISK`.
+    - `inspectRawZipCentralDirectory()` kiểm tra thêm `diskNumber !== 0 || cdStartDisk !== 0 || entriesOnDisk !== totalEntries` trong EOCD để từ chối rõ ràng các archive multi-disk.
+  - **Bổ sung Unit Test (`tests/zip-safety.test.ts`)**:
+    - Kiểm thử từ chối tất cả các trường hợp lệch `diskNumber`, `cdStartDisk` và `entriesOnDisk !== totalEntries`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (469/469 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/zip.type.ts`, `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Gia cố Lớp Kiểm soát An toàn ZIP: Reserve Budget Đồng thời, Từ chối ZIP64 & Trùng lặp Phân biệt Hoa/Thường)
 
 - Thêm/sửa:

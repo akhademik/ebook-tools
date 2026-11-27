@@ -414,6 +414,13 @@ export function inspectRawZipCentralDirectory(
 		);
 	}
 
+	if (diskNumber !== 0 || cdStartDisk !== 0 || entriesOnDisk !== totalEntries) {
+		throw new ZipSafetyError(
+			'UNSUPPORTED_MULTIDISK',
+			'File EPUB sử dụng định dạng ZIP nhiều đĩa (multi-disk) không được hỗ trợ.'
+		);
+	}
+
 	if (totalEntries > resolved.maxEntries) {
 		throw new ZipSafetyError(
 			'TOO_MANY_ENTRIES',

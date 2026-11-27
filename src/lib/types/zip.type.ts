@@ -28,7 +28,8 @@ export type ZipSafetyErrorCode =
 	| 'DUPLICATE_ENTRY'
 	| 'INVALID_METADATA'
 	| 'UNSUPPORTED_STREAM'
-	| 'UNSUPPORTED_ZIP64';
+	| 'UNSUPPORTED_ZIP64'
+	| 'UNSUPPORTED_MULTIDISK';
 
 /**
  * In-flight reservation token held while an entry is being read.
