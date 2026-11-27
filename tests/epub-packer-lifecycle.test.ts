@@ -544,7 +544,7 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			const fetchPromise = new Promise<Response>((resolve) => {
 				resolveFetch = resolve;
 			});
-			state.fonts.h1Font = 'SVN-Georgia-Bold';
+			state.fonts.h1Font = 'DFVN-Belligoes';
 			vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise));
 
 			// Start packing Sách Cũ
@@ -697,7 +697,7 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			const fetchPromise = new Promise<Response>((resolve) => {
 				resolveFetch = resolve;
 			});
-			state.fonts.h1Font = 'SVN-Georgia-Bold';
+			state.fonts.h1Font = 'DFVN-Belligoes';
 			vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise));
 
 			const packPromise = state.processEpub();
@@ -733,7 +733,7 @@ describe('EPUB Packer Lifecycle & Robustness (P1 & P2 fixes)', () => {
 			const fetchGatePromise = new Promise<void>((resolve) => {
 				releaseGate = resolve;
 			});
-			state.fonts.h1Font = 'SVN-Georgia-Bold';
+			state.fonts.h1Font = 'DFVN-Belligoes';
 			vi.stubGlobal(
 				'fetch',
 				vi.fn().mockImplementation(async () => {

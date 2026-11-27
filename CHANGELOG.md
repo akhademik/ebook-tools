@@ -4,6 +4,34 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Chuẩn hóa Tên Hiển thị & Sắp xếp A–Z trong Dropdown Chọn Phông chữ)
+
+- Thêm/sửa:
+  - **Chuẩn hóa Tên Hiển thị Font (`src/lib/epub-packer/templates/fonts.ts`)**:
+    - Bổ sung hàm `formatFontDisplayName(baseName, cssFamily)` tạo `font.name` thân thiện cho dropdown: loại bỏ thẻ trục variable font (`[wght]`, `[wdth,wght]`), bỏ tiền tố xưởng phông (`DFVN`, `1FTV`, `UTM`, `SVN`, `LNTH`, `TP`, `VL`, `TLM`, `MJ`, `HP DNS`, `Fz`, `Font`), bỏ hậu tố `-VH`/`-Viet-Hoa`/`Regular`, tách khoảng trắng CamelCase và kết hợp tên chuẩn từ `fonts-metadata.json`.
+    - Sắp xếp `AVAILABLE_FONTS` theo thứ tự bảng chữ cái tiếng Việt (`localeCompare('vi')`), đồng thời giữ nguyên `font.id`, `font.cssFamily` và `findFont()` để tương thích ngược hoàn toàn.
+  - **Bổ sung Unit Tests (`tests/epub-packer.test.ts`)**:
+    - Thêm 2 test trong nhóm `Font Display Names & Lookup` kiểm thử `formatFontDisplayName()`, thứ tự A–Z của 54 font và tra cứu `findFont()`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/fonts.ts`, `tests/epub-packer.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Cập nhật Kho Phông Chữ Nhúng, Loại bỏ Font Trùng lặp & Chuẩn hóa OPF Font ID)
+
+- Thêm/sửa:
+  - **Kho Phông Chữ & Metadata (`src/assets/fonts/`, `src/assets/fonts-metadata.json`, `scripts/generate-fonts-meta.js`)**:
+    - Rà soát SHA-256 và bảng glyph `fontkit`, xóa 3 file phông trùng lặp (`Lourena VH.ttf` trùng `Font-Lourena-Viet-Hoa.ttf`, `TP Han Zi.otf` và `TP Han Zi.ttf` trùng `TP-Han-Zi.otf`), giữ lại bộ 54 font duy nhất.
+    - Cập nhật `scripts/generate-fonts-meta.js` sắp xếp danh sách file theo thứ tự từ điển (deterministic) và chạy tái sinh `src/assets/fonts-metadata.json` khớp toàn bộ 54 font hiện có.
+  - **Chuẩn hóa XML ID Phông chữ (`src/lib/epub-packer/xml-builders/opf-builder.ts`)**:
+    - Chuẩn hóa `fontId` trong `buildContentOpf()` bằng `.replace(/[^a-z0-9_-]+/g, '-')` để các font biến thể có dấu cách hoặc dấu ngoặc vuông (như `IBMPlexSans-Italic[wdth,wght]`, `Phudu[wght]`, `Unbounded[wght]`) sinh `<item id="...">` hợp lệ theo chuẩn XML NCName.
+  - **Cập nhật Unit Tests (`tests/epub-css-specificity.test.ts`, `tests/epub-packer-lifecycle.test.ts`)**:
+    - Thay các tham chiếu đến font đã bị xóa (`Minh-Tu`, `Kermel`, `SVN-Georgia-Bold`) bằng các font hiện có (`Absolute-VH`, `BCDowntown`, `DFVN-Belligoes`).
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (501/501 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/assets/fonts/*`, `src/assets/fonts-metadata.json`, `scripts/generate-fonts-meta.js`, `src/lib/epub-packer/xml-builders/opf-builder.ts`, `tests/epub-css-specificity.test.ts`, `tests/epub-packer-lifecycle.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Thêm Tính Năng Trích Xuất Media (.ZIP) Cho Trang EPUB → TXT)
 
 - Thêm/sửa:

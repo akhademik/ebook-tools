@@ -88,7 +88,11 @@ export function buildContentOpf(
 	for (const fontName of activeFonts) {
 		const font = findFont(fontName);
 		if (font) {
-			const fontId = (font.id || font.name).toLowerCase().replace(/\s+/g, '-');
+			const fontId =
+				(font.id || font.name)
+					.toLowerCase()
+					.replace(/[^a-z0-9_-]+/g, '-')
+					.replace(/^-+|-+$/g, '') || 'custom';
 			const uniqueId = getUniqueOpfId(usedIds, `font-${fontId}`);
 			manifestItems.push(
 				`<item id="${escapeXmlAttribute(uniqueId)}" href="fonts/${escapeXmlAttribute(font.fileName)}" media-type="${escapeXmlAttribute(font.mimeType)}"/>`

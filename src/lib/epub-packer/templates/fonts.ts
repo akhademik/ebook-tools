@@ -11,26 +11,75 @@ const fontFiles = import.meta.glob('../../../assets/fonts/*.{ttf,otf,woff,woff2}
 	import: 'default'
 }) as Record<string, string>;
 
-export const AVAILABLE_FONTS: FontInfo[] = Object.entries(fontFiles).map(([path, url]) => {
-	const fileName = path.split('/').pop() || '';
-	const baseName = fileName.replace(/\.[^/.]+$/, '');
+/**
+ * Chuẩn hóa tên hiển thị thân thiện cho dropdown từ tên file và cssFamily
+ */
+export function formatFontDisplayName(baseName: string, cssFamily: string): string {
+	let s = baseName.replace(/\[[^\]]*\]/g, '');
+	s = s.replace(/^(UTM|SVN|LNTH|DFVN|TP|1FTV|VL|TLM|MJ|HP[\s_-]+DNS|Fz|Font)[\s_-]+/i, '');
+	s = s.replace(/^FZ(?=[A-Z])/i, 'FZ ');
+	s = s.replace(/[\s_-]+(Viet[\s_-]*Hoa|VH)$/i, '');
+	if (/^TLM-/i.test(baseName)) {
+		s = s.replace(/[\s_-]+V$/i, '');
+	}
+	s = s.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+	s = s.replace(/\s+Regular$/i, '').trim();
 
-	const cssFamily = fontMetaMap[fileName] || baseName.replace(/[_-]/g, ' ').trim();
+	const famClean = cssFamily
+		.replace(
+			/^(iCielBC|iCiel|LNTH-[a-z]\s+|LNTH|NVN|FS|KKTT|1314|1FTV|DFVN|SVN|TP|UTM|VL|HP\s+DNS|Fz)[\s_-]*/i,
+			''
+		)
+		.replace(/[_-]+/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim();
 
-	let cleanName = baseName.replace(/^(UTM_|SVN-|LNTH-|DFVN-|TP-)/i, '');
-	cleanName = cleanName.replace(/[_-]/g, ' ').trim();
+	const sNoSpace = s.toLowerCase().replace(/\s+/g, '');
+	const famNoSpace = famClean.toLowerCase().replace(/\s+/g, '');
+	if (famClean && sNoSpace === famNoSpace) {
+		s = famClean;
+	} else if (famClean && sNoSpace.startsWith(famNoSpace) && sNoSpace.length > famNoSpace.length) {
+		const words = s.split(' ');
+		const last = words[words.length - 1];
+		if (
+			/^(Italic|Bold|SemiBold|Semi\s*Bold|Medium|Light|Thin|Black|ExtraBold)$/i.test(last) &&
+			words.slice(0, -1).join('').toLowerCase() === famNoSpace
+		) {
+			s = `${famClean} ${last}`;
+		}
+	}
 
-	const mimeType = 'application/vnd.ms-opentype';
+	return s
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+		.replace(/([a-zA-Z])(\d)/g, '$1 $2')
+		.replace(/(\d)([a-zA-Z])/g, '$1 $2')
+		.replace(/\bDe Borstel\b/g, 'DeBorstel')
+		.replace(/\bShi Tian Song S\b/g, 'ShiTianSong')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
 
-	return {
-		id: baseName,
-		name: cleanName,
-		cssFamily,
-		fileName,
-		url,
-		mimeType
-	};
-});
+export const AVAILABLE_FONTS: FontInfo[] = Object.entries(fontFiles)
+	.map(([path, url]) => {
+		const fileName = path.split('/').pop() || '';
+		const baseName = fileName.replace(/\.[^/.]+$/, '');
+
+		const cssFamily = fontMetaMap[fileName] || baseName.replace(/[_-]/g, ' ').trim();
+		const cleanName = formatFontDisplayName(baseName, cssFamily);
+
+		const mimeType = 'application/vnd.ms-opentype';
+
+		return {
+			id: baseName,
+			name: cleanName,
+			cssFamily,
+			fileName,
+			url,
+			mimeType
+		};
+	})
+	.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
 
 /**
  * Tìm font theo id, cssFamily, tên cleanName hoặc tên file
