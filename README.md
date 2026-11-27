@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 11:35
-- Đã hoàn thành: Hoàn thiện bộ phân tích DOM nội bộ, trích xuất chuẩn theo `<spine>`, và chuẩn hóa footnote cùng chapter từ sách ngoài (`FootnoteRegistry` đánh số toàn cục `{1}, {2}...` tránh trùng qua các chương, dọn link quay lại `footnote-backref`/ký tự `↩` và nhãn `[n]` đầu dòng) cho EPUB → TXT (`src/lib/epub-to-txt/html-dom.ts`, `src/lib/epub-to-txt/epub-to-txt.ts`); toàn bộ pipeline đạt chuẩn (497/497 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-27 12:33
+- Đã hoàn thành: Hoàn thiện toàn bộ bộ công cụ EPUB → TXT (`html-dom.ts`, `epub-to-txt.ts`, `media-extractor.ts`, `epub-to-txt-state.svelte.ts`, `src/routes/epub-to-txt/+page.svelte`) gồm: phân tích DOM nội bộ, đọc đúng thứ tự `<spine>`, chuẩn hóa footnote cùng chapter & đánh số toàn cục `{1}, {2}...`, và tính năng **Trích xuất media** (gom font/hình ảnh/audio/video thành `.zip` phẳng, tự động giải mã font IDPF/Adobe obfuscated); toàn bộ pipeline đạt chuẩn (501/501 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

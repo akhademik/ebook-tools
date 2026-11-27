@@ -8,6 +8,11 @@ import {
 	htmlToCleanText,
 	extractEpubToTxt
 } from '../src/lib/epub-to-txt/epub-to-txt';
+import { extractEpubMedia } from '../src/lib/epub-to-txt/media-extractor';
+import {
+	deobfuscateIdpfFont,
+	isValidFontMagic
+} from '../src/lib/epub-editor/editor/html-validator';
 
 describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 	describe('cleanTextFormatting', () => {
@@ -846,6 +851,99 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 					'{2} Giải thích mục một của chương hai.',
 					'{3} 1945 là mốc thời gian cụ thể'
 				].join('\n')
+			);
+		});
+	});
+
+	describe('extractEpubMedia — Font, Image & Media ZIP Extraction', () => {
+		it('extracts embedded fonts, images, and audio/video flat into ZIP while skipping XHTML/CSS/OPF/META-INF', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				`<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<?xml version="1.0" encoding="utf-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Sách Có Media</dc:title></metadata><manifest></manifest><spine></spine></package>`
+			);
+			zip.file('OEBPS/Styles/main.css', 'body { font-family: abc; }');
+			zip.file('OEBPS/Text/chap1.xhtml', '<html><body><p>Hi</p></body></html>');
+
+			const ttfBytes = new Uint8Array([0x00, 0x01, 0x00, 0x00, 0x00, 0x10]);
+			const jpgBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
+			const mp3Bytes = new Uint8Array([0x49, 0x44, 0x33, 0x03]);
+			zip.file('OEBPS/Fonts/abc.ttf', ttfBytes);
+			zip.file('OEBPS/Images/ahh.jpg', jpgBytes);
+			zip.file('OEBPS/Audio/theme.mp3', mp3Bytes);
+
+			const res = await extractEpubMedia(zip);
+			expect(res.fileName).toBe('sach-co-media-media.zip');
+			expect(res.fontCount).toBe(1);
+			expect(res.imageCount).toBe(1);
+			expect(res.otherMediaCount).toBe(1);
+			expect(res.totalCount).toBe(3);
+			expect(res.extractedFiles.sort()).toEqual(['abc.ttf', 'ahh.jpg', 'theme.mp3']);
+
+			const outZip = await JSZip.loadAsync(await res.zipBlob.arrayBuffer());
+			expect(Object.keys(outZip.files).sort()).toEqual(['abc.ttf', 'ahh.jpg', 'theme.mp3']);
+			const extractedTtf = await outZip.file('abc.ttf')!.async('uint8array');
+			const extractedJpg = await outZip.file('ahh.jpg')!.async('uint8array');
+			expect(extractedTtf).toEqual(ttfBytes);
+			expect(extractedJpg).toEqual(jpgBytes);
+		});
+
+		it('deduplicates colliding media filenames from different EPUB directories and de-obfuscates IDPF fonts', async () => {
+			const uid = 'urn:uuid:11112222-3333-4444-5555-666677778888';
+			const rawOtfo = new Uint8Array(2000);
+			rawOtfo[0] = 0x4f;
+			rawOtfo[1] = 0x54;
+			rawOtfo[2] = 0x54;
+			rawOtfo[3] = 0x4f; // 'OTTO'
+			const scrambled = deobfuscateIdpfFont(rawOtfo, uid);
+			expect(isValidFontMagic(scrambled)).toBe(false);
+
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				`<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<?xml version="1.0" encoding="utf-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Book Font</dc:title><dc:identifier id="uid">${uid}</dc:identifier></metadata><manifest></manifest><spine></spine></package>`
+			);
+			zip.file('OEBPS/Fonts/abc.otf', scrambled);
+			zip.file('OEBPS/Images/ch1/photo.png', new Uint8Array([0x89, 0x50, 0x4e, 0x47]));
+			zip.file('OEBPS/Images/ch2/photo.png', new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x01]));
+
+			const res = await extractEpubMedia(zip);
+			expect(res.deobfuscatedFontCount).toBe(1);
+			expect(res.imageCount).toBe(2);
+			expect(res.extractedFiles).toContain('abc.otf');
+			expect(res.extractedFiles).toContain('photo.png');
+			expect(res.extractedFiles).toContain('photo-2.png');
+
+			const outZip = await JSZip.loadAsync(await res.zipBlob.arrayBuffer());
+			const restoredFont = await outZip.file('abc.otf')!.async('uint8array');
+			expect(isValidFontMagic(restoredFont)).toBe(true);
+		});
+
+		it('throws a clear message when EPUB contains no embedded fonts or media files', async () => {
+			const zip = new JSZip();
+			zip.file('mimetype', 'application/epub+zip');
+			zip.file(
+				'META-INF/container.xml',
+				`<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>`
+			);
+			zip.file(
+				'OEBPS/content.opf',
+				`<?xml version="1.0"?><package><metadata></metadata><manifest></manifest><spine></spine></package>`
+			);
+			zip.file('OEBPS/chap1.xhtml', '<html><body><p>Văn bản thuần.</p></body></html>');
+
+			await expect(extractEpubMedia(zip)).rejects.toThrow(
+				'File EPUB này không chứa font hay tệp media nào để trích xuất.'
 			);
 		});
 	});

@@ -4,6 +4,22 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Thêm Tính Năng Trích Xuất Media (.ZIP) Cho Trang EPUB → TXT)
+
+- Thêm/sửa:
+  - **Module Trích Xuất Media EPUB (`src/lib/epub-to-txt/media-extractor.ts`)**:
+    - Bổ sung hàm `extractEpubMedia()` quét an toàn qua `loadSafeEpubZip()` + `createZipExtractionBudget()`, trích xuất toàn bộ font (`.ttf`, `.otf`, `.woff`, `.woff2`, `.eot`), hình ảnh (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.svg`, `.avif`...) và audio/video nhúng trong EPUB ra file `<ten>-media.zip` phẳng tại root (tự đổi tên `-2`, `-3` nếu trùng tên giữa các thư mục con).
+    - Tự động phát hiện và giải mã font bị obfuscated (IDPF & Adobe) dựa trên `dc:identifier` trong OPF qua `isValidFontMagic()`, `deobfuscateIdpfFont()`, `deobfuscateAdobeFont()` để font xuất ra mở và cài đặt được bình thường.
+  - **UI & State (`src/routes/epub-to-txt/+page.svelte`, `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`)**:
+    - Thêm nút **Trích xuất media** bên cạnh nút **Chuyển đổi sang TXT** / **Tải file .TXT** theo chuẩn `DESIGN_SYSTEM.md`, tự động tải về `.zip` khi hoàn tất và cache kết quả nếu nhấn tải lại.
+    - Bảo vệ race condition bằng `mediaRequestId` (hủy kết quả/progress cũ khi đổi file hoặc `reset()`).
+  - **Bổ sung Test (`tests/epub-to-txt.test.ts`, `tests/epub-to-txt-state.test.ts`)**:
+    - Thêm 3 unit tests cho `extractEpubMedia()` (trích xuất phẳng font/ảnh/audio, chống đè tên trùng + giải mã font IDPF, báo lỗi khi EPUB không có media) và 1 state test cho `EpubToTxtState.extractMedia()` + race condition.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (501/501 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/media-extractor.ts`, `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`, `src/routes/epub-to-txt/+page.svelte`, `tests/epub-to-txt.test.ts`, `tests/epub-to-txt-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Chuẩn hóa Footnote Cùng Chapter & Đánh Số Toàn Cục cho EPUB Ngoài Project)
 
 - Thêm/sửa:

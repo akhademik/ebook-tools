@@ -159,7 +159,7 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 		await fileInput.setInputFiles(fixtureEpubPath);
 
 		// 2. Click start conversion
-		const startBtn = page.getByRole('button', { name: /Bắt đầu chuyển đổi sang TXT/i });
+		const startBtn = page.getByRole('button', { name: /Chuyển đổi sang TXT/i });
 		await expect(startBtn).toBeVisible({ timeout: 25000 });
 		await startBtn.click();
 

@@ -3,6 +3,9 @@ import JSZip from 'jszip';
 import { EpubToTxtState } from '$lib/epub-to-txt/epub-to-txt-state.svelte';
 import * as epubToTxtModule from '$lib/epub-to-txt/epub-to-txt';
 import type { EpubToTxtResult } from '$lib/epub-to-txt/epub-to-txt';
+import * as mediaExtractorModule from '$lib/epub-to-txt/media-extractor';
+import type { EpubMediaExtractResult } from '$lib/epub-to-txt/media-extractor';
+import * as utilsModule from '$lib/utils';
 
 function createDeferred<T>() {
 	let resolve!: (value: T) => void;
@@ -220,5 +223,85 @@ describe('EpubToTxtState race condition protections', () => {
 		expect(state.result).not.toBeNull();
 		expect(state.result?.text).toContain('Nội dung bình thường.');
 		expect(state.status).toContain('Chuyển đổi thành công!');
+	});
+
+	it('should extract media, trigger download, and guard against race conditions on file switch or reset()', async () => {
+		const downloadSpy = vi.spyOn(utilsModule, 'triggerDownload').mockImplementation(() => {});
+
+		const fileA = new File(['a'], 'book-a.epub', { type: 'application/epub+zip' });
+		const fileB = new File(['b'], 'book-b.epub', { type: 'application/epub+zip' });
+		const deferredA = createDeferred<EpubMediaExtractResult>();
+		let onProgressA: ((status: string, percent: number) => void) | undefined;
+
+		vi.spyOn(mediaExtractorModule, 'extractEpubMedia').mockImplementationOnce(
+			async (_file, opts) => {
+				onProgressA = opts?.onProgress;
+				return deferredA.promise;
+			}
+		);
+
+		const state = new EpubToTxtState();
+		state.handleFile(fileA);
+		const mediaTaskA = state.extractMedia();
+
+		expect(state.isExtractingMedia).toBe(true);
+		onProgressA?.('Đang trích xuất A...', 50);
+		expect(state.progressPercent).toBe(50);
+
+		// Switch file mid-extraction -> cancels A
+		state.handleFile(fileB);
+		expect(state.isExtractingMedia).toBe(false);
+		expect(state.mediaResult).toBeNull();
+
+		deferredA.resolve({
+			zipBlob: new Blob(['zipA'], { type: 'application/zip' }),
+			fileName: 'book-a-media.zip',
+			fontCount: 1,
+			imageCount: 1,
+			otherMediaCount: 0,
+			totalCount: 2,
+			deobfuscatedFontCount: 0,
+			extractedFiles: ['abc.ttf', 'ahh.jpg']
+		});
+		await mediaTaskA;
+
+		// Stale A result must NOT overwrite B or trigger download
+		expect(state.mediaResult).toBeNull();
+		expect(state.selectedFile).toBe(fileB);
+		expect(downloadSpy).not.toHaveBeenCalled();
+
+		// Now verify normal extraction & cached re-download
+		vi.restoreAllMocks();
+		const downloadSpy2 = vi.spyOn(utilsModule, 'triggerDownload').mockImplementation(() => {});
+		const zip = new JSZip();
+		zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+		zip.file(
+			'META-INF/container.xml',
+			'<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>'
+		);
+		zip.file(
+			'OEBPS/content.opf',
+			'<?xml version="1.0" encoding="utf-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Truyện Mẫu</dc:title></metadata><manifest></manifest><spine></spine></package>'
+		);
+		zip.file('OEBPS/fonts/abc.ttf', new Uint8Array([0x00, 0x01, 0x00, 0x00, 0x00]));
+		zip.file('OEBPS/images/ahh.jpg', new Uint8Array([0xff, 0xd8, 0xff, 0xe0]));
+		const realEpubBytes = await zip.generateAsync({ type: 'uint8array' });
+		const realEpubFile = new File([realEpubBytes as unknown as BlobPart], 'truyen-mau.epub', {
+			type: 'application/epub+zip'
+		});
+
+		const state2 = new EpubToTxtState();
+		state2.handleFile(realEpubFile);
+		await state2.extractMedia();
+
+		expect(state2.isExtractingMedia).toBe(false);
+		expect(state2.isError).toBe(false);
+		expect(state2.mediaResult?.fileName).toBe('truyen-mau-media.zip');
+		expect(state2.mediaResult?.extractedFiles).toEqual(['abc.ttf', 'ahh.jpg']);
+		expect(downloadSpy2).toHaveBeenCalledTimes(1);
+
+		// Clicking extractMedia again reuses cached mediaResult without error
+		await state2.extractMedia();
+		expect(downloadSpy2).toHaveBeenCalledTimes(2);
 	});
 });

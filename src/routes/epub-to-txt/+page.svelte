@@ -33,23 +33,37 @@
 				<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
 					<Button
 						onclick={() => state.processEpub()}
-						disabled={state.isProcessing}
+						disabled={state.isProcessing || state.isExtractingMedia}
 						variant="primary"
 					>
-						{state.isProcessing ? 'Đang chuyển đổi...' : 'Bắt đầu chuyển đổi sang TXT'}
+						{state.isProcessing ? 'Đang chuyển đổi...' : 'Chuyển đổi sang TXT'}
+					</Button>
+				</div>
+			{:else}
+				<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
+					<Button
+						onclick={() => state.downloadTxt()}
+						disabled={state.isProcessing || state.isExtractingMedia}
+						variant="primary"
+					>
+						Tải file .TXT
 					</Button>
 				</div>
 			{/if}
 
-			{#if state.result}
-				<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
-					<Button onclick={() => state.downloadTxt()} variant="primary">Tải file .TXT</Button>
-				</div>
-			{/if}
+			<div class="w-full sm:w-auto sm:flex-1 sm:max-w-65 shrink-0">
+				<Button
+					onclick={() => state.extractMedia()}
+					disabled={state.isProcessing || state.isExtractingMedia}
+					variant="secondary"
+				>
+					{state.isExtractingMedia ? 'Đang trích xuất media...' : 'Trích xuất media'}
+				</Button>
+			</div>
 		</div>
 	{/if}
 
-	{#if state.isProcessing || state.progressPercent > 0}
+	{#if state.isProcessing || state.isExtractingMedia || state.progressPercent > 0}
 		<div class="mt-5 animate-fade-in">
 			<p class="font-mono text-xs text-text-mute mb-2">
 				{state.progressLabel || 'Đang trích xuất nội dung...'}
