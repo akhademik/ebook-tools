@@ -182,7 +182,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await page.waitForTimeout(200);
 
 		// Verify template name and font badge in carousel
-		await expect(page.getByText('Đang chọn: (2/10)')).toBeVisible();
+		await expect(page.getByText('Đang chọn: (2/16)')).toBeVisible();
 		await expect(page.locator('#jacket-font-title-btn')).toContainText('Bookerly');
 		await expect(page.locator('#jacket-font-title')).toHaveValue('Bookerly');
 

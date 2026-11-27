@@ -4,6 +4,61 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Bổ sung 2 Mẫu Jacket Mới Từ `TASK.MD`: Mẫu 15 & Mẫu 16)
+
+- Thêm/sửa:
+  - **Mẫu Jacket & CSS (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Tích hợp thêm 2 mẫu từ `TASK.MD` thành **`Mẫu 15`** (`.jacket-15`, từ `intro-20`: khung hồ sơ kèm tem đỏ nghiêng `.stamp`, tựa gốc dạng `[ ... ]` và khối `.dossier-grid`) và **`Mẫu 16`** (`.jacket-16`, từ `intro-24`: huy hiệu tác giả `.director-tag` + `.author` nền tối và khối `.credit-block`), nâng tổng số lên **16 mẫu jacket**.
+    - Mở rộng `JacketTemplateSpec` với `authorWrapperClass`, `authorTag`, `originalFormat` và `bottomBandClass`, đồng thời giữ CSS sạch không hardcode `font-family` và không dùng inline `style`.
+  - **Hỗ trợ Font `.stamp` (`src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/builders/stylesheet-builder.ts`)**:
+    - Bổ sung `.stamp` vào nhóm selector tác giả/dịch giả trong cả Live Preview và `buildJacketCss()` để tùy chọn `Tác giả + Dịch giả` áp dụng đúng trên `Mẫu 15`.
+  - **Cập nhật Kiểm thử (`tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`)**:
+    - Mở rộng kiểm thử CSS specificity đủ 16 mẫu (`templateId` 1–16), kiểm tra cấu trúc HTML `Mẫu 15` & `Mẫu 16`, và cập nhật chỉ số carousel `(2/16)` trong E2E test.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/builders/stylesheet-builder.ts`, `tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Khắc phục Margin/Padding Xem trước Jacket & Khoảng cách Tác giả Mẫu 14)
+
+- Thêm/sửa:
+  - **Sửa CSS Reset trong Carousel Preview (`src/lib/epub-packer/components/EpubJacketCarousel.svelte`)**:
+    - Gỡ `!important` khỏi `margin: 0` và `padding: 0` trên `:global(.preview-wrap p)` để các rule khoảng cách/đệm của từng mẫu jacket (`.jacket-N .author`, `.kicker`, `.title`, `.translator`...) có hiệu lực đúng như trong file EPUB xuất ra.
+  - **Tăng Khoảng cách Mẫu 14 (`src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Tăng `margin-bottom` của `.jacket-14 .author` lên `2.2em` để tên tác giả không chạm góc trên của khung `.tilted-box` xoay `-4deg`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Refactor Jacket Templates & Tích hợp 3 Mẫu Mới: Mẫu 12, 13, 14)
+
+- Thêm/sửa:
+  - **Refactor & Tinh gọn Mẫu Jacket (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Xóa 2 mẫu cũ 11–12 theo yêu cầu, đánh số lại mẫu viền kép hoa văn thành `Mẫu 11` (`.jacket-11`), và chuyển toàn bộ `JACKET_TEMPLATES` sang kiến trúc config-driven dùng chung `JacketTemplateSpec`, `renderJacketFromSpec()` và `createJacketTemplate()` để loại bỏ hoàn toàn lặp code HTML/CSS boilerplate.
+    - Tích hợp 3 mẫu mới từ `TASK.MD` thành: `Mẫu 12` (`.jacket-12`: dải tối `.dark-band` cho tác giả/dịch giả + `.light-band` + `.meta-bar`), `Mẫu 13` (`.jacket-13`: viền trái đỏ `#dc2626` + huy hiệu `.kicker`), và `Mẫu 14` (`.jacket-14`: khối tựa xoay nghiêng `.tilted-box`).
+  - **Hỗ trợ Phông chữ `.kicker` (`src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/builders/stylesheet-builder.ts`)**:
+    - Bổ sung `.kicker` vào nhóm selector tác giả/dịch giả trong cả Live Preview và `buildJacketCss()` để tùy chọn `Tác giả + Dịch giả` áp dụng chính xác trên `Mẫu 13`.
+  - **Cập nhật Kiểm thử (`tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`)**:
+    - Kiểm thử đủ 14 mẫu (`templateId` 1–14) không lỗi descending specificity, xác nhận cấu trúc HTML của `Mẫu 11–14` và cập nhật chỉ số carousel `(2/14)` trong E2E test.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `src/lib/epub-packer/components/EpubJacketCarousel.svelte`, `src/lib/epub-packer/builders/stylesheet-builder.ts`, `tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Bổ sung 3 Mẫu Trang Lót Sách Jacket Mới: Mẫu 11, 12, 13)
+
+- Thêm/sửa:
+  - **Mẫu Jacket & Stylesheet (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Tích hợp 3 mẫu trang giới thiệu sách mới từ `TASK.MD` với mã tuần tự `Mẫu 11` (`.jacket-11`: dải tiêu đề kẹp viền kép), `Mẫu 12` (`.jacket-12`: khung vòm bo đỉnh `border-radius: 120px 120px 4px 4px` kèm chấm tròn phân tách), và `Mẫu 13` (`.jacket-13`: khung viền kép solid + dashed cùng hoa văn `•••`).
+    - Loại bỏ `font-family: Georgia` cứng khỏi CSS 3 mẫu mới để đồng bộ với 10 mẫu hiện hữu và áp dụng chính xác `Bookerly` mặc định hoặc 3 cặp phông chữ tùy chọn của người dùng.
+  - **Cập nhật Kiểm thử (`tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`)**:
+    - Mở rộng kiểm thử CSS specificity & inject 3 cặp phông chữ cho đủ 13 mẫu jacket (`templateId` 1–13), xác nhận `JACKET_TEMPLATES.length === 13`, và cập nhật chỉ số carousel `(2/13)` trong E2E workflow.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Chuẩn hóa Tên Hiển thị & Sắp xếp A–Z trong Dropdown Chọn Phông chữ)
 
 - Thêm/sửa:
