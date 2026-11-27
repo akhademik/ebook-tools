@@ -234,12 +234,12 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		];
 		const fonts: EpubFontsConfig = {
 			bodyFont: 'Bookerly',
-			h1Font: 'Minh-Tu',
-			h2Font: 'Minh-Tu',
+			h1Font: 'Absolute-VH',
+			h2Font: 'Absolute-VH',
 			h2SubFont: 'Bookerly',
-			dropcapFont: 'Minh-Tu',
-			quoteFont: 'Minh-Tu',
-			quoteAuthorFont: 'Minh-Tu',
+			dropcapFont: 'Absolute-VH',
+			quoteFont: 'Absolute-VH',
+			quoteAuthorFont: 'Absolute-VH',
 			jacketFont: 'default'
 		};
 		const ornaments: OrnamentsConfig = {
@@ -341,7 +341,7 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			}
 		];
 		const fonts: EpubFontsConfig = {
-			quoteFont: 'Minh-Tu'
+			quoteFont: 'Absolute-VH'
 		};
 		const css = prepareFinalCss(chapters, undefined, fonts, null);
 		const errors = findDescendingSpecificityErrors(css);
@@ -351,8 +351,8 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 	it('should guarantee buildJacketCss generates zero descending specificity errors across all 10 templates with 3 font pairs', () => {
 		const fonts: EpubFontsConfig = {
 			jacketFont: 'Bookerly',
-			jacketTitleFont: 'Minh-Tu',
-			jacketAuthorFont: 'Kermel',
+			jacketTitleFont: 'Absolute-VH',
+			jacketAuthorFont: 'BCDowntown',
 			jacketMetaFont: 'Bookerly'
 		};
 
@@ -372,9 +372,9 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			expect(errors).toEqual([]);
 
 			// Assert title font injection
-			expect(jacketCss).toContain('font-family: "AH-MinhTu", serif !important;');
+			expect(jacketCss).toContain('font-family: "KKTTAbsolute", serif !important;');
 			// Assert author font injection
-			expect(jacketCss).toContain('font-family: "iCiel Kermel", serif !important;');
+			expect(jacketCss).toContain('font-family: "iCielBC Downtown", serif !important;');
 			// Assert meta font injection
 			expect(jacketCss).toContain('font-family: "Bookerly", serif !important;');
 
@@ -617,17 +617,17 @@ describe('CSS Comment Stripping Verification (Zero Comments in Final EPUB)', () 
 
 	it('should resolve active fonts with deduplication when jacket font pairs are specified', () => {
 		const fonts: EpubFontsConfig = {
-			jacketTitleFont: 'Minh-Tu',
-			jacketAuthorFont: 'Kermel',
-			jacketMetaFont: 'Minh-Tu',
+			jacketTitleFont: 'Absolute-VH',
+			jacketAuthorFont: 'BCDowntown',
+			jacketMetaFont: 'Absolute-VH',
 			blobs: {
-				'Minh-Tu': new Blob(['mock-minh-tu-bytes']),
-				Kermel: new Blob(['mock-kermel-bytes'])
+				'Absolute-VH': new Blob(['mock-absolute-bytes']),
+				BCDowntown: new Blob(['mock-bcdowntown-bytes'])
 			}
 		};
 
 		const active = resolveActiveFonts(fonts);
-		expect(active).toEqual(['Minh-Tu', 'Kermel']);
+		expect(active).toEqual(['Absolute-VH', 'BCDowntown']);
 	});
 
 	it('should shrink-wrap blockquote.center with display: table and auto margins so footer aligns with quote', () => {

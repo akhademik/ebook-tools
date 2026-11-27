@@ -68,6 +68,11 @@ import {
 	getDynamicCss
 } from '../src/lib/epub-packer/epub-packer';
 import { parseTxtToChapters } from '../src/lib/epub-packer/parser/txt-parser';
+import {
+	AVAILABLE_FONTS,
+	findFont,
+	formatFontDisplayName
+} from '../src/lib/epub-packer/templates/fonts';
 import { assignSequentialChapterIds } from '../src/lib/epub-packer/parser/epub-chapter-utils';
 
 describe('epub-packer tests', () => {
@@ -1422,6 +1427,43 @@ Câu 5: /https://a.com/ đứng ngay sau dấu mở nghiêng`;
 			expect(html).toContain('<i>xem https://a.com</i>, rồi đi');
 			expect(html).toContain('https://x.com/p <i>xem https://a.com</i> tiếp tục');
 			expect(html).toContain('<i>https://a.com</i> đứng ngay sau dấu mở nghiêng');
+		});
+	});
+
+	describe('Font Display Names & Lookup', () => {
+		it('should format clean human-readable font names without variable brackets or vendor clutter', () => {
+			expect(formatFontDisplayName('Phudu[wght]', 'Phudu Light')).toBe('Phudu');
+			expect(formatFontDisplayName('Unbounded[wght]', 'Unbounded')).toBe('Unbounded');
+			expect(formatFontDisplayName('IBMPlexSans-Italic[wdth,wght]', 'IBM Plex Sans')).toBe(
+				'IBM Plex Sans Italic'
+			);
+			expect(formatFontDisplayName('Font-Lourena-Viet-Hoa', 'Lourena')).toBe('Lourena');
+			expect(formatFontDisplayName('GrenzeGotisch-Regular', 'Grenze Gotisch')).toBe(
+				'Grenze Gotisch'
+			);
+			expect(formatFontDisplayName('DFVN Gulax', 'DFVN Gulax')).toBe('Gulax');
+			expect(formatFontDisplayName('1FTV-Hirosaki', '1FTV Hirosaki')).toBe('Hirosaki');
+			expect(formatFontDisplayName('UTM-Bebas', 'UTM Bebas')).toBe('Bebas');
+			expect(formatFontDisplayName('VL Emphatic Regular', 'VL Emphatic')).toBe('Emphatic');
+			expect(formatFontDisplayName('DeBorstel-Brush', 'LNTH-DeBorstel Brush Reduced')).toBe(
+				'DeBorstel Brush'
+			);
+		});
+
+		it('should expose all bundled fonts sorted alphabetically without brackets in display names', () => {
+			expect(AVAILABLE_FONTS.length).toBe(54);
+			for (const font of AVAILABLE_FONTS) {
+				expect(font.name).not.toMatch(/\[|\]/);
+				expect(font.name.length).toBeGreaterThan(0);
+			}
+			const names = AVAILABLE_FONTS.map((f) => f.name);
+			const sorted = [...names].sort((a, b) => a.localeCompare(b, 'vi'));
+			expect(names).toEqual(sorted);
+
+			// Lookup continues working by id, clean name, and cssFamily
+			expect(findFont('Phudu[wght]')?.name).toBe('Phudu');
+			expect(findFont('Phudu')?.id).toBe('Phudu[wght]');
+			expect(findFont('IBM Plex Sans Italic')?.id).toBe('IBMPlexSans-Italic[wdth,wght]');
 		});
 	});
 });

@@ -10,7 +10,7 @@ const fontkit = require('fontkit');
 const FONTS_DIR = path.resolve('src/assets/fonts');
 const OUTPUT_FILE = path.resolve('src/assets/fonts-metadata.json');
 
-const files = fs.readdirSync(FONTS_DIR);
+const files = fs.readdirSync(FONTS_DIR).sort();
 const metadata = {};
 
 for (const file of files) {
