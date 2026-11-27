@@ -4,6 +4,21 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Khắc phục Triệt để Race Condition Mở/Chuyển File & Reset trong EPUB Editor)
+
+- Thêm/sửa:
+  - **Cơ chế Generation Token & Hủy Tác vụ Cũ (`src/lib/epub-editor/epub-editor-state.svelte.ts`)**:
+    - Bổ sung `loadRequestId` (tăng đơn điệu mỗi lần `reset()` / `loadEpubFile()`) và `selectionRequestId` (cho `selectFile()`), cùng helper `isCurrentSession()` để xác thực phiên sách hiện tại.
+    - Bảo vệ `loadEpubFile()` sau mọi `await` (`loadSafeEpubZip`, `parseZipEntries`, `ensureFileLoaded`, `renderPreview`) và trong `catch`/`finally` để tác vụ cũ không ghi đè `zip`, `files`, `statusMessage`, `isError` hay đặt `isLoading = false` của tác vụ mới.
+    - Bảo vệ `ensureFileLoaded()`, `selectFile()`, `renderPreview()` (bao gồm `getAssetDataUrl` và `assetDataUrlCache`) khỏi việc ghi chéo `editBuffer`/`originalContents`/`editorTarget`/`previewTarget` giữa các sách hoặc khi click chuyển file liên tục.
+    - `reset()` chủ động hủy Cleaner đang chạy qua `abortPendingCleanup(true)` và bảo vệ `analyzeForClean()`, `runCleanup()`, `exportEpub()`, `loadBookMetadata()`, `saveBookMetadata()`, `rebuildToc()` không cập nhật state nếu đã đổi sách hoặc `reset()`.
+  - **Bổ sung Bộ Test Race Condition (`tests/epub-editor-state.test.ts`)**:
+    - Bổ sung 6 unit tests mô phỏng file A hoàn tất sau file B, A lỗi khi B đang nạp, `reset()` giữa chừng, `ensureFileLoaded()`/`selectFile()` chậm, hủy Cleaner cũ khi `reset()` và nạp EPUB bình thường.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (477/477 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-editor/epub-editor-state.svelte.ts`, `tests/epub-editor-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Xác nhận Toàn vẹn Sau Vòng lặp Central Directory: `parsedEntries === totalEntries` & `cursor === cdEnd`)
 
 - Thêm/sửa:
