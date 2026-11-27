@@ -116,7 +116,7 @@
 	{@html `<style id="jacket-font-override">
 		.preview-wrap, .preview-wrap * { font-family: ${baseFontFamily} !important; }
 		${titleFontFamily ? `.preview-wrap .title, .preview-wrap .original { font-family: ${titleFontFamily} !important; }` : ''}
-		${authorFontFamily ? `.preview-wrap .author, .preview-wrap .byline, .preview-wrap .translator { font-family: ${authorFontFamily} !important; }` : ''}
+		${authorFontFamily ? `.preview-wrap .author, .preview-wrap .byline, .preview-wrap .kicker, .preview-wrap .stamp, .preview-wrap .translator { font-family: ${authorFontFamily} !important; }` : ''}
 		${metaFontFamily ? `.preview-wrap .meta, .preview-wrap .tag { font-family: ${metaFontFamily} !important; }` : ''}
 	</style>`}
 </svelte:head>
@@ -373,8 +373,8 @@
 	}
 
 	:global(.preview-wrap p) {
-		margin: 0 !important;
-		padding: 0 !important;
+		margin: 0;
+		padding: 0;
 		font-size: 1em;
 		line-height: normal;
 		text-indent: 0 !important;

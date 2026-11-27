@@ -348,7 +348,7 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		expect(errors).toEqual([]);
 	});
 
-	it('should guarantee buildJacketCss generates zero descending specificity errors across all 10 templates with 3 font pairs', () => {
+	it('should guarantee buildJacketCss generates zero descending specificity errors across all 16 templates with 3 font pairs', () => {
 		const fonts: EpubFontsConfig = {
 			jacketFont: 'Bookerly',
 			jacketTitleFont: 'Absolute-VH',
@@ -356,7 +356,7 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			jacketMetaFont: 'Bookerly'
 		};
 
-		for (let templateId = 1; templateId <= 10; templateId++) {
+		for (let templateId = 1; templateId <= 16; templateId++) {
 			const jacket = {
 				enabled: true,
 				templateId,

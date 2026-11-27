@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 18:15
-- Đã hoàn thành: Cập nhật kho phông chữ nhúng (`src/assets/fonts/` gồm 54 font sau khi loại bỏ 3 file trùng lặp), tái sinh `src/assets/fonts-metadata.json`, chuẩn hóa XML `id` cho font trong `opf-builder.ts`, chuẩn hóa tên hiển thị font sạch sẽ & sắp xếp A–Z trong dropdown (`formatFontDisplayName()` tại `src/lib/epub-packer/templates/fonts.ts`), và cập nhật bộ unit test liên quan; toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-27 19:13
+- Đã hoàn thành: Refactor `jacket-templates.ts` sang kiến trúc config-driven (`JacketTemplateSpec` + `createJacketTemplate()`), bổ sung các mẫu mới từ `TASK.MD` (`Mẫu 12`–`Mẫu 16`, nâng tổng số lên **16 mẫu** trong `intro-css.css` và `jacket-templates.ts`), bổ sung hỗ trợ font `.kicker` và `.stamp`, và khắc phục lỗi `:global(.preview-wrap p)` đè mất `margin`/`padding` trong bản xem trước (`EpubJacketCarousel.svelte`); toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

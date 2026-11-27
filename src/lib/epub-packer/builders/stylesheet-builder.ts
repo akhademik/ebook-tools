@@ -363,7 +363,7 @@ export function buildJacketCss(
 		if (fAuthor) {
 			css = injectFontIntoRules(
 				css,
-				/\.(?:author|byline|translator)\b(?!\s*::)/,
+				/\.(?:author|byline|kicker|stamp|translator)\b(?!\s*::)/,
 				fAuthor.cssFamily
 			);
 		}
