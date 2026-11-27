@@ -4,6 +4,22 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Nâng cấp EPUB → TXT: DOM Parser Nội Bộ & Trích Xuất Chính Xác Theo Spine)
+
+- Thêm/sửa:
+  - **Parser HTML/XHTML/XML DOM Zero-Dependency (`src/lib/epub-to-txt/html-dom.ts`)**:
+    - Thay thế các regex non-greedy/cắt lớp gây sót nội dung khi thẻ `<div>`/`<span>`/`<section>` lồng sâu bằng cây DOM nội bộ an toàn cho môi trường Node & Browser.
+  - **Sửa Lỗi Trích Xuất & Đọc Theo Đúng Spine (`src/lib/epub-to-txt/epub-to-txt.ts`)**:
+    - Sửa lỗi truyền `opfDir` thay vì `opfPath` vào `resolveRelativePath()`, khiến EPUB có cấu trúc thư mục con như `OEBPS/content.opf` bị rớt toàn bộ danh sách spine và fallback sang thứ tự alphabet.
+    - Viết lại `htmlToCleanText()` và `convertInlineHtmlToTxt()` dựa trên duyệt cây DOM: giữ nguyên khoảng trắng bên trong/xung quanh inline tags (`<b> </b>`, `<span>`), giữ `<br>`, xử lý đầy đủ nested containers (`poem`/`stanza`, `letter`, `letter-box`, `blockquote`), giữ nội dung trong `<figcaption>`, `<aside>` không phải chú thích và các block không nhận diện (`article`, `ul/li`, `table`, `dl`), giải mã HTML entities & Unicode tiếng Việt nguyên vẹn.
+    - Loại bỏ cơ chế tự động chèn `[new]\n...\n[/new]` cho các chương không có `<h1>` và giữ quy tắc nối các đoạn `<p>` liên tiếp bằng đúng `\n` theo xác nhận của người dùng.
+  - **Bổ sung Bộ Test Trích Xuất Thực Tế (`tests/epub-to-txt.test.ts`)**:
+    - Bổ sung 14 test end-to-end trên `extractEpubToTxt()` kiểm tra đầy đủ 14 kịch bản trung thực nội dung, thứ tự spine, footnotes, blocks lạ và xử lý EPUB lỗi.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (496/496 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/html-dom.ts`, `src/lib/epub-to-txt/epub-to-txt.ts`, `tests/epub-to-txt.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Khắc phục Triệt để Race Condition trong EPUB → TXT `EpubToTxtState`)
 
 - Thêm/sửa:
