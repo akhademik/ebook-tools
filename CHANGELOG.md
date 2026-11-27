@@ -4,6 +4,24 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Gia cố Lớp Kiểm soát An toàn ZIP: Reserve Budget Đồng thời, Từ chối ZIP64 & Trùng lặp Phân biệt Hoa/Thường)
+
+- Thêm/sửa:
+  - **Cơ chế Reserve Budget An toàn Đồng thời (`src/lib/utils/zip.ts`, `src/lib/types/zip.type.ts`)**:
+    - Bổ sung `ZipBudgetReservation` và các phương thức `reserve()`, `updateReservation()`, `commit()`, `release()` vào `ZipExtractionBudget` & `ZipExtractionBudgetTracker`.
+    - `readSafeZipEntryBytes()` đặt cọc (`reserve`) dung lượng khai báo đồng bộ trước khi giải nén, cập nhật động theo chunk trong `internalStream` và luôn giải phóng (`release`) trong `finally` nếu lỗi/hủy — loại bỏ hoàn toàn race condition vượt budget khi nhiều tác vụ đọc song song.
+  - **Từ chối Tường minh ZIP64 & Central Directory Lỗi (`src/lib/utils/zip.ts`)**:
+    - Bổ sung mã lỗi `UNSUPPORTED_ZIP64`; `inspectRawZipCentralDirectory()` kiểm tra chữ ký ZIP64 EOCD Locator (`0x07064b50`), sentinel `0xFFFF`/`0xFFFFFFFF` ở EOCD và Central Directory entry để từ chối tường minh thay vì bỏ qua bước kiểm tra thô.
+    - Kiểm tra biên độ `cdOffset + cdSize` và tính toàn vẹn header từng entry trong Central Directory, ném `INVALID_METADATA` nếu bị cắt xén/hỏng.
+  - **Kiểm tra Trùng lặp Phân biệt Chữ hoa/Thường (`src/lib/utils/zip.ts`)**:
+    - Sửa `inspectRawZipCentralDirectory()` và `validateZipArchiveSafety()` so sánh trùng lặp theo đường dẫn chuẩn hóa chính xác (case-sensitive) thay vì `.toLowerCase()`, tránh từ chối nhầm các EPUB hợp lệ có file phân biệt hoa/thường (như `Images/Cover.jpg` và `images/cover.jpg`).
+  - **Mở rộng Unit Tests (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 6 tests cho đọc đồng thời vượt budget, tự động `release` khi stream lỗi, từ chối ZIP64 EOCD/entry/locator và Central Directory lỗi, đồng thời xác nhận các đường dẫn phân biệt hoa/thường hợp lệ được chấp nhận.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (468/468 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/zip.type.ts`, `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Xây dựng Lớp Kiểm soát An toàn ZIP Dùng chung cho EPUB Editor và EPUB → TXT)
 
 - Thêm/sửa:

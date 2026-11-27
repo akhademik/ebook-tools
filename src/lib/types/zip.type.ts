@@ -27,7 +27,17 @@ export type ZipSafetyErrorCode =
 	| 'INVALID_PATH'
 	| 'DUPLICATE_ENTRY'
 	| 'INVALID_METADATA'
-	| 'UNSUPPORTED_STREAM';
+	| 'UNSUPPORTED_STREAM'
+	| 'UNSUPPORTED_ZIP64';
+
+/**
+ * In-flight reservation token held while an entry is being read.
+ */
+export interface ZipBudgetReservation {
+	readonly id: symbol;
+	readonly path?: string;
+	reservedBytes: number;
+}
 
 /**
  * Shared budget tracker interface for cumulative ZIP decompression across reads.
@@ -35,7 +45,12 @@ export type ZipSafetyErrorCode =
 export interface ZipExtractionBudgetTracker {
 	readonly maxTotalBytes: number;
 	readonly usedBytes: number;
+	readonly reservedBytes: number;
 	assertCanRead(additionalBytes: number, path?: string): void;
+	reserve(initialBytes: number, path?: string): ZipBudgetReservation;
+	updateReservation(reservation: ZipBudgetReservation, actualBytes: number): void;
+	commit(reservation: ZipBudgetReservation, finalBytes: number): void;
+	release(reservation: ZipBudgetReservation): void;
 	consume(actualBytes: number, path?: string): void;
 }
 

@@ -7,6 +7,7 @@ import {
 } from '$lib/constants';
 import type {
 	JSZipInternalStream,
+	ZipBudgetReservation,
 	ZipEntryMetadataStatus,
 	ZipExtractionBudgetTracker,
 	ZipReadEntryOptions,
@@ -15,6 +16,7 @@ import type {
 } from '$lib/types/zip.type';
 
 export type {
+	ZipBudgetReservation,
 	ZipEntryMetadataStatus,
 	ZipExtractionBudgetTracker,
 	ZipReadEntryOptions,
@@ -166,14 +168,16 @@ export function validateZipEntryPath(entryPath: string): string {
 }
 
 /**
- * Tracks cumulative uncompressed bytes extracted across multiple ZIP entry reads.
- * Keyed by entry path so re-reading the same entry does not falsely double-count
- * while still accounting for any size increase or spoofed metadata discovered at runtime.
+ * Tracks cumulative uncompressed bytes extracted across multiple ZIP entry reads,
+ * with atomic reservation (`reserve` / `updateReservation` / `commit` / `release`)
+ * so concurrent reads cannot both pass pre-checks using stale `usedBytes`.
  */
 export class ZipExtractionBudget implements ZipExtractionBudgetTracker {
 	readonly maxTotalBytes: number;
-	private readonly consumedByPath = new Map<string, number>();
+	private readonly committedByPath = new Map<string, number>();
+	private readonly activeReservations = new Map<symbol, ZipBudgetReservation>();
 	private _usedBytes = 0;
+	private _reservedBytes = 0;
 
 	constructor(maxTotalBytes: number = DEFAULT_EPUB_ZIP_LIMITS.maxTotalUncompressedSize) {
 		this.maxTotalBytes = maxTotalBytes;
@@ -183,25 +187,31 @@ export class ZipExtractionBudget implements ZipExtractionBudgetTracker {
 		return this._usedBytes;
 	}
 
-	private computeProjectedBytes(additionalBytes: number, path?: string): number {
-		if (!Number.isFinite(additionalBytes) || additionalBytes < 0) {
+	get reservedBytes(): number {
+		return this._reservedBytes;
+	}
+
+	private validateByteCount(bytes: number): void {
+		if (!Number.isFinite(bytes) || bytes < 0) {
 			throw new ZipSafetyError(
 				'INVALID_METADATA',
 				'Kích thước byte giải nén không hợp lệ khi kiểm tra giới hạn bộ nhớ.'
 			);
 		}
+	}
 
+	private computeIncrementalBytes(bytes: number, path?: string): number {
+		this.validateByteCount(bytes);
 		if (!path) {
-			return this._usedBytes + additionalBytes;
+			return bytes;
 		}
-
-		const previous = this.consumedByPath.get(path) ?? 0;
-		const effectiveEntryBytes = Math.max(previous, additionalBytes);
-		return this._usedBytes - previous + effectiveEntryBytes;
+		const committedForPath = this.committedByPath.get(path) ?? 0;
+		return Math.max(0, bytes - committedForPath);
 	}
 
 	assertCanRead(additionalBytes: number, path?: string): void {
-		const projected = this.computeProjectedBytes(additionalBytes, path);
+		const incremental = this.computeIncrementalBytes(additionalBytes, path);
+		const projected = this._usedBytes + this._reservedBytes + incremental;
 		if (projected > this.maxTotalBytes) {
 			throw new ZipSafetyError(
 				'TOTAL_UNCOMPRESSED_TOO_LARGE',
@@ -210,8 +220,55 @@ export class ZipExtractionBudget implements ZipExtractionBudgetTracker {
 		}
 	}
 
-	consume(actualBytes: number, path?: string): void {
-		const projected = this.computeProjectedBytes(actualBytes, path);
+	reserve(initialBytes: number, path?: string): ZipBudgetReservation {
+		const incremental = this.computeIncrementalBytes(initialBytes, path);
+		const projected = this._usedBytes + this._reservedBytes + incremental;
+		if (projected > this.maxTotalBytes) {
+			throw new ZipSafetyError(
+				'TOTAL_UNCOMPRESSED_TOO_LARGE',
+				`Tổng dung lượng giải nén EPUB vượt quá giới hạn an toàn (tối đa ${formatMb(this.maxTotalBytes)}).`
+			);
+		}
+
+		const reservation: ZipBudgetReservation = {
+			id: Symbol('zip-budget-reservation'),
+			path,
+			reservedBytes: incremental
+		};
+		this.activeReservations.set(reservation.id, reservation);
+		this._reservedBytes += incremental;
+		return reservation;
+	}
+
+	updateReservation(reservation: ZipBudgetReservation, actualBytes: number): void {
+		const active = this.activeReservations.get(reservation.id);
+		if (!active) return;
+
+		const needed = this.computeIncrementalBytes(actualBytes, active.path);
+		if (needed <= active.reservedBytes) {
+			return;
+		}
+
+		const delta = needed - active.reservedBytes;
+		const projected = this._usedBytes + this._reservedBytes + delta;
+		if (projected > this.maxTotalBytes) {
+			throw new ZipSafetyError(
+				'TOTAL_UNCOMPRESSED_TOO_LARGE',
+				`Tổng dung lượng giải nén EPUB vượt quá giới hạn an toàn (tối đa ${formatMb(this.maxTotalBytes)}).`
+			);
+		}
+
+		active.reservedBytes = needed;
+		this._reservedBytes += delta;
+	}
+
+	commit(reservation: ZipBudgetReservation, finalBytes: number): void {
+		this.validateByteCount(finalBytes);
+		const path = reservation.path;
+		this.release(reservation);
+
+		const incremental = this.computeIncrementalBytes(finalBytes, path);
+		const projected = this._usedBytes + this._reservedBytes + incremental;
 		if (projected > this.maxTotalBytes) {
 			throw new ZipSafetyError(
 				'TOTAL_UNCOMPRESSED_TOO_LARGE',
@@ -220,13 +277,43 @@ export class ZipExtractionBudget implements ZipExtractionBudgetTracker {
 		}
 
 		if (path) {
-			const previous = this.consumedByPath.get(path) ?? 0;
-			if (actualBytes > previous) {
-				this.consumedByPath.set(path, actualBytes);
-				this._usedBytes = projected;
+			const previous = this.committedByPath.get(path) ?? 0;
+			if (finalBytes > previous) {
+				this.committedByPath.set(path, finalBytes);
+				this._usedBytes += incremental;
 			}
 		} else {
-			this._usedBytes = projected;
+			this._usedBytes += incremental;
+		}
+	}
+
+	release(reservation: ZipBudgetReservation): void {
+		const active = this.activeReservations.get(reservation.id);
+		if (!active) return;
+
+		this.activeReservations.delete(reservation.id);
+		this._reservedBytes = Math.max(0, this._reservedBytes - active.reservedBytes);
+		active.reservedBytes = 0;
+	}
+
+	consume(actualBytes: number, path?: string): void {
+		const incremental = this.computeIncrementalBytes(actualBytes, path);
+		const projected = this._usedBytes + this._reservedBytes + incremental;
+		if (projected > this.maxTotalBytes) {
+			throw new ZipSafetyError(
+				'TOTAL_UNCOMPRESSED_TOO_LARGE',
+				`Tổng dung lượng giải nén EPUB vượt quá giới hạn an toàn (tối đa ${formatMb(this.maxTotalBytes)}).`
+			);
+		}
+
+		if (path) {
+			const previous = this.committedByPath.get(path) ?? 0;
+			if (actualBytes > previous) {
+				this.committedByPath.set(path, actualBytes);
+				this._usedBytes += incremental;
+			}
+		} else {
+			this._usedBytes += incremental;
 		}
 	}
 }
@@ -239,6 +326,7 @@ export function createZipExtractionBudget(
 
 const EOCD_SIGNATURE = 0x06054b50;
 const CD_FILE_HEADER_SIGNATURE = 0x02014b50;
+const ZIP64_EOCD_LOCATOR_SIGNATURE = 0x07064b50;
 const ZIP64_COUNT_SENTINEL = 0xffff;
 const ZIP64_SIZE_SENTINEL = 0xffffffff;
 
@@ -298,23 +386,46 @@ export function inspectRawZipCentralDirectory(
 		return;
 	}
 
+	if (eocdOffset >= 20 && view.getUint32(eocdOffset - 20, true) === ZIP64_EOCD_LOCATOR_SIGNATURE) {
+		throw new ZipSafetyError(
+			'UNSUPPORTED_ZIP64',
+			'File EPUB sử dụng định dạng ZIP64 không được hỗ trợ.'
+		);
+	}
+
+	const diskNumber = view.getUint16(eocdOffset + 4, true);
+	const cdStartDisk = view.getUint16(eocdOffset + 6, true);
+	const entriesOnDisk = view.getUint16(eocdOffset + 8, true);
 	const totalEntries = view.getUint16(eocdOffset + 10, true);
-	if (totalEntries !== ZIP64_COUNT_SENTINEL && totalEntries > resolved.maxEntries) {
+	const cdSize = view.getUint32(eocdOffset + 12, true);
+	const cdOffset = view.getUint32(eocdOffset + 16, true);
+
+	if (
+		diskNumber === ZIP64_COUNT_SENTINEL ||
+		cdStartDisk === ZIP64_COUNT_SENTINEL ||
+		entriesOnDisk === ZIP64_COUNT_SENTINEL ||
+		totalEntries === ZIP64_COUNT_SENTINEL ||
+		cdSize === ZIP64_SIZE_SENTINEL ||
+		cdOffset === ZIP64_SIZE_SENTINEL
+	) {
+		throw new ZipSafetyError(
+			'UNSUPPORTED_ZIP64',
+			'File EPUB sử dụng định dạng ZIP64 không được hỗ trợ.'
+		);
+	}
+
+	if (totalEntries > resolved.maxEntries) {
 		throw new ZipSafetyError(
 			'TOO_MANY_ENTRIES',
 			`File EPUB chứa quá nhiều mục (${totalEntries} entries, tối đa ${resolved.maxEntries}).`
 		);
 	}
 
-	const cdSize = view.getUint32(eocdOffset + 12, true);
-	const cdOffset = view.getUint32(eocdOffset + 16, true);
-
-	if (
-		cdSize === ZIP64_SIZE_SENTINEL ||
-		cdOffset === ZIP64_SIZE_SENTINEL ||
-		cdOffset + cdSize > bytes.byteLength
-	) {
-		return;
+	if (cdOffset + cdSize > bytes.byteLength) {
+		throw new ZipSafetyError(
+			'INVALID_METADATA',
+			'Cấu trúc Central Directory của file ZIP/EPUB không hợp lệ hoặc bị cắt xén.'
+		);
 	}
 
 	const seenRawNames = new Set<string>();
@@ -326,9 +437,12 @@ export function inspectRawZipCentralDirectory(
 	let parsedEntries = 0;
 	let totalDeclaredBytes = 0;
 
-	while (cursor + 46 <= cdEnd) {
-		if (view.getUint32(cursor, true) !== CD_FILE_HEADER_SIGNATURE) {
-			break;
+	while (cursor < cdEnd) {
+		if (cursor + 46 > cdEnd || view.getUint32(cursor, true) !== CD_FILE_HEADER_SIGNATURE) {
+			throw new ZipSafetyError(
+				'INVALID_METADATA',
+				'Header entry trong Central Directory của file ZIP/EPUB không hợp lệ.'
+			);
 		}
 
 		parsedEntries++;
@@ -340,6 +454,7 @@ export function inspectRawZipCentralDirectory(
 		}
 
 		const gpFlag = view.getUint16(cursor + 8, true);
+		const compressedSize = view.getUint32(cursor + 20, true);
 		const uncompressedSize = view.getUint32(cursor + 24, true);
 		const fileNameLength = view.getUint16(cursor + 28, true);
 		const extraFieldLength = view.getUint16(cursor + 30, true);
@@ -347,13 +462,17 @@ export function inspectRawZipCentralDirectory(
 
 		const headerTotalLen = 46 + fileNameLength + extraFieldLength + fileCommentLength;
 		if (cursor + headerTotalLen > cdEnd) {
-			break;
+			throw new ZipSafetyError(
+				'INVALID_METADATA',
+				'Header entry trong Central Directory của file ZIP/EPUB bị cắt xén.'
+			);
 		}
 
 		const nameBytes = bytes.subarray(cursor + 46, cursor + 46 + fileNameLength);
 		const rawName = decodeZipEntryName(nameBytes, (gpFlag & 0x0800) !== 0);
 		const normalized = validateZipEntryPath(rawName);
-		const key = normalized.toLowerCase();
+		// EPUB/ZIP entry names are case-sensitive; compare exact normalized paths
+		const key = normalized;
 		const isDir = rawName.endsWith('/');
 
 		if (seenRawNames.has(rawName)) {
@@ -381,21 +500,26 @@ export function inspectRawZipCentralDirectory(
 			}
 			seenFileKeys.add(key);
 
-			if (uncompressedSize !== ZIP64_SIZE_SENTINEL) {
-				if (uncompressedSize > resolved.maxSingleEntrySize) {
-					throw new ZipSafetyError(
-						'ENTRY_TOO_LARGE',
-						`Tệp "${rawName}" trong EPUB có dung lượng giải nén vượt quá giới hạn (${formatMb(uncompressedSize)}, tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
-					);
-				}
+			if (compressedSize === ZIP64_SIZE_SENTINEL || uncompressedSize === ZIP64_SIZE_SENTINEL) {
+				throw new ZipSafetyError(
+					'UNSUPPORTED_ZIP64',
+					`Entry "${rawName}" sử dụng định dạng ZIP64 không được hỗ trợ.`
+				);
+			}
 
-				totalDeclaredBytes += uncompressedSize;
-				if (totalDeclaredBytes > resolved.maxTotalUncompressedSize) {
-					throw new ZipSafetyError(
-						'TOTAL_UNCOMPRESSED_TOO_LARGE',
-						`Tổng dung lượng giải nén EPUB vượt quá giới hạn an toàn (tối đa ${formatMb(resolved.maxTotalUncompressedSize)}).`
-					);
-				}
+			if (uncompressedSize > resolved.maxSingleEntrySize) {
+				throw new ZipSafetyError(
+					'ENTRY_TOO_LARGE',
+					`Tệp "${rawName}" trong EPUB có dung lượng giải nén vượt quá giới hạn (${formatMb(uncompressedSize)}, tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
+				);
+			}
+
+			totalDeclaredBytes += uncompressedSize;
+			if (totalDeclaredBytes > resolved.maxTotalUncompressedSize) {
+				throw new ZipSafetyError(
+					'TOTAL_UNCOMPRESSED_TOO_LARGE',
+					`Tổng dung lượng giải nén EPUB vượt quá giới hạn an toàn (tối đa ${formatMb(resolved.maxTotalUncompressedSize)}).`
+				);
 			}
 		}
 
@@ -407,7 +531,7 @@ export function inspectRawZipCentralDirectory(
  * Validates a loaded JSZip archive BEFORE decompressing any entries:
  * - Entry count <= maxEntries
  * - Valid relative entry paths (no `..`, no absolute paths, no backslashes)
- * - No duplicate normalized/case-insensitive entry names
+ * - No duplicate exact normalized entry names or file/directory path collisions (case-sensitive)
  * - Pre-check `_data.uncompressedSize` for every non-directory entry (rejecting missing/invalid metadata)
  * - Total declared uncompressed size <= maxTotalUncompressedSize
  */
@@ -428,7 +552,8 @@ export function validateZipArchiveSafety(zip: JSZip, limits?: Partial<ZipSafetyL
 
 	for (const [rawPath, entry] of entries) {
 		const normalized = validateZipEntryPath(rawPath);
-		const key = normalized.toLowerCase();
+		// EPUB/ZIP paths are case-sensitive (e.g. Images/Cover.jpg vs images/cover.jpg are distinct)
+		const key = normalized;
 
 		if (entry.dir) {
 			if (seenFiles.has(key) || seenDirs.has(key)) {
@@ -555,14 +680,11 @@ export async function readSafeZipEntryBytes(
 	}
 
 	const declaredSize = metaStatus.kind === 'known' ? metaStatus.size : null;
-	if (declaredSize !== null) {
-		if (declaredSize > resolved.maxSingleEntrySize) {
-			throw new ZipSafetyError(
-				'ENTRY_TOO_LARGE',
-				`Tệp "${path}" trong EPUB có dung lượng giải nén vượt quá giới hạn (${formatMb(declaredSize)}, tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
-			);
-		}
-		budget?.assertCanRead(declaredSize, path);
+	if (declaredSize !== null && declaredSize > resolved.maxSingleEntrySize) {
+		throw new ZipSafetyError(
+			'ENTRY_TOO_LARGE',
+			`Tệp "${path}" trong EPUB có dung lượng giải nén vượt quá giới hạn (${formatMb(declaredSize)}, tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
+		);
 	}
 
 	const streamableEntry = entry as JSZip.JSZipObject & {
@@ -576,89 +698,101 @@ export async function readSafeZipEntryBytes(
 		);
 	}
 
-	const bytes = await new Promise<Uint8Array>((resolve, reject) => {
-		const chunks: Uint8Array[] = [];
-		let actualBytes = 0;
-		let settled = false;
+	// Reserve budget atomically BEFORE starting async decompression so concurrent reads
+	// cannot pass pre-checks using stale `usedBytes`.
+	const reservation = budget ? budget.reserve(declaredSize ?? 0, path) : null;
 
-		const stream = createInternalStream.call(streamableEntry, 'uint8array');
+	try {
+		const bytes = await new Promise<Uint8Array>((resolve, reject) => {
+			const chunks: Uint8Array[] = [];
+			let actualBytes = 0;
+			let settled = false;
 
-		const abortWith = (err: Error) => {
-			if (settled) return;
-			settled = true;
-			chunks.length = 0;
-			try {
-				stream.pause();
-			} catch {
-				// Ignore pause errors if stream already ended
-			}
-			reject(err);
-		};
+			const stream = createInternalStream.call(streamableEntry, 'uint8array');
 
-		stream.on('data', (chunk: Uint8Array) => {
-			if (settled) return;
-
-			const chunkBytes = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
-			actualBytes += chunkBytes.byteLength;
-
-			if (actualBytes > resolved.maxSingleEntrySize) {
-				abortWith(
-					new ZipSafetyError(
-						'ENTRY_TOO_LARGE',
-						`Tệp "${path}" giải nén thực tế vượt quá giới hạn an toàn (tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
-					)
-				);
-				return;
-			}
-
-			if (budget) {
+			const abortWith = (err: Error) => {
+				if (settled) return;
+				settled = true;
+				chunks.length = 0;
 				try {
-					budget.assertCanRead(actualBytes, path);
-				} catch (budgetErr) {
+					stream.pause();
+				} catch {
+					// Ignore pause errors if stream already ended
+				}
+				reject(err);
+			};
+
+			stream.on('data', (chunk: Uint8Array) => {
+				if (settled) return;
+
+				const chunkBytes = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
+				actualBytes += chunkBytes.byteLength;
+
+				if (actualBytes > resolved.maxSingleEntrySize) {
 					abortWith(
-						budgetErr instanceof Error
-							? budgetErr
-							: new ZipSafetyError('TOTAL_UNCOMPRESSED_TOO_LARGE', String(budgetErr))
+						new ZipSafetyError(
+							'ENTRY_TOO_LARGE',
+							`Tệp "${path}" giải nén thực tế vượt quá giới hạn an toàn (tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
+						)
 					);
 					return;
 				}
-			}
 
-			chunks.push(chunkBytes);
+				if (budget && reservation) {
+					try {
+						budget.updateReservation(reservation, actualBytes);
+					} catch (budgetErr) {
+						abortWith(
+							budgetErr instanceof Error
+								? budgetErr
+								: new ZipSafetyError('TOTAL_UNCOMPRESSED_TOO_LARGE', String(budgetErr))
+						);
+						return;
+					}
+				}
+
+				chunks.push(chunkBytes);
+			});
+
+			stream.on('error', (err: Error) => {
+				abortWith(err instanceof Error ? err : new Error(String(err)));
+			});
+
+			stream.on('end', () => {
+				if (settled) return;
+				settled = true;
+
+				const merged = new Uint8Array(actualBytes);
+				let offset = 0;
+				for (const c of chunks) {
+					merged.set(c, offset);
+					offset += c.byteLength;
+				}
+				chunks.length = 0;
+				resolve(merged);
+			});
+
+			stream.resume();
 		});
 
-		stream.on('error', (err: Error) => {
-			abortWith(err instanceof Error ? err : new Error(String(err)));
-		});
+		const accountedBytes =
+			declaredSize !== null ? Math.max(bytes.byteLength, declaredSize) : bytes.byteLength;
+		if (accountedBytes > resolved.maxSingleEntrySize) {
+			throw new ZipSafetyError(
+				'ENTRY_TOO_LARGE',
+				`Tệp "${path}" trong EPUB có dung lượng giải nén vượt quá giới hạn (tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
+			);
+		}
+		if (budget && reservation) {
+			budget.commit(reservation, accountedBytes);
+		}
 
-		stream.on('end', () => {
-			if (settled) return;
-			settled = true;
-
-			const merged = new Uint8Array(actualBytes);
-			let offset = 0;
-			for (const c of chunks) {
-				merged.set(c, offset);
-				offset += c.byteLength;
-			}
-			chunks.length = 0;
-			resolve(merged);
-		});
-
-		stream.resume();
-	});
-
-	const accountedBytes =
-		declaredSize !== null ? Math.max(bytes.byteLength, declaredSize) : bytes.byteLength;
-	if (accountedBytes > resolved.maxSingleEntrySize) {
-		throw new ZipSafetyError(
-			'ENTRY_TOO_LARGE',
-			`Tệp "${path}" trong EPUB có dung lượng giải nén vượt quá giới hạn (tối đa ${formatMb(resolved.maxSingleEntrySize)}).`
-		);
+		return bytes;
+	} finally {
+		if (budget && reservation) {
+			budget.release(reservation);
+		}
 	}
-	budget?.consume(accountedBytes, path);
-
-	return bytes;
 }
 
 /**

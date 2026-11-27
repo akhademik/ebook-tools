@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 08:32
-- Đã hoàn thành: Xây dựng lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT (`loadSafeEpubZip`, `inspectRawZipCentralDirectory`, `validateZipArchiveSafety`, `ZipExtractionBudget`, `readSafeZipEntryBytes`/`Text`) với ngưỡng 5.000 entries / 50MB mỗi entry / 500MB tổng giải nén, kiểm tra path traversal (`../`, tuyệt đối), trùng lặp tên entry, từ chối metadata thiếu/không hợp lệ và không fallback `.async()` không giới hạn; toàn bộ pipeline kiểm tra đạt chuẩn (462/462 unit tests + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-27 08:42
+- Đã hoàn thành: Xây dựng và gia cố lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT (`loadSafeEpubZip`, `inspectRawZipCentralDirectory`, `validateZipArchiveSafety`, `ZipExtractionBudget` với `reserve`/`updateReservation`/`commit`/`release` chống race condition đồng thời, từ chối tường minh ZIP64/CD lỗi, kiểm tra trùng lặp phân biệt hoa/thường theo chuẩn EPUB, và `readSafeZipEntryBytes`/`Text` không fallback `.async()` không giới hạn); toàn bộ pipeline đạt chuẩn (468/468 unit tests + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3).
 

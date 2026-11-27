@@ -182,12 +182,76 @@ describe('Shared ZIP Safety Layer', () => {
 			expect(loadSpy).not.toHaveBeenCalled();
 		});
 
-		it('should reject case-colliding duplicate entries in validateZipArchiveSafety', async () => {
-			const zip = new JSZip();
-			zip.file('OEBPS/Chap1.xhtml', '<p>A</p>');
-			zip.file('OEBPS/chap1.xhtml', '<p>B</p>');
+		it('should allow valid case-sensitive EPUB paths and reject file/directory name collisions', async () => {
+			const caseSensitiveBytes = await buildMinimalValidEpubBytes({
+				'OEBPS/Images/Cover.jpg': 'IMG1',
+				'OEBPS/images/cover.jpg': 'IMG2'
+			});
+			const loaded = await loadSafeEpubZip(caseSensitiveBytes);
+			expect(loaded.file('OEBPS/Images/Cover.jpg')).not.toBeNull();
+			expect(loaded.file('OEBPS/images/cover.jpg')).not.toBeNull();
 
-			expect(() => validateZipArchiveSafety(zip)).toThrow(ZipSafetyError);
+			// File and directory sharing the exact same normalized path must still be rejected
+			const collisionZip = new JSZip();
+			collisionZip.file('OEBPS/item', 'data');
+			collisionZip.folder('OEBPS/item');
+			expect(() => validateZipArchiveSafety(collisionZip)).toThrow(ZipSafetyError);
+		});
+	});
+
+	describe('ZIP64 rejection & malformed Central Directory handling', () => {
+		it('should explicitly reject ZIP64 EOCD sentinels BEFORE calling JSZip.loadAsync', async () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+			// EOCD is the last 22 bytes; set totalEntries (offset +10) to 0xFFFF sentinel
+			const eocdOffset = rawZip.byteLength - 22;
+			view.setUint16(eocdOffset + 10, 0xffff, true);
+
+			const loadSpy = vi.spyOn(JSZip, 'loadAsync');
+
+			expect(() => inspectRawZipCentralDirectory(rawZip)).toThrow(ZipSafetyError);
+			await expect(loadSafeEpubZip(rawZip)).rejects.toMatchObject({
+				code: 'UNSUPPORTED_ZIP64'
+			});
+			expect(loadSpy).not.toHaveBeenCalled();
+		});
+
+		it('should explicitly reject ZIP64 entry size sentinels (0xFFFFFFFF) in Central Directory', async () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+			const eocdOffset = rawZip.byteLength - 22;
+			const cdOffset = view.getUint32(eocdOffset + 16, true);
+			// Set uncompressedSize (cdOffset + 24) to 0xFFFFFFFF sentinel
+			view.setUint32(cdOffset + 24, 0xffffffff, true);
+
+			await expect(loadSafeEpubZip(rawZip)).rejects.toMatchObject({
+				code: 'UNSUPPORTED_ZIP64'
+			});
+		});
+
+		it('should explicitly reject ZIP64 EOCD Locator signature (0x07064b50)', async () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			// Insert a 20-byte ZIP64 EOCD Locator immediately before the 22-byte EOCD
+			const eocdOffset = rawZip.byteLength - 22;
+			const patched = new Uint8Array(rawZip.byteLength + 20);
+			patched.set(rawZip.subarray(0, eocdOffset), 0);
+			const locatorView = new DataView(patched.buffer, eocdOffset, 20);
+			locatorView.setUint32(0, 0x07064b50, true);
+			patched.set(rawZip.subarray(eocdOffset), eocdOffset + 20);
+
+			await expect(loadSafeEpubZip(patched)).rejects.toMatchObject({
+				code: 'UNSUPPORTED_ZIP64'
+			});
+		});
+
+		it('should reject truncated/corrupted Central Directory bounds instead of silently skipping', () => {
+			const rawZip = buildRawZipBuffer([{ name: 'OEBPS/a.txt', content: 'hello' }]);
+			const view = new DataView(rawZip.buffer, rawZip.byteOffset, rawZip.byteLength);
+			const eocdOffset = rawZip.byteLength - 22;
+			// Corrupt cdSize beyond archive length
+			view.setUint32(eocdOffset + 12, 999999, true);
+
+			expect(() => inspectRawZipCentralDirectory(rawZip)).toThrow(ZipSafetyError);
 		});
 	});
 
@@ -328,6 +392,75 @@ describe('Shared ZIP Safety Layer', () => {
 				code: 'TOTAL_UNCOMPRESSED_TOO_LARGE'
 			});
 			expect(budget).toBeInstanceOf(ZipExtractionBudget);
+		});
+
+		it('should atomically reserve budget so concurrent reads cannot exceed maxTotalBytes', async () => {
+			const epubBytes = await buildMinimalValidEpubBytes({
+				'OEBPS/a.txt': 'A'.repeat(3000),
+				'OEBPS/b.txt': 'B'.repeat(3000)
+			});
+			const zip = await loadSafeEpubZip(epubBytes);
+			const budget = createZipExtractionBudget(4000);
+
+			const entryB = zip.file('OEBPS/b.txt')!;
+			const streamBSpy = vi.spyOn(
+				entryB as unknown as { internalStream: () => unknown },
+				'internalStream'
+			);
+
+			const [resA, resB] = await Promise.allSettled([
+				readSafeZipEntryText(zip, 'OEBPS/a.txt', { budget }),
+				readSafeZipEntryText(zip, 'OEBPS/b.txt', { budget })
+			]);
+
+			expect(resA.status).toBe('fulfilled');
+			expect(resB.status).toBe('rejected');
+			if (resB.status === 'rejected') {
+				expect(resB.reason).toMatchObject({ code: 'TOTAL_UNCOMPRESSED_TOO_LARGE' });
+			}
+			// Entry B was blocked synchronously at reserve() before calling internalStream()
+			expect(streamBSpy).not.toHaveBeenCalled();
+			expect(budget.usedBytes).toBe(3000);
+			expect(budget.reservedBytes).toBe(0);
+		});
+
+		it('should release reserved budget when reading fails mid-stream', async () => {
+			const epubBytes = await buildMinimalValidEpubBytes({
+				'OEBPS/a.txt': 'A'.repeat(3000),
+				'OEBPS/b.txt': 'B'.repeat(3000)
+			});
+			const zip = await loadSafeEpubZip(epubBytes);
+			const budget = createZipExtractionBudget(4000);
+
+			const entryA = zip.file('OEBPS/a.txt')!;
+			vi.spyOn(
+				entryA as unknown as { internalStream: () => unknown },
+				'internalStream'
+			).mockImplementationOnce(() => ({
+				on(event: string, cb: (arg?: unknown) => void) {
+					if (event === 'error') {
+						setTimeout(() => cb(new Error('Simulated inflate failure')), 0);
+					}
+					return this;
+				},
+				resume() {
+					return this;
+				},
+				pause() {
+					return this;
+				}
+			}));
+
+			await expect(readSafeZipEntryText(zip, 'OEBPS/a.txt', { budget })).rejects.toThrow(
+				'Simulated inflate failure'
+			);
+			expect(budget.reservedBytes).toBe(0);
+			expect(budget.usedBytes).toBe(0);
+
+			// Subsequent read of entry B (3000B <= 4000B) succeeds because reservation was released
+			const bText = await readSafeZipEntryText(zip, 'OEBPS/b.txt', { budget });
+			expect(bText?.length).toBe(3000);
+			expect(budget.usedBytes).toBe(3000);
 		});
 	});
 
