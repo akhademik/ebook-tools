@@ -4,6 +4,20 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Chuẩn hóa Footnote Cùng Chapter & Đánh Số Toàn Cục cho EPUB Ngoài Project)
+
+- Thêm/sửa:
+  - **Cơ chế `FootnoteRegistry` & Liên kết `docPath#id` (`src/lib/epub-to-txt/epub-to-txt.ts`)**:
+    - Hỗ trợ đầy đủ footnote đặt cùng chapter (`<aside epub:type="footnote" id="fn-1-1" role="doc-footnote" class="footnote-item">`) bên cạnh file `notes.xhtml` riêng.
+    - Liên kết `noteref` ↔ `<aside>` theo `docPath#id` (cùng fallback theo `fragmentId` hoặc cùng chương), tự động đánh số toàn cục tăng dần `{1}, {2}, {3}...` khi các chương reset lại đánh số `[1]`, tránh ghi đè mất chú thích giữa nhiều chương.
+    - Mở rộng `isFootnoteAside()`, `isFootnoteBacklinkElement()` và `cloneDomCleanFootnote()` để bóc sạch link quay lại (`a.footnote-backref`, `role="doc-backlink"`, `↩`/`↑`) và tiền tố số đầu dòng (`<span>[1]</span>`, `[1]`, `(1)`, `1.`), đồng thời giữ nguyên `<aside>` thông thường trong thân chương.
+  - **Bổ sung Test (`tests/epub-to-txt.test.ts`)**:
+    - Thêm test case #15 kiểm thử `<aside>` chú thích đặt cùng chapter với `footnote-backref`, `<span>[1]</span>`, tham chiếu lặp `{1}` và reset `fn-1-1`/`fn-2-1`/`fn-2-2` qua nhiều chương.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (497/497 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/epub-to-txt.ts`, `tests/epub-to-txt.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Nâng cấp EPUB → TXT: DOM Parser Nội Bộ & Trích Xuất Chính Xác Theo Spine)
 
 - Thêm/sửa:

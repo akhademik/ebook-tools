@@ -794,5 +794,59 @@ describe('EPUB to TXT Converter & Reverse Engine Rules', () => {
 			expect(emptyResult.text).toBe('');
 			expect(emptyResult.chapterCount).toBe(0);
 		});
+
+		it('15. normalizes same-chapter external EPUB footnotes (backref + span[n] + per-chapter fn-X-Y reset) into global Chú thích: {1}, {2}...', async () => {
+			const zip = createSampleEpubZip([
+				{
+					id: 'c1',
+					href: 'Text/chap01.xhtml',
+					content: `
+						<h1>Chương 1</h1>
+						<p>trước áo quan<a id="fnref-1-1" href="#fn-1-1" class="noteref" epub:type="noteref" role="doc-noteref">[1]</a> cho mình,</p>
+						<p>lại nhắc áo quan<a href="#fn-1-1" class="noteref" epub:type="noteref">[1]</a> lần nữa.</p>
+						<aside epub:type="footnote" id="fn-1-1" role="doc-footnote" class="footnote-item">
+							<p><a href="#fnref-1-1" class="footnote-backref" aria-label="Quay lại chú thích 1">↩</a> <span>[1]</span> <strong>Áo quan</strong>: Cách gọi tôn kính và kiêng kỵ trong nghi lễ tang ma truyền thống Á Đông để chỉ cỗ quan tài gỗ dùng để an táng thi thể người quá cố.</p>
+						</aside>
+					`
+				},
+				{
+					id: 'c2',
+					href: 'Text/chap02.xhtml',
+					content: `
+						<h1>Chương 2</h1>
+						<p>Điểm mốc thứ nhất<a id="fnref-2-1" href="#fn-2-1" class="noteref" epub:type="noteref" role="doc-noteref">[1]</a> và năm 1945<a id="fnref-2-2" href="#fn-2-2" class="noteref" epub:type="noteref" role="doc-noteref">[2]</a>.</p>
+						<aside class="sidebar">Ghi chú khung phụ bên lề vẫn giữ nguyên.</aside>
+						<section epub:type="footnotes">
+							<aside epub:type="footnote" id="fn-2-1" role="doc-footnote" class="footnote-item">
+								<p><a href="#fnref-2-1" class="footnote-backref">↩</a> <span>[1]</span> Giải thích mục một của chương hai.</p>
+							</aside>
+							<aside epub:type="footnote" id="fn-2-2" role="doc-footnote" class="footnote-item">
+								<p>[2] 1945 là mốc thời gian cụ thể <a href="#fnref-2-2" role="doc-backlink">↑</a></p>
+							</aside>
+						</section>
+					`
+				}
+			]);
+
+			const result = await extractEpubToTxt(zip);
+
+			// Body text must have {1}, {1} (reused), {2}, {3} and NO raw footnote aside text or backref arrows
+			expect(result.text).toContain('trước áo quan{1} cho mình,');
+			expect(result.text).toContain('lại nhắc áo quan{1} lần nữa.');
+			expect(result.text).toContain('Điểm mốc thứ nhất{2} và năm 1945{3}.');
+			expect(result.text).toContain('Ghi chú khung phụ bên lề vẫn giữ nguyên.');
+			expect(result.text).not.toContain('↩');
+			expect(result.text).not.toContain('↑');
+
+			// All footnotes must be cleanly standardized and globally numbered in Chú thích: at end
+			expect(result.text).toContain(
+				[
+					'Chú thích:',
+					'{1} *Áo quan*: Cách gọi tôn kính và kiêng kỵ trong nghi lễ tang ma truyền thống Á Đông để chỉ cỗ quan tài gỗ dùng để an táng thi thể người quá cố.',
+					'{2} Giải thích mục một của chương hai.',
+					'{3} 1945 là mốc thời gian cụ thể'
+				].join('\n')
+			);
+		});
 	});
 });

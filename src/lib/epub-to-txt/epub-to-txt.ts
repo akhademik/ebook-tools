@@ -215,6 +215,161 @@ interface InlineStyleState {
 	preserveNewlines: boolean;
 }
 
+interface InlineRenderContext {
+	docPath: string;
+	footnotes: FootnoteRegistry;
+}
+
+interface ExtractedFootnoteAside {
+	sourcePath: string;
+	key: string;
+	asideId: string;
+	rawNum: number | null;
+	text: string;
+}
+
+interface UnmatchedNoteref {
+	sourcePath: string;
+	key: string;
+	fragmentId: string;
+	rawNum: number | null;
+	assignedNum: number;
+}
+
+function resolveNoterefTargetKey(
+	sourcePath: string,
+	href: string,
+	rawNum: number | null
+): { key: string; fragmentId: string } {
+	const hashIdx = href.indexOf('#');
+	if (hashIdx !== -1) {
+		const fragmentId = href.slice(hashIdx + 1).trim();
+		const docPart = href.slice(0, hashIdx).trim();
+		let cleanDocPart = docPart;
+		try {
+			cleanDocPart = decodeURIComponent(docPart);
+		} catch {
+			// Keep raw href path segment
+		}
+		const targetPath = cleanDocPart
+			? resolveRelativePath(sourcePath || 'index.xhtml', cleanDocPart)
+			: sourcePath;
+		if (fragmentId) {
+			return { key: `${targetPath}#${fragmentId}`, fragmentId };
+		}
+	}
+	return {
+		key: `inline:${sourcePath}#${rawNum ?? ''}`,
+		fragmentId: ''
+	};
+}
+
+class FootnoteRegistry {
+	private refKeyToNum = new Map<string, number>();
+	private usedNumbers = new Set<number>();
+	private maxAssignedNum = 0;
+	private refsByKey = new Map<string, UnmatchedNoteref>();
+	private extractedAsides: ExtractedFootnoteAside[] = [];
+
+	allocateNumber(preferredNum: number | null): number {
+		let assigned: number;
+		if (preferredNum !== null && preferredNum > 0 && !this.usedNumbers.has(preferredNum)) {
+			assigned = preferredNum;
+		} else {
+			assigned = this.maxAssignedNum + 1;
+			while (this.usedNumbers.has(assigned)) {
+				assigned++;
+			}
+		}
+		this.usedNumbers.add(assigned);
+		if (assigned > this.maxAssignedNum) {
+			this.maxAssignedNum = assigned;
+		}
+		return assigned;
+	}
+
+	resolveNoteref(sourcePath: string, href: string, rawNum: number | null): string | null {
+		if (!href && rawNum === null) return null;
+		const { key, fragmentId } = resolveNoterefTargetKey(sourcePath, href, rawNum);
+		const existing = this.refKeyToNum.get(key);
+		if (existing !== undefined) {
+			return String(existing);
+		}
+		const assigned = this.allocateNumber(rawNum);
+		this.refKeyToNum.set(key, assigned);
+		this.refsByKey.set(key, {
+			sourcePath,
+			key,
+			fragmentId,
+			rawNum,
+			assignedNum: assigned
+		});
+		return String(assigned);
+	}
+
+	addExtractedAside(aside: ExtractedFootnoteAside): void {
+		this.extractedAsides.push(aside);
+	}
+
+	finalizeFootnotes(): Map<number, string> {
+		const result = new Map<number, string>();
+		const remainingAsides: ExtractedFootnoteAside[] = [];
+		const unmatchedRefs = new Map(this.refsByKey);
+
+		// Pass 1: Exact resolved docPath#id match
+		for (const aside of this.extractedAsides) {
+			const assignedNum = aside.key ? this.refKeyToNum.get(aside.key) : undefined;
+			if (assignedNum !== undefined) {
+				result.set(assignedNum, aside.text);
+				unmatchedRefs.delete(aside.key);
+			} else {
+				remainingAsides.push(aside);
+			}
+		}
+
+		// Pass 2: Cross-file fragmentId match (when href omitted filename) or same-chapter rawNum fallback
+		const stillUnmatchedAsides: ExtractedFootnoteAside[] = [];
+		for (const aside of remainingAsides) {
+			let matchedKey: string | null = null;
+			if (aside.asideId) {
+				const matchingRefs = [...unmatchedRefs.values()].filter(
+					(r) => r.fragmentId === aside.asideId
+				);
+				const sameIdAsidesCount = remainingAsides.filter((a) => a.asideId === aside.asideId).length;
+				if (matchingRefs.length === 1 && sameIdAsidesCount === 1) {
+					matchedKey = matchingRefs[0].key;
+				}
+			}
+			if (!matchedKey && aside.rawNum !== null) {
+				const sameDocRef = [...unmatchedRefs.values()].find(
+					(r) => r.sourcePath === aside.sourcePath && r.rawNum === aside.rawNum
+				);
+				if (sameDocRef) {
+					matchedKey = sameDocRef.key;
+				}
+			}
+
+			if (matchedKey) {
+				const ref = unmatchedRefs.get(matchedKey);
+				if (ref) {
+					result.set(ref.assignedNum, aside.text);
+					unmatchedRefs.delete(matchedKey);
+				}
+			} else {
+				stillUnmatchedAsides.push(aside);
+			}
+		}
+
+		// Pass 3: Preserve any unreferenced footnote <aside> elements at the end
+		for (const aside of stillUnmatchedAsides) {
+			const assignedNum = this.allocateNumber(aside.rawNum);
+			result.set(assignedNum, aside.text);
+		}
+
+		return result;
+	}
+}
+
 const DEFAULT_INLINE_STYLE: InlineStyleState = {
 	bold: false,
 	italic: false,
@@ -320,11 +475,20 @@ function extractIllustrationTagFromElement(el: DomElementNode): string | null {
 	return null;
 }
 
-function tryExtractNoterefNumber(el: DomElementNode): string | null {
+interface ParsedNoteref {
+	rawNum: number | null;
+	href: string;
+}
+
+function parseNoterefElement(el: DomElementNode): ParsedNoteref | null {
 	if (el.tag === 'sup' && hasClass(el, 'noteref')) {
+		const innerAnchor = findElements(el, (c) => c.tag === 'a' && Boolean(getAttr(c, 'href')))[0];
+		if (innerAnchor) {
+			return parseNoterefElement(innerAnchor);
+		}
 		const plain = getPlainDomText(el).trim();
-		const m = /^(\d+)$/.exec(plain);
-		return m ? m[1] : null;
+		const m = /^[[(]?(\d+)[\])]?$/.exec(plain);
+		return m ? { rawNum: parseInt(m[1], 10), href: '' } : null;
 	}
 
 	if (el.tag !== 'a') return null;
@@ -334,8 +498,8 @@ function tryExtractNoterefNumber(el: DomElementNode): string | null {
 	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
 	const role = (getAttr(el, 'role') || '').toLowerCase();
 
-	const hrefMatch = /#(?:fn|footnote-?)(\d+)$/i.exec(href);
-	const idMatch = /^fnref(\d+)$/i.exec(id);
+	const hrefMatch = /#(?:fn|footnote|endnote|note)(?:[-_]\d+)*[-_]?(\d+)$/i.exec(href);
+	const idMatch = /^fnref(?:[-_]\d+)*[-_]?(\d+)$/i.exec(id);
 	const isNoterefAttr =
 		hasClass(el, 'noteref') ||
 		epubType.includes('noteref') ||
@@ -348,18 +512,35 @@ function tryExtractNoterefNumber(el: DomElementNode): string | null {
 	const plain = getPlainDomText(el).trim();
 	const numInText = /^[[(]?(\d+)[\])]?$/.exec(plain);
 	if (numInText) {
-		return numInText[1];
+		return { rawNum: parseInt(numInText[1], 10), href };
 	}
-	if (hrefMatch && !plain) {
-		return hrefMatch[1];
+	if (hrefMatch) {
+		return { rawNum: parseInt(hrefMatch[1], 10), href };
 	}
-	if (idMatch && !plain) {
-		return idMatch[1];
+	if (idMatch) {
+		return { rawNum: parseInt(idMatch[1], 10), href };
+	}
+	if (href.includes('#')) {
+		return { rawNum: null, href };
 	}
 	return null;
 }
 
-function renderInlineDomNodes(nodes: DomNode[], state: InlineStyleState): string {
+function resolveNoterefDisplayNumber(el: DomElementNode, ctx?: InlineRenderContext): string | null {
+	const parsed = parseNoterefElement(el);
+	if (!parsed) return null;
+
+	if (ctx) {
+		return ctx.footnotes.resolveNoteref(ctx.docPath, parsed.href, parsed.rawNum);
+	}
+	return parsed.rawNum !== null ? String(parsed.rawNum) : null;
+}
+
+function renderInlineDomNodes(
+	nodes: DomNode[],
+	state: InlineStyleState,
+	ctx?: InlineRenderContext
+): string {
 	let out = '';
 
 	for (const node of nodes) {
@@ -408,7 +589,7 @@ function renderInlineDomNodes(nodes: DomNode[], state: InlineStyleState): string
 			continue;
 		}
 
-		const noterefNum = tryExtractNoterefNumber(node);
+		const noterefNum = resolveNoterefDisplayNumber(node, ctx);
 		if (noterefNum !== null) {
 			out += `{${noterefNum}}`;
 			continue;
@@ -422,7 +603,7 @@ function renderInlineDomNodes(nodes: DomNode[], state: InlineStyleState): string
 			preserveNewlines: state.preserveNewlines || node.tag === 'pre'
 		};
 
-		let inner = renderInlineDomNodes(node.children, nextState);
+		let inner = renderInlineDomNodes(node.children, nextState, ctx);
 
 		if (isUnderline && !state.underline) {
 			inner = wrapInlineMarker(inner, '_');
@@ -469,11 +650,19 @@ function normalizeInlineLines(text: string, collapseSpaces = true): string {
 	return cleaned.join('\n').trim();
 }
 
-function renderInlineFromElement(el: DomElementNode, preserveNewlines = false): string {
-	const raw = renderInlineDomNodes(el.children, {
-		...DEFAULT_INLINE_STYLE,
-		preserveNewlines
-	});
+function renderInlineFromElement(
+	el: DomElementNode,
+	preserveNewlines = false,
+	ctx?: InlineRenderContext
+): string {
+	const raw = renderInlineDomNodes(
+		el.children,
+		{
+			...DEFAULT_INLINE_STYLE,
+			preserveNewlines
+		},
+		ctx
+	);
 	return normalizeInlineLines(raw, !preserveNewlines);
 }
 
@@ -577,7 +766,12 @@ const BLOCK_LEVEL_TAGS = new Set([
 	'ul'
 ]);
 
-function convertHeadingElementToTxt(attrs: string, el: DomElementNode, level: 1 | 2): string {
+function convertHeadingElementToTxt(
+	attrs: string,
+	el: DomElementNode,
+	level: 1 | 2,
+	ctx?: InlineRenderContext
+): string {
 	const notoc = isNoToc(attrs);
 	const isLeft = isLeftAligned(attrs);
 	const isRight = isRightAligned(attrs);
@@ -608,7 +802,7 @@ function convertHeadingElementToTxt(attrs: string, el: DomElementNode, level: 1 
 						: '@';
 
 	// Keep multi-line heading (<br>) on the heading line with a single space
-	const title = renderInlineFromElement(el).replace(/\n+/g, ' ').trim();
+	const title = renderInlineFromElement(el, false, ctx).replace(/\n+/g, ' ').trim();
 	return title ? `${prefix} ${title}` : '';
 }
 
@@ -628,7 +822,7 @@ function getQuoteAuthorPrefix(el: DomElementNode): string {
 	return '>';
 }
 
-function convertBlockquoteDom(el: DomElementNode): string {
+function convertBlockquoteDom(el: DomElementNode, ctx?: InlineRenderContext): string {
 	const attrs = el.rawAttrs;
 	const prefix = isLeftAligned(attrs) ? '~t' : isRightAligned(attrs) ? '~p' : '~';
 
@@ -639,7 +833,7 @@ function convertBlockquoteDom(el: DomElementNode): string {
 		let inlineBuf: DomNode[] = [];
 		const flushInline = () => {
 			if (inlineBuf.length === 0) return;
-			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE));
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
 			inlineBuf = [];
 			if (text) {
 				for (const line of text.split('\n')) {
@@ -660,7 +854,7 @@ function convertBlockquoteDom(el: DomElementNode): string {
 
 			if (isBlockquoteFooterElement(child)) {
 				flushInline();
-				const authorText = renderInlineFromElement(child).replace(/\n+/g, ' ').trim();
+				const authorText = renderInlineFromElement(child, false, ctx).replace(/\n+/g, ' ').trim();
 				if (authorText) {
 					authors.push({ prefix: getQuoteAuthorPrefix(child), text: authorText });
 				}
@@ -669,7 +863,7 @@ function convertBlockquoteDom(el: DomElementNode): string {
 
 			if (child.tag === 'p') {
 				flushInline();
-				const pText = renderInlineFromElement(child);
+				const pText = renderInlineFromElement(child, false, ctx);
 				if (pText) {
 					for (const line of pText.split('\n')) {
 						const t = line.trim();
@@ -698,14 +892,14 @@ function convertBlockquoteDom(el: DomElementNode): string {
 	return quoteLines.join('\n');
 }
 
-function convertPoemDom(el: DomElementNode): string {
+function convertPoemDom(el: DomElementNode, ctx?: InlineRenderContext): string {
 	const stanzas: string[] = [];
 
 	const collectPoemLines = (nodes: DomNode[], outLines: string[]) => {
 		let inlineBuf: DomNode[] = [];
 		const flushInline = () => {
 			if (inlineBuf.length === 0) return;
-			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE));
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
 			inlineBuf = [];
 			if (text) {
 				for (const line of text.split('\n')) {
@@ -725,7 +919,7 @@ function convertPoemDom(el: DomElementNode): string {
 			}
 			if (child.tag === 'p') {
 				flushInline();
-				const text = renderInlineFromElement(child);
+				const text = renderInlineFromElement(child, false, ctx);
 				if (text) {
 					for (const line of text.split('\n')) {
 						const t = line.trim();
@@ -791,14 +985,14 @@ function joinSegments(segments: OutputSegment[]): string {
 	return out;
 }
 
-function convertLetterDom(el: DomElementNode): string {
+function convertLetterDom(el: DomElementNode, ctx?: InlineRenderContext): string {
 	const items: OutputSegment[] = [];
 
 	const collectLetterNodes = (nodes: DomNode[]) => {
 		let inlineBuf: DomNode[] = [];
 		const flushInline = () => {
 			if (inlineBuf.length === 0) return;
-			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE));
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
 			inlineBuf = [];
 			if (text) {
 				items.push({ kind: 'line', text });
@@ -815,7 +1009,7 @@ function convertLetterDom(el: DomElementNode): string {
 			}
 			if (child.tag === 'div' && hasClass(child, 'poem')) {
 				flushInline();
-				const poem = convertPoemDom(child);
+				const poem = convertPoemDom(child, ctx);
 				if (poem) items.push({ kind: 'block', text: poem });
 				continue;
 			}
@@ -824,31 +1018,36 @@ function convertLetterDom(el: DomElementNode): string {
 				(child.tag === 'div' && hasAnyClass(child, ['blockquote', 'quote', 'epigraph']))
 			) {
 				flushInline();
-				const bq = convertBlockquoteDom(child);
+				const bq = convertBlockquoteDom(child, ctx);
 				if (bq) items.push({ kind: 'block', text: bq });
 				continue;
 			}
 			if (child.tag === 'h1' || child.tag === 'h2') {
 				flushInline();
-				const h = convertHeadingElementToTxt(child.rawAttrs, child, child.tag === 'h1' ? 1 : 2);
+				const h = convertHeadingElementToTxt(
+					child.rawAttrs,
+					child,
+					child.tag === 'h1' ? 1 : 2,
+					ctx
+				);
 				if (h) items.push({ kind: 'block', text: h });
 				continue;
 			}
 			if (/^h[3-6]$/.test(child.tag)) {
 				flushInline();
-				const title = renderInlineFromElement(child).replace(/\n+/g, ' ').trim();
+				const title = renderInlineFromElement(child, false, ctx).replace(/\n+/g, ' ').trim();
 				if (title) items.push({ kind: 'block', text: `@ ${title}` });
 				continue;
 			}
 			if (child.tag === 'figure') {
 				flushInline();
-				const fig = renderFigureDom(child);
+				const fig = renderFigureDom(child, ctx);
 				if (fig) items.push({ kind: 'block', text: fig });
 				continue;
 			}
 			if (child.tag === 'p') {
 				flushInline();
-				const text = renderInlineFromElement(child);
+				const text = renderInlineFromElement(child, false, ctx);
 				if (text) {
 					if (hasClass(child, 'no-dropcap')) {
 						items.push({ kind: 'line', text: `!D ${text}` });
@@ -860,7 +1059,7 @@ function convertLetterDom(el: DomElementNode): string {
 			}
 			if (child.tag === 'li') {
 				flushInline();
-				const liText = renderNodesToTxt(child.children);
+				const liText = renderNodesToTxt(child.children, ctx);
 				if (liText) items.push({ kind: 'line', text: liText });
 				continue;
 			}
@@ -879,14 +1078,14 @@ function convertLetterDom(el: DomElementNode): string {
 	return body ? `[letter]\n${body}\n[/letter]` : '';
 }
 
-function renderFigureDom(el: DomElementNode): string {
+function renderFigureDom(el: DomElementNode, ctx?: InlineRenderContext): string {
 	const parts: string[] = [];
 	const tag = extractIllustrationTagFromElement(el);
 	if (tag) parts.push(tag);
 
 	const captions = findElements(el, (c) => c.tag === 'figcaption');
 	for (const cap of captions) {
-		const capText = renderNodesToTxt(cap.children);
+		const capText = renderNodesToTxt(cap.children, ctx);
 		if (capText) parts.push(capText);
 	}
 
@@ -904,23 +1103,29 @@ function hasAnyBlockChild(el: DomElementNode): boolean {
 	return false;
 }
 
-function renderTableRowDom(tr: DomElementNode): string {
+function renderTableRowDom(tr: DomElementNode, ctx?: InlineRenderContext): string {
 	const cells: string[] = [];
 	for (const child of tr.children) {
 		if (child.type === 'element' && (child.tag === 'td' || child.tag === 'th')) {
-			const cellText = renderNodesToTxt(child.children).replace(/\n+/g, ' ').trim();
+			const cellText = renderNodesToTxt(child.children, ctx).replace(/\n+/g, ' ').trim();
 			if (cellText) cells.push(cellText);
 		}
 	}
 	return cells.join(' ');
 }
 
-function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): void {
+function renderNodesToSegments(
+	nodes: DomNode[],
+	outSegments: OutputSegment[],
+	ctx?: InlineRenderContext
+): void {
 	let inlineBuffer: DomNode[] = [];
 
 	const flushInlineBuffer = () => {
 		if (inlineBuffer.length === 0) return;
-		const text = normalizeInlineLines(renderInlineDomNodes(inlineBuffer, DEFAULT_INLINE_STYLE));
+		const text = normalizeInlineLines(
+			renderInlineDomNodes(inlineBuffer, DEFAULT_INLINE_STYLE, ctx)
+		);
 		inlineBuffer = [];
 		if (text) {
 			outSegments.push({ kind: 'prose', text });
@@ -946,7 +1151,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 2. [new:center] explicit section
 		if (tag === 'section' && hasClass(node, 'center-page')) {
 			flushInlineBuffer();
-			const inner = renderNodesToTxt(node.children);
+			const inner = renderNodesToTxt(node.children, ctx);
 			if (inner) {
 				outSegments.push({ kind: 'block', text: `[new:center]\n${inner}\n[/new]` });
 			}
@@ -956,7 +1161,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 3. [letter-box] container
 		if (tag === 'div' && hasClass(node, 'letter-box')) {
 			flushInlineBuffer();
-			const inner = renderNodesToTxt(node.children);
+			const inner = renderNodesToTxt(node.children, ctx);
 			if (inner) {
 				outSegments.push({ kind: 'block', text: `[letter-box]\n${inner}\n[/letter-box]` });
 			}
@@ -966,7 +1171,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 4. [poem] container
 		if (tag === 'div' && hasClass(node, 'poem')) {
 			flushInlineBuffer();
-			const poem = convertPoemDom(node);
+			const poem = convertPoemDom(node, ctx);
 			if (poem) outSegments.push({ kind: 'block', text: poem });
 			continue;
 		}
@@ -974,7 +1179,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 5. [letter] container
 		if (tag === 'div' && hasClass(node, 'letter')) {
 			flushInlineBuffer();
-			const letter = convertLetterDom(node);
+			const letter = convertLetterDom(node, ctx);
 			if (letter) outSegments.push({ kind: 'block', text: letter });
 			continue;
 		}
@@ -982,14 +1187,14 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 6. Figures & illustrations
 		if (tag === 'figure') {
 			flushInlineBuffer();
-			const fig = renderFigureDom(node);
+			const fig = renderFigureDom(node, ctx);
 			if (fig) outSegments.push({ kind: 'block', text: fig });
 			continue;
 		}
 		if (tag === 'p' && hasAnyClass(node, ['image', 'illust', 'figure'])) {
 			flushInlineBuffer();
 			const imgTag = extractIllustrationTagFromElement(node);
-			const text = renderInlineFromElement(node);
+			const text = renderInlineFromElement(node, false, ctx);
 			const combined = [imgTag, text].filter(Boolean).join('\n');
 			if (combined) outSegments.push({ kind: 'block', text: combined });
 			continue;
@@ -1007,7 +1212,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 			(tag === 'div' && hasAnyClass(node, ['blockquote', 'quote', 'epigraph']))
 		) {
 			flushInlineBuffer();
-			const bq = convertBlockquoteDom(node);
+			const bq = convertBlockquoteDom(node, ctx);
 			if (bq) outSegments.push({ kind: 'block', text: bq });
 			continue;
 		}
@@ -1015,13 +1220,13 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 8. Headings h1..h6
 		if (tag === 'h1' || tag === 'h2') {
 			flushInlineBuffer();
-			const hText = convertHeadingElementToTxt(node.rawAttrs, node, tag === 'h1' ? 1 : 2);
+			const hText = convertHeadingElementToTxt(node.rawAttrs, node, tag === 'h1' ? 1 : 2, ctx);
 			if (hText) outSegments.push({ kind: 'block', text: hText });
 			continue;
 		}
 		if (/^h[3-6]$/.test(tag)) {
 			flushInlineBuffer();
-			const title = renderInlineFromElement(node).replace(/\n+/g, ' ').trim();
+			const title = renderInlineFromElement(node, false, ctx).replace(/\n+/g, ' ').trim();
 			if (title) outSegments.push({ kind: 'block', text: `@ ${title}` });
 			continue;
 		}
@@ -1070,7 +1275,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		if (tag === 'p') {
 			flushInlineBuffer();
 			if (hasClass(node, 'no-dropcap')) {
-				const text = renderInlineFromElement(node);
+				const text = renderInlineFromElement(node, false, ctx);
 				if (text) outSegments.push({ kind: 'block', text: `!D ${text}` });
 				continue;
 			}
@@ -1085,7 +1290,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 				continue;
 			}
 
-			const text = renderInlineFromElement(node);
+			const text = renderInlineFromElement(node, false, ctx);
 			if (text) {
 				outSegments.push({ kind: 'prose', text });
 			}
@@ -1095,7 +1300,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 11. Preformatted text
 		if (tag === 'pre') {
 			flushInlineBuffer();
-			const preText = renderInlineFromElement(node, true);
+			const preText = renderInlineFromElement(node, true, ctx);
 			if (preText) outSegments.push({ kind: 'block', text: preText });
 			continue;
 		}
@@ -1104,16 +1309,16 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		if (tag === 'li') {
 			flushInlineBuffer();
 			if (hasAnyBlockChild(node)) {
-				renderNodesToSegments(node.children, outSegments);
+				renderNodesToSegments(node.children, outSegments, ctx);
 			} else {
-				const liText = renderInlineFromElement(node);
+				const liText = renderInlineFromElement(node, false, ctx);
 				if (liText) outSegments.push({ kind: 'line', text: liText });
 			}
 			continue;
 		}
 		if (tag === 'tr') {
 			flushInlineBuffer();
-			const rowText = renderTableRowDom(node);
+			const rowText = renderTableRowDom(node, ctx);
 			if (rowText) outSegments.push({ kind: 'line', text: rowText });
 			continue;
 		}
@@ -1121,7 +1326,7 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 		// 13. Other block containers (div, section, article, ul, ol, table, aside, etc.)
 		if (BLOCK_LEVEL_TAGS.has(tag) || tag === 'html' || tag === 'body') {
 			flushInlineBuffer();
-			renderNodesToSegments(node.children, outSegments);
+			renderNodesToSegments(node.children, outSegments, ctx);
 			continue;
 		}
 
@@ -1132,9 +1337,9 @@ function renderNodesToSegments(nodes: DomNode[], outSegments: OutputSegment[]): 
 	flushInlineBuffer();
 }
 
-function renderNodesToTxt(nodes: DomNode[]): string {
+function renderNodesToTxt(nodes: DomNode[], ctx?: InlineRenderContext): string {
 	const segments: OutputSegment[] = [];
-	renderNodesToSegments(nodes, segments);
+	renderNodesToSegments(nodes, segments, ctx);
 	return cleanTextFormatting(joinSegments(segments));
 }
 
@@ -1157,52 +1362,171 @@ export function htmlToCleanText(htmlContent: string): string {
 	return renderNodesToTxt(root.children);
 }
 
-function isFootnoteAside(el: DomElementNode): { isFootnote: boolean; num: number | null } {
-	if (el.tag !== 'aside') return { isFootnote: false, num: null };
+const BACKLINK_ARROW_RE = /[↩↵↑⇧←]/u;
+const BACKLINK_ONLY_RE = /^(?:[\s↩↵↑⇧^←[\]()]|\uFE0E|\uFE0F)+$/u;
+const ALL_BACKLINK_ARROWS_RE = /[↩↵↑⇧←](?:\uFE0E|\uFE0F)?/gu;
+const LEADING_ARROWS_RE = /^(?:[↩↵↑⇧←](?:\uFE0E|\uFE0F)?)+\s*/u;
+const TRAILING_ARROWS_RE = /\s*(?:[↩↵↑⇧←](?:\uFE0E|\uFE0F)?)+$/u;
+
+function parseFootnoteLabelElement(
+	el: DomElementNode,
+	expectedIdNum: number | null
+): number | null {
+	if (el.tag !== 'span' && el.tag !== 'sup') return null;
+	const txt = getPlainDomText(el).trim();
+	const m = /^(?:\[(\d+)\]|\((\d+)\)|(\d+)\.?)$/.exec(txt);
+	if (!m) return null;
+	const val = parseInt(m[1] ?? m[2] ?? m[3], 10);
+	if (m[1] || m[2] || el.tag === 'sup' || val === expectedIdNum) {
+		return val;
+	}
+	return null;
+}
+
+function isFootnoteBacklinkElement(el: DomElementNode): boolean {
+	if (el.tag !== 'a') return false;
+
+	if (
+		hasAnyClass(el, [
+			'notenum',
+			'footnote-backref',
+			'footnote-backlink',
+			'backref',
+			'backlink',
+			'reversefootnote'
+		])
+	) {
+		return true;
+	}
+
+	const role = (getAttr(el, 'role') || '').toLowerCase();
+	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
+	if (role === 'doc-backlink' || epubType.includes('backlink')) {
+		return true;
+	}
+
+	const plain = getPlainDomText(el).trim();
+	const href = getAttr(el, 'href') || '';
+	if (BACKLINK_ARROW_RE.test(plain) && BACKLINK_ONLY_RE.test(plain)) {
+		return true;
+	}
+	if (/#(?:fnref|ref|back)/i.test(href) && BACKLINK_ONLY_RE.test(plain)) {
+		return true;
+	}
+
+	return false;
+}
+
+function isFootnoteAside(el: DomElementNode): { isFootnote: boolean; rawNum: number | null } {
+	if (el.tag !== 'aside') return { isFootnote: false, rawNum: null };
 
 	const id = getAttr(el, 'id') || '';
 	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
 	const role = (getAttr(el, 'role') || '').toLowerCase();
 
-	const idMatch = /^(?:fn|footnote-?)(\d+)$/i.exec(id);
-	if (idMatch) {
-		return { isFootnote: true, num: parseInt(idMatch[1], 10) };
-	}
-
+	const idNumMatch = /^(?:fn|footnote|endnote|note)(?:[-_]\d+)*[-_]?(\d+)$/i.exec(id);
 	const hasFootnoteRole =
 		epubType.includes('footnote') ||
 		epubType.includes('endnote') ||
 		epubType.includes('rearnote') ||
 		role === 'doc-footnote' ||
-		role === 'doc-endnote';
+		role === 'doc-endnote' ||
+		hasAnyClass(el, ['footnote', 'footnote-item', 'footnotebody', 'endnote']) ||
+		Boolean(idNumMatch);
 
 	if (!hasFootnoteRole) {
-		return { isFootnote: false, num: null };
+		return { isFootnote: false, rawNum: null };
 	}
 
-	// Try extracting leading number from a.notenum if id wasn't numeric
+	// 1. Check <a class="notenum"> if present
 	const notenum = findElements(el, (c) => c.tag === 'a' && hasClass(c, 'notenum'))[0];
 	if (notenum) {
 		const numMatch = /(\d+)/.exec(getPlainDomText(notenum));
 		if (numMatch) {
-			return { isFootnote: true, num: parseInt(numMatch[1], 10) };
+			return { isFootnote: true, rawNum: parseInt(numMatch[1], 10) };
 		}
 	}
 
-	return { isFootnote: true, num: null };
+	// 2. Check leading inline label such as <span>[1]</span>, <sup>1</sup>, or text [1] (ignoring backlinks)
+	const idRawNum = idNumMatch ? parseInt(idNumMatch[1], 10) : null;
+	for (const candidate of findElements(el, (c) => c.tag === 'span' || c.tag === 'sup')) {
+		const parsed = parseFootnoteLabelElement(candidate, idRawNum);
+		if (parsed !== null) {
+			return { isFootnote: true, rawNum: parsed };
+		}
+	}
+
+	// 3. Fall back to trailing numeric segment in id (e.g. fn-1-1 -> 1, fn12 -> 12)
+	if (idRawNum !== null) {
+		return { isFootnote: true, rawNum: idRawNum };
+	}
+
+	// 4. Last fallback: leading [n] or (n) or n. in plain text after ignoring backlink arrows
+	const plainWithoutArrow = getPlainDomText(el).replace(ALL_BACKLINK_ARROWS_RE, '').trim();
+	const leadingPlainMatch = /^(?:\[(\d+)\]|\((\d+)\)|(\d+)\.)\s+\S/.exec(plainWithoutArrow);
+	if (leadingPlainMatch) {
+		const val = parseInt(leadingPlainMatch[1] ?? leadingPlainMatch[2] ?? leadingPlainMatch[3], 10);
+		return { isFootnote: true, rawNum: val };
+	}
+
+	return { isFootnote: true, rawNum: null };
 }
 
-function cloneDomWithoutNotenum(node: DomNode): DomNode | null {
-	if (node.type === 'text') return { ...node };
-	if (node.tag === 'a' && hasClass(node, 'notenum')) {
-		return null;
+function cloneDomCleanFootnote(node: DomNode, rawNum: number | null): DomNode | null {
+	let strippedLeadingMarker = false;
+
+	const cloneNode = (n: DomNode, atStartOfBlock: boolean): DomNode | null => {
+		if (n.type === 'text') {
+			return { ...n };
+		}
+		if (isFootnoteBacklinkElement(n)) {
+			return null;
+		}
+		// Strip a single leading label span/sup such as <span>[1]</span> or <sup>1</sup>
+		if (atStartOfBlock && !strippedLeadingMarker && parseFootnoteLabelElement(n, rawNum) !== null) {
+			strippedLeadingMarker = true;
+			return null;
+		}
+
+		const children: DomNode[] = [];
+		let childAtStart = atStartOfBlock;
+		for (const c of n.children) {
+			const cloned = cloneNode(c, childAtStart);
+			if (cloned) {
+				children.push(cloned);
+				if (cloned.type === 'element') {
+					if (getPlainDomText(cloned).trim().length > 0) {
+						childAtStart = false;
+					}
+				} else if (cloned.text.trim().length > 0) {
+					childAtStart = false;
+				}
+			}
+		}
+		return { ...n, children };
+	};
+
+	return cloneNode(node, true);
+}
+
+function stripFootnoteTextAffixes(text: string, rawNum: number | null): string {
+	let cleaned = text.replace(LEADING_ARROWS_RE, '').replace(TRAILING_ARROWS_RE, '').trim();
+
+	// Strip leading [n] or (n) label
+	const bracketMatch = /^(?:\[(\d+)\]|\((\d+)\))\s*/.exec(cleaned);
+	if (bracketMatch) {
+		const n = parseInt(bracketMatch[1] ?? bracketMatch[2], 10);
+		if (rawNum === null || n === rawNum) {
+			cleaned = cleaned.slice(bracketMatch[0].length).trim();
+		}
+	} else if (rawNum !== null) {
+		const dotMatch = /^(\d+)\.\s+/.exec(cleaned);
+		if (dotMatch && parseInt(dotMatch[1], 10) === rawNum) {
+			cleaned = cleaned.slice(dotMatch[0].length).trim();
+		}
 	}
-	const children: DomNode[] = [];
-	for (const c of node.children) {
-		const cloned = cloneDomWithoutNotenum(c);
-		if (cloned) children.push(cloned);
-	}
-	return { ...node, children };
+
+	return cleaned.replace(LEADING_ARROWS_RE, '').trim();
 }
 
 /**
@@ -1211,7 +1535,8 @@ function cloneDomWithoutNotenum(node: DomNode): DomNode | null {
  */
 function extractAndStripFootnotesFromDom(
 	root: DomElementNode,
-	allFootnotes: Map<number, string>
+	sourcePath: string,
+	registry: FootnoteRegistry
 ): { extractedCount: number } {
 	let extractedCount = 0;
 
@@ -1220,14 +1545,25 @@ function extractAndStripFootnotesFromDom(
 		for (const child of parent.children) {
 			if (child.type === 'element' && child.tag === 'aside') {
 				const fnInfo = isFootnoteAside(child);
-				if (fnInfo.isFootnote && fnInfo.num !== null) {
-					const cleanedAside = cloneDomWithoutNotenum(child) as DomElementNode;
-					const text = renderNodesToTxt(cleanedAside.children).replace(/\n+/g, ' ').trim();
-					if (text) {
-						allFootnotes.set(fnInfo.num, text);
+				if (fnInfo.isFootnote) {
+					const asideId = (getAttr(child, 'id') || '').trim();
+					const cleanedAside = cloneDomCleanFootnote(child, fnInfo.rawNum) as DomElementNode;
+					const rendered = renderNodesToTxt(cleanedAside.children).replace(/\n+/g, ' ').trim();
+					const text = stripFootnoteTextAffixes(rendered, fnInfo.rawNum);
+
+					if (text || fnInfo.rawNum !== null || asideId) {
+						if (text) {
+							registry.addExtractedAside({
+								sourcePath,
+								key: asideId ? `${sourcePath}#${asideId}` : '',
+								asideId,
+								rawNum: fnInfo.rawNum,
+								text
+							});
+						}
+						extractedCount++;
+						continue;
 					}
-					extractedCount++;
-					continue;
 				}
 			}
 			if (child.type === 'element') {
@@ -1399,7 +1735,7 @@ export async function extractEpubToTxt(
 	options?.onProgress?.(`Đang trích xuất nội dung từ ${chapterPaths.length} chương...`, 40);
 
 	const extractedChapters: string[] = [];
-	const allFootnotes = new Map<number, string>();
+	const footnoteRegistry = new FootnoteRegistry();
 	const total = chapterPaths.length;
 
 	for (let i = 0; i < total; i++) {
@@ -1419,7 +1755,7 @@ export async function extractEpubToTxt(
 			}
 
 			// Extract numbered footnotes and strip only those extracted <aside> elements
-			const { extractedCount } = extractAndStripFootnotesFromDom(docRoot, allFootnotes);
+			const { extractedCount } = extractAndStripFootnotesFromDom(docRoot, path, footnoteRegistry);
 
 			// Dedicated notes.xhtml file is rendered at the end via Chú thích:
 			const docTitle = getDocumentTitle(docRoot);
@@ -1431,7 +1767,10 @@ export async function extractEpubToTxt(
 				continue;
 			}
 
-			const cleanText = renderNodesToTxt(docRoot.children);
+			const cleanText = renderNodesToTxt(docRoot.children, {
+				docPath: path,
+				footnotes: footnoteRegistry
+			});
 			if (cleanText.trim().length > 0) {
 				extractedChapters.push(cleanText.trim());
 			}
@@ -1439,6 +1778,8 @@ export async function extractEpubToTxt(
 		const percent = Math.min(90, Math.round(40 + ((i + 1) / total) * 50));
 		options?.onProgress?.(`Đang xử lý chương ${i + 1}/${total}...`, percent);
 	}
+
+	const allFootnotes = footnoteRegistry.finalizeFootnotes();
 
 	// If footnotes exist, append the Chú thích: section at the end
 	if (allFootnotes.size > 0) {
