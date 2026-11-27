@@ -13,6 +13,16 @@ export class EpubToTxtState {
 	result = $state<EpubToTxtResult | null>(null);
 	copied = $state<boolean>(false);
 
+	private conversionRequestId = 0;
+	private copyTimer: ReturnType<typeof setTimeout> | null = null;
+
+	private clearCopyTimer(): void {
+		if (this.copyTimer) {
+			clearTimeout(this.copyTimer);
+			this.copyTimer = null;
+		}
+	}
+
 	previewSnippet = $derived.by(() => {
 		if (!this.result?.text) return '';
 		// Show first 15000 chars for preview
@@ -25,18 +35,29 @@ export class EpubToTxtState {
 		if (!file) return;
 
 		if (!/\.epub$/i.test(file.name) && file.type !== 'application/epub+zip') {
+			this.conversionRequestId++;
+			this.isProcessing = false;
+			this.progressPercent = 0;
+			this.progressLabel = '';
 			this.status = 'Vui lòng chọn một file .EPUB hợp lệ.';
 			this.isError = true;
 			return;
 		}
 
 		if (file.size > MAX_EPUB_FILE_SIZE) {
+			this.conversionRequestId++;
+			this.isProcessing = false;
+			this.progressPercent = 0;
+			this.progressLabel = '';
 			this.status = 'Dung lượng file EPUB vượt quá giới hạn cho phép (tối đa 250MB).';
 			this.isError = true;
 			return;
 		}
 
+		this.conversionRequestId++;
+		this.clearCopyTimer();
 		this.selectedFile = file;
+		this.isProcessing = false;
 		this.status = '';
 		this.isError = false;
 		this.result = null;
@@ -46,8 +67,10 @@ export class EpubToTxtState {
 	}
 
 	async processEpub(): Promise<void> {
-		if (!this.selectedFile) return;
+		const file = this.selectedFile;
+		if (!file) return;
 
+		const requestId = ++this.conversionRequestId;
 		this.isProcessing = true;
 		this.isError = false;
 		this.status = 'Đang tiến hành chuyển đổi...';
@@ -55,23 +78,28 @@ export class EpubToTxtState {
 		this.progressLabel = 'Bắt đầu đọc file EPUB...';
 
 		try {
-			const res = await extractEpubToTxt(this.selectedFile, {
+			const res = await extractEpubToTxt(file, {
 				onProgress: (status, percent) => {
+					if (requestId !== this.conversionRequestId) return;
 					this.progressLabel = status;
 					this.progressPercent = percent;
 				}
 			});
+			if (requestId !== this.conversionRequestId) return;
 
 			this.result = res;
 			this.status = `Chuyển đổi thành công! Trích xuất ${res.chapterCount} chương (${res.wordCount.toLocaleString()} từ, ${res.charCount.toLocaleString()} ký tự).`;
 			this.isError = false;
 		} catch (err: unknown) {
+			if (requestId !== this.conversionRequestId) return;
 			const msg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubToTxtState]', 'Error converting EPUB to TXT', err);
 			this.status = `Lỗi chuyển đổi: ${msg}`;
 			this.isError = true;
 		} finally {
-			this.isProcessing = false;
+			if (requestId === this.conversionRequestId) {
+				this.isProcessing = false;
+			}
 		}
 	}
 
@@ -85,8 +113,10 @@ export class EpubToTxtState {
 		try {
 			await navigator.clipboard.writeText(this.result.text);
 			this.copied = true;
-			setTimeout(() => {
+			this.clearCopyTimer();
+			this.copyTimer = setTimeout(() => {
 				this.copied = false;
+				this.copyTimer = null;
 			}, 2500);
 		} catch (err) {
 			Logger.error('[EpubToTxtState]', 'Could not copy to clipboard', err);
@@ -94,6 +124,8 @@ export class EpubToTxtState {
 	}
 
 	reset(): void {
+		this.conversionRequestId++;
+		this.clearCopyTimer();
 		this.selectedFile = null;
 		this.isProcessing = false;
 		this.progressPercent = 0;

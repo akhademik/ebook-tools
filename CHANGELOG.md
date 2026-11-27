@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Khắc phục Triệt để Race Condition trong EPUB → TXT `EpubToTxtState`)
+
+- Thêm/sửa:
+  - **Cơ chế Generation Token cho Chuyển đổi EPUB → TXT (`src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`)**:
+    - Bổ sung `conversionRequestId` (tăng khi chọn file qua `handleFile()`, khi `reset()`, và mỗi lần bắt đầu `processEpub()`), đồng thời reset `isProcessing = false` khi chuyển sang file mới và dọn timer copy (`copyTimer`).
+    - Bảo vệ `onProgress`, phần xử lý sau `await extractEpubToTxt(...)`, khối `catch`, và `finally` trong `processEpub()` chỉ cho phép tác vụ mang `requestId` hiện hành cập nhật `result`, `status`, `progressPercent`, `progressLabel`, `isError` và `isProcessing`.
+  - **Bổ sung Bộ Test Race Condition (`tests/epub-to-txt-state.test.ts`)**:
+    - Bổ sung 4 unit tests kiểm tra chọn file B khi A đang chạy, gọi `reset()` khi đang chuyển đổi, tác vụ A hoàn tất/lỗi sau tác vụ B, và luồng chuyển đổi bình thường.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (482/482 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`, `tests/epub-to-txt-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Kiểm tra `AbortSignal` Xuyên suốt `cleanEpub` & `analyzeOptimizationPlan` Trước Khi Sửa `editBuffer`/`zip`)
 
 - Thêm/sửa:
