@@ -2,7 +2,22 @@
 import JSZip from 'jszip';
 import { findOpfPath, extractBookMetadata } from '$lib/epub-editor/epub-book-ops';
 import { resolveRelativePath } from '$lib/epub-editor/epub-editor';
-import { Logger } from '$lib/utils';
+import {
+	Logger,
+	loadSafeEpubZip,
+	validateZipArchiveSafety,
+	createZipExtractionBudget,
+	readSafeZipEntryText
+} from '$lib/utils';
+import {
+	parseHtmlToDom,
+	hasClass,
+	hasAnyClass,
+	getAttr,
+	findElements,
+	type DomElementNode,
+	type DomNode
+} from './html-dom';
 
 export interface EpubToTxtResult {
 	text: string;
@@ -15,6 +30,114 @@ export interface EpubToTxtResult {
 	txtBlob: Blob;
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+	'&nbsp;': ' ',
+	'&ensp;': ' ',
+	'&emsp;': ' ',
+	'&thinsp;': ' ',
+	'&amp;': '&',
+	'&lt;': '<',
+	'&gt;': '>',
+	'&quot;': '"',
+	'&apos;': "'",
+	'&laquo;': '«',
+	'&raquo;': '»',
+	'&lsquo;': '‘',
+	'&rsquo;': '’',
+	'&ldquo;': '“',
+	'&rdquo;': '”',
+	'&sbquo;': '‚',
+	'&bdquo;': '„',
+	'&lsaquo;': '‹',
+	'&rsaquo;': '›',
+	'&ndash;': '–',
+	'&mdash;': '—',
+	'&hellip;': '…',
+	'&bull;': '•',
+	'&middot;': '·',
+	'&sect;': '§',
+	'&para;': '¶',
+	'&deg;': '°',
+	'&plusmn;': '±',
+	'&times;': '×',
+	'&divide;': '÷',
+	'&minus;': '−',
+	'&permil;': '‰',
+	'&prime;': '′',
+	'&Prime;': '″',
+	'&frac12;': '½',
+	'&frac14;': '¼',
+	'&frac34;': '¾',
+	'&larr;': '←',
+	'&uarr;': '↑',
+	'&rarr;': '→',
+	'&darr;': '↓',
+	'&harr;': '↔',
+	'&infin;': '∞',
+	'&asymp;': '≈',
+	'&ne;': '≠',
+	'&le;': '≤',
+	'&ge;': '≥',
+	'&cent;': '¢',
+	'&pound;': '£',
+	'&yen;': '¥',
+	'&euro;': '€',
+	'&copy;': '©',
+	'&reg;': '®',
+	'&trade;': '™',
+	'&iexcl;': '¡',
+	'&iquest;': '¿',
+	'&sup1;': '¹',
+	'&sup2;': '²',
+	'&sup3;': '³',
+	'&ordf;': 'ª',
+	'&ordm;': 'º',
+	'&aacute;': 'á',
+	'&agrave;': 'à',
+	'&atilde;': 'ã',
+	'&acirc;': 'â',
+	'&auml;': 'ä',
+	'&aring;': 'å',
+	'&aelig;': 'æ',
+	'&eacute;': 'é',
+	'&egrave;': 'è',
+	'&ecirc;': 'ê',
+	'&euml;': 'ë',
+	'&iacute;': 'í',
+	'&igrave;': 'ì',
+	'&icirc;': 'î',
+	'&iuml;': 'ï',
+	'&oacute;': 'ó',
+	'&ograve;': 'ò',
+	'&otilde;': 'õ',
+	'&ocirc;': 'ô',
+	'&ouml;': 'ö',
+	'&oslash;': 'ø',
+	'&oelig;': 'œ',
+	'&uacute;': 'ú',
+	'&ugrave;': 'ù',
+	'&ucirc;': 'û',
+	'&uuml;': 'ü',
+	'&yacute;': 'ý',
+	'&yuml;': 'ÿ',
+	'&ccedil;': 'ç',
+	'&ntilde;': 'ñ',
+	'&eth;': 'ð',
+	'&thorn;': 'þ',
+	'&szlig;': 'ß'
+};
+
+function safeFromCodePoint(cp: number): string {
+	if (!Number.isInteger(cp) || cp < 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff)) {
+		return '';
+	}
+	try {
+		return String.fromCodePoint(cp);
+	} catch {
+		return '';
+	}
+}
+
 /**
  * Decode HTML/XML named and numerical entities.
  */
@@ -22,82 +145,20 @@ export function decodeHtmlEntities(text: string): string {
 	if (!text) return '';
 
 	// 1. Decode decimal numeric entities &#123;
-	let decoded = text.replace(/&#(\d+);/g, (_, dec) => {
-		try {
-			return String.fromCodePoint(parseInt(dec, 10));
-		} catch {
-			return '';
-		}
-	});
+	let decoded = text.replace(/&#(\d+);/g, (_, dec) => safeFromCodePoint(parseInt(dec, 10)));
 
 	// 2. Decode hex numeric entities &#x1F600;
-	decoded = decoded.replace(/&#x([0-9a-f]+);/gi, (_, hex) => {
-		try {
-			return String.fromCodePoint(parseInt(hex, 16));
-		} catch {
-			return '';
-		}
-	});
+	decoded = decoded.replace(/&#x([0-9a-f]+);/gi, (_, hex) => safeFromCodePoint(parseInt(hex, 16)));
 
-	const namedEntities: Record<string, string> = {
-		'&nbsp;': ' ',
-		'&amp;': '&',
-		'&lt;': '<',
-		'&gt;': '>',
-		'&quot;': '"',
-		'&apos;': "'",
-		'&laquo;': '«',
-		'&raquo;': '»',
-		'&lsquo;': '‘',
-		'&rsquo;': '’',
-		'&ldquo;': '“',
-		'&rdquo;': '”',
-		'&ndash;': '–',
-		'&mdash;': '—',
-		'&hellip;': '…',
-		'&bull;': '•',
-		'&cent;': '¢',
-		'&pound;': '£',
-		'&yen;': '¥',
-		'&euro;': '€',
-		'&copy;': '©',
-		'&reg;': '®',
-		'&trade;': '™',
-		'&aacute;': 'á',
-		'&agrave;': 'à',
-		'&atilde;': 'ã',
-		'&acirc;': 'â',
-		'&auml;': 'ä',
-		'&eacute;': 'é',
-		'&egrave;': 'è',
-		'&ecirc;': 'ê',
-		'&euml;': 'ë',
-		'&iacute;': 'í',
-		'&igrave;': 'ì',
-		'&icirc;': 'î',
-		'&iuml;': 'ï',
-		'&oacute;': 'ó',
-		'&ograve;': 'ò',
-		'&otilde;': 'õ',
-		'&ocirc;': 'ô',
-		'&ouml;': 'ö',
-		'&uacute;': 'ú',
-		'&ugrave;': 'ù',
-		'&ucirc;': 'û',
-		'&uuml;': 'ü',
-		'&yacute;': 'ý',
-		'&ccedil;': 'ç',
-		'&ntilde;': 'ñ'
-	};
-
+	// 3. Decode named entities (preserving initial uppercase letter casing where applicable)
 	decoded = decoded.replace(/&[a-zA-Z0-9]+;/g, (match) => {
 		const lower = match.toLowerCase();
-		if (namedEntities[lower]) {
-			return match[1] === match[1].toUpperCase() && match[1] !== match[1].toLowerCase()
-				? namedEntities[lower].toUpperCase()
-				: namedEntities[lower];
-		}
-		return match;
+		const mapped = NAMED_ENTITIES[lower];
+		if (!mapped) return match;
+		if (match === '&szlig;') return mapped;
+		return match[1] === match[1].toUpperCase() && match[1] !== match[1].toLowerCase()
+			? mapped.toUpperCase()
+			: mapped;
 	});
 
 	return decoded;
@@ -147,85 +208,462 @@ export function cleanTextFormatting(rawText: string): string {
 	return processedLines.join('\n');
 }
 
-/**
- * Converts inline HTML elements to txt-parser convention syntax:
- * - <b> / <strong> -> *bold*
- * - <i> / <em> -> /italic/
- * - <u> / <ins> -> _underline_
- * - Footnote reference links -> {n}
- */
-export function convertInlineHtmlToTxt(html: string): string {
-	if (!html) return '';
+interface InlineStyleState {
+	bold: boolean;
+	italic: boolean;
+	underline: boolean;
+	preserveNewlines: boolean;
+}
 
-	let t = html;
+interface InlineRenderContext {
+	docPath: string;
+	footnotes: FootnoteRegistry;
+}
 
-	// 1. Convert footnote reference links: <a class="noteref"... href="...#fn1"><sup>1</sup></a> -> {1}
-	t = t.replace(
-		/<a\b[^>]*\b(?:href=["'][^"']*#fn(\d+)["']|id=["']fnref(\d+)["'])[^>]*>(?:<sup\b[^>]*>)?\s*\d+\s*(?:<\/sup>)?<\/a>/gi,
-		(_m, g1, g2) => `{${g1 || g2}}`
-	);
-	t = t.replace(
-		/<a\b[^>]*\b(?:class=["'][^"']*\bnoteref\b[^"']*|epub:type=["']noteref["'])[^>]*>(?:<sup\b[^>]*>)?\s*(\d+)\s*(?:<\/sup>)?<\/a>/gi,
-		(_m, g1) => `{${g1}}`
-	);
-	t = t.replace(
-		/<sup\b[^>]*\bclass=["'][^"']*\bnoteref\b[^"']*["'][^>]*>\s*(\d+)\s*<\/sup>/gi,
-		'{$1}'
-	);
+interface ExtractedFootnoteAside {
+	sourcePath: string;
+	key: string;
+	asideId: string;
+	rawNum: number | null;
+	text: string;
+}
 
-	// Convert span styled as bold/italic/underline from generic EPUBs
-	t = t.replace(
-		/<span\b[^>]*\b(?:style=["'][^"']*font-weight:\s*bold[^"']*["']|class=["'][^"']*\b(?:bold|fw-bold)\b[^"']*["'])[^>]*>([\s\S]*?)<\/span>/gi,
-		'<b>$1</b>'
-	);
-	t = t.replace(
-		/<span\b[^>]*\b(?:style=["'][^"']*font-style:\s*italic[^"']*["']|class=["'][^"']*\b(?:italic|fst-italic)\b[^"']*["'])[^>]*>([\s\S]*?)<\/span>/gi,
-		'<i>$1</i>'
-	);
-	t = t.replace(
-		/<span\b[^>]*\b(?:style=["'][^"']*text-decoration:\s*underline[^"']*["']|class=["'][^"']*\bunderline\b[^"']*["'])[^>]*>([\s\S]*?)<\/span>/gi,
-		'<u>$1</u>'
-	);
+interface UnmatchedNoteref {
+	sourcePath: string;
+	key: string;
+	fragmentId: string;
+	rawNum: number | null;
+	assignedNum: number;
+}
 
-	// 2. Bold, Italic, Underline tags: <b>, <strong> -> *content*, <i>, <em> -> /content/, <u>, <ins> -> _content_
-	// Iteratively replace innermost tags to handle nested combinations
-	let prev = '';
-	while (prev !== t) {
-		prev = t;
-		t = t.replace(/<(?:b|strong)\b[^>]*>([\s\S]*?)<\/(?:b|strong)>/gi, (_match, content) => {
-			const trimmed = content.trim();
-			if (!trimmed) return '';
-			return `*${content}*`;
-		});
-		t = t.replace(/<(?:i|em)\b[^>]*>([\s\S]*?)<\/(?:i|em)>/gi, (_match, content) => {
-			const trimmed = content.trim();
-			if (!trimmed) return '';
-			return `/${content}/`;
-		});
-		t = t.replace(/<(?:u|ins)\b[^>]*>([\s\S]*?)<\/(?:u|ins)>/gi, (_match, content) => {
-			const trimmed = content.trim();
-			if (!trimmed) return '';
-			return `_${content}_`;
-		});
+function resolveNoterefTargetKey(
+	sourcePath: string,
+	href: string,
+	rawNum: number | null
+): { key: string; fragmentId: string } {
+	const hashIdx = href.indexOf('#');
+	if (hashIdx !== -1) {
+		const fragmentId = href.slice(hashIdx + 1).trim();
+		const docPart = href.slice(0, hashIdx).trim();
+		let cleanDocPart = docPart;
+		try {
+			cleanDocPart = decodeURIComponent(docPart);
+		} catch {
+			// Keep raw href path segment
+		}
+		const targetPath = cleanDocPart
+			? resolveRelativePath(sourcePath || 'index.xhtml', cleanDocPart)
+			: sourcePath;
+		if (fragmentId) {
+			return { key: `${targetPath}#${fragmentId}`, fragmentId };
+		}
+	}
+	return {
+		key: `inline:${sourcePath}#${rawNum ?? ''}`,
+		fragmentId: ''
+	};
+}
+
+class FootnoteRegistry {
+	private refKeyToNum = new Map<string, number>();
+	private usedNumbers = new Set<number>();
+	private maxAssignedNum = 0;
+	private refsByKey = new Map<string, UnmatchedNoteref>();
+	private extractedAsides: ExtractedFootnoteAside[] = [];
+
+	allocateNumber(preferredNum: number | null): number {
+		let assigned: number;
+		if (preferredNum !== null && preferredNum > 0 && !this.usedNumbers.has(preferredNum)) {
+			assigned = preferredNum;
+		} else {
+			assigned = this.maxAssignedNum + 1;
+			while (this.usedNumbers.has(assigned)) {
+				assigned++;
+			}
+		}
+		this.usedNumbers.add(assigned);
+		if (assigned > this.maxAssignedNum) {
+			this.maxAssignedNum = assigned;
+		}
+		return assigned;
 	}
 
-	// 3. Remove remaining inline tag wrappers (span, a, small, etc.) without losing inner text
-	t = t.replace(/<\/?(?:span|a|font|small|big|abbr|cite|mark|sub)[^>]*>/gi, '');
+	resolveNoteref(sourcePath: string, href: string, rawNum: number | null): string | null {
+		if (!href && rawNum === null) return null;
+		const { key, fragmentId } = resolveNoterefTargetKey(sourcePath, href, rawNum);
+		const existing = this.refKeyToNum.get(key);
+		if (existing !== undefined) {
+			return String(existing);
+		}
+		const assigned = this.allocateNumber(rawNum);
+		this.refKeyToNum.set(key, assigned);
+		this.refsByKey.set(key, {
+			sourcePath,
+			key,
+			fragmentId,
+			rawNum,
+			assignedNum: assigned
+		});
+		return String(assigned);
+	}
 
-	// Decode html entities
-	t = decodeHtmlEntities(t);
+	addExtractedAside(aside: ExtractedFootnoteAside): void {
+		this.extractedAsides.push(aside);
+	}
 
-	return t;
+	finalizeFootnotes(): Map<number, string> {
+		const result = new Map<number, string>();
+		const remainingAsides: ExtractedFootnoteAside[] = [];
+		const unmatchedRefs = new Map(this.refsByKey);
+
+		// Pass 1: Exact resolved docPath#id match
+		for (const aside of this.extractedAsides) {
+			const assignedNum = aside.key ? this.refKeyToNum.get(aside.key) : undefined;
+			if (assignedNum !== undefined) {
+				result.set(assignedNum, aside.text);
+				unmatchedRefs.delete(aside.key);
+			} else {
+				remainingAsides.push(aside);
+			}
+		}
+
+		// Pass 2: Cross-file fragmentId match (when href omitted filename) or same-chapter rawNum fallback
+		const stillUnmatchedAsides: ExtractedFootnoteAside[] = [];
+		for (const aside of remainingAsides) {
+			let matchedKey: string | null = null;
+			if (aside.asideId) {
+				const matchingRefs = [...unmatchedRefs.values()].filter(
+					(r) => r.fragmentId === aside.asideId
+				);
+				const sameIdAsidesCount = remainingAsides.filter((a) => a.asideId === aside.asideId).length;
+				if (matchingRefs.length === 1 && sameIdAsidesCount === 1) {
+					matchedKey = matchingRefs[0].key;
+				}
+			}
+			if (!matchedKey && aside.rawNum !== null) {
+				const sameDocRef = [...unmatchedRefs.values()].find(
+					(r) => r.sourcePath === aside.sourcePath && r.rawNum === aside.rawNum
+				);
+				if (sameDocRef) {
+					matchedKey = sameDocRef.key;
+				}
+			}
+
+			if (matchedKey) {
+				const ref = unmatchedRefs.get(matchedKey);
+				if (ref) {
+					result.set(ref.assignedNum, aside.text);
+					unmatchedRefs.delete(matchedKey);
+				}
+			} else {
+				stillUnmatchedAsides.push(aside);
+			}
+		}
+
+		// Pass 3: Preserve any unreferenced footnote <aside> elements at the end
+		for (const aside of stillUnmatchedAsides) {
+			const assignedNum = this.allocateNumber(aside.rawNum);
+			result.set(assignedNum, aside.text);
+		}
+
+		return result;
+	}
+}
+
+const DEFAULT_INLINE_STYLE: InlineStyleState = {
+	bold: false,
+	italic: false,
+	underline: false,
+	preserveNewlines: false
+};
+
+function getPlainDomText(node: DomNode): string {
+	if (node.type === 'text') {
+		return decodeHtmlEntities(node.text);
+	}
+	if (node.tag === 'br') return '\n';
+	if (node.tag === 'script' || node.tag === 'style' || node.tag === 'noscript') return '';
+	let out = '';
+	for (const child of node.children) {
+		out += getPlainDomText(child);
+	}
+	return out;
+}
+
+function getElementInlineFlags(el: DomElementNode): {
+	isBold: boolean;
+	isItalic: boolean;
+	isUnderline: boolean;
+} {
+	const style = getAttr(el, 'style') || '';
+	const isBold =
+		el.tag === 'b' ||
+		el.tag === 'strong' ||
+		(el.tag === 'span' &&
+			(/font-weight\s*:\s*(?:bold|[6-9]00)/i.test(style) || hasAnyClass(el, ['bold', 'fw-bold'])));
+
+	const isItalic =
+		el.tag === 'i' ||
+		el.tag === 'em' ||
+		(el.tag === 'span' &&
+			(/font-style\s*:\s*italic/i.test(style) || hasAnyClass(el, ['italic', 'fst-italic'])));
+
+	const isUnderline =
+		el.tag === 'u' ||
+		el.tag === 'ins' ||
+		(el.tag === 'span' &&
+			(/text-decoration(?:-line)?\s*:\s*underline/i.test(style) || hasClass(el, 'underline')));
+
+	return { isBold, isItalic, isUnderline };
+}
+
+function wrapInlineMarker(rendered: string, marker: '*' | '/' | '_'): string {
+	if (!rendered) return '';
+	if (!rendered.trim()) {
+		// Preserve whitespace instead of deleting spaces inside e.g. `<b> </b>`
+		return rendered.includes('\n') ? rendered : ' ';
+	}
+	const leadMatch = /^(\s*)/.exec(rendered);
+	const trailMatch = /(\s*)$/.exec(rendered);
+	const lead = leadMatch ? leadMatch[1] : '';
+	const trail = trailMatch ? trailMatch[1] : '';
+	const core = rendered.slice(lead.length, rendered.length - trail.length);
+	return `${lead}${marker}${core}${marker}${trail}`;
+}
+
+function extractIllustrationTagFromElement(el: DomElementNode): string | null {
+	const imgEl = el.tag === 'img' ? el : findElements(el, (c) => c.tag === 'img')[0];
+	if (imgEl) {
+		const src = getAttr(imgEl, 'src');
+		const alt = getAttr(imgEl, 'alt');
+
+		if (src) {
+			const cleanSrc = src.split('?')[0].split('#')[0];
+			const fileName = cleanSrc.split('/').pop() || '';
+			const baseName = fileName.replace(/\.(jpg|jpeg|png|webp|gif|svg)$/i, '');
+			if (baseName && !['cover'].includes(baseName.toLowerCase())) {
+				return `[${baseName}]`;
+			}
+		}
+
+		if (alt) {
+			const cleanAlt = decodeHtmlEntities(alt)
+				.trim()
+				.replace(/^\[+|\]+$/g, '')
+				.trim();
+			if (cleanAlt) {
+				return `[${cleanAlt}]`;
+			}
+		}
+		return null;
+	}
+
+	// Support <svg><image xlink:href="..."/></svg>
+	const svgImg = el.tag === 'image' ? el : findElements(el, (c) => c.tag === 'image')[0];
+	if (svgImg) {
+		const href = getAttr(svgImg, 'xlink:href') || getAttr(svgImg, 'href');
+		if (href) {
+			const cleanSrc = href.split('?')[0].split('#')[0];
+			const fileName = cleanSrc.split('/').pop() || '';
+			const baseName = fileName.replace(/\.(jpg|jpeg|png|webp|gif|svg)$/i, '');
+			if (baseName && !['cover'].includes(baseName.toLowerCase())) {
+				return `[${baseName}]`;
+			}
+		}
+	}
+
+	return null;
+}
+
+interface ParsedNoteref {
+	rawNum: number | null;
+	href: string;
+}
+
+function parseNoterefElement(el: DomElementNode): ParsedNoteref | null {
+	if (el.tag === 'sup' && hasClass(el, 'noteref')) {
+		const innerAnchor = findElements(el, (c) => c.tag === 'a' && Boolean(getAttr(c, 'href')))[0];
+		if (innerAnchor) {
+			return parseNoterefElement(innerAnchor);
+		}
+		const plain = getPlainDomText(el).trim();
+		const m = /^[[(]?(\d+)[\])]?$/.exec(plain);
+		return m ? { rawNum: parseInt(m[1], 10), href: '' } : null;
+	}
+
+	if (el.tag !== 'a') return null;
+
+	const href = getAttr(el, 'href') || '';
+	const id = getAttr(el, 'id') || '';
+	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
+	const role = (getAttr(el, 'role') || '').toLowerCase();
+
+	const hrefMatch = /#(?:fn|footnote|endnote|note)(?:[-_]\d+)*[-_]?(\d+)$/i.exec(href);
+	const idMatch = /^fnref(?:[-_]\d+)*[-_]?(\d+)$/i.exec(id);
+	const isNoterefAttr =
+		hasClass(el, 'noteref') ||
+		epubType.includes('noteref') ||
+		role === 'doc-noteref' ||
+		Boolean(hrefMatch) ||
+		Boolean(idMatch);
+
+	if (!isNoterefAttr) return null;
+
+	const plain = getPlainDomText(el).trim();
+	const numInText = /^[[(]?(\d+)[\])]?$/.exec(plain);
+	if (numInText) {
+		return { rawNum: parseInt(numInText[1], 10), href };
+	}
+	if (hrefMatch) {
+		return { rawNum: parseInt(hrefMatch[1], 10), href };
+	}
+	if (idMatch) {
+		return { rawNum: parseInt(idMatch[1], 10), href };
+	}
+	if (href.includes('#')) {
+		return { rawNum: null, href };
+	}
+	return null;
+}
+
+function resolveNoterefDisplayNumber(el: DomElementNode, ctx?: InlineRenderContext): string | null {
+	const parsed = parseNoterefElement(el);
+	if (!parsed) return null;
+
+	if (ctx) {
+		return ctx.footnotes.resolveNoteref(ctx.docPath, parsed.href, parsed.rawNum);
+	}
+	return parsed.rawNum !== null ? String(parsed.rawNum) : null;
+}
+
+function renderInlineDomNodes(
+	nodes: DomNode[],
+	state: InlineStyleState,
+	ctx?: InlineRenderContext
+): string {
+	let out = '';
+
+	for (const node of nodes) {
+		if (node.type === 'text') {
+			const decoded = decodeHtmlEntities(node.text);
+			if (state.preserveNewlines) {
+				out += decoded.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+			} else {
+				// Collapse HTML source whitespace runs (including source line breaks) to a single space
+				// without deleting spacing between inline elements.
+				out += decoded.replace(/[\t \r\n\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]+/g, ' ');
+			}
+			continue;
+		}
+
+		if (node.tag === 'script' || node.tag === 'style' || node.tag === 'noscript') {
+			continue;
+		}
+
+		if (node.tag === 'br') {
+			out += '\n';
+			continue;
+		}
+
+		if (node.tag === 'img') {
+			const tag = extractIllustrationTagFromElement(node);
+			if (tag) {
+				out += tag;
+			}
+			continue;
+		}
+
+		if (node.tag === 'svg') {
+			const imgTag = extractIllustrationTagFromElement(node);
+			if (imgTag) {
+				out += imgTag;
+			} else {
+				const svgTextNodes = findElements(node, (c) => c.tag === 'text' || c.tag === 'tspan');
+				if (svgTextNodes.length > 0) {
+					out += svgTextNodes
+						.map((t) => getPlainDomText(t).trim())
+						.filter(Boolean)
+						.join(' ');
+				}
+			}
+			continue;
+		}
+
+		const noterefNum = resolveNoterefDisplayNumber(node, ctx);
+		if (noterefNum !== null) {
+			out += `{${noterefNum}}`;
+			continue;
+		}
+
+		const { isBold, isItalic, isUnderline } = getElementInlineFlags(node);
+		const nextState: InlineStyleState = {
+			bold: state.bold || isBold,
+			italic: state.italic || isItalic,
+			underline: state.underline || isUnderline,
+			preserveNewlines: state.preserveNewlines || node.tag === 'pre'
+		};
+
+		let inner = renderInlineDomNodes(node.children, nextState, ctx);
+
+		if (isUnderline && !state.underline) {
+			inner = wrapInlineMarker(inner, '_');
+		}
+		if (isItalic && !state.italic) {
+			inner = wrapInlineMarker(inner, '/');
+		}
+		if (isBold && !state.bold) {
+			inner = wrapInlineMarker(inner, '*');
+		}
+
+		out += inner;
+	}
+
+	return out;
 }
 
 /**
- * Extracts pure text / inline markdown from a heading or paragraph line, stripping residual tags.
+ * Converts inline HTML elements to txt-parser convention syntax using DOM traversal:
+ * - `<b>` / `<strong>` -> `*bold*`
+ * - `<i>` / `<em>` -> `/italic/`
+ * - `<u>` / `<ins>` -> `_underline_`
+ * - Footnote reference links -> `{n}`
+ * - `<br>` -> `\n`
+ * Preserves whitespace between inline elements and nested tag contents.
  */
-function processLineContent(rawHtml: string): string {
-	const converted = convertInlineHtmlToTxt(rawHtml);
-	// Strip any lingering HTML tags
-	const stripped = converted.replace(/<[^>]+>/g, ' ');
-	return decodeHtmlEntities(stripped).trim();
+export function convertInlineHtmlToTxt(html: string): string {
+	if (!html) return '';
+	const root = parseHtmlToDom(html);
+	return renderInlineDomNodes(root.children, DEFAULT_INLINE_STYLE);
+}
+
+/**
+ * Normalizes extracted inline lines, preserving intentional `\n` from `<br>`.
+ */
+function normalizeInlineLines(text: string, collapseSpaces = true): string {
+	if (!text) return '';
+	const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+	const cleaned = lines.map((line) =>
+		collapseSpaces
+			? line.replace(/[\t \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]+/g, ' ').trim()
+			: line.replace(/\s+$/g, '')
+	);
+	return cleaned.join('\n').trim();
+}
+
+function renderInlineFromElement(
+	el: DomElementNode,
+	preserveNewlines = false,
+	ctx?: InlineRenderContext
+): string {
+	const raw = renderInlineDomNodes(
+		el.children,
+		{
+			...DEFAULT_INLINE_STYLE,
+			preserveNewlines
+		},
+		ctx
+	);
+	return normalizeInlineLines(raw, !preserveNewlines);
 }
 
 /**
@@ -275,90 +713,65 @@ const BIG_BREAK_PATTERN =
 	/^(?:•\s*•\s*•|\*\s*\*\s*\*|\*{3,}|-{3,}|—{2,}|–{2,}|◆\s*◆\s*◆|✦\s*✦\s*✦|★\s*★\s*★|✻\s*✻\s*✻|~\s*\*\s*~|\+\s*\+\s*\+)$/u;
 const SMALL_BREAK_PATTERN = /^(?:\*|•|✦|◆|★|✻|§|~|o)$/u;
 
-/**
- * Extracts illustration identifier from an <img> tag or <figure> container.
- * E.g. <figure class="illust-box"><img src="../images/hinh-1.png" alt="hinh-1"/></figure> -> [hinh-1]
- */
-function extractIllustrationTag(html: string): string | null {
-	const imgMatch = /<img\b([^>]*)\/?>/i.exec(html);
-	if (!imgMatch) return null;
+const BREAK_CLASSES = [
+	'separator',
+	'divider',
+	'asterism',
+	'scene-break',
+	'scene_break',
+	'break',
+	'ornament',
+	'stars'
+];
 
-	const attrs = imgMatch[1];
-	const srcMatch = /\bsrc=["']([^"']+)["']/i.exec(attrs);
-	const altMatch = /\balt=["']([^"']*)["']/i.exec(attrs);
+const BLOCK_LEVEL_TAGS = new Set([
+	'address',
+	'article',
+	'aside',
+	'blockquote',
+	'dd',
+	'details',
+	'dialog',
+	'div',
+	'dl',
+	'dt',
+	'fieldset',
+	'figcaption',
+	'figure',
+	'footer',
+	'form',
+	'h1',
+	'h2',
+	'h3',
+	'h4',
+	'h5',
+	'h6',
+	'header',
+	'hgroup',
+	'hr',
+	'li',
+	'main',
+	'nav',
+	'ol',
+	'p',
+	'pre',
+	'section',
+	'table',
+	'tbody',
+	'td',
+	'tfoot',
+	'th',
+	'thead',
+	'tr',
+	'ul'
+]);
 
-	// Try extracting from src file basename first
-	if (srcMatch) {
-		const fullSrc = srcMatch[1];
-		const fileName = fullSrc.split('/').pop() || '';
-		const baseName = fileName.replace(/\.(jpg|jpeg|png|webp|gif|svg)$/i, '');
-		if (baseName && !['cover'].includes(baseName.toLowerCase())) {
-			return `[${baseName}]`;
-		}
-	}
-
-	// Fallback to alt if valid identifier
-	if (altMatch && altMatch[1]) {
-		const alt = altMatch[1].trim();
-		const cleanAlt = alt.replace(/^\[+|\]+$/g, '').trim();
-		if (cleanAlt) {
-			return `[${cleanAlt}]`;
-		}
-	}
-
-	return null;
-}
-
-function replaceNestedDiv(
-	html: string,
-	targetClass: string,
-	replacer: (inner: string) => string
+function convertHeadingElementToTxt(
+	attrs: string,
+	el: DomElementNode,
+	level: 1 | 2,
+	ctx?: InlineRenderContext
 ): string {
-	const openRegex = new RegExp(
-		`<div\\b[^>]*\\bclass=["'][^"']*(?<![\\w-])${targetClass}(?![\\w-])[^"']*["'][^>]*>`,
-		'gi'
-	);
-	let match: RegExpExecArray | null;
-	let out = '';
-	let lastIndex = 0;
-	while ((match = openRegex.exec(html)) !== null) {
-		const startIndex = match.index;
-		const openTagEnd = openRegex.lastIndex;
-		out += html.slice(lastIndex, startIndex);
-
-		// Find balanced matching </div>
-		let depth = 1;
-		const tagRegex = /<\/?div\b[^>]*>/gi;
-		tagRegex.lastIndex = openTagEnd;
-		let innerEnd = -1;
-		let nextMatch: RegExpExecArray | null;
-		while ((nextMatch = tagRegex.exec(html)) !== null) {
-			if (nextMatch[0].startsWith('</')) {
-				depth--;
-				if (depth === 0) {
-					innerEnd = nextMatch.index;
-					lastIndex = tagRegex.lastIndex;
-					openRegex.lastIndex = lastIndex;
-					break;
-				}
-			} else {
-				depth++;
-			}
-		}
-
-		if (innerEnd !== -1) {
-			const inner = html.slice(openTagEnd, innerEnd);
-			out += replacer(inner);
-		} else {
-			out += match[0];
-			lastIndex = openTagEnd;
-		}
-	}
-	out += html.slice(lastIndex);
-	return out;
-}
-
-function convertHeadingElementToTxt(attrs: string, inner: string, level: 1 | 2): string {
 	const notoc = isNoToc(attrs);
 	const isLeft = isLeftAligned(attrs);
 	const isRight = isRightAligned(attrs);
@@ -388,76 +801,89 @@ function convertHeadingElementToTxt(attrs: string, inner: string, level: 1 | 2):
 						? '@p'
 						: '@';
 
-	const title = processLineContent(inner);
-	return `${prefix} ${title}`;
+	// Keep multi-line heading (<br>) on the heading line with a single space
+	const title = renderInlineFromElement(el, false, ctx).replace(/\n+/g, ' ').trim();
+	return title ? `${prefix} ${title}` : '';
 }
 
-function convertBlockquoteElementToTxt(attrs: string, inner: string): string {
-	const isLeft = isLeftAligned(attrs);
-	const isRight = isRightAligned(attrs);
-	const prefix = isLeft ? '~t' : isRight ? '~p' : '~';
+function isBlockquoteFooterElement(el: DomElementNode): boolean {
+	return (
+		el.tag === 'footer' ||
+		el.tag === 'cite' ||
+		(el.tag === 'p' && hasAnyClass(el, ['author', 'source', 'cite']))
+	);
+}
 
-	const authors: { prefix: string; text: string }[] = [];
-	const footerMatches = [...inner.matchAll(/<footer\b([^>]*)>([\s\S]*?)<\/footer>/gi)];
-	if (footerMatches.length > 0) {
-		for (const fm of footerMatches) {
-			const footerAttrs = fm[1];
-			const isFooterLeft = isLeftAligned(footerAttrs);
-			const isFooterRight = isRightAligned(footerAttrs);
-			const isFooterCenter = isCenterAligned(footerAttrs);
-			const authorPrefix = isFooterLeft ? '>t' : isFooterRight ? '>p' : isFooterCenter ? '>c' : '>';
-			const authorText = processLineContent(fm[2]);
-			if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-		}
-	} else {
-		const citeMatches = [...inner.matchAll(/<cite\b([^>]*)>([\s\S]*?)<\/cite>/gi)];
-		if (citeMatches.length > 0) {
-			for (const cm of citeMatches) {
-				const citeAttrs = cm[1];
-				const isCiteLeft = isLeftAligned(citeAttrs);
-				const isCiteRight = isRightAligned(citeAttrs);
-				const isCiteCenter = isCenterAligned(citeAttrs);
-				const authorPrefix = isCiteLeft ? '>t' : isCiteRight ? '>p' : isCiteCenter ? '>c' : '>';
-				const authorText = processLineContent(cm[2]);
-				if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-			}
-		} else {
-			const authorMatches = [
-				...inner.matchAll(
-					/<p\b([^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*)>([\s\S]*?)<\/p>/gi
-				)
-			];
-			for (const am of authorMatches) {
-				const pAttrs = am[1];
-				const isPLeft = isLeftAligned(pAttrs);
-				const isPRight = isRightAligned(pAttrs);
-				const isPCenter = isCenterAligned(pAttrs);
-				const authorPrefix = isPLeft ? '>t' : isPRight ? '>p' : isPCenter ? '>c' : '>';
-				const authorText = processLineContent(am[2]);
-				if (authorText) authors.push({ prefix: authorPrefix, text: authorText });
-			}
-		}
-	}
+function getQuoteAuthorPrefix(el: DomElementNode): string {
+	const attrs = el.rawAttrs;
+	if (isLeftAligned(attrs)) return '>t';
+	if (isRightAligned(attrs)) return '>p';
+	if (isCenterAligned(attrs)) return '>c';
+	return '>';
+}
 
-	const bodyWithoutFooter = inner
-		.replace(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi, '')
-		.replace(/<cite\b[^>]*>[\s\S]*?<\/cite>/gi, '')
-		.replace(
-			/<p\b[^>]*\bclass=["'][^"']*\b(?:author|source|cite)\b[^"']*["'][^>]*>[\s\S]*?<\/p>/gi,
-			''
-		);
+function convertBlockquoteDom(el: DomElementNode, ctx?: InlineRenderContext): string {
+	const attrs = el.rawAttrs;
+	const prefix = isLeftAligned(attrs) ? '~t' : isRightAligned(attrs) ? '~p' : '~';
 
-	const pMatches = [...bodyWithoutFooter.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)];
 	const quoteLines: string[] = [];
-	if (pMatches.length > 0) {
-		for (const p of pMatches) {
-			const text = processLineContent(p[1]);
-			if (text) quoteLines.push(`${prefix} ${text}`);
+	const authors: { prefix: string; text: string }[] = [];
+
+	const collectBlockquoteNodes = (nodes: DomNode[]) => {
+		let inlineBuf: DomNode[] = [];
+		const flushInline = () => {
+			if (inlineBuf.length === 0) return;
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
+			inlineBuf = [];
+			if (text) {
+				for (const line of text.split('\n')) {
+					const t = line.trim();
+					if (t) quoteLines.push(`${prefix} ${t}`);
+				}
+			}
+		};
+
+		for (const child of nodes) {
+			if (child.type === 'text') {
+				inlineBuf.push(child);
+				continue;
+			}
+			if (child.tag === 'script' || child.tag === 'style' || child.tag === 'noscript') {
+				continue;
+			}
+
+			if (isBlockquoteFooterElement(child)) {
+				flushInline();
+				const authorText = renderInlineFromElement(child, false, ctx).replace(/\n+/g, ' ').trim();
+				if (authorText) {
+					authors.push({ prefix: getQuoteAuthorPrefix(child), text: authorText });
+				}
+				continue;
+			}
+
+			if (child.tag === 'p') {
+				flushInline();
+				const pText = renderInlineFromElement(child, false, ctx);
+				if (pText) {
+					for (const line of pText.split('\n')) {
+						const t = line.trim();
+						if (t) quoteLines.push(`${prefix} ${t}`);
+					}
+				}
+				continue;
+			}
+
+			if (BLOCK_LEVEL_TAGS.has(child.tag)) {
+				flushInline();
+				collectBlockquoteNodes(child.children);
+			} else {
+				inlineBuf.push(child);
+			}
 		}
-	} else {
-		const text = processLineContent(bodyWithoutFooter);
-		if (text) quoteLines.push(`${prefix} ${text}`);
-	}
+		flushInline();
+	};
+
+	collectBlockquoteNodes(el.children);
 
 	for (const author of authors) {
 		quoteLines.push(`${author.prefix} ${author.text}`);
@@ -466,286 +892,761 @@ function convertBlockquoteElementToTxt(attrs: string, inner: string): string {
 	return quoteLines.join('\n');
 }
 
+function convertPoemDom(el: DomElementNode, ctx?: InlineRenderContext): string {
+	const stanzas: string[] = [];
+
+	const collectPoemLines = (nodes: DomNode[], outLines: string[]) => {
+		let inlineBuf: DomNode[] = [];
+		const flushInline = () => {
+			if (inlineBuf.length === 0) return;
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
+			inlineBuf = [];
+			if (text) {
+				for (const line of text.split('\n')) {
+					const t = line.trim();
+					if (t) outLines.push(t);
+				}
+			}
+		};
+
+		for (const child of nodes) {
+			if (child.type === 'text') {
+				inlineBuf.push(child);
+				continue;
+			}
+			if (child.tag === 'script' || child.tag === 'style' || child.tag === 'noscript') {
+				continue;
+			}
+			if (child.tag === 'p') {
+				flushInline();
+				const text = renderInlineFromElement(child, false, ctx);
+				if (text) {
+					for (const line of text.split('\n')) {
+						const t = line.trim();
+						if (t) outLines.push(t);
+					}
+				}
+				continue;
+			}
+			if (child.tag === 'div' && hasClass(child, 'stanza')) {
+				flushInline();
+				const stanzaLines: string[] = [];
+				collectPoemLines(child.children, stanzaLines);
+				if (stanzaLines.length > 0) {
+					if (outLines.length > 0) {
+						stanzas.push(outLines.splice(0).join('\n'));
+					}
+					stanzas.push(stanzaLines.join('\n'));
+				}
+				continue;
+			}
+			if (BLOCK_LEVEL_TAGS.has(child.tag)) {
+				flushInline();
+				collectPoemLines(child.children, outLines);
+			} else {
+				inlineBuf.push(child);
+			}
+		}
+		flushInline();
+	};
+
+	const rootLines: string[] = [];
+	collectPoemLines(el.children, rootLines);
+	if (rootLines.length > 0) {
+		stanzas.push(rootLines.join('\n'));
+	}
+
+	const body = stanzas.filter(Boolean).join('\n\n');
+	return body ? `[poem]\n${body}\n[/poem]` : '';
+}
+
+interface OutputSegment {
+	kind: 'prose' | 'line' | 'block';
+	text: string;
+}
+
+function joinSegments(segments: OutputSegment[]): string {
+	if (segments.length === 0) return '';
+	let out = segments[0].text;
+
+	for (let i = 1; i < segments.length; i++) {
+		const prev = segments[i - 1];
+		const curr = segments[i];
+		if (prev.kind === 'prose' && curr.kind === 'prose') {
+			// Adjacent plain <p> paragraphs are separated by a single newline (\n)
+			out += '\n' + curr.text;
+		} else if (prev.kind === 'line' && curr.kind === 'line') {
+			out += '\n' + curr.text;
+		} else {
+			out += '\n\n' + curr.text;
+		}
+	}
+
+	return out;
+}
+
+function convertLetterDom(el: DomElementNode, ctx?: InlineRenderContext): string {
+	const items: OutputSegment[] = [];
+
+	const collectLetterNodes = (nodes: DomNode[]) => {
+		let inlineBuf: DomNode[] = [];
+		const flushInline = () => {
+			if (inlineBuf.length === 0) return;
+			const text = normalizeInlineLines(renderInlineDomNodes(inlineBuf, DEFAULT_INLINE_STYLE, ctx));
+			inlineBuf = [];
+			if (text) {
+				items.push({ kind: 'line', text });
+			}
+		};
+
+		for (const child of nodes) {
+			if (child.type === 'text') {
+				inlineBuf.push(child);
+				continue;
+			}
+			if (child.tag === 'script' || child.tag === 'style' || child.tag === 'noscript') {
+				continue;
+			}
+			if (child.tag === 'div' && hasClass(child, 'poem')) {
+				flushInline();
+				const poem = convertPoemDom(child, ctx);
+				if (poem) items.push({ kind: 'block', text: poem });
+				continue;
+			}
+			if (
+				child.tag === 'blockquote' ||
+				(child.tag === 'div' && hasAnyClass(child, ['blockquote', 'quote', 'epigraph']))
+			) {
+				flushInline();
+				const bq = convertBlockquoteDom(child, ctx);
+				if (bq) items.push({ kind: 'block', text: bq });
+				continue;
+			}
+			if (child.tag === 'h1' || child.tag === 'h2') {
+				flushInline();
+				const h = convertHeadingElementToTxt(
+					child.rawAttrs,
+					child,
+					child.tag === 'h1' ? 1 : 2,
+					ctx
+				);
+				if (h) items.push({ kind: 'block', text: h });
+				continue;
+			}
+			if (/^h[3-6]$/.test(child.tag)) {
+				flushInline();
+				const title = renderInlineFromElement(child, false, ctx).replace(/\n+/g, ' ').trim();
+				if (title) items.push({ kind: 'block', text: `@ ${title}` });
+				continue;
+			}
+			if (child.tag === 'figure') {
+				flushInline();
+				const fig = renderFigureDom(child, ctx);
+				if (fig) items.push({ kind: 'block', text: fig });
+				continue;
+			}
+			if (child.tag === 'p') {
+				flushInline();
+				const text = renderInlineFromElement(child, false, ctx);
+				if (text) {
+					if (hasClass(child, 'no-dropcap')) {
+						items.push({ kind: 'line', text: `!D ${text}` });
+					} else {
+						items.push({ kind: 'line', text });
+					}
+				}
+				continue;
+			}
+			if (child.tag === 'li') {
+				flushInline();
+				const liText = renderNodesToTxt(child.children, ctx);
+				if (liText) items.push({ kind: 'line', text: liText });
+				continue;
+			}
+			if (BLOCK_LEVEL_TAGS.has(child.tag)) {
+				flushInline();
+				collectLetterNodes(child.children);
+				continue;
+			}
+			inlineBuf.push(child);
+		}
+		flushInline();
+	};
+
+	collectLetterNodes(el.children);
+	const body = joinSegments(items);
+	return body ? `[letter]\n${body}\n[/letter]` : '';
+}
+
+function renderFigureDom(el: DomElementNode, ctx?: InlineRenderContext): string {
+	const parts: string[] = [];
+	const tag = extractIllustrationTagFromElement(el);
+	if (tag) parts.push(tag);
+
+	const captions = findElements(el, (c) => c.tag === 'figcaption');
+	for (const cap of captions) {
+		const capText = renderNodesToTxt(cap.children, ctx);
+		if (capText) parts.push(capText);
+	}
+
+	return parts.join('\n');
+}
+
+function hasAnyBlockChild(el: DomElementNode): boolean {
+	for (const child of el.children) {
+		if (child.type === 'element') {
+			if (BLOCK_LEVEL_TAGS.has(child.tag) || hasAnyBlockChild(child)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function renderTableRowDom(tr: DomElementNode, ctx?: InlineRenderContext): string {
+	const cells: string[] = [];
+	for (const child of tr.children) {
+		if (child.type === 'element' && (child.tag === 'td' || child.tag === 'th')) {
+			const cellText = renderNodesToTxt(child.children, ctx).replace(/\n+/g, ' ').trim();
+			if (cellText) cells.push(cellText);
+		}
+	}
+	return cells.join(' ');
+}
+
+function renderNodesToSegments(
+	nodes: DomNode[],
+	outSegments: OutputSegment[],
+	ctx?: InlineRenderContext
+): void {
+	let inlineBuffer: DomNode[] = [];
+
+	const flushInlineBuffer = () => {
+		if (inlineBuffer.length === 0) return;
+		const text = normalizeInlineLines(
+			renderInlineDomNodes(inlineBuffer, DEFAULT_INLINE_STYLE, ctx)
+		);
+		inlineBuffer = [];
+		if (text) {
+			outSegments.push({ kind: 'prose', text });
+		}
+	};
+
+	for (const node of nodes) {
+		if (node.type === 'text') {
+			inlineBuffer.push(node);
+			continue;
+		}
+
+		const tag = node.tag;
+
+		// 1. Skip structural non-content elements and ornaments
+		if (tag === 'head' || tag === 'style' || tag === 'script' || tag === 'noscript') {
+			continue;
+		}
+		if (tag === 'div' && hasAnyClass(node, ['chapter-ornament', 'subchapter-ornament'])) {
+			continue;
+		}
+
+		// 2. [new:center] explicit section
+		if (tag === 'section' && hasClass(node, 'center-page')) {
+			flushInlineBuffer();
+			const inner = renderNodesToTxt(node.children, ctx);
+			if (inner) {
+				outSegments.push({ kind: 'block', text: `[new:center]\n${inner}\n[/new]` });
+			}
+			continue;
+		}
+
+		// 3. [letter-box] container
+		if (tag === 'div' && hasClass(node, 'letter-box')) {
+			flushInlineBuffer();
+			const inner = renderNodesToTxt(node.children, ctx);
+			if (inner) {
+				outSegments.push({ kind: 'block', text: `[letter-box]\n${inner}\n[/letter-box]` });
+			}
+			continue;
+		}
+
+		// 4. [poem] container
+		if (tag === 'div' && hasClass(node, 'poem')) {
+			flushInlineBuffer();
+			const poem = convertPoemDom(node, ctx);
+			if (poem) outSegments.push({ kind: 'block', text: poem });
+			continue;
+		}
+
+		// 5. [letter] container
+		if (tag === 'div' && hasClass(node, 'letter')) {
+			flushInlineBuffer();
+			const letter = convertLetterDom(node, ctx);
+			if (letter) outSegments.push({ kind: 'block', text: letter });
+			continue;
+		}
+
+		// 6. Figures & illustrations
+		if (tag === 'figure') {
+			flushInlineBuffer();
+			const fig = renderFigureDom(node, ctx);
+			if (fig) outSegments.push({ kind: 'block', text: fig });
+			continue;
+		}
+		if (tag === 'p' && hasAnyClass(node, ['image', 'illust', 'figure'])) {
+			flushInlineBuffer();
+			const imgTag = extractIllustrationTagFromElement(node);
+			const text = renderInlineFromElement(node, false, ctx);
+			const combined = [imgTag, text].filter(Boolean).join('\n');
+			if (combined) outSegments.push({ kind: 'block', text: combined });
+			continue;
+		}
+		if (tag === 'img' && hasClass(node, 'illust-img')) {
+			flushInlineBuffer();
+			const imgTag = extractIllustrationTagFromElement(node);
+			if (imgTag) outSegments.push({ kind: 'block', text: imgTag });
+			continue;
+		}
+
+		// 7. Blockquotes & citations
+		if (
+			tag === 'blockquote' ||
+			(tag === 'div' && hasAnyClass(node, ['blockquote', 'quote', 'epigraph']))
+		) {
+			flushInlineBuffer();
+			const bq = convertBlockquoteDom(node, ctx);
+			if (bq) outSegments.push({ kind: 'block', text: bq });
+			continue;
+		}
+
+		// 8. Headings h1..h6
+		if (tag === 'h1' || tag === 'h2') {
+			flushInlineBuffer();
+			const hText = convertHeadingElementToTxt(node.rawAttrs, node, tag === 'h1' ? 1 : 2, ctx);
+			if (hText) outSegments.push({ kind: 'block', text: hText });
+			continue;
+		}
+		if (/^h[3-6]$/.test(tag)) {
+			flushInlineBuffer();
+			const title = renderInlineFromElement(node, false, ctx).replace(/\n+/g, ' ').trim();
+			if (title) outSegments.push({ kind: 'block', text: `@ ${title}` });
+			continue;
+		}
+
+		// 9. Scene breaks (<hr> & break-classed elements)
+		if (tag === 'hr') {
+			flushInlineBuffer();
+			outSegments.push({
+				kind: 'block',
+				text: hasAnyClass(node, ['scene-break-small', 'small']) ? '##' : '###'
+			});
+			continue;
+		}
+		if (tag === 'p' && hasClass(node, 'scene-break-big')) {
+			flushInlineBuffer();
+			outSegments.push({ kind: 'block', text: '###' });
+			continue;
+		}
+		if (tag === 'p' && hasClass(node, 'scene-break-small')) {
+			flushInlineBuffer();
+			const plain = getPlainDomText(node).trim();
+			outSegments.push({ kind: 'block', text: plain === '*' ? '##' : '#' });
+			continue;
+		}
+		if (
+			(tag === 'p' || tag === 'div') &&
+			hasAnyClass(node, BREAK_CLASSES) &&
+			!hasAnyBlockChild(node)
+		) {
+			flushInlineBuffer();
+			const plain = getPlainDomText(node).trim();
+			if (BIG_BREAK_PATTERN.test(plain)) {
+				outSegments.push({ kind: 'block', text: '###' });
+			} else if (SMALL_BREAK_PATTERN.test(plain)) {
+				outSegments.push({ kind: 'block', text: '##' });
+			} else if (plain === '') {
+				outSegments.push({ kind: 'block', text: '#' });
+			} else {
+				// Has non-break text content inside a div/p marked with a break class — preserve it!
+				outSegments.push({ kind: 'block', text: plain });
+			}
+			continue;
+		}
+
+		// 10. Paragraphs
+		if (tag === 'p') {
+			flushInlineBuffer();
+			if (hasClass(node, 'no-dropcap')) {
+				const text = renderInlineFromElement(node, false, ctx);
+				if (text) outSegments.push({ kind: 'block', text: `!D ${text}` });
+				continue;
+			}
+
+			const plain = getPlainDomText(node).trim();
+			if (BIG_BREAK_PATTERN.test(plain)) {
+				outSegments.push({ kind: 'block', text: '###' });
+				continue;
+			}
+			if (SMALL_BREAK_PATTERN.test(plain)) {
+				outSegments.push({ kind: 'block', text: '##' });
+				continue;
+			}
+
+			const text = renderInlineFromElement(node, false, ctx);
+			if (text) {
+				outSegments.push({ kind: 'prose', text });
+			}
+			continue;
+		}
+
+		// 11. Preformatted text
+		if (tag === 'pre') {
+			flushInlineBuffer();
+			const preText = renderInlineFromElement(node, true, ctx);
+			if (preText) outSegments.push({ kind: 'block', text: preText });
+			continue;
+		}
+
+		// 12. List items & Table rows
+		if (tag === 'li') {
+			flushInlineBuffer();
+			if (hasAnyBlockChild(node)) {
+				renderNodesToSegments(node.children, outSegments, ctx);
+			} else {
+				const liText = renderInlineFromElement(node, false, ctx);
+				if (liText) outSegments.push({ kind: 'line', text: liText });
+			}
+			continue;
+		}
+		if (tag === 'tr') {
+			flushInlineBuffer();
+			const rowText = renderTableRowDom(node, ctx);
+			if (rowText) outSegments.push({ kind: 'line', text: rowText });
+			continue;
+		}
+
+		// 13. Other block containers (div, section, article, ul, ol, table, aside, etc.)
+		if (BLOCK_LEVEL_TAGS.has(tag) || tag === 'html' || tag === 'body') {
+			flushInlineBuffer();
+			renderNodesToSegments(node.children, outSegments, ctx);
+			continue;
+		}
+
+		// 14. Inline node (if not handled above)
+		inlineBuffer.push(node);
+	}
+
+	flushInlineBuffer();
+}
+
+function renderNodesToTxt(nodes: DomNode[], ctx?: InlineRenderContext): string {
+	const segments: OutputSegment[] = [];
+	renderNodesToSegments(nodes, segments, ctx);
+	return cleanTextFormatting(joinSegments(segments));
+}
+
+function hasCoverWrapperDom(root: DomElementNode): boolean {
+	return findElements(root, (el) => el.tag === 'div' && hasClass(el, 'cover-wrapper')).length > 0;
+}
+
 /**
- * Reverse Engine: Converts an XHTML/HTML chapter document back into raw TXT format
- * with full detection of conventions (headings @@/@/@!, blockquotes ~, figures [img],
- * poem, letter, center-page, dropcaps [c], !D, scene breaks, and inline formatting).
+ * Reverse Engine: Converts an XHTML/HTML chapter document into clean TXT
+ * by traversing its DOM structure in exact document order.
  */
 export function htmlToCleanText(htmlContent: string): string {
 	if (!htmlContent) return '';
 
-	let content = htmlContent;
-
-	// 1. Strip non-content structural elements
-	content = content.replace(/<head\b[^>]*>[\s\S]*?<\/head>/gi, '');
-	content = content.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
-	content = content.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-	content = content.replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, '');
-	content = content.replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gi, '');
-
-	// Strip ornament decorator containers
-	content = content.replace(
-		/<div\b[^>]*\bclass=["'][^"']*\b(?:chapter-ornament|subchapter-ornament)\b[^"']*["'][^>]*>[\s\S]*?<\/div>/gi,
-		''
-	);
-
-	// Skip cover pages completely
-	if (/<div\b[^>]*\bclass=["'][^"']*\bcover-wrapper\b[^"']*["']/i.test(content)) {
+	const root = parseHtmlToDom(htmlContent);
+	if (hasCoverWrapperDom(root)) {
 		return '';
 	}
 
-	// 2. Handle [new:center] block: <section class="center-page">
-	content = content.replace(
-		/<section\b[^>]*\bclass=["'][^"']*\bcenter-page\b[^"']*["'][^>]*>([\s\S]*?)<\/section>/gi,
-		(_m, inner) => {
-			const cleanedInner = htmlToCleanText(inner);
-			return `\n\n[new:center]\n${cleanedInner}\n[/new]\n\n`;
-		}
-	);
-
-	// 3. Handle [letter-box] block: <div class="letter-box">
-	// Note: letter-box acts as a wrapper, containing quotes, headings, paragraphs, or letter blocks
-	content = replaceNestedDiv(content, 'letter-box', (inner) => {
-		const cleanedInner = htmlToCleanText(inner);
-		return `\n\n[letter-box]\n${cleanedInner}\n[/letter-box]\n\n`;
-	});
-
-	// 4. Handle [poem] block: <div class="poem">
-	content = content.replace(
-		/<div\b[^>]*\bclass=["'][^"']*\bpoem\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi,
-		(_m, inner) => {
-			// Extract each <p> line
-			const pMatches = inner.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi);
-			const lines: string[] = [];
-			for (const p of pMatches) {
-				const lineText = processLineContent(p[1]);
-				if (lineText) lines.push(lineText);
-			}
-			if (lines.length === 0) {
-				const fallback = processLineContent(inner);
-				if (fallback) lines.push(fallback);
-			}
-			return `\n\n[poem]\n${lines.join('\n')}\n[/poem]\n\n`;
-		}
-	);
-
-	// 5. Handle [letter] block: <div class="letter"> (excluding letter-box)
-	content = replaceNestedDiv(content, 'letter', (inner) => {
-		const CHILD_REGEX =
-			/\[poem\][\s\S]*?\[\/poem\]|<blockquote\b([^>]*)>([\s\S]*?)<\/blockquote>|<(h[12])\b([^>]*)>([\s\S]*?)<\/\3>|<figure\b[\s\S]*?<\/figure>|<p\b([^>]*)>([\s\S]*?)<\/p>/gi;
-
-		interface LetterItem {
-			type: 'p' | 'block';
-			text: string;
-		}
-		const items: LetterItem[] = [];
-		let match: RegExpExecArray | null;
-
-		while ((match = CHILD_REGEX.exec(inner)) !== null) {
-			const full = match[0];
-			if (full.startsWith('[poem]')) {
-				items.push({ type: 'block', text: full.trim() });
-			} else if (full.startsWith('<blockquote')) {
-				const attrs = match[1] || '';
-				const bqContent = match[2] || '';
-				const bqText = convertBlockquoteElementToTxt(attrs, bqContent);
-				if (bqText) items.push({ type: 'block', text: bqText });
-			} else if (/^<h[12]\b/i.test(full)) {
-				const tag = (match[3] || '').toLowerCase();
-				const attrs = match[4] || '';
-				const hContent = match[5] || '';
-				const hText = convertHeadingElementToTxt(attrs, hContent, tag === 'h1' ? 1 : 2);
-				if (hText) items.push({ type: 'block', text: hText });
-			} else if (full.startsWith('<figure')) {
-				const tag = extractIllustrationTag(full);
-				if (tag) items.push({ type: 'block', text: tag });
-			} else if (full.startsWith('<p')) {
-				const attrs = match[6] || '';
-				const pContent = match[7] || '';
-				const isNoDropcap = /\bno-dropcap\b/i.test(attrs);
-				const text = processLineContent(pContent);
-				if (text) {
-					items.push({ type: 'p', text: isNoDropcap ? `!D ${text}` : text });
-				}
-			}
-		}
-
-		if (items.length === 0) {
-			const fallback = processLineContent(inner);
-			return fallback ? `\n\n[letter]\n${fallback}\n[/letter]\n\n` : '';
-		}
-
-		let joined = '';
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (i === 0) {
-				joined += item.text;
-			} else {
-				const prev = items[i - 1];
-				if (prev.type === 'p' && item.type === 'p') {
-					joined += '\n' + item.text;
-				} else {
-					joined += '\n\n' + item.text;
-				}
-			}
-		}
-
-		return `\n\n[letter]\n${joined}\n[/letter]\n\n`;
-	});
-
-	// 5. Handle figures and illustrations: <figure class="illust-box">, <figure>, <p class="image">, or <img>
-	content = content.replace(
-		/<figure\b[^>]*\bclass=["'][^"']*\billust-box\b[^"']*["'][^>]*>([\s\S]*?)<\/figure>/gi,
-		(match) => {
-			const tag = extractIllustrationTag(match);
-			return tag ? `\n\n${tag}\n\n` : '';
-		}
-	);
-	content = content.replace(/<figure\b[^>]*>([\s\S]*?)<\/figure>/gi, (match) => {
-		const tag = extractIllustrationTag(match);
-		return tag ? `\n\n${tag}\n\n` : '';
-	});
-	content = content.replace(
-		/<p\b[^>]*\bclass=["'][^"']*\b(?:image|illust|figure)\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/gi,
-		(match) => {
-			const tag = extractIllustrationTag(match);
-			return tag ? `\n\n${tag}\n\n` : '';
-		}
-	);
-	content = content.replace(
-		/<img\b[^>]*\bclass=["'][^"']*\billust-img\b[^"']*["'][^>]*\/?>/gi,
-		(match) => {
-			const tag = extractIllustrationTag(match);
-			return tag ? `\n\n${tag}\n\n` : '';
-		}
-	);
-
-	// 6. Handle Blockquotes and Citations: <blockquote> or <div class="quote|blockquote|epigraph">
-	content = content.replace(
-		/<(?:blockquote|div)\b([^>]*\b(?:blockquote|quote|epigraph)\b[^>]*)>([\s\S]*?)<\/(?:blockquote|div)>/gi,
-		(_m, attrs, inner) => `\n\n${convertBlockquoteElementToTxt(attrs, inner)}\n\n`
-	);
-
-	// Plain <blockquote> without class
-	content = content.replace(
-		/<blockquote\b([^>]*)>([\s\S]*?)<\/blockquote>/gi,
-		(_m, attrs, inner) => `\n\n${convertBlockquoteElementToTxt(attrs, inner)}\n\n`
-	);
-
-	// 7. Handle Headings: <h1> and <h2> in general EPUB
-	content = content.replace(/<h1\b([^>]*)>([\s\S]*?)<\/h1>/gi, (_m, attrs, inner) => {
-		const text = convertHeadingElementToTxt(attrs, inner, 1);
-		return `\n\n${text}\n\n`;
-	});
-
-	content = content.replace(/<h2\b([^>]*)>([\s\S]*?)<\/h2>/gi, (_m, attrs, inner) => {
-		const text = convertHeadingElementToTxt(attrs, inner, 2);
-		return `\n\n${text}\n\n`;
-	});
-
-	// Generic h3..h6 in general EPUB
-	content = content.replace(/<h[3-6]\b[^>]*>([\s\S]*?)<\/h[3-6]>/gi, (_m, inner) => {
-		const title = processLineContent(inner);
-		return `\n\n@ ${title}\n\n`;
-	});
-
-	// 8. Handle Scene breaks (both explicitly classed and general EPUB patterns)
-	// Specific class patterns
-	content = content.replace(
-		/<p\b[^>]*\bclass=["'][^"']*\bscene-break-big\b[^"']*["'][^>]*>[\s\S]*?<\/p>/gi,
-		'\n\n###\n\n'
-	);
-	content = content.replace(
-		/<p\b[^>]*\bclass=["'][^"']*\bscene-break-small\b[^"']*["'][^>]*>([\s\S]*?)<\/p>/gi,
-		(_m, inner) => {
-			const trimmed = inner.replace(/<[^>]+>/g, '').trim();
-			return trimmed === '*' ? '\n\n##\n\n' : '\n\n#\n\n';
-		}
-	);
-	content = content.replace(
-		/<hr\b[^>]*\bclass=["'][^"']*\b(?:scene-break-small|small)\b[^"']*["'][^>]*\/?>/gi,
-		'\n\n##\n\n'
-	);
-	content = content.replace(/<hr\b[^>]*\/?>/gi, '\n\n###\n\n');
-
-	// General break elements by class: separator, divider, asterism, scene-break, break
-	content = content.replace(
-		/<(?:p|div)\b[^>]*\bclass=["'][^"']*\b(?:separator|divider|asterism|scene-break|scene_break|break|ornament|stars)\b[^"']*["'][^>]*>([\s\S]*?)<\/(?:p|div)>/gi,
-		(_m, inner) => {
-			const clean = inner.replace(/<[^>]+>/g, '').trim();
-			if (BIG_BREAK_PATTERN.test(clean)) return '\n\n###\n\n';
-			if (SMALL_BREAK_PATTERN.test(clean)) return '\n\n##\n\n';
-			return '\n\n#\n\n';
-		}
-	);
-
-	// 9. Handle Paragraphs with Dropcap / No-Dropcap or plain separator text
-	content = content.replace(/<p\b([^>]*)>([\s\S]*?)<\/p>/gi, (_m, attrs, inner) => {
-		const isNoDropcap = /\bno-dropcap\b/i.test(attrs);
-		if (isNoDropcap) {
-			const text = processLineContent(inner);
-			return `\n\n!D ${text}\n\n`;
-		}
-
-		// Check if the paragraph text itself is a scene break in general EPUB
-		const rawStripped = inner.replace(/<[^>]+>/g, '').trim();
-		if (BIG_BREAK_PATTERN.test(rawStripped)) {
-			return '\n\n###\n\n';
-		}
-		if (SMALL_BREAK_PATTERN.test(rawStripped)) {
-			return '\n\n##\n\n';
-		}
-
-		// Keep dropcap letter seamlessly integrated in text flow
-		const text = processLineContent(inner);
-		return `\n\n${text}\n\n`;
-	});
-
-	// Replace break tags with newline
-	content = content.replace(/<br\s*\/?>/gi, '\n');
-
-	// Replace other block elements
-	content = content.replace(/<\/(?:div|section|article|li|tr|header|footer)>/gi, '\n\n');
-	content = content.replace(/<(?:div|section|article|li|tr|header|footer)\b[^>]*>/gi, '\n');
-
-	// Inline tags cleanup
-	content = convertInlineHtmlToTxt(content);
-
-	// Strip any remaining unknown tags
-	content = content.replace(/<[^>]+>/g, ' ');
-
-	return cleanTextFormatting(content);
+	return renderNodesToTxt(root.children);
 }
 
-/**
- * Extracts and formats footnotes from <aside> tags in EPUB files.
- */
-function extractFootnotesFromHtml(html: string): Map<number, string> {
-	const footnotes = new Map<number, string>();
-	const asideMatches = html.matchAll(
-		/<aside\b[^>]*\bid=["'](?:fn|footnote-?)(\d+)["'][^>]*>([\s\S]*?)<\/aside>/gi
-	);
+const BACKLINK_ARROW_RE = /[↩↵↑⇧←]/u;
+const BACKLINK_ONLY_RE = /^(?:[\s↩↵↑⇧^←[\]()]|\uFE0E|\uFE0F)+$/u;
+const ALL_BACKLINK_ARROWS_RE = /[↩↵↑⇧←](?:\uFE0E|\uFE0F)?/gu;
+const LEADING_ARROWS_RE = /^(?:[↩↵↑⇧←](?:\uFE0E|\uFE0F)?)+\s*/u;
+const TRAILING_ARROWS_RE = /\s*(?:[↩↵↑⇧←](?:\uFE0E|\uFE0F)?)+$/u;
 
-	for (const match of asideMatches) {
-		const num = parseInt(match[1], 10);
-		let inner = match[2];
-		// Remove <a class="notenum"...>1.</a>
-		inner = inner.replace(
-			/<a\b[^>]*\bclass=["'][^"']*\bnotenum\b[^"']*["'][^>]*>[\s\S]*?<\/a>/gi,
-			''
-		);
-		const text = processLineContent(inner);
-		if (text) {
-			footnotes.set(num, text);
+function parseFootnoteLabelElement(
+	el: DomElementNode,
+	expectedIdNum: number | null
+): number | null {
+	if (el.tag !== 'span' && el.tag !== 'sup') return null;
+	const txt = getPlainDomText(el).trim();
+	const m = /^(?:\[(\d+)\]|\((\d+)\)|(\d+)\.?)$/.exec(txt);
+	if (!m) return null;
+	const val = parseInt(m[1] ?? m[2] ?? m[3], 10);
+	if (m[1] || m[2] || el.tag === 'sup' || val === expectedIdNum) {
+		return val;
+	}
+	return null;
+}
+
+function isFootnoteBacklinkElement(el: DomElementNode): boolean {
+	if (el.tag !== 'a') return false;
+
+	if (
+		hasAnyClass(el, [
+			'notenum',
+			'footnote-backref',
+			'footnote-backlink',
+			'backref',
+			'backlink',
+			'reversefootnote'
+		])
+	) {
+		return true;
+	}
+
+	const role = (getAttr(el, 'role') || '').toLowerCase();
+	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
+	if (role === 'doc-backlink' || epubType.includes('backlink')) {
+		return true;
+	}
+
+	const plain = getPlainDomText(el).trim();
+	const href = getAttr(el, 'href') || '';
+	if (BACKLINK_ARROW_RE.test(plain) && BACKLINK_ONLY_RE.test(plain)) {
+		return true;
+	}
+	if (/#(?:fnref|ref|back)/i.test(href) && BACKLINK_ONLY_RE.test(plain)) {
+		return true;
+	}
+
+	return false;
+}
+
+function isFootnoteAside(el: DomElementNode): { isFootnote: boolean; rawNum: number | null } {
+	if (el.tag !== 'aside') return { isFootnote: false, rawNum: null };
+
+	const id = getAttr(el, 'id') || '';
+	const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
+	const role = (getAttr(el, 'role') || '').toLowerCase();
+
+	const idNumMatch = /^(?:fn|footnote|endnote|note)(?:[-_]\d+)*[-_]?(\d+)$/i.exec(id);
+	const hasFootnoteRole =
+		epubType.includes('footnote') ||
+		epubType.includes('endnote') ||
+		epubType.includes('rearnote') ||
+		role === 'doc-footnote' ||
+		role === 'doc-endnote' ||
+		hasAnyClass(el, ['footnote', 'footnote-item', 'footnotebody', 'endnote']) ||
+		Boolean(idNumMatch);
+
+	if (!hasFootnoteRole) {
+		return { isFootnote: false, rawNum: null };
+	}
+
+	// 1. Check <a class="notenum"> if present
+	const notenum = findElements(el, (c) => c.tag === 'a' && hasClass(c, 'notenum'))[0];
+	if (notenum) {
+		const numMatch = /(\d+)/.exec(getPlainDomText(notenum));
+		if (numMatch) {
+			return { isFootnote: true, rawNum: parseInt(numMatch[1], 10) };
 		}
 	}
 
-	return footnotes;
+	// 2. Check leading inline label such as <span>[1]</span>, <sup>1</sup>, or text [1] (ignoring backlinks)
+	const idRawNum = idNumMatch ? parseInt(idNumMatch[1], 10) : null;
+	for (const candidate of findElements(el, (c) => c.tag === 'span' || c.tag === 'sup')) {
+		const parsed = parseFootnoteLabelElement(candidate, idRawNum);
+		if (parsed !== null) {
+			return { isFootnote: true, rawNum: parsed };
+		}
+	}
+
+	// 3. Fall back to trailing numeric segment in id (e.g. fn-1-1 -> 1, fn12 -> 12)
+	if (idRawNum !== null) {
+		return { isFootnote: true, rawNum: idRawNum };
+	}
+
+	// 4. Last fallback: leading [n] or (n) or n. in plain text after ignoring backlink arrows
+	const plainWithoutArrow = getPlainDomText(el).replace(ALL_BACKLINK_ARROWS_RE, '').trim();
+	const leadingPlainMatch = /^(?:\[(\d+)\]|\((\d+)\)|(\d+)\.)\s+\S/.exec(plainWithoutArrow);
+	if (leadingPlainMatch) {
+		const val = parseInt(leadingPlainMatch[1] ?? leadingPlainMatch[2] ?? leadingPlainMatch[3], 10);
+		return { isFootnote: true, rawNum: val };
+	}
+
+	return { isFootnote: true, rawNum: null };
+}
+
+function cloneDomCleanFootnote(node: DomNode, rawNum: number | null): DomNode | null {
+	let strippedLeadingMarker = false;
+
+	const cloneNode = (n: DomNode, atStartOfBlock: boolean): DomNode | null => {
+		if (n.type === 'text') {
+			return { ...n };
+		}
+		if (isFootnoteBacklinkElement(n)) {
+			return null;
+		}
+		// Strip a single leading label span/sup such as <span>[1]</span> or <sup>1</sup>
+		if (atStartOfBlock && !strippedLeadingMarker && parseFootnoteLabelElement(n, rawNum) !== null) {
+			strippedLeadingMarker = true;
+			return null;
+		}
+
+		const children: DomNode[] = [];
+		let childAtStart = atStartOfBlock;
+		for (const c of n.children) {
+			const cloned = cloneNode(c, childAtStart);
+			if (cloned) {
+				children.push(cloned);
+				if (cloned.type === 'element') {
+					if (getPlainDomText(cloned).trim().length > 0) {
+						childAtStart = false;
+					}
+				} else if (cloned.text.trim().length > 0) {
+					childAtStart = false;
+				}
+			}
+		}
+		return { ...n, children };
+	};
+
+	return cloneNode(node, true);
+}
+
+function stripFootnoteTextAffixes(text: string, rawNum: number | null): string {
+	let cleaned = text.replace(LEADING_ARROWS_RE, '').replace(TRAILING_ARROWS_RE, '').trim();
+
+	// Strip leading [n] or (n) label
+	const bracketMatch = /^(?:\[(\d+)\]|\((\d+)\))\s*/.exec(cleaned);
+	if (bracketMatch) {
+		const n = parseInt(bracketMatch[1] ?? bracketMatch[2], 10);
+		if (rawNum === null || n === rawNum) {
+			cleaned = cleaned.slice(bracketMatch[0].length).trim();
+		}
+	} else if (rawNum !== null) {
+		const dotMatch = /^(\d+)\.\s+/.exec(cleaned);
+		if (dotMatch && parseInt(dotMatch[1], 10) === rawNum) {
+			cleaned = cleaned.slice(dotMatch[0].length).trim();
+		}
+	}
+
+	return cleaned.replace(LEADING_ARROWS_RE, '').trim();
 }
 
 /**
- * Extracts and converts an EPUB file into structured, cleanly formatted plain text (.txt)
- * reversing EPUB XHTML formatting back into exact TXT conventions.
+ * Extracts footnotes from `<aside>` tags in DOM and removes ONLY those extracted
+ * footnote `<aside>` elements from the DOM tree (leaving non-footnote `<aside>` intact).
+ */
+function extractAndStripFootnotesFromDom(
+	root: DomElementNode,
+	sourcePath: string,
+	registry: FootnoteRegistry
+): { extractedCount: number } {
+	let extractedCount = 0;
+
+	const walk = (parent: DomElementNode) => {
+		const remaining: DomNode[] = [];
+		for (const child of parent.children) {
+			if (child.type === 'element' && child.tag === 'aside') {
+				const fnInfo = isFootnoteAside(child);
+				if (fnInfo.isFootnote) {
+					const asideId = (getAttr(child, 'id') || '').trim();
+					const cleanedAside = cloneDomCleanFootnote(child, fnInfo.rawNum) as DomElementNode;
+					const rendered = renderNodesToTxt(cleanedAside.children).replace(/\n+/g, ' ').trim();
+					const text = stripFootnoteTextAffixes(rendered, fnInfo.rawNum);
+
+					if (text || fnInfo.rawNum !== null || asideId) {
+						if (text) {
+							registry.addExtractedAside({
+								sourcePath,
+								key: asideId ? `${sourcePath}#${asideId}` : '',
+								asideId,
+								rawNum: fnInfo.rawNum,
+								text
+							});
+						}
+						extractedCount++;
+						continue;
+					}
+				}
+			}
+			if (child.type === 'element') {
+				walk(child);
+			}
+			remaining.push(child);
+		}
+		parent.children = remaining;
+	};
+
+	walk(root);
+	return { extractedCount };
+}
+
+function isTocNavDocument(root: DomElementNode): boolean {
+	return (
+		findElements(root, (el) => {
+			if (el.tag !== 'nav') return false;
+			const epubType = (getAttr(el, 'epub:type') || '').toLowerCase().split(/\s+/);
+			const role = (getAttr(el, 'role') || '').toLowerCase();
+			return epubType.includes('toc') || role === 'doc-toc';
+		}).length > 0
+	);
+}
+
+function getDocumentTitle(root: DomElementNode): string {
+	const titleEl = findElements(root, (el) => el.tag === 'title')[0];
+	return titleEl ? getPlainDomText(titleEl).trim() : '';
+}
+
+function parseOpfManifestAndSpine(opfXml: string): {
+	manifest: Map<string, { href: string; mediaType: string; properties: string[] }>;
+	spineIdrefs: string[];
+} {
+	const opfDom = parseHtmlToDom(opfXml);
+	const manifest = new Map<string, { href: string; mediaType: string; properties: string[] }>();
+	const spineIdrefs: string[] = [];
+
+	const manifestEl = findElements(opfDom, (el) => el.tag === 'manifest')[0];
+	const itemEls = findElements(manifestEl || opfDom, (el) => el.tag === 'item');
+	for (const item of itemEls) {
+		const id = getAttr(item, 'id');
+		const rawHref = getAttr(item, 'href');
+		if (!id || !rawHref) continue;
+
+		let href = rawHref;
+		try {
+			href = decodeURIComponent(rawHref);
+		} catch {
+			// Preserve rawHref if malformed percent-encoding
+		}
+
+		const mediaType = (getAttr(item, 'media-type') || '').toLowerCase();
+		const properties = (getAttr(item, 'properties') || '')
+			.toLowerCase()
+			.split(/\s+/)
+			.filter(Boolean);
+
+		manifest.set(id, { href, mediaType, properties });
+	}
+
+	const spineEl = findElements(opfDom, (el) => el.tag === 'spine')[0];
+	const itemrefEls = findElements(spineEl || opfDom, (el) => el.tag === 'itemref');
+	for (const ref of itemrefEls) {
+		const idref = getAttr(ref, 'idref');
+		if (idref) {
+			spineIdrefs.push(idref);
+		}
+	}
+
+	return { manifest, spineIdrefs };
+}
+
+function isReadableDocumentItem(href: string, mediaType: string): boolean {
+	if (mediaType === 'application/xhtml+xml' || mediaType === 'text/html') {
+		return true;
+	}
+	const cleanHref = href.split('?')[0].split('#')[0].toLowerCase();
+	return cleanHref.endsWith('.xhtml') || cleanHref.endsWith('.html') || cleanHref.endsWith('.htm');
+}
+
+/**
+ * Extracts and converts an EPUB file into structured, cleanly formatted plain text (.txt).
  */
 export async function extractEpubToTxt(
 	epubFileOrZip: File | Blob | JSZip,
@@ -759,79 +1660,70 @@ export async function extractEpubToTxt(
 	let originalName = 'sach';
 
 	if (epubFileOrZip instanceof JSZip) {
+		validateZipArchiveSafety(epubFileOrZip);
 		zip = epubFileOrZip;
 	} else {
 		if ('name' in epubFileOrZip && typeof epubFileOrZip.name === 'string') {
 			originalName = epubFileOrZip.name.replace(/\.epub$/i, '');
 		}
-		const arrayBuffer = await (epubFileOrZip as Blob).arrayBuffer();
-		zip = await JSZip.loadAsync(arrayBuffer);
+		zip = await loadSafeEpubZip(epubFileOrZip as Blob);
 	}
+
+	const zipBudget = createZipExtractionBudget();
 
 	options?.onProgress?.('Đang phân tích OPF và mục lục...', 25);
 
-	const opfPath = await findOpfPath(zip);
+	const opfPath = await findOpfPath(zip, { budget: zipBudget });
 	if (!opfPath) {
 		throw new Error('Không tìm thấy file content.opf trong EPUB.');
 	}
 
-	const opfFile = zip.file(opfPath);
-	if (!opfFile) {
+	const opfXml = await readSafeZipEntryText(zip, opfPath, { budget: zipBudget });
+	if (opfXml === null) {
 		throw new Error(`Không thể mở file OPF tại đường dẫn: ${opfPath}`);
 	}
-
-	const opfXml = await opfFile.async('text');
 	const metadata = extractBookMetadata(opfXml);
 
 	const bookTitle = metadata.title || originalName;
 	const bookAuthor = metadata.author || '';
 
-	// Parse manifest and spine to extract document items in correct reading order
-	const manifest = new Map<string, { href: string; mediaType: string; properties?: string }>();
-	const manifestMatches = opfXml.matchAll(/<item\b[^>]*>/gi);
-	for (const match of manifestMatches) {
-		const tag = match[0];
-		const idMatch = /\bid=["']([^"']+)["']/i.exec(tag);
-		const hrefMatch = /\bhref=["']([^"']+)["']/i.exec(tag);
-		const mediaTypeMatch = /\bmedia-type=["']([^"']+)["']/i.exec(tag);
-		const propertiesMatch = /\bproperties=["']([^"']+)["']/i.exec(tag);
-		if (idMatch && hrefMatch) {
-			manifest.set(idMatch[1], {
-				href: decodeURIComponent(hrefMatch[1]),
-				mediaType: mediaTypeMatch ? mediaTypeMatch[1] : '',
-				properties: propertiesMatch ? propertiesMatch[1] : ''
-			});
-		}
-	}
+	const { manifest, spineIdrefs } = parseOpfManifestAndSpine(opfXml);
 
-	const spineItemrefs: string[] = [];
-	const itemrefMatches = opfXml.matchAll(/<itemref\b[^>]*idref=["']([^"']+)["'][^>]*>/gi);
-	for (const match of itemrefMatches) {
-		spineItemrefs.push(match[1]);
-	}
-
-	const opfDir = opfPath.includes('/') ? opfPath.substring(0, opfPath.lastIndexOf('/')) : '';
-
-	// Ordered document paths in reading order
+	// Ordered document paths in reading order (resolving relative to full opfPath!)
 	const chapterPaths: string[] = [];
-	for (const idref of spineItemrefs) {
+	for (const idref of spineIdrefs) {
 		const item = manifest.get(idref);
-		if (item && item.href) {
-			// Skip generated nav.xhtml TOC file from spine reading list
-			if (item.properties?.includes('nav') || item.href.endsWith('nav.xhtml')) {
-				continue;
-			}
-			const fullPath = resolveRelativePath(opfDir, item.href);
-			if (zip.file(fullPath) && !chapterPaths.includes(fullPath)) {
-				chapterPaths.push(fullPath);
-			}
+		if (!item || !item.href) continue;
+
+		// Skip generated nav.xhtml TOC file from spine reading list
+		const cleanHref = item.href.split('?')[0].split('#')[0].toLowerCase();
+		if (
+			item.properties.includes('nav') ||
+			cleanHref === 'nav.xhtml' ||
+			cleanHref.endsWith('/nav.xhtml')
+		) {
+			continue;
+		}
+		if (!isReadableDocumentItem(item.href, item.mediaType)) {
+			continue;
+		}
+
+		const fullPath = resolveRelativePath(opfPath, item.href);
+		if (zip.file(fullPath) && !chapterPaths.includes(fullPath)) {
+			chapterPaths.push(fullPath);
 		}
 	}
 
-	// Fallback if spine empty: find all xhtml / html files
+	// Fallback if spine empty or yielded no existing HTML files
 	if (chapterPaths.length === 0) {
 		for (const p of Object.keys(zip.files)) {
-			if (/\.(xhtml|html|htm)$/i.test(p) && !zip.files[p].dir && !p.endsWith('nav.xhtml')) {
+			const lower = p.toLowerCase();
+			if (
+				/\.(xhtml|html|htm)$/i.test(p) &&
+				!zip.files[p].dir &&
+				lower !== 'nav.xhtml' &&
+				!lower.endsWith('/nav.xhtml')
+			) {
 				chapterPaths.push(p);
 			}
 		}
@@ -843,67 +1735,51 @@ export async function extractEpubToTxt(
 	options?.onProgress?.(`Đang trích xuất nội dung từ ${chapterPaths.length} chương...`, 40);
 
 	const extractedChapters: string[] = [];
-	const allFootnotes = new Map<number, string>();
+	const footnoteRegistry = new FootnoteRegistry();
 	const total = chapterPaths.length;
 
 	for (let i = 0; i < total; i++) {
 		const path = chapterPaths[i];
-		const file = zip.file(path);
-		if (file) {
-			const htmlText = await file.async('text');
+		const htmlText = await readSafeZipEntryText(zip, path, { budget: zipBudget });
+		if (htmlText !== null) {
+			const docRoot = parseHtmlToDom(htmlText);
 
 			// Skip cover image page
-			if (/<div\b[^>]*\bclass=["'][^"']*\bcover-wrapper\b[^"']*["']/i.test(htmlText)) {
+			if (hasCoverWrapperDom(docRoot)) {
 				continue;
 			}
 
 			// Skip nav table of contents page
-			if (/<nav\b[^>]*\bepub:type=["']toc["']/i.test(htmlText)) {
+			if (isTocNavDocument(docRoot)) {
 				continue;
 			}
 
-			// Collect footnotes from <aside> tags
-			const fileFootnotes = extractFootnotesFromHtml(htmlText);
-			for (const [k, v] of fileFootnotes.entries()) {
-				allFootnotes.set(k, v);
-			}
+			// Extract numbered footnotes and strip only those extracted <aside> elements
+			const { extractedCount } = extractAndStripFootnotesFromDom(docRoot, path, footnoteRegistry);
 
-			// Is this the dedicated notes.xhtml file?
+			// Dedicated notes.xhtml file is rendered at the end via Chú thích:
+			const docTitle = getDocumentTitle(docRoot);
 			const isNotesFile =
-				path.endsWith('notes.xhtml') ||
-				(/<title>[^<]*chú thích[^<]*<\/title>/i.test(htmlText) && fileFootnotes.size > 0);
+				path.toLowerCase().endsWith('notes.xhtml') ||
+				(/chú thích/i.test(docTitle) && extractedCount > 0);
 
 			if (isNotesFile) {
-				// Don't render notes body directly into chapter list, will append at end
 				continue;
 			}
 
-			// Strip <aside> blocks from body so they don't duplicate
-			const bodyWithoutAside = htmlText.replace(/<aside\b[^>]*>[\s\S]*?<\/aside>/gi, '');
-
-			const cleanText = htmlToCleanText(bodyWithoutAside);
+			const cleanText = renderNodesToTxt(docRoot.children, {
+				docPath: path,
+				footnotes: footnoteRegistry
+			});
 			if (cleanText.trim().length > 0) {
-				const trimmed = cleanText.trim();
-				// If a chapter does not contain <h1> and is not center-page, and total chapters > 1,
-				// wrap with [new] ... [/new] to preserve independent chapter separation
-				const hasH1 = /<h1\b/i.test(bodyWithoutAside);
-				const hasCenterPage = /<section\b[^>]*\bclass=["'][^"']*\bcenter-page\b/i.test(
-					bodyWithoutAside
-				);
-				const isJacket = /<div\b[^>]*\bclass=["'][^"']*\bjacket-container\b/i.test(
-					bodyWithoutAside
-				);
-
-				if (!hasH1 && !hasCenterPage && !isJacket && total > 1 && !trimmed.startsWith('[new]')) {
-					extractedChapters.push(`[new]\n${trimmed}\n[/new]`);
-				} else {
-					extractedChapters.push(trimmed);
-				}
+				extractedChapters.push(cleanText.trim());
 			}
 		}
 		const percent = Math.min(90, Math.round(40 + ((i + 1) / total) * 50));
 		options?.onProgress?.(`Đang xử lý chương ${i + 1}/${total}...`, percent);
 	}
+
+	const allFootnotes = footnoteRegistry.finalizeFootnotes();
 
 	// If footnotes exist, append the Chú thích: section at the end
 	if (allFootnotes.size > 0) {
@@ -915,7 +1791,7 @@ export async function extractEpubToTxt(
 		extractedChapters.push(noteLines.join('\n'));
 	}
 
-	// Join all chapters with exactly 1 blank line (double newline)
+	// Join all chapters with 1 blank line (double newline)
 	const combinedText = extractedChapters.join('\n\n');
 	const finalText = cleanTextFormatting(combinedText);
 

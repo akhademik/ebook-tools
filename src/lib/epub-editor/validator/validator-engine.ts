@@ -1,5 +1,7 @@
 // src/lib/epub-editor/validator/validator-engine.ts
 import type JSZip from 'jszip';
+import { createZipExtractionBudget, readSafeZipEntryText } from '$lib/utils';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 import type {
 	ValidationProfile,
 	ValidationRule,
@@ -28,21 +30,23 @@ export async function validateEpub(
 	zip: JSZip,
 	profile: ValidationProfile = 'generic',
 	editBuffer?: Map<string, string>,
-	customRules?: ValidationRule[]
+	customRules?: ValidationRule[],
+	budget?: ZipExtractionBudgetTracker
 ): Promise<ValidationResult> {
 	const issues: ValidationIssue[] = [];
 	const allZipFiles = Object.keys(zip.files).filter((p) => !zip.files[p].dir);
+	const zipBudget = budget ?? createZipExtractionBudget();
 
 	async function getText(path: string): Promise<string> {
 		if (editBuffer && editBuffer.has(path)) {
 			return editBuffer.get(path) || '';
 		}
-		const f = zip.file(path);
-		return f ? await f.async('text') : '';
+		return (await readSafeZipEntryText(zip, path, { budget: zipBudget })) ?? '';
 	}
 
 	const ctx: ValidationContext = {
 		zip,
+		zipBudget,
 		profile,
 		editBuffer,
 		allZipFiles,

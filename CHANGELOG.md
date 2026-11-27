@@ -4,6 +4,154 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Thêm Tính Năng Trích Xuất Media (.ZIP) Cho Trang EPUB → TXT)
+
+- Thêm/sửa:
+  - **Module Trích Xuất Media EPUB (`src/lib/epub-to-txt/media-extractor.ts`)**:
+    - Bổ sung hàm `extractEpubMedia()` quét an toàn qua `loadSafeEpubZip()` + `createZipExtractionBudget()`, trích xuất toàn bộ font (`.ttf`, `.otf`, `.woff`, `.woff2`, `.eot`), hình ảnh (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.svg`, `.avif`...) và audio/video nhúng trong EPUB ra file `<ten>-media.zip` phẳng tại root (tự đổi tên `-2`, `-3` nếu trùng tên giữa các thư mục con).
+    - Tự động phát hiện và giải mã font bị obfuscated (IDPF & Adobe) dựa trên `dc:identifier` trong OPF qua `isValidFontMagic()`, `deobfuscateIdpfFont()`, `deobfuscateAdobeFont()` để font xuất ra mở và cài đặt được bình thường.
+  - **UI & State (`src/routes/epub-to-txt/+page.svelte`, `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`)**:
+    - Thêm nút **Trích xuất media** bên cạnh nút **Chuyển đổi sang TXT** / **Tải file .TXT** theo chuẩn `DESIGN_SYSTEM.md`, tự động tải về `.zip` khi hoàn tất và cache kết quả nếu nhấn tải lại.
+    - Bảo vệ race condition bằng `mediaRequestId` (hủy kết quả/progress cũ khi đổi file hoặc `reset()`).
+  - **Bổ sung Test (`tests/epub-to-txt.test.ts`, `tests/epub-to-txt-state.test.ts`)**:
+    - Thêm 3 unit tests cho `extractEpubMedia()` (trích xuất phẳng font/ảnh/audio, chống đè tên trùng + giải mã font IDPF, báo lỗi khi EPUB không có media) và 1 state test cho `EpubToTxtState.extractMedia()` + race condition.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (501/501 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/media-extractor.ts`, `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`, `src/routes/epub-to-txt/+page.svelte`, `tests/epub-to-txt.test.ts`, `tests/epub-to-txt-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Chuẩn hóa Footnote Cùng Chapter & Đánh Số Toàn Cục cho EPUB Ngoài Project)
+
+- Thêm/sửa:
+  - **Cơ chế `FootnoteRegistry` & Liên kết `docPath#id` (`src/lib/epub-to-txt/epub-to-txt.ts`)**:
+    - Hỗ trợ đầy đủ footnote đặt cùng chapter (`<aside epub:type="footnote" id="fn-1-1" role="doc-footnote" class="footnote-item">`) bên cạnh file `notes.xhtml` riêng.
+    - Liên kết `noteref` ↔ `<aside>` theo `docPath#id` (cùng fallback theo `fragmentId` hoặc cùng chương), tự động đánh số toàn cục tăng dần `{1}, {2}, {3}...` khi các chương reset lại đánh số `[1]`, tránh ghi đè mất chú thích giữa nhiều chương.
+    - Mở rộng `isFootnoteAside()`, `isFootnoteBacklinkElement()` và `cloneDomCleanFootnote()` để bóc sạch link quay lại (`a.footnote-backref`, `role="doc-backlink"`, `↩`/`↑`) và tiền tố số đầu dòng (`<span>[1]</span>`, `[1]`, `(1)`, `1.`), đồng thời giữ nguyên `<aside>` thông thường trong thân chương.
+  - **Bổ sung Test (`tests/epub-to-txt.test.ts`)**:
+    - Thêm test case #15 kiểm thử `<aside>` chú thích đặt cùng chapter với `footnote-backref`, `<span>[1]</span>`, tham chiếu lặp `{1}` và reset `fn-1-1`/`fn-2-1`/`fn-2-2` qua nhiều chương.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (497/497 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/epub-to-txt.ts`, `tests/epub-to-txt.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Nâng cấp EPUB → TXT: DOM Parser Nội Bộ & Trích Xuất Chính Xác Theo Spine)
+
+- Thêm/sửa:
+  - **Parser HTML/XHTML/XML DOM Zero-Dependency (`src/lib/epub-to-txt/html-dom.ts`)**:
+    - Thay thế các regex non-greedy/cắt lớp gây sót nội dung khi thẻ `<div>`/`<span>`/`<section>` lồng sâu bằng cây DOM nội bộ an toàn cho môi trường Node & Browser.
+  - **Sửa Lỗi Trích Xuất & Đọc Theo Đúng Spine (`src/lib/epub-to-txt/epub-to-txt.ts`)**:
+    - Sửa lỗi truyền `opfDir` thay vì `opfPath` vào `resolveRelativePath()`, khiến EPUB có cấu trúc thư mục con như `OEBPS/content.opf` bị rớt toàn bộ danh sách spine và fallback sang thứ tự alphabet.
+    - Viết lại `htmlToCleanText()` và `convertInlineHtmlToTxt()` dựa trên duyệt cây DOM: giữ nguyên khoảng trắng bên trong/xung quanh inline tags (`<b> </b>`, `<span>`), giữ `<br>`, xử lý đầy đủ nested containers (`poem`/`stanza`, `letter`, `letter-box`, `blockquote`), giữ nội dung trong `<figcaption>`, `<aside>` không phải chú thích và các block không nhận diện (`article`, `ul/li`, `table`, `dl`), giải mã HTML entities & Unicode tiếng Việt nguyên vẹn.
+    - Loại bỏ cơ chế tự động chèn `[new]\n...\n[/new]` cho các chương không có `<h1>` và giữ quy tắc nối các đoạn `<p>` liên tiếp bằng đúng `\n` theo xác nhận của người dùng.
+  - **Bổ sung Bộ Test Trích Xuất Thực Tế (`tests/epub-to-txt.test.ts`)**:
+    - Bổ sung 14 test end-to-end trên `extractEpubToTxt()` kiểm tra đầy đủ 14 kịch bản trung thực nội dung, thứ tự spine, footnotes, blocks lạ và xử lý EPUB lỗi.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (496/496 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/html-dom.ts`, `src/lib/epub-to-txt/epub-to-txt.ts`, `tests/epub-to-txt.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Khắc phục Triệt để Race Condition trong EPUB → TXT `EpubToTxtState`)
+
+- Thêm/sửa:
+  - **Cơ chế Generation Token cho Chuyển đổi EPUB → TXT (`src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`)**:
+    - Bổ sung `conversionRequestId` (tăng khi chọn file qua `handleFile()`, khi `reset()`, và mỗi lần bắt đầu `processEpub()`), đồng thời reset `isProcessing = false` khi chuyển sang file mới và dọn timer copy (`copyTimer`).
+    - Bảo vệ `onProgress`, phần xử lý sau `await extractEpubToTxt(...)`, khối `catch`, và `finally` trong `processEpub()` chỉ cho phép tác vụ mang `requestId` hiện hành cập nhật `result`, `status`, `progressPercent`, `progressLabel`, `isError` và `isProcessing`.
+  - **Bổ sung Bộ Test Race Condition (`tests/epub-to-txt-state.test.ts`)**:
+    - Bổ sung 4 unit tests kiểm tra chọn file B khi A đang chạy, gọi `reset()` khi đang chuyển đổi, tác vụ A hoàn tất/lỗi sau tác vụ B, và luồng chuyển đổi bình thường.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (482/482 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-to-txt/epub-to-txt-state.svelte.ts`, `tests/epub-to-txt-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Kiểm tra `AbortSignal` Xuyên suốt `cleanEpub` & `analyzeOptimizationPlan` Trước Khi Sửa `editBuffer`/`zip`)
+
+- Thêm/sửa:
+  - **Bảo vệ Hủy Tác vụ trong Cleaner Engine (`src/lib/epub-editor/cleaner/cleaner-engine.ts`)**:
+    - Thêm helper `throwIfAborted(signal)` và gọi sau mọi `await`, trong các vòng lặp xử lý tài nguyên và ngay trước mọi thao tác ghi/xóa trên `editBuffer` và `zip` (`editBuffer.set`, `editBuffer.delete`, `zip.file`, `zip.remove`) trong `analyzeOptimizationPlan()` và `cleanEpub()`.
+  - **Bổ sung Unit Tests (`tests/epub-editor-state.test.ts`)**:
+    - Kiểm thử cả `analyzeForClean()` và `runCleanup()` bị hủy giữa chừng khi `reset()` và mở sách B; xác nhận Cleaner A không làm thay đổi `editBuffer` hoặc trạng thái của sách B sau khi tác vụ đọc cũ hoàn tất.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (478/478 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-editor/cleaner/cleaner-engine.ts`, `tests/epub-editor-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Khắc phục Triệt để Race Condition Mở/Chuyển File & Reset trong EPUB Editor)
+
+- Thêm/sửa:
+  - **Cơ chế Generation Token & Hủy Tác vụ Cũ (`src/lib/epub-editor/epub-editor-state.svelte.ts`)**:
+    - Bổ sung `loadRequestId` (tăng đơn điệu mỗi lần `reset()` / `loadEpubFile()`) và `selectionRequestId` (cho `selectFile()`), cùng helper `isCurrentSession()` để xác thực phiên sách hiện tại.
+    - Bảo vệ `loadEpubFile()` sau mọi `await` (`loadSafeEpubZip`, `parseZipEntries`, `ensureFileLoaded`, `renderPreview`) và trong `catch`/`finally` để tác vụ cũ không ghi đè `zip`, `files`, `statusMessage`, `isError` hay đặt `isLoading = false` của tác vụ mới.
+    - Bảo vệ `ensureFileLoaded()`, `selectFile()`, `renderPreview()` (bao gồm `getAssetDataUrl` và `assetDataUrlCache`) khỏi việc ghi chéo `editBuffer`/`originalContents`/`editorTarget`/`previewTarget` giữa các sách hoặc khi click chuyển file liên tục.
+    - `reset()` chủ động hủy Cleaner đang chạy qua `abortPendingCleanup(true)` và bảo vệ `analyzeForClean()`, `runCleanup()`, `exportEpub()`, `loadBookMetadata()`, `saveBookMetadata()`, `rebuildToc()` không cập nhật state nếu đã đổi sách hoặc `reset()`.
+  - **Bổ sung Bộ Test Race Condition (`tests/epub-editor-state.test.ts`)**:
+    - Bổ sung 6 unit tests mô phỏng file A hoàn tất sau file B, A lỗi khi B đang nạp, `reset()` giữa chừng, `ensureFileLoaded()`/`selectFile()` chậm, hủy Cleaner cũ khi `reset()` và nạp EPUB bình thường.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (477/477 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-editor/epub-editor-state.svelte.ts`, `tests/epub-editor-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Xác nhận Toàn vẹn Sau Vòng lặp Central Directory: `parsedEntries === totalEntries` & `cursor === cdEnd`)
+
+- Thêm/sửa:
+  - **Kiểm tra Nhất quán Central Directory (`src/lib/utils/zip.ts`)**:
+    - Bổ sung kiểm tra `parsedEntries !== totalEntries || cursor !== cdEnd` ngay sau vòng lặp duyệt Central Directory trong `inspectRawZipCentralDirectory()`, ném `ZipSafetyError('INVALID_METADATA', ...)` khi số entry thực tế đọc được hoặc con trỏ kết thúc không khớp EOCD.
+  - **Bổ sung Unit Tests (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 2 test cho trường hợp EOCD khai báo nhiều entry hơn thực tế trong Central Directory và `cdSize` không khớp với điểm kết thúc thực tế của các entry.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (471/471 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Kiểm tra Chặt chẽ Central Directory: Từ chối ZIP Multi-Disk)
+
+- Thêm/sửa:
+  - **Từ chối Tường minh ZIP Multi-Disk (`src/lib/utils/zip.ts`, `src/lib/types/zip.type.ts`)**:
+    - Bổ sung mã lỗi `UNSUPPORTED_MULTIDISK`.
+    - `inspectRawZipCentralDirectory()` kiểm tra thêm `diskNumber !== 0 || cdStartDisk !== 0 || entriesOnDisk !== totalEntries` trong EOCD để từ chối rõ ràng các archive multi-disk.
+  - **Bổ sung Unit Test (`tests/zip-safety.test.ts`)**:
+    - Kiểm thử từ chối tất cả các trường hợp lệch `diskNumber`, `cdStartDisk` và `entriesOnDisk !== totalEntries`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (469/469 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/zip.type.ts`, `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Gia cố Lớp Kiểm soát An toàn ZIP: Reserve Budget Đồng thời, Từ chối ZIP64 & Trùng lặp Phân biệt Hoa/Thường)
+
+- Thêm/sửa:
+  - **Cơ chế Reserve Budget An toàn Đồng thời (`src/lib/utils/zip.ts`, `src/lib/types/zip.type.ts`)**:
+    - Bổ sung `ZipBudgetReservation` và các phương thức `reserve()`, `updateReservation()`, `commit()`, `release()` vào `ZipExtractionBudget` & `ZipExtractionBudgetTracker`.
+    - `readSafeZipEntryBytes()` đặt cọc (`reserve`) dung lượng khai báo đồng bộ trước khi giải nén, cập nhật động theo chunk trong `internalStream` và luôn giải phóng (`release`) trong `finally` nếu lỗi/hủy — loại bỏ hoàn toàn race condition vượt budget khi nhiều tác vụ đọc song song.
+  - **Từ chối Tường minh ZIP64 & Central Directory Lỗi (`src/lib/utils/zip.ts`)**:
+    - Bổ sung mã lỗi `UNSUPPORTED_ZIP64`; `inspectRawZipCentralDirectory()` kiểm tra chữ ký ZIP64 EOCD Locator (`0x07064b50`), sentinel `0xFFFF`/`0xFFFFFFFF` ở EOCD và Central Directory entry để từ chối tường minh thay vì bỏ qua bước kiểm tra thô.
+    - Kiểm tra biên độ `cdOffset + cdSize` và tính toàn vẹn header từng entry trong Central Directory, ném `INVALID_METADATA` nếu bị cắt xén/hỏng.
+  - **Kiểm tra Trùng lặp Phân biệt Chữ hoa/Thường (`src/lib/utils/zip.ts`)**:
+    - Sửa `inspectRawZipCentralDirectory()` và `validateZipArchiveSafety()` so sánh trùng lặp theo đường dẫn chuẩn hóa chính xác (case-sensitive) thay vì `.toLowerCase()`, tránh từ chối nhầm các EPUB hợp lệ có file phân biệt hoa/thường (như `Images/Cover.jpg` và `images/cover.jpg`).
+  - **Mở rộng Unit Tests (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 6 tests cho đọc đồng thời vượt budget, tự động `release` khi stream lỗi, từ chối ZIP64 EOCD/entry/locator và Central Directory lỗi, đồng thời xác nhận các đường dẫn phân biệt hoa/thường hợp lệ được chấp nhận.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (468/468 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/zip.type.ts`, `src/lib/utils/zip.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-27 (Xây dựng Lớp Kiểm soát An toàn ZIP Dùng chung cho EPUB Editor và EPUB → TXT)
+
+- Thêm/sửa:
+  - **Định nghĩa Ngưỡng An toàn EPUB & Kiểu Dữ liệu (`src/lib/constants.ts`, `src/lib/types/zip.type.ts`)**:
+    - Thiết lập ngưỡng mặc định: `MAX_EPUB_TOTAL_ENTRIES = 5000`, `MAX_EPUB_SINGLE_ENTRY_SIZE = 50MB`, `MAX_EPUB_TOTAL_UNCOMPRESSED_SIZE = 500MB`.
+    - Bổ sung các interface kiểu chặt chẽ `ZipSafetyLimits`, `ZipEntryMetadataStatus`, `ZipExtractionBudgetTracker`, `ZipReadEntryOptions`, `JSZipInternalStream`.
+  - **Lớp Kiểm soát An toàn ZIP Dùng chung (`src/lib/utils/zip.ts`)**:
+    - `inspectRawZipCentralDirectory()`: kiểm tra Central Directory thô trước khi `JSZip.loadAsync()` cấp phát bộ nhớ, chặn trùng lặp tên entry thô, đường dẫn bất thường, vượt số entry hoặc kích thước khai báo.
+    - `validateZipEntryPath()` & `validateZipArchiveSafety()`: từ chối đường dẫn traversal (`..`), đường dẫn tuyệt đối (`/`, `C:\`), dấu `\`, ký tự điều khiển, tên entry trùng lặp và metadata `_data.uncompressedSize` thiếu/không hợp lệ (không mặc định bằng 0).
+    - `ZipExtractionBudget` & `readSafeZipEntryBytes()` / `readSafeZipEntryText()`: pre-check trước giải nén, kết hợp đếm byte đầu ra thực tế qua `internalStream('uint8array')` như lớp kiểm soát bổ sung (không xem là bảo đảm OOM tuyệt đối) và **không** fallback sang `.async()` không giới hạn.
+  - **Tích hợp Toàn bộ Đường Đọc trong EPUB Editor & EPUB → TXT**:
+    - Thay thế toàn bộ các điểm gọi `.async()` trong `src/lib/epub-to-txt/epub-to-txt.ts` và `src/lib/epub-editor/**` (`epub-editor-state.svelte.ts`, `editor-ops.ts`, `preview-builder.ts`, `epub-book-ops.ts`, `cleaner-engine.ts`, `duplicate-detector.ts`, `validator-engine.ts`, `structure-rules.ts`, `content-rules.ts`) sang helper an toàn dùng chung và `ZipExtractionBudget`.
+  - **Kiểm thử Chuyên sâu (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 16 unit tests kiểm tra vượt ngưỡng entries/entry/tổng dung lượng trước giải nén, giả mạo `_data.uncompressedSize`, thiếu metadata, chặn fallback `.async()`, path traversal, trùng lặp tên entry thô/case-insensitive và tích hợp EPUB Editor / EPUB → TXT.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (462/462 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/constants.ts`, `src/lib/types/zip.type.ts`, `src/lib/types/index.ts`, `src/lib/utils/zip.ts`, `src/lib/epub-to-txt/epub-to-txt.ts`, `src/lib/epub-editor/epub-editor-state.svelte.ts`, `src/lib/epub-editor/editor/editor-ops.ts`, `src/lib/epub-editor/editor/preview-builder.ts`, `src/lib/epub-editor/epub-book-ops.ts`, `src/lib/epub-editor/cleaner/cleaner-engine.ts`, `src/lib/epub-editor/cleaner/duplicate-detector.ts`, `src/lib/epub-editor/validator/validator-engine.ts`, `src/lib/epub-editor/validator/structure-rules.ts`, `src/lib/epub-editor/validator/content-rules.ts`, `src/lib/epub-editor/validator/types.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Tối ưu Kích thước Jacket Preview Tự động Đồng dạng & Bổ sung 3 Nấc Cỡ Xem, Sửa Lỗi CI/CD Playwright)
 
 - Thêm/sửa:

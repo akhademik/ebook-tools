@@ -1,5 +1,6 @@
 // src/lib/epub-editor/validator/types.ts
 import type JSZip from 'jszip';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 
 export type ValidationSeverity = 'error' | 'warning' | 'info';
 export type ValidationCategory =
@@ -45,6 +46,7 @@ export interface ManifestItemInfo {
 
 export interface ValidationContext {
 	zip: JSZip;
+	zipBudget?: ZipExtractionBudgetTracker;
 	profile: ValidationProfile;
 	editBuffer?: Map<string, string>;
 	allZipFiles: string[];

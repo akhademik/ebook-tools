@@ -1,8 +1,14 @@
 // src/lib/epub-editor/epub-book-ops.ts
 import type JSZip from 'jszip';
-import type { EpubMetadata, TocNode, TocTree } from '$lib/types';
+import type {
+	EpubMetadata,
+	TocNode,
+	TocTree,
+	ZipExtractionBudgetTracker,
+	ZipReadEntryOptions
+} from '$lib/types';
 import { resolveRelativePath } from './epub-editor';
-import { escapeXml } from '$lib/utils';
+import { escapeXml, createZipExtractionBudget, readSafeZipEntryText } from '$lib/utils';
 import { buildNavXhtml, buildTocNcx } from '../epub-packer/xml-builders/nav-builder';
 
 export interface BookMetadataDetails extends EpubMetadata {
@@ -24,10 +30,12 @@ interface TocChapterInfo {
 /**
  * Locate OPF path from META-INF/container.xml or fallback to *.opf
  */
-export async function findOpfPath(zip: JSZip): Promise<string | null> {
-	const container = zip.file('META-INF/container.xml');
-	if (container) {
-		const text = await container.async('text');
+export async function findOpfPath(
+	zip: JSZip,
+	options?: ZipReadEntryOptions
+): Promise<string | null> {
+	const text = await readSafeZipEntryText(zip, 'META-INF/container.xml', options);
+	if (text !== null) {
 		const m = /<rootfile\b[^>]*full-path\s*=\s*["']([^"']+)["']/i.exec(text);
 		if (m && zip.file(m[1])) return m[1];
 	}
@@ -279,7 +287,8 @@ export function reorderOpfSpine(opfXml: string, opfPath: string, newSpinePaths: 
  */
 export async function rebuildEpubToc(
 	zip: JSZip,
-	editBuffer?: Map<string, string>
+	editBuffer?: Map<string, string>,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<{
 	navXhtml: string;
 	tocNcx: string;
@@ -287,7 +296,8 @@ export async function rebuildEpubToc(
 	ncxPath: string;
 	modifiedPages: string[];
 } | null> {
-	const opfPath = await findOpfPath(zip);
+	const activeBudget = budget ?? createZipExtractionBudget();
+	const opfPath = await findOpfPath(zip, { budget: activeBudget });
 	if (!opfPath) return null;
 
 	const modifiedPages: string[] = [];
@@ -296,8 +306,7 @@ export async function rebuildEpubToc(
 		if (editBuffer && editBuffer.has(path)) {
 			return editBuffer.get(path) || '';
 		}
-		const f = zip.file(path);
-		return f ? await f.async('text') : '';
+		return (await readSafeZipEntryText(zip, path, { budget: activeBudget })) ?? '';
 	};
 
 	const opfText = await getFileText(opfPath);

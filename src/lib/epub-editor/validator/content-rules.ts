@@ -1,5 +1,5 @@
 // src/lib/epub-editor/validator/content-rules.ts
-import { resolveRelativePath } from '$lib/utils';
+import { resolveRelativePath, readSafeZipEntryBytes } from '$lib/utils';
 import { extractCssUrls, extractHtmlReferences } from '../epub-cleaner';
 import { validateHtml, isValidFontMagic } from '../epub-editor';
 import type { ValidationRule, ValidationContext } from './types';
@@ -126,9 +126,10 @@ export const CssAndFontsRule: ValidationRule = {
 		});
 
 		for (const fontPath of fontFiles) {
-			const fontEntry = ctx.zip.file(fontPath);
-			if (fontEntry) {
-				const fontBytes = await fontEntry.async('uint8array');
+			const fontBytes = await readSafeZipEntryBytes(ctx.zip, fontPath, {
+				budget: ctx.zipBudget
+			});
+			if (fontBytes) {
 				if (!isValidFontMagic(fontBytes)) {
 					ctx.report({
 						severity: 'warning',

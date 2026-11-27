@@ -1,6 +1,7 @@
 // src/lib/epub-editor/cleaner/duplicate-detector.ts
 import type JSZip from 'jszip';
-import { Logger } from '$lib/utils';
+import { Logger, createZipExtractionBudget, readSafeZipEntryBytes } from '$lib/utils';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 import type { DuplicateResourceItem } from './types';
 import {
 	computeDuplicateResources,
@@ -123,12 +124,14 @@ export async function scanDuplicateResources(
 	zip: JSZip,
 	editBuffer?: Map<string, string>,
 	onProgress?: (current: number, total: number, filename: string) => void,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<DuplicateResourceItem[]> {
 	if (signal?.aborted) {
 		throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
 	}
 
+	const activeBudget = budget ?? createZipExtractionBudget();
 	const filePaths = Object.keys(zip.files).filter((p) => !zip.files[p].dir);
 	const targetPaths = filePaths.filter((p) => {
 		const ext = p.substring(p.lastIndexOf('.')).toLowerCase();
@@ -151,24 +154,7 @@ export async function scanDuplicateResources(
 		return [];
 	}
 
-	const scanItems: ScanItemInput[] = [];
-	for (const path of targetPaths) {
-		if (signal?.aborted) {
-			throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
-		}
-		let bytes: Uint8Array;
-		if (editBuffer && editBuffer.has(path)) {
-			const text = editBuffer.get(path) || '';
-			bytes = new TextEncoder().encode(text);
-		} else {
-			const file = zip.files[path];
-			if (!file) continue;
-			bytes = await file.async('uint8array');
-		}
-		scanItems.push({ path, bytes });
-	}
-
-	const fallbackLoader = async (): Promise<ScanItemInput[]> => {
+	const loadScanItems = async (): Promise<ScanItemInput[]> => {
 		if (signal?.aborted) {
 			throw new DOMException('Tác vụ quét tài nguyên đã bị hủy', 'AbortError');
 		}
@@ -182,14 +168,17 @@ export async function scanDuplicateResources(
 				const text = editBuffer.get(path) || '';
 				bytes = new TextEncoder().encode(text);
 			} else {
-				const file = zip.files[path];
-				if (!file) continue;
-				bytes = await file.async('uint8array');
+				const safeBytes = await readSafeZipEntryBytes(zip, path, { budget: activeBudget });
+				if (!safeBytes) continue;
+				bytes = safeBytes;
 			}
 			items.push({ path, bytes });
 		}
 		return items;
 	};
+
+	const scanItems = await loadScanItems();
+	const fallbackLoader = loadScanItems;
 
 	const worker = getDuplicateWorker();
 	if (worker) {

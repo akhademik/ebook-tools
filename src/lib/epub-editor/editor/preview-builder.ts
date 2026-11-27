@@ -1,6 +1,13 @@
 // src/lib/epub-editor/editor/preview-builder.ts
 import type JSZip from 'jszip';
-import { Logger, resolveRelativePath } from '$lib/utils';
+import {
+	Logger,
+	resolveRelativePath,
+	createZipExtractionBudget,
+	readSafeZipEntryBytes,
+	readSafeZipEntryText
+} from '$lib/utils';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 import type { BuildPreviewHtmlOptions } from './types';
 import { isValidFontMagic, deobfuscateIdpfFont, deobfuscateAdobeFont } from './html-validator';
 
@@ -102,10 +109,12 @@ export function extractPublicationIdentifiers(opfContent: string): string[] {
  * Retrieve binary asset as a base64 data URI to ensure seamless rendering in sandboxed iframes.
  * Automatically deobfuscates EPUB encrypted/mangled fonts (IDPF & Adobe standards).
  */
-export async function getAssetDataUrl(zip: JSZip, path: string): Promise<string | null> {
-	const file = zip.file(path);
-	if (!file) return null;
-
+export async function getAssetDataUrl(
+	zip: JSZip,
+	path: string,
+	budget?: ZipExtractionBudgetTracker
+): Promise<string | null> {
+	const activeBudget = budget ?? createZipExtractionBudget();
 	const cleanPath = path.split('?')[0].split('#')[0];
 	const ext = cleanPath.substring(cleanPath.lastIndexOf('.')).toLowerCase();
 
@@ -123,12 +132,13 @@ export async function getAssetDataUrl(zip: JSZip, path: string): Promise<string 
 	else if (ext === '.woff2') mime = 'font/woff2';
 
 	if (isFont) {
-		let fontBytes = await file.async('uint8array');
+		let fontBytes = await readSafeZipEntryBytes(zip, path, { budget: activeBudget });
+		if (!fontBytes) return null;
 
 		if (!isValidFontMagic(fontBytes)) {
 			const opfEntry = Object.keys(zip.files).find((p) => p.toLowerCase().endsWith('.opf'));
 			if (opfEntry) {
-				const opfContent = await zip.file(opfEntry)?.async('text');
+				const opfContent = await readSafeZipEntryText(zip, opfEntry, { budget: activeBudget });
 				if (opfContent) {
 					const identifiers = extractPublicationIdentifiers(opfContent);
 					for (const uid of identifiers) {
@@ -160,7 +170,9 @@ export async function getAssetDataUrl(zip: JSZip, path: string): Promise<string 
 		return `data:${mime};base64,${base64}`;
 	}
 
-	const base64 = await file.async('base64');
+	const assetBytes = await readSafeZipEntryBytes(zip, path, { budget: activeBudget });
+	if (!assetBytes) return null;
+	const base64 = uint8ArrayToBase64(assetBytes);
 	return `data:${mime};base64,${base64}`;
 }
 

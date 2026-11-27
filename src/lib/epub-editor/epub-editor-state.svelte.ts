@@ -1,7 +1,11 @@
 // src/lib/epub-editor/epub-editor-state.svelte.ts
 import JSZip from 'jszip';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import type { EpubEditorFileItem, EpubValidationError } from '$lib/types';
+import type {
+	EpubEditorFileItem,
+	EpubValidationError,
+	ZipExtractionBudgetTracker
+} from '$lib/types';
 import {
 	parseZipEntries,
 	buildPreviewHtml,
@@ -26,7 +30,13 @@ import {
 	type BookMetadataDetails
 } from './epub-book-ops';
 import { MAX_EPUB_FILE_SIZE } from '$lib/constants';
-import { Logger, triggerDownload } from '$lib/utils';
+import {
+	Logger,
+	triggerDownload,
+	loadSafeEpubZip,
+	createZipExtractionBudget,
+	readSafeZipEntryText
+} from '$lib/utils';
 
 export class EpubEditorState {
 	zip = $state<JSZip | null>(null);
@@ -76,17 +86,31 @@ export class EpubEditorState {
 	private currentObjectUrls: string[] = [];
 	private previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private cleanerAbortController: AbortController | null = null;
+	private zipBudget: ZipExtractionBudgetTracker | null = null;
+	private loadRequestId = 0;
+	private selectionRequestId = 0;
 
-	cancelCleanupTask(): void {
+	private isCurrentSession(loadGen: number, expectedZip: JSZip | null): boolean {
+		return loadGen === this.loadRequestId && this.zip === expectedZip;
+	}
+
+	private abortPendingCleanup(silent = false): void {
 		if (this.cleanerAbortController) {
 			this.cleanerAbortController.abort();
 			this.cleanerAbortController = null;
-			this.statusMessage = 'Đã hủy tác vụ dọn dẹp.';
+			if (!silent) {
+				this.statusMessage = 'Đã hủy tác vụ dọn dẹp.';
+			}
 		}
+	}
+
+	cancelCleanupTask(): void {
+		this.abortPendingCleanup(false);
 	}
 
 	async loadEpubFile(file: File): Promise<void> {
 		this.reset();
+		const requestId = this.loadRequestId;
 		this.fileName = file.name;
 
 		if (file.size > MAX_EPUB_FILE_SIZE) {
@@ -100,12 +124,17 @@ export class EpubEditorState {
 		this.isError = false;
 
 		try {
-			const arrayBuffer = await file.arrayBuffer();
-			const loadedZip = await JSZip.loadAsync(arrayBuffer);
-			this.zip = loadedZip;
+			const loadedZip = await loadSafeEpubZip(file);
+			if (requestId !== this.loadRequestId) return;
 
+			const budget = createZipExtractionBudget();
 			// Parse entries ordered by EPUB spine and natural sorting
-			this.files = await parseZipEntries(loadedZip);
+			const parsedFiles = await parseZipEntries(loadedZip, undefined, budget);
+			if (requestId !== this.loadRequestId) return;
+
+			this.zip = loadedZip;
+			this.zipBudget = budget;
+			this.files = parsedFiles;
 			Logger.info('[EpubEditorState]', `Loaded ${this.files.length} entries from ${file.name}`);
 
 			if (this.files.length === 0) {
@@ -118,24 +147,31 @@ export class EpubEditorState {
 				this.editorTarget = firstPage.path;
 				this.previewTarget = firstPage.path;
 				await this.ensureFileLoaded(firstPage.path);
+				if (requestId !== this.loadRequestId) return;
+
 				await this.renderPreview();
+				if (requestId !== this.loadRequestId) return;
 			} else {
 				// Fallback to first available file if no page found
 				const firstFile = this.files[0];
 				if (firstFile) {
 					this.editorTarget = firstFile.path;
 					await this.ensureFileLoaded(firstFile.path);
+					if (requestId !== this.loadRequestId) return;
 				}
 			}
 
 			this.statusMessage = `Đã tải thành công ${file.name}`;
 		} catch (err: unknown) {
+			if (requestId !== this.loadRequestId) return;
 			const msg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubEditorState]', 'Error loading EPUB file', err);
 			this.statusMessage = `Lỗi nạp file EPUB: ${msg}`;
 			this.isError = true;
 		} finally {
-			this.isLoading = false;
+			if (requestId === this.loadRequestId) {
+				this.isLoading = false;
+			}
 		}
 	}
 
@@ -144,11 +180,23 @@ export class EpubEditorState {
 			return this.editBuffer.get(path)!;
 		}
 
-		if (this.zip) {
-			const zipFile = this.zip.file(path);
-			if (zipFile) {
-				const text = await zipFile.async('text');
-				this.originalContents.set(path, text);
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
+		if (activeZip) {
+			const text = await readSafeZipEntryText(activeZip, path, {
+				budget: activeBudget
+			});
+			if (!this.isCurrentSession(loadGen, activeZip)) {
+				return '';
+			}
+			if (text !== null) {
+				if (!this.originalContents.has(path)) {
+					this.originalContents.set(path, text);
+				}
+				if (this.editBuffer.has(path)) {
+					return this.editBuffer.get(path)!;
+				}
 				this.editBuffer.set(path, text);
 				return text;
 			}
@@ -159,7 +207,15 @@ export class EpubEditorState {
 
 	async selectFile(item: EpubEditorFileItem, _mode: 'single' | 'double' = 'single'): Promise<void> {
 		if (item.category === 'page' || item.category === 'style') {
+			const loadGen = this.loadRequestId;
+			const activeZip = this.zip;
+			const selGen = ++this.selectionRequestId;
+
 			await this.ensureFileLoaded(item.path);
+			if (!this.isCurrentSession(loadGen, activeZip) || selGen !== this.selectionRequestId) {
+				return;
+			}
+
 			this.editorTarget = item.path;
 
 			// Whenever a page file is selected, update preview target and render preview immediately
@@ -218,21 +274,31 @@ export class EpubEditorState {
 			return;
 		}
 
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
+		const targetPath = this.previewTarget;
 		const requestId = ++this.latestPreviewRequestId;
-		const htmlContent = await this.ensureFileLoaded(this.previewTarget);
+
+		const htmlContent = await this.ensureFileLoaded(targetPath);
+		if (!this.isCurrentSession(loadGen, activeZip) || requestId !== this.latestPreviewRequestId) {
+			return;
+		}
 
 		try {
 			const srcDoc = await buildPreviewHtml({
 				html: htmlContent,
-				baseHtmlPath: this.previewTarget,
+				baseHtmlPath: targetPath,
 				getFileContent: async (p) => {
+					if (!this.isCurrentSession(loadGen, activeZip)) return '';
 					return await this.ensureFileLoaded(p);
 				},
 				getAssetDataUrl: async (p) => {
-					if (!this.zip) return null;
+					if (!this.isCurrentSession(loadGen, activeZip) || !activeZip) return null;
 					const cached = this.assetDataUrlCache.get(p);
 					if (cached) return cached;
-					const dataUrl = await getAssetDataUrl(this.zip, p);
+					const dataUrl = await getAssetDataUrl(activeZip, p, activeBudget);
+					if (!this.isCurrentSession(loadGen, activeZip)) return null;
 					if (dataUrl) {
 						this.assetDataUrlCache.set(p, dataUrl);
 					}
@@ -240,7 +306,7 @@ export class EpubEditorState {
 				}
 			});
 
-			if (requestId !== this.latestPreviewRequestId) {
+			if (!this.isCurrentSession(loadGen, activeZip) || requestId !== this.latestPreviewRequestId) {
 				Logger.debug(
 					'[EpubEditorState]',
 					`Discarding stale preview render ${requestId} (current latest is ${this.latestPreviewRequestId})`
@@ -250,7 +316,9 @@ export class EpubEditorState {
 
 			this.previewSrcDoc = srcDoc;
 		} catch (err) {
-			if (requestId !== this.latestPreviewRequestId) return;
+			if (!this.isCurrentSession(loadGen, activeZip) || requestId !== this.latestPreviewRequestId) {
+				return;
+			}
 			Logger.error('[EpubEditorState]', 'Error rendering preview', err);
 			this.previewSrcDoc = `<div style="font-family: monospace; color: red; padding: 20px;">Lỗi kết xuất Preview: ${String(err)}</div>`;
 		}
@@ -274,32 +342,45 @@ export class EpubEditorState {
 			}
 		}
 
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
+		const activeFileName = this.fileName;
+
 		this.isExporting = true;
 		this.statusMessage = 'Đang đóng gói file EPUB đã chỉnh sửa...';
 
 		try {
-			const blob = await exportEpubBlob(this.zip, this.editBuffer);
-			const downloadName = this.fileName
-				? this.fileName.replace(/\.epub$/i, '') + '-edited.epub'
+			const blob = await exportEpubBlob(activeZip, this.editBuffer, activeBudget);
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
+
+			const downloadName = activeFileName
+				? activeFileName.replace(/\.epub$/i, '') + '-edited.epub'
 				: 'ebook-edited.epub';
 			triggerDownload(blob, downloadName);
 			this.statusMessage = `Đã xuất thành công: ${downloadName}`;
 			return blob;
 		} catch (err: unknown) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
 			const msg = err instanceof Error ? err.message : String(err);
 			Logger.error('[EpubEditorState]', 'Error exporting EPUB', err);
 			this.statusMessage = `Lỗi xuất EPUB: ${msg}`;
 			this.isError = true;
 			return null;
 		} finally {
-			this.isExporting = false;
+			if (this.isCurrentSession(loadGen, activeZip)) {
+				this.isExporting = false;
+			}
 		}
 	}
 
 	async analyzeForClean(): Promise<EpubAnalysisResult | null> {
 		if (!this.zip) return null;
 		this.flushEditorSync?.();
-		this.cancelCleanupTask();
+		this.abortPendingCleanup(true);
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
 		const ac = new AbortController();
 		this.cleanerAbortController = ac;
 
@@ -307,18 +388,23 @@ export class EpubEditorState {
 			this.cleanReport = null;
 			this.statusMessage = 'Đang quét tài nguyên trùng lặp & không sử dụng...';
 			const analysis = await analyzeEpub(
-				this.zip,
+				activeZip,
 				this.editBuffer,
 				(current, total, filename) => {
+					if (!this.isCurrentSession(loadGen, activeZip)) return;
 					const shortName = filename.split('/').pop() || filename;
 					this.statusMessage = `Đang quét tài nguyên (${current}/${total}): ${shortName}`;
 				},
-				ac.signal
+				ac.signal,
+				activeBudget
 			);
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
+
 			this.cleanAnalysis = analysis;
 			this.statusMessage = `Phân tích hoàn tất: có thể tiết kiệm ${formatByteSize(analysis.estimatedSavingsBytes)}`;
 			return analysis;
 		} catch (err: unknown) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.statusMessage = 'Đã hủy phân tích dọn dẹp.';
 				return null;
@@ -334,28 +420,37 @@ export class EpubEditorState {
 
 	async runCleanup(options?: EpubCleanOptions): Promise<EpubCleanReport | null> {
 		if (!this.zip) return null;
-		this.cancelCleanupTask();
+		this.abortPendingCleanup(true);
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
 		const ac = new AbortController();
 		this.cleanerAbortController = ac;
 
 		try {
 			this.statusMessage = 'Đang thực hiện dọn dẹp & tối ưu hóa EPUB...';
 			const report = await cleanEpub(
-				this.zip,
+				activeZip,
 				options,
 				this.editBuffer,
 				(current, total, filename) => {
+					if (!this.isCurrentSession(loadGen, activeZip)) return;
 					const shortName = filename.split('/').pop() || filename;
 					this.statusMessage = `Đang khử trùng lặp (${current}/${total}): ${shortName}`;
 				},
-				ac.signal
+				ac.signal,
+				activeBudget
 			);
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
+
 			this.cleanReport = report;
 			this.cleanAnalysis = null;
 			this.assetDataUrlCache.clear();
 
 			// Refresh entries after deletion
-			this.files = await parseZipEntries(this.zip, this.editBuffer);
+			const refreshedFiles = await parseZipEntries(activeZip, this.editBuffer, activeBudget);
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
+			this.files = refreshedFiles;
 
 			// If current editorTarget was deleted, reselect first available page
 			if (this.editorTarget && !this.files.some((f) => f.path === this.editorTarget)) {
@@ -364,13 +459,16 @@ export class EpubEditorState {
 					this.editorTarget = firstPage.path;
 					this.previewTarget = firstPage.path;
 					await this.ensureFileLoaded(firstPage.path);
+					if (!this.isCurrentSession(loadGen, activeZip)) return null;
 					await this.renderPreview();
+					if (!this.isCurrentSession(loadGen, activeZip)) return null;
 				}
 			}
 
 			this.statusMessage = `Đã dọn dẹp ${report.savedBytes > 0 ? formatByteSize(report.savedBytes) : 'tài nguyên'}`;
 			return report;
 		} catch (err: unknown) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
 			if (err instanceof DOMException && err.name === 'AbortError') {
 				this.statusMessage = 'Đã hủy dọn dẹp.';
 				return null;
@@ -386,15 +484,20 @@ export class EpubEditorState {
 
 	async loadBookMetadata(): Promise<BookMetadataDetails | null> {
 		if (!this.zip) return null;
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
 		try {
-			const opfPath = await findOpfPath(this.zip);
-			if (!opfPath) return null;
+			const opfPath = await findOpfPath(activeZip, { budget: activeBudget });
+			if (!opfPath || !this.isCurrentSession(loadGen, activeZip)) return null;
 			await this.ensureFileLoaded(opfPath);
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
 			const opfXml = this.editBuffer.get(opfPath) || '';
 			const meta = extractBookMetadata(opfXml);
 			this.bookMetadata = meta;
 			return meta;
 		} catch (err) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return null;
 			Logger.error('[EpubEditorState]', 'Failed to load book metadata', err);
 			return null;
 		}
@@ -402,10 +505,14 @@ export class EpubEditorState {
 
 	async saveBookMetadata(newMeta: BookMetadataDetails): Promise<boolean> {
 		if (!this.zip) return false;
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
 		try {
-			const opfPath = await findOpfPath(this.zip);
-			if (!opfPath) return false;
+			const opfPath = await findOpfPath(activeZip, { budget: activeBudget });
+			if (!opfPath || !this.isCurrentSession(loadGen, activeZip)) return false;
 			await this.ensureFileLoaded(opfPath);
+			if (!this.isCurrentSession(loadGen, activeZip)) return false;
 			const opfXml = this.editBuffer.get(opfPath) || '';
 			const updated = updateBookMetadata(opfXml, newMeta);
 			this.editBuffer.set(opfPath, updated);
@@ -414,6 +521,7 @@ export class EpubEditorState {
 			this.statusMessage = 'Đã cập nhật metadata trong content.opf';
 			return true;
 		} catch (err) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return false;
 			Logger.error('[EpubEditorState]', 'Failed to save book metadata', err);
 			return false;
 		}
@@ -422,9 +530,12 @@ export class EpubEditorState {
 	async rebuildToc(): Promise<boolean> {
 		if (!this.zip) return false;
 		this.flushEditorSync?.();
+		const loadGen = this.loadRequestId;
+		const activeZip = this.zip;
+		const activeBudget = this.zipBudget ?? undefined;
 		try {
-			const res = await rebuildEpubToc(this.zip, this.editBuffer);
-			if (!res) return false;
+			const res = await rebuildEpubToc(activeZip, this.editBuffer, activeBudget);
+			if (!res || !this.isCurrentSession(loadGen, activeZip)) return false;
 
 			// Write nav.xhtml & toc.ncx to editBuffer (canonical in-memory store)
 			this.editBuffer.set(res.navPath, res.navXhtml);
@@ -438,10 +549,14 @@ export class EpubEditorState {
 				this.dirtyPaths.add(p);
 			}
 
-			this.files = await parseZipEntries(this.zip, this.editBuffer);
+			const refreshedFiles = await parseZipEntries(activeZip, this.editBuffer, activeBudget);
+			if (!this.isCurrentSession(loadGen, activeZip)) return false;
+
+			this.files = refreshedFiles;
 			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';
 			return true;
 		} catch (err) {
+			if (!this.isCurrentSession(loadGen, activeZip)) return false;
 			Logger.error('[EpubEditorState]', 'Failed to rebuild TOC', err);
 			return false;
 		}
@@ -466,12 +581,16 @@ export class EpubEditorState {
 	}
 
 	reset(): void {
+		this.loadRequestId++;
+		this.selectionRequestId++;
+		this.abortPendingCleanup(true);
 		if (this.previewDebounceTimer) {
 			clearTimeout(this.previewDebounceTimer);
 			this.previewDebounceTimer = null;
 		}
 		this.cleanupObjectUrls();
 		this.zip = null;
+		this.zipBudget = null;
 		this.fileName = '';
 		this.files = [];
 		this.editorTarget = null;

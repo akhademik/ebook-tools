@@ -1,6 +1,13 @@
 // src/lib/epub-editor/editor/editor-ops.ts
 import JSZip from 'jszip';
-import { resolveRelativePath } from '$lib/utils';
+import {
+	resolveRelativePath,
+	validateZipArchiveSafety,
+	createZipExtractionBudget,
+	readSafeZipEntryText,
+	readSafeZipEntryBytes
+} from '$lib/utils';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 import type { EpubFileCategory, EpubEditorFileItem } from './types';
 
 /**
@@ -99,13 +106,18 @@ export function parseSpineOrder(opfContent: string, opfPath: string): string[] {
  */
 export async function parseZipEntries(
 	zip: JSZip,
-	editBuffer?: Map<string, string>
+	editBuffer?: Map<string, string>,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<EpubEditorFileItem[]> {
+	validateZipArchiveSafety(zip);
+	const activeBudget = budget ?? createZipExtractionBudget();
+
 	let spineOrder: string[] = [];
 	const opfPath = Object.keys(zip.files).find((p) => p.toLowerCase().endsWith('.opf'));
 	if (opfPath) {
 		const opfText =
-			(editBuffer && editBuffer.get(opfPath)) || (await zip.file(opfPath)?.async('text'));
+			(editBuffer && editBuffer.get(opfPath)) ||
+			(await readSafeZipEntryText(zip, opfPath, { budget: activeBudget }));
 		if (opfText) {
 			spineOrder = parseSpineOrder(opfText, opfPath);
 		}
@@ -200,7 +212,13 @@ export function extractLinkedCssPaths(html: string, baseHtmlPath: string): strin
  * Ensures the 'mimetype' entry is uncompressed (STORE) and placed first in the archive,
  * strictly complying with OCF 3.3 §3.3.2 specification.
  */
-export async function exportEpubBlob(zip: JSZip, editBuffer: Map<string, string>): Promise<Blob> {
+export async function exportEpubBlob(
+	zip: JSZip,
+	editBuffer: Map<string, string>,
+	budget?: ZipExtractionBudgetTracker
+): Promise<Blob> {
+	const activeBudget = budget ?? createZipExtractionBudget();
+
 	for (const [path, content] of editBuffer.entries()) {
 		zip.file(path, content);
 	}
@@ -209,16 +227,15 @@ export async function exportEpubBlob(zip: JSZip, editBuffer: Map<string, string>
 	const newZip = new JSZip();
 
 	// 1. mimetype MUST be the first file in the ZIP, uncompressed (STORE)
-	const mimeFile = zip.file('mimetype');
-	const mimeContent = mimeFile ? (await mimeFile.async('text')).trim() : 'application/epub+zip';
+	const mimeRaw = await readSafeZipEntryText(zip, 'mimetype', { budget: activeBudget });
+	const mimeContent = mimeRaw !== null ? mimeRaw.trim() : 'application/epub+zip';
 	newZip.file('mimetype', mimeContent, { compression: 'STORE' });
 
 	// 2. Add all other files
 	const allPaths = Object.keys(zip.files).filter((p) => p !== 'mimetype' && !zip.files[p].dir);
 	for (const path of allPaths) {
-		const file = zip.files[path];
-		if (file) {
-			const data = await file.async('uint8array');
+		const data = await readSafeZipEntryBytes(zip, path, { budget: activeBudget });
+		if (data) {
 			newZip.file(path, data);
 		}
 	}
