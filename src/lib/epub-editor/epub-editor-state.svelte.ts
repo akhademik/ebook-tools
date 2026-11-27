@@ -1,7 +1,11 @@
 // src/lib/epub-editor/epub-editor-state.svelte.ts
 import JSZip from 'jszip';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import type { EpubEditorFileItem, EpubValidationError } from '$lib/types';
+import type {
+	EpubEditorFileItem,
+	EpubValidationError,
+	ZipExtractionBudgetTracker
+} from '$lib/types';
 import {
 	parseZipEntries,
 	buildPreviewHtml,
@@ -26,7 +30,13 @@ import {
 	type BookMetadataDetails
 } from './epub-book-ops';
 import { MAX_EPUB_FILE_SIZE } from '$lib/constants';
-import { Logger, triggerDownload } from '$lib/utils';
+import {
+	Logger,
+	triggerDownload,
+	loadSafeEpubZip,
+	createZipExtractionBudget,
+	readSafeZipEntryText
+} from '$lib/utils';
 
 export class EpubEditorState {
 	zip = $state<JSZip | null>(null);
@@ -76,6 +86,7 @@ export class EpubEditorState {
 	private currentObjectUrls: string[] = [];
 	private previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 	private cleanerAbortController: AbortController | null = null;
+	private zipBudget: ZipExtractionBudgetTracker | null = null;
 
 	cancelCleanupTask(): void {
 		if (this.cleanerAbortController) {
@@ -100,12 +111,12 @@ export class EpubEditorState {
 		this.isError = false;
 
 		try {
-			const arrayBuffer = await file.arrayBuffer();
-			const loadedZip = await JSZip.loadAsync(arrayBuffer);
+			const loadedZip = await loadSafeEpubZip(file);
 			this.zip = loadedZip;
+			this.zipBudget = createZipExtractionBudget();
 
 			// Parse entries ordered by EPUB spine and natural sorting
-			this.files = await parseZipEntries(loadedZip);
+			this.files = await parseZipEntries(loadedZip, undefined, this.zipBudget);
 			Logger.info('[EpubEditorState]', `Loaded ${this.files.length} entries from ${file.name}`);
 
 			if (this.files.length === 0) {
@@ -145,9 +156,10 @@ export class EpubEditorState {
 		}
 
 		if (this.zip) {
-			const zipFile = this.zip.file(path);
-			if (zipFile) {
-				const text = await zipFile.async('text');
+			const text = await readSafeZipEntryText(this.zip, path, {
+				budget: this.zipBudget ?? undefined
+			});
+			if (text !== null) {
 				this.originalContents.set(path, text);
 				this.editBuffer.set(path, text);
 				return text;
@@ -232,7 +244,7 @@ export class EpubEditorState {
 					if (!this.zip) return null;
 					const cached = this.assetDataUrlCache.get(p);
 					if (cached) return cached;
-					const dataUrl = await getAssetDataUrl(this.zip, p);
+					const dataUrl = await getAssetDataUrl(this.zip, p, this.zipBudget ?? undefined);
 					if (dataUrl) {
 						this.assetDataUrlCache.set(p, dataUrl);
 					}
@@ -278,7 +290,7 @@ export class EpubEditorState {
 		this.statusMessage = 'Đang đóng gói file EPUB đã chỉnh sửa...';
 
 		try {
-			const blob = await exportEpubBlob(this.zip, this.editBuffer);
+			const blob = await exportEpubBlob(this.zip, this.editBuffer, this.zipBudget ?? undefined);
 			const downloadName = this.fileName
 				? this.fileName.replace(/\.epub$/i, '') + '-edited.epub'
 				: 'ebook-edited.epub';
@@ -313,7 +325,8 @@ export class EpubEditorState {
 					const shortName = filename.split('/').pop() || filename;
 					this.statusMessage = `Đang quét tài nguyên (${current}/${total}): ${shortName}`;
 				},
-				ac.signal
+				ac.signal,
+				this.zipBudget ?? undefined
 			);
 			this.cleanAnalysis = analysis;
 			this.statusMessage = `Phân tích hoàn tất: có thể tiết kiệm ${formatByteSize(analysis.estimatedSavingsBytes)}`;
@@ -348,14 +361,15 @@ export class EpubEditorState {
 					const shortName = filename.split('/').pop() || filename;
 					this.statusMessage = `Đang khử trùng lặp (${current}/${total}): ${shortName}`;
 				},
-				ac.signal
+				ac.signal,
+				this.zipBudget ?? undefined
 			);
 			this.cleanReport = report;
 			this.cleanAnalysis = null;
 			this.assetDataUrlCache.clear();
 
 			// Refresh entries after deletion
-			this.files = await parseZipEntries(this.zip, this.editBuffer);
+			this.files = await parseZipEntries(this.zip, this.editBuffer, this.zipBudget ?? undefined);
 
 			// If current editorTarget was deleted, reselect first available page
 			if (this.editorTarget && !this.files.some((f) => f.path === this.editorTarget)) {
@@ -387,7 +401,7 @@ export class EpubEditorState {
 	async loadBookMetadata(): Promise<BookMetadataDetails | null> {
 		if (!this.zip) return null;
 		try {
-			const opfPath = await findOpfPath(this.zip);
+			const opfPath = await findOpfPath(this.zip, { budget: this.zipBudget ?? undefined });
 			if (!opfPath) return null;
 			await this.ensureFileLoaded(opfPath);
 			const opfXml = this.editBuffer.get(opfPath) || '';
@@ -403,7 +417,7 @@ export class EpubEditorState {
 	async saveBookMetadata(newMeta: BookMetadataDetails): Promise<boolean> {
 		if (!this.zip) return false;
 		try {
-			const opfPath = await findOpfPath(this.zip);
+			const opfPath = await findOpfPath(this.zip, { budget: this.zipBudget ?? undefined });
 			if (!opfPath) return false;
 			await this.ensureFileLoaded(opfPath);
 			const opfXml = this.editBuffer.get(opfPath) || '';
@@ -423,7 +437,7 @@ export class EpubEditorState {
 		if (!this.zip) return false;
 		this.flushEditorSync?.();
 		try {
-			const res = await rebuildEpubToc(this.zip, this.editBuffer);
+			const res = await rebuildEpubToc(this.zip, this.editBuffer, this.zipBudget ?? undefined);
 			if (!res) return false;
 
 			// Write nav.xhtml & toc.ncx to editBuffer (canonical in-memory store)
@@ -438,7 +452,7 @@ export class EpubEditorState {
 				this.dirtyPaths.add(p);
 			}
 
-			this.files = await parseZipEntries(this.zip, this.editBuffer);
+			this.files = await parseZipEntries(this.zip, this.editBuffer, this.zipBudget ?? undefined);
 			this.statusMessage = 'Đã tạo lại mục lục nav.xhtml và toc.ncx';
 			return true;
 		} catch (err) {
@@ -472,6 +486,7 @@ export class EpubEditorState {
 		}
 		this.cleanupObjectUrls();
 		this.zip = null;
+		this.zipBudget = null;
 		this.fileName = '';
 		this.files = [];
 		this.editorTarget = null;

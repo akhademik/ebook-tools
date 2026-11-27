@@ -1,5 +1,5 @@
 // src/lib/epub-editor/validator/structure-rules.ts
-import { resolveRelativePath } from '$lib/utils';
+import { resolveRelativePath, readSafeZipEntryText } from '$lib/utils';
 import type { ValidationRule, ValidationContext } from './types';
 
 /**
@@ -18,7 +18,10 @@ export const StructureRule: ValidationRule = {
 				suggestion: 'Tạo file mimetype với nội dung: application/epub+zip'
 			});
 		} else {
-			const mimeText = (await mimetypeFile.async('text')).trim();
+			const mimeRaw = await readSafeZipEntryText(ctx.zip, 'mimetype', {
+				budget: ctx.zipBudget
+			});
+			const mimeText = (mimeRaw ?? '').trim();
 			if (mimeText !== 'application/epub+zip') {
 				ctx.report({
 					severity: 'error',
@@ -38,7 +41,10 @@ export const StructureRule: ValidationRule = {
 				suggestion: 'Thêm file container.xml khai báo đường dẫn tới file OPF.'
 			});
 		} else {
-			const containerText = await containerFile.async('text');
+			const containerText =
+				(await readSafeZipEntryText(ctx.zip, 'META-INF/container.xml', {
+					budget: ctx.zipBudget
+				})) ?? '';
 			let resolvedOpf: string | null = null;
 
 			if (typeof DOMParser !== 'undefined') {

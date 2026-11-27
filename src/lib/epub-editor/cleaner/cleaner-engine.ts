@@ -1,6 +1,14 @@
 // src/lib/epub-editor/cleaner/cleaner-engine.ts
 import type JSZip from 'jszip';
-import { resolveRelativePath, getRelativePath } from '$lib/utils';
+import {
+	resolveRelativePath,
+	getRelativePath,
+	getZipEntryUncompressedSize,
+	createZipExtractionBudget,
+	readSafeZipEntryBytes,
+	readSafeZipEntryText
+} from '$lib/utils';
+import type { ZipExtractionBudgetTracker } from '$lib/types';
 import type {
 	EpubOptimizationPlan,
 	EpubAnalysisResult,
@@ -19,11 +27,13 @@ export async function analyzeOptimizationPlan(
 	zip: JSZip,
 	editBuffer?: Map<string, string>,
 	onProgress?: (current: number, total: number, filename: string) => void,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<EpubOptimizationPlan> {
 	if (signal?.aborted) {
 		throw new DOMException('Tác vụ phân tích EPUB đã bị hủy', 'AbortError');
 	}
+	const activeBudget = budget ?? createZipExtractionBudget();
 	const allResources: EpubResourceUsage[] = [];
 	const missingReferences: EpubMissingReference[] = [];
 	const filePaths = Object.keys(zip.files).filter((p) => !zip.files[p].dir);
@@ -38,12 +48,12 @@ export async function analyzeOptimizationPlan(
 		const file = zip.files[path];
 		let byteSize = 0;
 		if (file) {
-			const rawData = (file as unknown as { _data?: { uncompressedSize?: number } })._data;
-			if (typeof rawData?.uncompressedSize === 'number') {
-				byteSize = rawData.uncompressedSize;
+			const declaredSize = getZipEntryUncompressedSize(file);
+			if (declaredSize !== null) {
+				byteSize = declaredSize;
 			} else {
-				const bytes = await file.async('uint8array');
-				byteSize = bytes.byteLength;
+				const bytes = await readSafeZipEntryBytes(zip, path, { budget: activeBudget });
+				byteSize = bytes?.byteLength ?? 0;
 			}
 		}
 		totalBytes += byteSize;
@@ -78,8 +88,7 @@ export async function analyzeOptimizationPlan(
 		if (editBuffer && editBuffer.has(path)) {
 			return editBuffer.get(path) || '';
 		}
-		const f = zip.file(path);
-		return f ? await f.async('text') : '';
+		return (await readSafeZipEntryText(zip, path, { budget: activeBudget })) ?? '';
 	}
 
 	// 1. Check OPF file to register Cover image, Spine order, and Guide references
@@ -248,9 +257,10 @@ export async function analyzeEpub(
 	zip: JSZip,
 	editBuffer?: Map<string, string>,
 	onProgress?: (current: number, total: number, filename: string) => void,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<EpubAnalysisResult> {
-	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress, signal);
+	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress, signal, budget);
 	return {
 		totalFiles: plan.totalFiles,
 		totalBytes: plan.totalBytes,
@@ -279,9 +289,11 @@ export async function cleanEpub(
 	},
 	editBuffer?: Map<string, string>,
 	onProgress?: (current: number, total: number, filename: string) => void,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	budget?: ZipExtractionBudgetTracker
 ): Promise<EpubCleanReport> {
-	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress, signal);
+	const activeBudget = budget ?? createZipExtractionBudget();
+	const plan = await analyzeOptimizationPlan(zip, editBuffer, onProgress, signal, activeBudget);
 
 	const removedImages: string[] = [];
 	const removedFonts: string[] = [];
@@ -336,7 +348,9 @@ export async function cleanEpub(
 			});
 
 			for (const tf of textFiles) {
-				let content = editBuffer?.has(tf) ? editBuffer.get(tf)! : await zip.file(tf)!.async('text');
+				let content = editBuffer?.has(tf)
+					? editBuffer.get(tf)!
+					: ((await readSafeZipEntryText(zip, tf, { budget: activeBudget })) ?? '');
 				let modified = false;
 
 				for (const [dupPath, origPath] of replacementMap.entries()) {
@@ -386,7 +400,7 @@ export async function cleanEpub(
 		if (opfPath) {
 			let opfText = editBuffer?.has(opfPath)
 				? editBuffer.get(opfPath)!
-				: await zip.file(opfPath)!.async('text');
+				: ((await readSafeZipEntryText(zip, opfPath, { budget: activeBudget })) ?? '');
 
 			const deletedResolvedPaths = new Set(filesToDelete);
 
@@ -413,9 +427,8 @@ export async function cleanEpub(
 	// Calculate final bytes
 	let afterBytes = 0;
 	for (const p of Object.keys(zip.files).filter((p) => !zip.files[p].dir)) {
-		const file = zip.files[p];
-		if (file) {
-			const bytes = await file.async('uint8array');
+		const bytes = await readSafeZipEntryBytes(zip, p, { budget: activeBudget });
+		if (bytes) {
 			afterBytes += bytes.byteLength;
 		}
 	}

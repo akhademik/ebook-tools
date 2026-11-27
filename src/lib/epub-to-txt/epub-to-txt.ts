@@ -2,7 +2,13 @@
 import JSZip from 'jszip';
 import { findOpfPath, extractBookMetadata } from '$lib/epub-editor/epub-book-ops';
 import { resolveRelativePath } from '$lib/epub-editor/epub-editor';
-import { Logger } from '$lib/utils';
+import {
+	Logger,
+	loadSafeEpubZip,
+	validateZipArchiveSafety,
+	createZipExtractionBudget,
+	readSafeZipEntryText
+} from '$lib/utils';
 
 export interface EpubToTxtResult {
 	text: string;
@@ -759,28 +765,28 @@ export async function extractEpubToTxt(
 	let originalName = 'sach';
 
 	if (epubFileOrZip instanceof JSZip) {
+		validateZipArchiveSafety(epubFileOrZip);
 		zip = epubFileOrZip;
 	} else {
 		if ('name' in epubFileOrZip && typeof epubFileOrZip.name === 'string') {
 			originalName = epubFileOrZip.name.replace(/\.epub$/i, '');
 		}
-		const arrayBuffer = await (epubFileOrZip as Blob).arrayBuffer();
-		zip = await JSZip.loadAsync(arrayBuffer);
+		zip = await loadSafeEpubZip(epubFileOrZip as Blob);
 	}
+
+	const zipBudget = createZipExtractionBudget();
 
 	options?.onProgress?.('Đang phân tích OPF và mục lục...', 25);
 
-	const opfPath = await findOpfPath(zip);
+	const opfPath = await findOpfPath(zip, { budget: zipBudget });
 	if (!opfPath) {
 		throw new Error('Không tìm thấy file content.opf trong EPUB.');
 	}
 
-	const opfFile = zip.file(opfPath);
-	if (!opfFile) {
+	const opfXml = await readSafeZipEntryText(zip, opfPath, { budget: zipBudget });
+	if (opfXml === null) {
 		throw new Error(`Không thể mở file OPF tại đường dẫn: ${opfPath}`);
 	}
-
-	const opfXml = await opfFile.async('text');
 	const metadata = extractBookMetadata(opfXml);
 
 	const bookTitle = metadata.title || originalName;
@@ -848,10 +854,8 @@ export async function extractEpubToTxt(
 
 	for (let i = 0; i < total; i++) {
 		const path = chapterPaths[i];
-		const file = zip.file(path);
-		if (file) {
-			const htmlText = await file.async('text');
-
+		const htmlText = await readSafeZipEntryText(zip, path, { budget: zipBudget });
+		if (htmlText !== null) {
 			// Skip cover image page
 			if (/<div\b[^>]*\bclass=["'][^"']*\bcover-wrapper\b[^"']*["']/i.test(htmlText)) {
 				continue;

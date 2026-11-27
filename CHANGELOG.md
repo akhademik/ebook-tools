@@ -4,6 +4,25 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Xây dựng Lớp Kiểm soát An toàn ZIP Dùng chung cho EPUB Editor và EPUB → TXT)
+
+- Thêm/sửa:
+  - **Định nghĩa Ngưỡng An toàn EPUB & Kiểu Dữ liệu (`src/lib/constants.ts`, `src/lib/types/zip.type.ts`)**:
+    - Thiết lập ngưỡng mặc định: `MAX_EPUB_TOTAL_ENTRIES = 5000`, `MAX_EPUB_SINGLE_ENTRY_SIZE = 50MB`, `MAX_EPUB_TOTAL_UNCOMPRESSED_SIZE = 500MB`.
+    - Bổ sung các interface kiểu chặt chẽ `ZipSafetyLimits`, `ZipEntryMetadataStatus`, `ZipExtractionBudgetTracker`, `ZipReadEntryOptions`, `JSZipInternalStream`.
+  - **Lớp Kiểm soát An toàn ZIP Dùng chung (`src/lib/utils/zip.ts`)**:
+    - `inspectRawZipCentralDirectory()`: kiểm tra Central Directory thô trước khi `JSZip.loadAsync()` cấp phát bộ nhớ, chặn trùng lặp tên entry thô, đường dẫn bất thường, vượt số entry hoặc kích thước khai báo.
+    - `validateZipEntryPath()` & `validateZipArchiveSafety()`: từ chối đường dẫn traversal (`..`), đường dẫn tuyệt đối (`/`, `C:\`), dấu `\`, ký tự điều khiển, tên entry trùng lặp và metadata `_data.uncompressedSize` thiếu/không hợp lệ (không mặc định bằng 0).
+    - `ZipExtractionBudget` & `readSafeZipEntryBytes()` / `readSafeZipEntryText()`: pre-check trước giải nén, kết hợp đếm byte đầu ra thực tế qua `internalStream('uint8array')` như lớp kiểm soát bổ sung (không xem là bảo đảm OOM tuyệt đối) và **không** fallback sang `.async()` không giới hạn.
+  - **Tích hợp Toàn bộ Đường Đọc trong EPUB Editor & EPUB → TXT**:
+    - Thay thế toàn bộ các điểm gọi `.async()` trong `src/lib/epub-to-txt/epub-to-txt.ts` và `src/lib/epub-editor/**` (`epub-editor-state.svelte.ts`, `editor-ops.ts`, `preview-builder.ts`, `epub-book-ops.ts`, `cleaner-engine.ts`, `duplicate-detector.ts`, `validator-engine.ts`, `structure-rules.ts`, `content-rules.ts`) sang helper an toàn dùng chung và `ZipExtractionBudget`.
+  - **Kiểm thử Chuyên sâu (`tests/zip-safety.test.ts`)**:
+    - Bổ sung 16 unit tests kiểm tra vượt ngưỡng entries/entry/tổng dung lượng trước giải nén, giả mạo `_data.uncompressedSize`, thiếu metadata, chặn fallback `.async()`, path traversal, trùng lặp tên entry thô/case-insensitive và tích hợp EPUB Editor / EPUB → TXT.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (462/462 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/constants.ts`, `src/lib/types/zip.type.ts`, `src/lib/types/index.ts`, `src/lib/utils/zip.ts`, `src/lib/epub-to-txt/epub-to-txt.ts`, `src/lib/epub-editor/epub-editor-state.svelte.ts`, `src/lib/epub-editor/editor/editor-ops.ts`, `src/lib/epub-editor/editor/preview-builder.ts`, `src/lib/epub-editor/epub-book-ops.ts`, `src/lib/epub-editor/cleaner/cleaner-engine.ts`, `src/lib/epub-editor/cleaner/duplicate-detector.ts`, `src/lib/epub-editor/validator/validator-engine.ts`, `src/lib/epub-editor/validator/structure-rules.ts`, `src/lib/epub-editor/validator/content-rules.ts`, `src/lib/epub-editor/validator/types.ts`, `tests/zip-safety.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-26 (Tối ưu Kích thước Jacket Preview Tự động Đồng dạng & Bổ sung 3 Nấc Cỡ Xem, Sửa Lỗi CI/CD Playwright)
 
 - Thêm/sửa:

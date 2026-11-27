@@ -6,10 +6,10 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-26 17:35
-- Đã hoàn thành: Hoàn thiện logic và giao diện chọn 3 cặp font cho trang Jacket (Trang giới thiệu sách) với zero CSS specificity errors, deduplication font binary; đạt chuẩn kiểm tra pipeline toàn diện (446/446 tests pass).
+- Cập nhật lần cuối: 2026-11-27 08:32
+- Đã hoàn thành: Xây dựng lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT (`loadSafeEpubZip`, `inspectRawZipCentralDirectory`, `validateZipArchiveSafety`, `ZipExtractionBudget`, `readSafeZipEntryBytes`/`Text`) với ngưỡng 5.000 entries / 50MB mỗi entry / 500MB tổng giải nén, kiểm tra path traversal (`../`, tuyệt đối), trùng lặp tên entry, từ chối metadata thiếu/không hợp lệ và không fallback `.async()` không giới hạn; toàn bộ pipeline kiểm tra đạt chuẩn (462/462 unit tests + 24/24 E2E tests pass).
 - Đang dở: Không có
-- Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (_data) (P3).
+- Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3).
 
 ---
 

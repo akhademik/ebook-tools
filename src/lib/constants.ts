@@ -21,3 +21,10 @@ export const MAX_ZIP_TOTAL_UNCOMPRESSED_SIZE = 60 * 1024 * 1024; // 60MB maximum
 export const MAX_IMAGES_ZIP_ENTRIES = 500; // Maximum number of entries in illustrations ZIP
 export const MAX_ILLUSTRATION_COUNT = 200; // Maximum number of illustration files allowed
 export const MAX_IMAGES_ZIP_TOTAL_UNCOMPRESSED_SIZE = 150 * 1024 * 1024; // 150MB maximum total uncompressed images in RAM
+
+/**
+ * EPUB ZIP extraction quotas for EPUB Editor and EPUB → TXT
+ */
+export const MAX_EPUB_TOTAL_ENTRIES = 5000; // Maximum number of entries (files + folders) in an EPUB archive
+export const MAX_EPUB_SINGLE_ENTRY_SIZE = 50 * 1024 * 1024; // 50MB maximum uncompressed size per single EPUB entry
+export const MAX_EPUB_TOTAL_UNCOMPRESSED_SIZE = 500 * 1024 * 1024; // 500MB maximum total uncompressed size per EPUB archive
