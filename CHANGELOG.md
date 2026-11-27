@@ -4,6 +4,18 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-27 (Kiểm tra `AbortSignal` Xuyên suốt `cleanEpub` & `analyzeOptimizationPlan` Trước Khi Sửa `editBuffer`/`zip`)
+
+- Thêm/sửa:
+  - **Bảo vệ Hủy Tác vụ trong Cleaner Engine (`src/lib/epub-editor/cleaner/cleaner-engine.ts`)**:
+    - Thêm helper `throwIfAborted(signal)` và gọi sau mọi `await`, trong các vòng lặp xử lý tài nguyên và ngay trước mọi thao tác ghi/xóa trên `editBuffer` và `zip` (`editBuffer.set`, `editBuffer.delete`, `zip.file`, `zip.remove`) trong `analyzeOptimizationPlan()` và `cleanEpub()`.
+  - **Bổ sung Unit Tests (`tests/epub-editor-state.test.ts`)**:
+    - Kiểm thử cả `analyzeForClean()` và `runCleanup()` bị hủy giữa chừng khi `reset()` và mở sách B; xác nhận Cleaner A không làm thay đổi `editBuffer` hoặc trạng thái của sách B sau khi tác vụ đọc cũ hoàn tất.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint ✅ | test unit ✅ (478/478 pass) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-editor/cleaner/cleaner-engine.ts`, `tests/epub-editor-state.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-27 (Khắc phục Triệt để Race Condition Mở/Chuyển File & Reset trong EPUB Editor)
 
 - Thêm/sửa:

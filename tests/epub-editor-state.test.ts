@@ -286,6 +286,111 @@ describe('EpubEditorState race condition protections', () => {
 		expect(state.statusMessage).toBe('Book B ready');
 	});
 
+	it('should stop analyzeForClean() and runCleanup() mid-await so old cleaner cannot mutate Book B editBuffer', async () => {
+		const origReadText = utils.readSafeZipEntryText;
+
+		// 1. Test analyzeForClean() aborted mid-read during real analyzeOptimizationPlan()
+		const zipA1 = new JSZip();
+		zipA1.file('mimetype', 'application/epub+zip');
+		zipA1.file('OEBPS/content.opf', '<package/>');
+		zipA1.file('OEBPS/chap1.xhtml', '<html><body><p>Book A1</p></body></html>');
+
+		const deferredAnalyzeRead = createDeferred<string | null>();
+		vi.spyOn(utils, 'readSafeZipEntryText').mockImplementation(async (zip, path, opts) => {
+			if (zip === zipA1 && path === 'OEBPS/chap1.xhtml') {
+				return deferredAnalyzeRead.promise;
+			}
+			return origReadText(zip, path, opts);
+		});
+
+		const state1 = new EpubEditorState();
+		state1.zip = zipA1;
+		const pendingAnalyze = state1.analyzeForClean();
+
+		// Wait a tick so analyzeOptimizationPlan reaches OEBPS/chap1.xhtml read
+		await new Promise((r) => setTimeout(r, 10));
+
+		// Reset and open Book B while analyzeForClean(A) is paused mid-await
+		state1.reset();
+		const zipB1 = new JSZip();
+		zipB1.file('OEBPS/chap1.xhtml', '<html><body><p>Book B1</p></body></html>');
+		state1.zip = zipB1;
+		state1.editBuffer.set('OEBPS/chap1.xhtml', 'Edited Book B1');
+		state1.statusMessage = 'Book B1 ready';
+
+		deferredAnalyzeRead.resolve('<html><body><p>Book A1</p></body></html>');
+		const analyzeRes = await pendingAnalyze;
+
+		expect(analyzeRes).toBeNull();
+		expect(state1.cleanAnalysis).toBeNull();
+		expect(state1.editBuffer.get('OEBPS/chap1.xhtml')).toBe('Edited Book B1');
+		expect(state1.statusMessage).toBe('Book B1 ready');
+
+		vi.restoreAllMocks();
+
+		// 2. Test runCleanup() aborted mid-read inside cleanEpub() deduplication / editBuffer rewrite
+		const zipA2 = new JSZip();
+		zipA2.file('mimetype', 'application/epub+zip');
+		zipA2.file('OEBPS/content.opf', '<package/>');
+		zipA2.file('OEBPS/images/orig.png', new Uint8Array([1, 2, 3, 4]));
+		zipA2.file('OEBPS/images/dup.png', new Uint8Array([1, 2, 3, 4]));
+		zipA2.file('OEBPS/images/unused.png', new Uint8Array([9, 9, 9]));
+		zipA2.file(
+			'OEBPS/chap1.xhtml',
+			'<html><body><img src="images/orig.png"/><img src="images/dup.png"/></body></html>'
+		);
+
+		const deferredCleanRead = createDeferred<string | null>();
+		let chapReadCount = 0;
+		vi.spyOn(utils, 'readSafeZipEntryText').mockImplementation(async (zip, path, opts) => {
+			if (zip === zipA2 && path === 'OEBPS/chap1.xhtml') {
+				chapReadCount++;
+				// 1st read is inside analyzeOptimizationPlan; 2nd read is inside cleanEpub deduplication loop
+				if (chapReadCount === 2) {
+					return deferredCleanRead.promise;
+				}
+			}
+			return origReadText(zip, path, opts);
+		});
+
+		const state2 = new EpubEditorState();
+		state2.zip = zipA2;
+		const pendingCleanup = state2.runCleanup({
+			removeUnusedImages: true,
+			removeUnusedFonts: true,
+			removeUnusedStyles: true,
+			cleanOpfManifest: true,
+			deduplicateResources: true
+		});
+
+		// Poll microtasks/short macrotask until cleanEpub enters the 2nd read of chap1.xhtml
+		for (let i = 0; i < 20 && chapReadCount < 2; i++) {
+			await new Promise((r) => setTimeout(r, 5));
+		}
+		expect(chapReadCount).toBe(2);
+
+		// Reset and load Book B, populating Book B's editBuffer with matching paths
+		state2.reset();
+		const zipB2 = new JSZip();
+		zipB2.file('OEBPS/chap1.xhtml', '<html><body>Book B2</body></html>');
+		state2.zip = zipB2;
+		state2.editBuffer.set('OEBPS/chap1.xhtml', 'Book B2 untouched content');
+		state2.editBuffer.set('OEBPS/images/unused.png', 'Book B2 asset marker');
+		state2.statusMessage = 'Book B2 ready';
+
+		// Complete Cleaner A's paused read — cleanEpub MUST abort before touching editBuffer
+		deferredCleanRead.resolve(
+			'<html><body><img src="images/orig.png"/><img src="images/dup.png"/></body></html>'
+		);
+		const cleanupRes = await pendingCleanup;
+
+		expect(cleanupRes).toBeNull();
+		expect(state2.cleanReport).toBeNull();
+		expect(state2.editBuffer.get('OEBPS/chap1.xhtml')).toBe('Book B2 untouched content');
+		expect(state2.editBuffer.get('OEBPS/images/unused.png')).toBe('Book B2 asset marker');
+		expect(state2.statusMessage).toBe('Book B2 ready');
+	});
+
 	it('should still load normal EPUB files cleanly after race-condition fixes', async () => {
 		const file = await createEpubFile(
 			'normal.epub',

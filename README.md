@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 09:07
-- Đã hoàn thành: Hoàn thiện lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT và khắc phục triệt để race condition khi mở/chuyển file hoặc reset trong EPUB Editor (`loadRequestId`, `selectionRequestId`, `isCurrentSession`, hủy Cleaner khi reset/đổi sách, bảo vệ `ensureFileLoaded`/`selectFile`/`renderPreview`/Cleaner/Export/Metadata/TOC); toàn bộ pipeline đạt chuẩn (477/477 unit tests + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-27 09:15
+- Đã hoàn thành: Hoàn thiện lớp kiểm soát an toàn ZIP dùng chung cho EPUB Editor và EPUB → TXT và khắc phục triệt để race condition khi mở/chuyển file, chạy Cleaner hoặc reset trong EPUB Editor (`loadRequestId`, `selectionRequestId`, `isCurrentSession`, kiểm tra `AbortSignal` xuyên suốt `analyzeOptimizationPlan`/`cleanEpub` trước mọi thao tác sửa `editBuffer`/`zip`, bảo vệ `ensureFileLoaded`/`selectFile`/`renderPreview`/Export/Metadata/TOC); toàn bộ pipeline đạt chuẩn (478/478 unit tests + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 
