@@ -4,6 +4,20 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Bổ sung 3 Mẫu Jacket Hoa Văn Góc SVG Từ `TASK.MD`: Mẫu 15, 16, 17)
+
+- Thêm/sửa:
+  - **Tích hợp 3 Mẫu Jacket Mới (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Thêm **`Mẫu 15`** (`.jacket-15`, từ `intro-29`: viền kép `::before` + 4 góc hoa hồng SVG `.rose-c`), **`Mẫu 16`** (`.jacket-16`, từ `intro-35`: viền kép `::before` + 4 góc hoa SVG `.c-orn`) và **`Mẫu 17`** (`.jacket-17`, từ `intro-40`: viền kép `::before` + 4 góc họa tiết xoắn SVG `.c-orn`), nâng tổng số lên **17 mẫu jacket**.
+    - Trích helper `createCornerHtml()` trong `jacket-templates.ts` để dùng chung logic tạo 4 góc cho `Mẫu 12`, `Mẫu 15`, `Mẫu 16`, `Mẫu 17`.
+    - Chuẩn hóa CSS 3 mẫu mới theo layout căn giữa (`width: 86%; margin: auto; box-sizing: border-box`), bỏ `font-family: Georgia...` cứng, thêm `xmlns="http://www.w3.org/2000/svg"` + `aria-hidden="true"` cho SVG và `overflow-wrap: break-word` cho `.title`.
+  - **Cập nhật Kiểm thử (`tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`)**:
+    - Cập nhật `JACKET_TEMPLATES.length === 17`, kiểm tra cấu trúc SVG của `Mẫu 15`–`Mẫu 17`, mở rộng kiểm tra specificity & rule căn giữa cho đủ `templateId` 1–17, và cập nhật chỉ số `(2/17)` trong E2E test.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `tests/epub-packer.test.ts`, `tests/epub-css-specificity.test.ts`, `tests-e2e/epub-workflow.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Bỏ Mẫu Jacket 6 & Căn Giữa Toàn Bộ Jacket Ngang/Dọc)
 
 - Thêm/sửa:

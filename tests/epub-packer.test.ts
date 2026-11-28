@@ -845,7 +845,7 @@ describe('epub-packer tests', () => {
 			expect(JACKET_SAMPLE_PLACEHOLDERS.distributor).toBe('NXB Văn hóa Thông tin');
 
 			// 2. Verify all jacket templates render placeholder values in initial preview state
-			expect(JACKET_TEMPLATES.length).toBe(14);
+			expect(JACKET_TEMPLATES.length).toBe(17);
 			for (const template of JACKET_TEMPLATES) {
 				const html = template.render(
 					JACKET_SAMPLE_PLACEHOLDERS.title,
@@ -972,6 +972,42 @@ describe('epub-packer tests', () => {
 			expect(template14Html).toContain('<div class="leaf-br"><svg');
 			expect(template14Html).toContain('<div class="parallel-tr"></div>');
 			expect(template14Html).toContain('<div class="parallel-bl"></div>');
+
+			const template15Html = JACKET_TEMPLATES[14].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template15Html).toContain('<div class="jacket-15">');
+			expect(template15Html).toContain('<div class="rose-c r-tl"><svg');
+			expect(template15Html).toContain('<div class="rose-c r-br"><svg');
+
+			const template16Html = JACKET_TEMPLATES[15].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template16Html).toContain('<div class="jacket-16">');
+			expect(template16Html).toContain('<div class="c-orn c-tl"><svg');
+			expect(template16Html).toContain('<div class="c-orn c-br"><svg');
+
+			const template17Html = JACKET_TEMPLATES[16].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template17Html).toContain('<div class="jacket-17">');
+			expect(template17Html).toContain('<div class="c-orn c-tl"><svg');
+			expect(template17Html).toContain('<div class="c-orn c-br"><svg');
 
 			// 3. Verify that when user enters custom inputs, template renders user inputs and omits empty fields
 			const customHtml = JACKET_TEMPLATES[0].render(

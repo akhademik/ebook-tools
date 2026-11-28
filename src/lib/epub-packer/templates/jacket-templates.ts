@@ -38,6 +38,21 @@ const VINE_CORNER_SVG =
 const LEAF_CORNER_SVG =
 	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="currentColor" aria-hidden="true"><circle cx="16" cy="22" r="8"/><circle cx="28" cy="14" r="5" opacity="0.5"/><path d="M18 22 C35 8, 65 6, 92 12 C68 14, 42 18, 22 26 Z"/><path d="M24 18 C34 4, 52 2, 68 5 C50 8, 36 12, 24 18 Z" opacity="0.65"/><path d="M14 26 C8 44, 8 62, 14 76 C15 58, 17 42, 19 28 Z"/></svg>';
 
+const ROSE_CORNER_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="18" cy="18" r="8" fill="currentColor" fill-opacity="0.12"/><path d="M18 13 C21 13, 23 16, 21 19 C19 22, 14 21, 14 17 C14 13, 19 11, 23 14 C26 17, 25 23, 20 25"/><path d="M26 16 Q42 10, 58 14 M16 26 Q10 42, 14 58"/><path d="M34 13 Q39 6, 46 10 Q40 15, 34 13 Z M46 12 Q52 6, 58 10 Q52 15, 46 12 Z" fill="currentColor"/><path d="M13 34 Q6 39, 10 46 Q15 40, 13 34 Z M12 46 Q6 52, 10 58 Q15 52, 12 46 Z" fill="currentColor"/></svg>';
+
+const BLOSSOM_CORNER_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.15" aria-hidden="true"><circle cx="18" cy="18" r="4" fill="currentColor"/><path d="M18 10 C22 10, 26 14, 24 18 C28 18, 28 24, 22 24 C22 28, 14 28, 14 24 C8 24, 8 18, 12 18 C10 14, 14 10, 18 10 Z" fill="currentColor" fill-opacity="0.14"/><path d="M27 16 Q44 11, 60 15 M16 27 Q11 44, 15 60"/><path d="M35 13 C40 7, 47 8, 50 13 C44 15, 39 15, 35 13 Z M13 35 C7 40, 8 47, 13 50 C15 44, 15 39, 13 35 Z" fill="currentColor"/><circle cx="55" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="55" r="1.5" fill="currentColor"/></svg>';
+
+const PETAL_SCROLL_CORNER_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.15" aria-hidden="true"><path d="M10 10 C18 10, 24 16, 22 22 C16 24, 10 18, 10 10 Z" fill="currentColor" fill-opacity="0.18"/><path d="M22 12 C28 12, 30 18, 24 22 M12 22 C12 28, 18 30, 22 24"/><path d="M30 14 H52 C55 14, 55 19, 51 19 C49 19, 49 16, 51 16"/><path d="M14 30 V52 C14 55, 19 55, 19 51 C19 49, 16 49, 16 51"/></svg>';
+
+function createCornerHtml(cornerClass: string, posPrefix: string, svg: string): string[] {
+	return ['tl', 'tr', 'bl', 'br'].map(
+		(pos) => `<div class="${cornerClass} ${posPrefix}-${pos}">${svg}</div>`
+	);
+}
+
 interface JacketTemplateSpec {
 	id: number;
 	outerClass?: string;
@@ -293,10 +308,7 @@ const JACKET_TEMPLATE_SPECS: JacketTemplateSpec[] = [
 		headerPrefixHtml: [
 			'<div class="top-bar"></div>',
 			'<div class="bot-bar"></div>',
-			`<div class="svg-corner c-tl">${CORNER_SCROLL_SVG}</div>`,
-			`<div class="svg-corner c-tr">${CORNER_SCROLL_SVG}</div>`,
-			`<div class="svg-corner c-bl">${CORNER_SCROLL_SVG}</div>`,
-			`<div class="svg-corner c-br">${CORNER_SCROLL_SVG}</div>`
+			...createCornerHtml('svg-corner', 'c', CORNER_SCROLL_SVG)
 		]
 	},
 	{
@@ -316,6 +328,18 @@ const JACKET_TEMPLATE_SPECS: JacketTemplateSpec[] = [
 			'<div class="parallel-tr"></div>',
 			'<div class="parallel-bl"></div>'
 		]
+	},
+	{
+		id: 15,
+		headerPrefixHtml: createCornerHtml('rose-c', 'r', ROSE_CORNER_SVG)
+	},
+	{
+		id: 16,
+		headerPrefixHtml: createCornerHtml('c-orn', 'c', BLOSSOM_CORNER_SVG)
+	},
+	{
+		id: 17,
+		headerPrefixHtml: createCornerHtml('c-orn', 'c', PETAL_SCROLL_CORNER_SVG)
 	}
 ];
 
