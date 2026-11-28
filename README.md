@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-28 09:26
-- Đã hoàn thành: Bổ sung 3 mẫu hoa văn góc SVG mới từ `TASK.MD` thành `Mẫu 15`, `Mẫu 16`, `Mẫu 17` (tổng cộng **17 mẫu jacket** trong `intro-css.css` và `jacket-templates.ts`, đều dùng chung helper `createCornerHtml()`, `margin: auto`, căn giữa ngang & dọc trong cả Live Preview lẫn EPUB `jacket.css`); toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 10:03
+- Đã hoàn thành: Đổi tên 11 file font trong `src/assets/fonts/` chứa ký tự không an toàn (khoảng trắng, `[`, `]`, `,`) sang định dạng EPUB/Calibre an toàn (`[A-Za-z0-9._-]`), tái sinh `src/assets/fonts-metadata.json` cho toàn bộ 54 font và bổ sung kiểm thử tên file an toàn trong `tests/epub-packer.test.ts`; toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

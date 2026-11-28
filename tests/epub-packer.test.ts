@@ -1592,29 +1592,32 @@ Câu 5: /https://a.com/ đứng ngay sau dấu mở nghiêng`;
 			expect(formatFontDisplayName('GrenzeGotisch-Regular', 'Grenze Gotisch')).toBe(
 				'Grenze Gotisch'
 			);
-			expect(formatFontDisplayName('DFVN Gulax', 'DFVN Gulax')).toBe('Gulax');
+			expect(formatFontDisplayName('DFVN-Gulax', 'DFVN Gulax')).toBe('Gulax');
 			expect(formatFontDisplayName('1FTV-Hirosaki', '1FTV Hirosaki')).toBe('Hirosaki');
 			expect(formatFontDisplayName('UTM-Bebas', 'UTM Bebas')).toBe('Bebas');
-			expect(formatFontDisplayName('VL Emphatic Regular', 'VL Emphatic')).toBe('Emphatic');
+			expect(formatFontDisplayName('VL-Emphatic-Regular', 'VL Emphatic')).toBe('Emphatic');
 			expect(formatFontDisplayName('DeBorstel-Brush', 'LNTH-DeBorstel Brush Reduced')).toBe(
 				'DeBorstel Brush'
 			);
 		});
 
-		it('should expose all bundled fonts sorted alphabetically without brackets in display names', () => {
+		it('should expose all bundled fonts sorted alphabetically with safe filenames and no brackets in display names', () => {
 			expect(AVAILABLE_FONTS.length).toBe(54);
 			for (const font of AVAILABLE_FONTS) {
 				expect(font.name).not.toMatch(/\[|\]/);
 				expect(font.name.length).toBeGreaterThan(0);
+				expect(font.fileName).toMatch(/^[A-Za-z0-9._-]+$/);
 			}
 			const names = AVAILABLE_FONTS.map((f) => f.name);
 			const sorted = [...names].sort((a, b) => a.localeCompare(b, 'vi'));
 			expect(names).toEqual(sorted);
 
 			// Lookup continues working by id, clean name, and cssFamily
-			expect(findFont('Phudu[wght]')?.name).toBe('Phudu');
-			expect(findFont('Phudu')?.id).toBe('Phudu[wght]');
-			expect(findFont('IBM Plex Sans Italic')?.id).toBe('IBMPlexSans-Italic[wdth,wght]');
+			expect(findFont('Phudu')?.name).toBe('Phudu');
+			expect(findFont('Phudu')?.id).toBe('Phudu');
+			expect(findFont('IBM Plex Sans Italic')?.id).toBe('IBMPlexSans-Italic');
+			expect(findFont('DFVN-Gulax')?.fileName).toBe('DFVN-Gulax.ttf');
+			expect(findFont('Unbounded')?.fileName).toBe('Unbounded.ttf');
 		});
 	});
 });

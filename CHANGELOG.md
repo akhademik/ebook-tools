@@ -4,6 +4,20 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Chuẩn hóa Tên File Font An Toàn Cho Calibre / EPUB)
+
+- Thêm/sửa:
+  - **Đổi tên 11 File Font Chứa Ký tự Không An Toàn (`src/assets/fonts/`)**:
+    - Chuẩn hóa toàn bộ 11 file font có khoảng trắng hoặc dấu ngoặc vuông/phẩy (`DFVN Gulax.ttf`, `HP DNS Gibsons One Semi Bold.otf`, `HP DNS Gibsons One.otf`, `IBMPlexSans-Italic[wdth,wght].ttf`, `Matterdi Bold.ttf`, `Matterdi Regular.ttf`, `Phudu[wght].ttf`, `Sacred Bridge Letterpress Italic.otf`, `Sacred Bridge Letterpress.otf`, `Unbounded[wght].ttf`, `VL Emphatic Regular.otf`) sang tên chỉ gồm `[A-Za-z0-9._-]` (`DFVN-Gulax.ttf`, `HP-DNS-Gibsons-One-Semi-Bold.otf`, `HP-DNS-Gibsons-One.otf`, `IBMPlexSans-Italic.ttf`, `Matterdi-Bold.ttf`, `Matterdi-Regular.ttf`, `Phudu.ttf`, `Sacred-Bridge-Letterpress-Italic.otf`, `Sacred-Bridge-Letterpress.otf`, `Unbounded.ttf`, `VL-Emphatic-Regular.otf`) để loại bỏ cảnh báo `WARNING: Filename contains unsafe characters` khi mở bằng Calibre.
+  - **Tái sinh Metadata Font (`src/assets/fonts-metadata.json`)**:
+    - Chạy `scripts/generate-fonts-meta.js` cập nhật ánh xạ 54 file font sang `cssFamily` tương ứng mà không làm thay đổi tên hiển thị dropdown trong `fonts.ts`.
+  - **Cập nhật Kiểm thử (`tests/epub-packer.test.ts`)**:
+    - Cập nhật ID/filename kiểm thử trong `Font Display Names & Lookup` và bổ sung assertion đảm bảo mọi `font.fileName` trong `AVAILABLE_FONTS` (54/54) đều khớp `/^[A-Za-z0-9._-]+$/`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (503/503 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/assets/fonts/*` (11 file đổi tên), `src/assets/fonts-metadata.json`, `tests/epub-packer.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Bổ sung 3 Mẫu Jacket Hoa Văn Góc SVG Từ `TASK.MD`: Mẫu 15, 16, 17)
 
 - Thêm/sửa:
