@@ -116,8 +116,8 @@
 	{@html `<style id="jacket-font-override">
 		.preview-wrap, .preview-wrap * { font-family: ${baseFontFamily} !important; }
 		${titleFontFamily ? `.preview-wrap .title, .preview-wrap .original { font-family: ${titleFontFamily} !important; }` : ''}
-		${authorFontFamily ? `.preview-wrap .author, .preview-wrap .byline, .preview-wrap .kicker, .preview-wrap .stamp, .preview-wrap .translator { font-family: ${authorFontFamily} !important; }` : ''}
-		${metaFontFamily ? `.preview-wrap .meta, .preview-wrap .tag { font-family: ${metaFontFamily} !important; }` : ''}
+		${authorFontFamily ? `.preview-wrap .author, .preview-wrap .kicker, .preview-wrap .stamp, .preview-wrap .translator { font-family: ${authorFontFamily} !important; }` : ''}
+		${metaFontFamily ? `.preview-wrap .meta { font-family: ${metaFontFamily} !important; }` : ''}
 	</style>`}
 </svelte:head>
 
@@ -351,6 +351,11 @@
 		margin: 0 auto;
 		width: 100%;
 		aspect-ratio: 19 / 27;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 1em 0;
 		border: 1px solid #cccccc;
 		box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
 		border-radius: 4px;

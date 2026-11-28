@@ -137,7 +137,21 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await expect(listbox).not.toBeVisible();
 		await expect(fontTrigger).toContainText('Bookerly');
 
-		// Verify preview wrap is visible with dynamic style
+		// Verify preview wrap is visible, centered vertically & horizontally, and has dynamic style
+		const previewLayout = await previewWrap.evaluate((el) => {
+			const s = window.getComputedStyle(el);
+			return {
+				display: s.display,
+				justifyContent: s.justifyContent,
+				alignItems: s.alignItems
+			};
+		});
+		expect(previewLayout).toEqual({
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		});
+
 		const titleFont = await page
 			.locator('.preview-wrap .title')
 			.evaluate((el) => window.getComputedStyle(el).fontFamily);
@@ -182,7 +196,7 @@ test.describe('Ebook Tools End-to-End Browser Workflows', () => {
 		await page.waitForTimeout(200);
 
 		// Verify template name and font badge in carousel
-		await expect(page.getByText('Đang chọn: (2/16)')).toBeVisible();
+		await expect(page.getByText('Đang chọn: (2/17)')).toBeVisible();
 		await expect(page.locator('#jacket-font-title-btn')).toContainText('Bookerly');
 		await expect(page.locator('#jacket-font-title')).toHaveValue('Bookerly');
 

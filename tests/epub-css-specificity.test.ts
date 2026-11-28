@@ -348,7 +348,7 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 		expect(errors).toEqual([]);
 	});
 
-	it('should guarantee buildJacketCss generates zero descending specificity errors across all 16 templates with 3 font pairs', () => {
+	it('should guarantee buildJacketCss generates zero descending specificity errors across all 17 templates with 3 font pairs', () => {
 		const fonts: EpubFontsConfig = {
 			jacketFont: 'Bookerly',
 			jacketTitleFont: 'Absolute-VH',
@@ -356,7 +356,7 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			jacketMetaFont: 'Bookerly'
 		};
 
-		for (let templateId = 1; templateId <= 16; templateId++) {
+		for (let templateId = 1; templateId <= 17; templateId++) {
 			const jacket = {
 				enabled: true,
 				templateId,
@@ -370,6 +370,12 @@ describe('EPUB CSS Specificity & Calibre Quality Enforcement', () => {
 			const jacketCss = buildJacketCss(jacket, fonts);
 			const errors = findDescendingSpecificityErrors(jacketCss);
 			expect(errors).toEqual([]);
+
+			// Assert viewport horizontal & vertical centering in EPUB output
+			expect(jacketCss).toContain('display: flex;');
+			expect(jacketCss).toContain('justify-content: center;');
+			expect(jacketCss).toContain('align-items: center;');
+			expect(jacketCss).toContain('margin: auto;');
 
 			// Assert title font injection
 			expect(jacketCss).toContain('font-family: "KKTTAbsolute", serif !important;');

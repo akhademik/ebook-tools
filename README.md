@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-27 19:13
-- Đã hoàn thành: Refactor `jacket-templates.ts` sang kiến trúc config-driven (`JacketTemplateSpec` + `createJacketTemplate()`), bổ sung các mẫu mới từ `TASK.MD` (`Mẫu 12`–`Mẫu 16`, nâng tổng số lên **16 mẫu** trong `intro-css.css` và `jacket-templates.ts`), bổ sung hỗ trợ font `.kicker` và `.stamp`, và khắc phục lỗi `:global(.preview-wrap p)` đè mất `margin`/`padding` trong bản xem trước (`EpubJacketCarousel.svelte`); toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 09:26
+- Đã hoàn thành: Bổ sung 3 mẫu hoa văn góc SVG mới từ `TASK.MD` thành `Mẫu 15`, `Mẫu 16`, `Mẫu 17` (tổng cộng **17 mẫu jacket** trong `intro-css.css` và `jacket-templates.ts`, đều dùng chung helper `createCornerHtml()`, `margin: auto`, căn giữa ngang & dọc trong cả Live Preview lẫn EPUB `jacket.css`); toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

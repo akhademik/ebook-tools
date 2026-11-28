@@ -323,7 +323,34 @@ export function buildJacketCss(
 		}
 	}
 
-	let header = fontDeclarations.join('\n\n');
+	const pageLayoutCss = [
+		'@page {',
+		'\tmargin: 0;',
+		'\tpadding: 0;',
+		'}',
+		'',
+		'html {',
+		'\tmargin: 0;',
+		'\tpadding: 0;',
+		'\twidth: 100%;',
+		'\theight: 100%;',
+		'}',
+		'',
+		'body {',
+		'\tmargin: 0;',
+		'\tpadding: 1em 0;',
+		'\twidth: 100%;',
+		'\tmin-height: 100%;',
+		'\tmin-height: 100vh;',
+		'\tdisplay: flex;',
+		'\tflex-direction: column;',
+		'\tjustify-content: center;',
+		'\talign-items: center;',
+		'\tbox-sizing: border-box;',
+		'}'
+	].join('\n');
+
+	let header = [...fontDeclarations, pageLayoutCss].join('\n\n');
 
 	if (fonts?.jacketFont && fonts.jacketFont !== 'default') {
 		const jFont = findFont(fonts.jacketFont);
@@ -363,7 +390,7 @@ export function buildJacketCss(
 		if (fAuthor) {
 			css = injectFontIntoRules(
 				css,
-				/\.(?:author|byline|kicker|stamp|translator)\b(?!\s*::)/,
+				/\.(?:author|kicker|stamp|translator)\b(?!\s*::)/,
 				fAuthor.cssFamily
 			);
 		}
@@ -372,7 +399,7 @@ export function buildJacketCss(
 	if (fonts?.jacketMetaFont && fonts.jacketMetaFont !== 'default') {
 		const fMeta = findFont(fonts.jacketMetaFont);
 		if (fMeta) {
-			css = injectFontIntoRules(css, /\.(?:meta|tag)\b(?!\s*::)/, fMeta.cssFamily);
+			css = injectFontIntoRules(css, /\.meta\b(?!\s*::)/, fMeta.cssFamily);
 		}
 	}
 
