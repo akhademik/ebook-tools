@@ -4,6 +4,19 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Chuyển Xoay/Lật Góc SVG Jacket Mẫu 12–17 Sang `<g transform>` Chuẩn EPUB)
+
+- Thêm/sửa:
+  - **Xoay/Lật Góc Hoa Văn SVG Nội Bộ (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Bổ sung helper `transformCornerSvg()` bọc nội dung bên trong `<svg>` bằng `<g transform="translate(...) scale(...)">` hoặc `<g transform="rotate(180 cx cy)">` theo `viewBox` của từng mẫu (áp dụng cho `Mẫu 12`, `Mẫu 13`, `Mẫu 14`, `Mẫu 15`, `Mẫu 16`, `Mẫu 17`).
+    - Gỡ bỏ `transform: scaleX(-1)` / `scaleY(-1)` / `scale(-1, -1)` / `rotate(180deg)` khỏi CSS của các góc SVG tương ứng trong `intro-css.css` để tránh xoay hai lần và đảm bảo tương thích trên trình đọc EPUB bỏ qua CSS `transform`.
+  - **Kiểm thử (`tests/epub-packer.test.ts`)**:
+    - Bổ sung kiểm tra `<g transform="...">` trong HTML và xác nhận CSS của `Mẫu 12`–`Mẫu 17` không còn thuộc tính `transform:`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors, 3 pre-existing warnings) ✅ | test unit ✅ (513/513 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `tests/epub-packer.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Siết Chặt Quy Chuẩn Chú Thích `count === 2` & Đối Soát Ảnh `[hinh-N]` Tại Bước 5)
 
 - Thêm/sửa:

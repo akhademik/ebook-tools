@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-28 16:03
-- Đã hoàn thành: Siết chặt quy chuẩn chú thích & ảnh minh họa TXT → EPUB (`txt-syntax-validator.ts`, `txt-parser.ts`, `EpubSourceState`, `EpubState`, `EpubIllustrationsSection`, `EpubPackSection`, `EpubSyntaxModal`): bắt buộc mỗi file có tối đa 1 mục `Chú thích:` ở cuối sách và dòng không rỗng đầu tiên sau `Chú thích:` phải bắt đầu bằng `{n}` (dừng ngay nếu có nội dung khác hoặc >1 mục `Chú thích:`/`@@` sau chú thích), bắt buộc mọi `{n}` (gồm cả `{2024}`) xuất hiện đúng 2 lần (1 trong thân bài + 1 sau `Chú thích:`), bỏ ghép chú thích theo chương; siết thẻ ảnh theo pattern `[hinh-N]` (không sinh `<p>[hinh-9]</p>` hay dropcap ở Bước 1), đối soát 2 chiều khi tải ảnh ở Bước 3 và chặn đóng gói tại Bước 5 nếu thiếu/dư/lệch tên ảnh; đồng thời sửa cảnh báo giả `km/h` và `ten_bien_nay`. Toàn bộ pipeline đạt chuẩn (513/513 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 16:13
+- Đã hoàn thành: Siết chặt quy chuẩn chú thích (`Chú thích:` + `{n}` `count === 2`) & đối soát ảnh `[hinh-N]` tại Bước 5; đồng thời chuyển toàn bộ phép xoay/lật góc hoa văn SVG của các mẫu Jacket 12–17 (gồm Mẫu 13) từ CSS `transform` sang `<g transform="...">` nội bộ trong `<svg>` (`jacket-templates.ts`, `intro-css.css`) để hiển thị đồng nhất trên các trình đọc EPUB không hỗ trợ CSS `transform`. Toàn bộ pipeline đạt chuẩn (513/513 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

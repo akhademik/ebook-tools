@@ -624,17 +624,14 @@
 .jacket-12 .c-tr {
 	top: -6px;
 	right: -6px;
-	transform: scaleX(-1);
 }
 .jacket-12 .c-bl {
 	bottom: -6px;
 	left: -6px;
-	transform: scaleY(-1);
 }
 .jacket-12 .c-br {
 	bottom: -6px;
 	right: -6px;
-	transform: scale(-1, -1);
 }
 .jacket-12 .top-bar,
 .jacket-12 .bot-bar {
@@ -708,7 +705,6 @@
 	right: 0;
 	width: 110px;
 	height: 110px;
-	transform: rotate(180deg);
 }
 .jacket-13 .vine-tl svg,
 .jacket-13 .vine-br svg {
@@ -809,7 +805,6 @@
 	right: -8px;
 	width: 90px;
 	height: 75px;
-	transform: rotate(180deg);
 }
 .jacket-14 .leaf-tl svg,
 .jacket-14 .leaf-br svg {
@@ -911,17 +906,14 @@
 .jacket-15 .r-tr {
 	top: -8px;
 	right: -8px;
-	transform: scaleX(-1);
 }
 .jacket-15 .r-bl {
 	bottom: -8px;
 	left: -8px;
-	transform: scaleY(-1);
 }
 .jacket-15 .r-br {
 	bottom: -8px;
 	right: -8px;
-	transform: scale(-1, -1);
 }
 .jacket-15 .title {
 	font-size: 1.75em;
@@ -997,17 +989,14 @@
 .jacket-16 .c-tr {
 	top: -8px;
 	right: -8px;
-	transform: scaleX(-1);
 }
 .jacket-16 .c-bl {
 	bottom: -8px;
 	left: -8px;
-	transform: scaleY(-1);
 }
 .jacket-16 .c-br {
 	bottom: -8px;
 	right: -8px;
-	transform: scale(-1, -1);
 }
 .jacket-16 .title {
 	font-size: 1.75em;
@@ -1083,17 +1072,14 @@
 .jacket-17 .c-tr {
 	top: -7px;
 	right: -7px;
-	transform: scaleX(-1);
 }
 .jacket-17 .c-bl {
 	bottom: -7px;
 	left: -7px;
-	transform: scaleY(-1);
 }
 .jacket-17 .c-br {
 	bottom: -7px;
 	right: -7px;
-	transform: scale(-1, -1);
 }
 .jacket-17 .title {
 	font-size: 1.75em;
