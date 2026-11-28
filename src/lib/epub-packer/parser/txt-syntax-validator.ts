@@ -68,7 +68,29 @@ function findMatchIndices(str: string, regex: RegExp): number[] {
 }
 
 /**
- * Checks a line for unclosed inline formatting markers like *bold*, /italic/, _underline_.
+ * Finds the start line index of the end-of-book footnote section ("Chú thích" / "Chú thích:").
+ * Scans from the bottom up and requires the first non-empty line after it to start with `{n}`
+ * so a standalone "Chú thích" heading or prose line inside a chapter does not swallow the book.
+ */
+export function findFootnoteSectionIndex(lines: string[]): number {
+	for (let i = lines.length - 1; i >= 0; i--) {
+		if (/^\s*chú thích:?\s*$/i.test(lines[i])) {
+			for (let j = i + 1; j < lines.length; j++) {
+				const nextTrimmed = lines[j].trim();
+				if (!nextTrimmed) continue;
+				if (/^\{\d+\}/.test(nextTrimmed)) {
+					return i;
+				}
+				break;
+			}
+		}
+	}
+	return -1;
+}
+
+/**
+ * Checks a line for unclosed inline formatting markers like *bold*, /italic/, _underline_,
+ * and warns when two inline spans cross each other (e.g. `_a /b_ c/`).
  * Only checks markers that are attached to text (not surrounded by whitespace like 'ab / cd' or 'day la * binh thuong').
  * An opening marker is attached on the right to non-whitespace, or a closing marker is attached on the left to non-whitespace.
  */
@@ -86,8 +108,15 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 	// Mask known tag constructs like [/poem], [/letter], [/letter-box], [/new], [/new:center]
 	sanitized = maskWithSpaces(sanitized, /\[\/(?:poem|letter|letter-box|new|new:center)\]/gi);
 
+	const spans: Array<{ start: number; end: number; tag: string }> = [];
+
 	// 1. Check bold: First mask all valid completed bold pairs: *(non-space ... non-space)*
 	const boldPairRegex = /(?<!\d)\*([^\s*][^*]*[^\s*]|\S)\*(?!\d)/g;
+	for (const m of sanitized.matchAll(boldPairRegex)) {
+		if (m.index !== undefined) {
+			spans.push({ start: m.index, end: m.index + m[0].length - 1, tag: '*' });
+		}
+	}
 	const textWithoutValidBolds = maskWithSpaces(sanitized, boldPairRegex);
 	// In the remainder, find asterisks that touch text: either '*text' or 'text*' (not isolated ' * ' or ' *')
 	const lingeringBoldMarker = /(?<!\\)(?:(?<=\S)\*(?!\d)|(?<!\d)\*(?=\S))/g;
@@ -107,6 +136,11 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 	// 2. Check underline: First mask identifiers or illustration names like hinh_1, img_01
 	let underlineSanitized = maskWithSpaces(sanitized, /[\p{L}\p{N}]+_[\p{L}\p{N}]+/gu);
 	const underlinePairRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
+	for (const m of underlineSanitized.matchAll(underlinePairRegex)) {
+		if (m.index !== undefined) {
+			spans.push({ start: m.index, end: m.index + m[0].length - 1, tag: '_' });
+		}
+	}
 	underlineSanitized = maskWithSpaces(underlineSanitized, underlinePairRegex);
 	const lingeringUnderlineMarker = /(?<!\\)(?:(?<=\S)_(?![\p{L}\p{N}])|(?<![\p{L}\p{N}])_(?=\S))/gu;
 	const underlineIndices = findMatchIndices(underlineSanitized, lingeringUnderlineMarker);
@@ -124,10 +158,13 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 
 	// 3. Check italic: First mask all valid completed italic pairs: /(non-space ... non-space)/
 	const italicPairRegex = /(?<!\d)\/([^\s/][^/]*[^\s/]|\S)\/(?!\d)/g;
-	const textWithoutValidItalics = sanitized.replace(italicPairRegex, (match, content) => {
+	const textWithoutValidItalics = sanitized.replace(italicPairRegex, (match, content, offset) => {
 		const cTrim = content.trim();
 		if (/^\d+$/.test(cTrim)) return match;
 		if (cTrim.length <= 2 && /^\d+$/.test(cTrim.replace(/[^0-9]/g, ''))) return match;
+		if (typeof offset === 'number') {
+			spans.push({ start: offset, end: offset + match.length - 1, tag: '/' });
+		}
 		return ' '.repeat(match.length);
 	});
 	// In the remainder, find slashes that touch text: '/text' or 'text/' (not surrounded by space like ' a / b ')
@@ -144,6 +181,31 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 			message: `Dòng ${lineNum}: Có khả năng thiếu dấu '/' (ngữ cảnh: ${contextStr})`
 		});
 	}
+
+	// 4. Check for crossed/overlapping inline formatting spans (e.g. `_đậm /và_ nghiêng/`)
+	if (spans.length > 1) {
+		spans.sort((a, b) => a.start - b.start);
+		let reportedCross = false;
+		for (let i = 0; i < spans.length && !reportedCross; i++) {
+			for (let j = i + 1; j < spans.length; j++) {
+				const a = spans[i];
+				const b = spans[j];
+				if (b.start >= a.end) break;
+				if (a.start < b.start && b.start < a.end && a.end < b.end) {
+					const snippet = extractContextSnippet(line, b.start, 8);
+					warnings.push({
+						lineNum,
+						lineContent: line,
+						tag: `${a.tag}${b.tag}`,
+						context: snippet,
+						message: `Dòng ${lineNum}: Phát hiện dấu định dạng '${a.tag}' và '${b.tag}' đan chéo nhau (ngữ cảnh: "${snippet}"). Nên tách hoặc lồng đúng thứ tự để tránh sai cấu trúc XHTML.`
+					});
+					reportedCross = true;
+					break;
+				}
+			}
+		}
+	}
 }
 
 /**
@@ -158,8 +220,8 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		.replace(/\r\n/g, '\n')
 		.split('\n');
 
-	// Ignore everything after "Chú thích:" line because footnote sections follow different syntax
-	const footnoteIdx = lines.findIndex((l) => /^\s*chú thích:?\s*$/i.test(l));
+	// Ignore everything after the real "Chú thích:" section because footnote entries follow different syntax
+	const footnoteIdx = findFootnoteSectionIndex(lines);
 	const contentLines = footnoteIdx !== -1 ? lines.slice(0, footnoteIdx) : lines;
 
 	const blockStack: OpenBlockInfo[] = [];
@@ -385,8 +447,35 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		}
 	}
 
-	// Check if there are content lines (like @@ or [new]) placed after "Chú thích:"
-	if (footnoteIdx !== -1) {
+	// Check footnote call vs definition consistency across body and "Chú thích:" section
+	const bodyCalls: Array<{ num: string; lineNum: number }> = [];
+	for (let i = 0; i < contentLines.length; i++) {
+		const rawLine = contentLines[i];
+		const trimmed = rawLine.trim();
+		if (!trimmed) continue;
+		if (
+			trimmed.startsWith('\\') &&
+			trimmed.length > 1 &&
+			['@', '~', '>', '#', '*', '/', '_', '['].includes(trimmed.charAt(1))
+		) {
+			continue;
+		}
+		for (const m of rawLine.matchAll(/\{(\d+)\}/g)) {
+			bodyCalls.push({ num: m[1], lineNum: i + 1 });
+		}
+	}
+
+	if (footnoteIdx === -1) {
+		for (const call of bodyCalls) {
+			warnings.push({
+				lineNum: call.lineNum,
+				lineContent: contentLines[call.lineNum - 1],
+				tag: `{${call.num}}`,
+				message: `Dòng ${call.lineNum}: Tìm thấy '{${call.num}}' nhưng văn bản không có mục 'Chú thích:'. Đã giữ nguyên dạng văn bản thường để tránh tạo liên kết hỏng.`
+			});
+		}
+	} else {
+		const defsByNum = new Map<string, number[]>();
 		for (let j = footnoteIdx + 1; j < lines.length; j++) {
 			const afterLine = lines[j].trim();
 			const afterLineNum = j + 1;
@@ -396,6 +485,39 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 					lineContent: lines[j],
 					tag: 'chú thích:',
 					message: `Dòng ${afterLineNum}: Phát hiện cú pháp '${afterLine}' nằm sau dòng 'Chú thích:' (dòng ${footnoteIdx + 1}). Toàn bộ nội dung sau 'Chú thích:' được coi là chú thích cuối sách và không tạo chương mới.`
+				});
+			}
+			const fnDefMatch = afterLine.match(/^\{(\d+)\}/);
+			if (fnDefMatch) {
+				const num = fnDefMatch[1];
+				const existing = defsByNum.get(num) ?? [];
+				existing.push(afterLineNum);
+				defsByNum.set(num, existing);
+			}
+		}
+
+		const callCountByNum = new Map<string, number>();
+		for (const call of bodyCalls) {
+			callCountByNum.set(call.num, (callCountByNum.get(call.num) ?? 0) + 1);
+			if (!defsByNum.has(call.num)) {
+				warnings.push({
+					lineNum: call.lineNum,
+					lineContent: contentLines[call.lineNum - 1],
+					tag: `{${call.num}}`,
+					message: `Dòng ${call.lineNum}: Tìm thấy '{${call.num}}' trong nội dung nhưng thiếu mục '{${call.num}}' trong phần 'Chú thích:'. Đã giữ nguyên văn bản để tránh tạo liên kết hỏng.`
+				});
+			}
+		}
+
+		for (const [num, defLineNums] of defsByNum.entries()) {
+			const callsForNum = callCountByNum.get(num) ?? 0;
+			for (let k = callsForNum; k < defLineNums.length; k++) {
+				const defLineNum = defLineNums[k];
+				warnings.push({
+					lineNum: defLineNum,
+					lineContent: lines[defLineNum - 1],
+					tag: `{${num}}`,
+					message: `Dòng ${defLineNum}: Mục chú thích '{${num}}' trong phần 'Chú thích:' không có vị trí gọi '{${num}}' tương ứng trong nội dung.`
 				});
 			}
 		}

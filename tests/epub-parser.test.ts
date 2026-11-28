@@ -1950,7 +1950,7 @@ Chú thích:
 			});
 
 			it('should strip footnote references from chapter title when @@ or @ contains {n}', () => {
-				const txt = `[new:center]\n@@ ANH TÔNG{642}\n@! THỰC LỤC\n[/new]`;
+				const txt = `[new:center]\n@@ ANH TÔNG{642}\n@! THỰC LỤC\n[/new]\n\nChú thích:\n{642} Ghi chú Anh Tông.`;
 				const chapters = parseTxtToChapters(txt, {}, 'MTL Gop');
 				expect(chapters[0].title).toBe('ANH TÔNG');
 				expect(chapters[0].html).toContain(
@@ -2270,6 +2270,100 @@ Thư kết thúc
 						'<blockquote class="center"><p>Trích thơ cổ</p><footer>Danh nhân</footer></blockquote>'
 					);
 					expect(html).toContain('<p>Dòng thơ tiếp</p>');
+				});
+			});
+
+			describe('TXT Safety Fixes: line breaks, crossed formatting, mid-book Chú thích, {n} & missing images', () => {
+				it('should preserve separate lines in TXT poetry/lists even after assignSequentialChapterIds', () => {
+					const txt = `@@ Chương 1
+Thân em như tấm lụa đào
+phất phơ giữa chợ biết vào tay ai
+
+Mục một
+mục hai`;
+					const rawChapters = parseTxtToChapters(txt, {}, 'Sách');
+					const chapters = assignSequentialChapterIds(rawChapters);
+					expect(chapters[0].html).toContain('<p>Thân em như tấm lụa đào</p>');
+					expect(chapters[0].html).toContain('<p>phất phơ giữa chợ biết vào tay ai</p>');
+					expect(chapters[0].html).toContain('<p>Mục một</p>');
+					expect(chapters[0].html).toContain('<p>mục hai</p>');
+				});
+
+				it('should warn on crossed inline formatting markers and avoid overlapping XHTML tags', () => {
+					const txt = `@@ Chương 1\nCâu có _đậm /và_ nghiêng/ bị đan chéo.`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+					expect(validation.warnings?.some((w) => w.message.includes('đan chéo nhau'))).toBe(true);
+
+					const warnings: string[] = [];
+					const chapters = parseTxtToChapters(txt, { warnings }, 'Sách');
+					expect(warnings.some((w) => w.includes('đan chéo nhau'))).toBe(true);
+					expect(chapters[0].html).toContain('<u>đậm /và</u> nghiêng/');
+					expect(chapters[0].html).not.toContain('<u>đậm <i>và</u>');
+				});
+
+				it('should ignore standalone "Chú thích" or "Chú thích:" lines inside body prose', () => {
+					const txt = `@@ Chương 1
+Đoạn mở đầu.
+Chú thích
+Nội dung giải thích nằm trong chương 1.
+@@ Chương 2
+Nội dung chương 2 bình thường.`;
+					const chapters = parseTxtToChapters(txt, {}, 'Sách');
+					expect(chapters).toHaveLength(2);
+					expect(chapters[0].html).toContain('<p>Chú thích</p>');
+					expect(chapters[0].html).toContain('<p>Nội dung giải thích nằm trong chương 1.</p>');
+					expect(chapters[1].title).toBe('Chương 2');
+					expect(chapters.some((c) => c.fileName === 'notes')).toBe(false);
+				});
+
+				it('should keep plain {2024} without Chú thích section as literal text and warn', () => {
+					const txt = `@@ Chương 1\nNăm {2024} là một dấu mốc.`;
+					const warnings: string[] = [];
+					const chapters = parseTxtToChapters(txt, { warnings }, 'Sách');
+					expect(chapters).toHaveLength(1);
+					expect(chapters[0].html).toContain('<p>Năm {2024} là một dấu mốc.</p>');
+					expect(chapters[0].html).not.toContain('notes.xhtml');
+					expect(warnings.some((w) => w.includes("'{2024}'"))).toBe(true);
+				});
+
+				it('should warn on missing/orphan footnotes without generating broken links', () => {
+					const txt = `@@ Chương 1
+Đoạn có {1} hợp lệ và {2} bị thiếu và {2024} lạc.
+
+Chú thích:
+{1} Giải thích một.
+{3} Giải thích thừa chưa gọi.`;
+					const warnings: string[] = [];
+					const chapters = parseTxtToChapters(txt, { warnings }, 'Sách');
+					expect(chapters[0].html).toContain('href="notes.xhtml#fn1"');
+					expect(chapters[0].html).toContain('và {2} bị thiếu và {2024} lạc.');
+					expect(chapters[0].html).not.toContain('notes.xhtml#fn2');
+					expect(chapters[0].html).not.toContain('notes.xhtml#fn2024');
+
+					const notes = chapters.find((c) => c.fileName === 'notes');
+					expect(notes?.html).toContain(
+						'<a class="notenum" role="doc-backlink" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a>'
+					);
+					expect(notes?.html).toContain(
+						'<span class="notenum">3.</span> Giải thích thừa chưa gọi.'
+					);
+					expect(notes?.html).not.toContain('__FNREF_SRC_3__');
+
+					expect(warnings.some((w) => w.includes("thiếu mục '{2}'"))).toBe(true);
+					expect(warnings.some((w) => w.includes("thiếu mục '{2024}'"))).toBe(true);
+					expect(warnings.some((w) => w.includes("Mục chú thích '{3}'"))).toBe(true);
+				});
+
+				it('should warn and avoid broken <img> when illustration is missing from images map', () => {
+					const txt = `@@ Chương 1\n[hinh-9]\nĐoạn sau ảnh.`;
+					const warnings: string[] = [];
+					const chapters = parseTxtToChapters(txt, { images: {}, warnings }, 'Sách');
+					expect(chapters[0].html).toContain('<p>[hinh-9]</p>');
+					expect(chapters[0].html).not.toContain('<img');
+					expect(warnings.some((w) => w.includes("'[hinh-9]' chưa có file ảnh minh họa"))).toBe(
+						true
+					);
 				});
 			});
 		});

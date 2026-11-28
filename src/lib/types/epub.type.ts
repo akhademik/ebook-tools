@@ -209,6 +209,7 @@ export interface ParseTxtOptions {
 	warnings?: string[];
 	signal?: AbortSignal;
 	validateSyntax?: boolean;
+	mergeBrokenParagraphs?: boolean;
 }
 
 export interface TxtSyntaxError {

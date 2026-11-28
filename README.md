@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-28 10:03
-- Đã hoàn thành: Đổi tên 11 file font trong `src/assets/fonts/` chứa ký tự không an toàn (khoảng trắng, `[`, `]`, `,`) sang định dạng EPUB/Calibre an toàn (`[A-Za-z0-9._-]`), tái sinh `src/assets/fonts-metadata.json` cho toàn bộ 54 font và bổ sung kiểm thử tên file an toàn trong `tests/epub-packer.test.ts`; toàn bộ pipeline đạt chuẩn (503/503 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 14:08
+- Đã hoàn thành: Khắc phục toàn bộ 7 lỗi phân tích TXT → EPUB và sai lệch tài liệu theo `TASK.MD`: giữ nguyên ngắt dòng TXT mặc định (`preserveParagraphs: true`, thêm `ParseTxtOptions.mergeBrokenParagraphs`), thay thế regex inline `*`/`/`/`_` bằng `formatInlineDelimiters()` chống thẻ XML lồng chéo + cảnh báo đan chéo, siết nhận diện mục `Chú thích:` cuối sách (`findFootnoteSectionIndex()`), xử lý `{số}` không phải chú thích / thiếu / thừa / lặp lại giữa các chương với ID & backlink duy nhất (`fnref[0-9_]+`), cảnh báo & tránh `<img>` hỏng khi thiếu ảnh minh họa trong `imagesMap`, và cập nhật tài liệu nhận diện chương cho `.ZIP`/`.TXT`; toàn bộ pipeline đạt chuẩn (510/510 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 
@@ -82,7 +82,7 @@ Biến các tệp văn bản thô `.txt` hoặc gói file Markdown `.zip` thành
   - Cho phép tùy biến độc lập phông chữ cho: Nội dung chính, Tiêu đề chương (H1), Khối trích dẫn và Tên tác giả trích dẫn.
   - Cơ chế tối ưu thông minh: Tự động loại bỏ trùng lặp để chỉ nhúng phông thực tế được sử dụng, giảm thiểu tối đa dung lượng sách.
 - **Nhận diện Chương Thông minh (Heuristic Chapter Detection)**:
-  - Tự động nhận diện cấu trúc phân chương cho các file văn bản chưa gán nhãn dựa trên từ khóa (`Chương`, `Hồi`, `Quyển`, `Chapter`, số La Mã).
+  - Tự động nhận diện cấu trúc phân chương cho gói file Markdown/OCR `.ZIP` dựa trên từ khóa tùy chỉnh hoặc thuật toán Heuristic chấm điểm tiêu đề (chữ HOA, độ dài, dấu câu); riêng file `.TXT` phân chương trực tiếp theo cú pháp `@@`.
 
 ---
 

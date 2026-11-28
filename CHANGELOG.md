@@ -4,6 +4,27 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Khắc phục Toàn bộ 7 Lỗi Parser TXT → EPUB & Đồng bộ Tài liệu Theo `TASK.MD`)
+
+- Thêm/sửa:
+  - **Giữ nguyên Ngắt dòng TXT Mặc định (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/types/epub.type.ts`)**:
+    - Đặt `features: { preserveParagraphs: !options.mergeBrokenParagraphs }` cho các chương từ TXT (mặc định `true`) để `assignSequentialChapterIds()` không tự ý gọi `mergeBrokenParagraphs()` làm gộp thơ/ca dao hay danh sách chưa có dấu câu; bổ sung tùy chọn `ParseTxtOptions.mergeBrokenParagraphs` (mặc định `false`).
+  - **Chống Thẻ Inline Lồng Chéo & Cảnh báo (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`)**:
+    - Thay thế 3 lượt regex độc lập `*`/`/`/`_` bằng `formatInlineDelimiters()` ghép cặp không cắt chéo, đảm bảo chuỗi như `_đậm /và_ nghiêng/` luôn tạo XHTML hợp lệ thay vì lỗi EPUBCheck FATAL; bổ sung phát hiện và cảnh báo cặp định dạng đan chéo trong `checkInlineFormatting()`.
+  - **Nhận diện Chính xác Mục `Chú thích:` Cuối sách (`src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `findFootnoteSectionIndex()` quét từ cuối lên và yêu cầu dòng không rỗng đầu tiên ngay sau `Chú thích` / `Chú thích:` phải bắt đầu bằng `{n}`, tránh dòng `"Chú thích"` giữa thân sách nuốt toàn bộ các chương sau vào `notes.xhtml`.
+  - **Chuẩn hóa Chú thích `{n}` Trùng lặp, Thiếu, Thừa & `{số}` Văn bản Thường (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`)**:
+    - Cấp ID duy nhất cho từng lần gọi/định nghĩa khi số `{n}` lặp lại giữa các chương (`fnref1`/`fn1`, `fnref1_2`/`fn1_2`...) và cập nhật regex map ngược `fnref([0-9_]+)` trong `EpubSourceState` để mỗi backlink quay về đúng chương gốc.
+    - Giữ nguyên `{số}` (ví dụ `{2024}`) thành văn bản thường nếu không có mục `Chú thích:` hoặc thiếu định nghĩa tương ứng; thay backlink hỏng của chú thích dư (không có chỗ gọi) bằng `<span class="notenum">`; đồng thời phát cảnh báo chi tiết trong `validateTxtSyntax()`.
+  - **Cảnh báo & Chống Thẻ `<img>` Hỏng Khi Thiếu Ảnh Minh họa (`src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `resolveIllustrationFileName()` và `tryRenderIllustrationLine()` hỗ trợ khớp theo tên gốc (`[hinh-1]` ↔ `'hinh-1.jpg'`), và khi `options.images` được truyền từ giao diện mà thiếu ảnh thì cảnh báo rõ dòng lỗi thay vì sinh `<img src="../images/...">` trỏ tới file không tồn tại.
+  - **Đồng bộ Tài liệu & Kiểm thử (`README.md`, `tests/epub-parser.test.ts`, `tests/epub-packer.test.ts`, `tests/txt-footnote-packing.test.ts`)**:
+    - Cập nhật `README.md` làm rõ tính năng nhận diện chương theo từ khóa/heuristic áp dụng cho gói `.ZIP` (file `.TXT` phân chương theo `@@`), và bổ sung 7 test cases mới phủ toàn bộ các kịch bản trên.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (510/510 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `tests/epub-parser.test.ts`, `tests/epub-packer.test.ts`, `tests/txt-footnote-packing.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Chuẩn hóa Tên File Font An Toàn Cho Calibre / EPUB)
 
 - Thêm/sửa:

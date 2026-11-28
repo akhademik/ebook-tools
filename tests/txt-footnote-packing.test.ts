@@ -156,4 +156,34 @@ Chú thích:
 		expect(state.jacket.translator).toBe('');
 		expect(state.metadata.publisher).toBe('');
 	});
+
+	it('should assign unique IDs and exact chapter backlinks when footnote numbers repeat per chapter', async () => {
+		const rawTxt = `@@ Chương 1
+Lời mở đầu chương 1 có chú thích{1}.
+
+@@ Chương 2
+Lời mở đầu chương 2 cũng đánh lại{1}.
+
+Chú thích:
+{1} Chú thích của chương 1.
+{1} Chú thích của chương 2.`;
+
+		const state = new EpubState();
+		const fakeFile = new File([rawTxt], 'repeat-notes.txt', { type: 'text/plain' });
+		await state.source.handleFile(fakeFile);
+
+		const chapters = state.source.epubChapters;
+		expect(chapters).toHaveLength(3);
+		const chap1 = chapters[0];
+		const chap2 = chapters[1];
+		const notes = chapters[2];
+
+		expect(chap1.html).toContain('id="fnref1" href="notes.xhtml#fn1"');
+		expect(chap2.html).toContain('id="fnref1_2" href="notes.xhtml#fn1_2"');
+
+		expect(notes.html).toContain('id="fn1"');
+		expect(notes.html).toContain(`href="${chap1.fileName}.xhtml#fnref1"`);
+		expect(notes.html).toContain('id="fn1_2"');
+		expect(notes.html).toContain(`href="${chap2.fileName}.xhtml#fnref1_2"`);
+	});
 });

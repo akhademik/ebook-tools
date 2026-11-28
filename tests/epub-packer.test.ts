@@ -1350,11 +1350,14 @@ describe('epub-packer tests', () => {
 [/new]
 *[868] Ngày 9 tháng 2 năm Tuyên Đức thứ 10 [8/3/1435]*
 /Chiếu truyền thiên hạ. Chiếu rằng:/
-/“... Trước đây các quan lại văn võ...”/`;
+/“... Trước đây các quan lại văn võ...”/
+
+Chú thích:
+{642} Ghi chú niên hiệu Anh Tông.`;
 
 			const rawChapters = parseTxtToChapters(txt, {}, 'MTL Gop');
 			const chapters = assignSequentialChapterIds(rawChapters);
-			expect(chapters).toHaveLength(2);
+			expect(chapters).toHaveLength(3);
 			expect(chapters[0].title).toBe('ANH TÔNG');
 			expect(chapters[0].html).toContain('ANH TÔNG<a class="noteref"');
 			expect(chapters[1].hasCustomTitle).toBe(false);

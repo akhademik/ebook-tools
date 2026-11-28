@@ -179,7 +179,7 @@ export class EpubSourceState {
 			const footnoteMap: Record<string, string> = {};
 			for (const chap of this.epubChapters) {
 				if (chap.fileName !== 'notes' && chap.html) {
-					const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
+					const matches = chap.html.matchAll(/id="fnref([0-9_]+)"/g);
 					for (const match of matches) {
 						footnoteMap[match[1]] = chap.fileName;
 					}
@@ -189,7 +189,7 @@ export class EpubSourceState {
 			// Replace placeholders in notes chapter
 			const notesChap = this.epubChapters.find((c) => c.fileName === 'notes');
 			if (notesChap && notesChap.html) {
-				notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
+				notesChap.html = notesChap.html.replace(/__FNREF_SRC_([0-9_]+)__/g, (_match, n) => {
 					return footnoteMap[n] || 'chap_01';
 				});
 			}
