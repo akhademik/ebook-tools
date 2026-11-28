@@ -1,6 +1,58 @@
 import { Logger } from './logger';
 
 /**
+ * Decodes raw bytes of a TXT file strictly:
+ * - Supports UTF-8 BOM, UTF-16 LE BOM, and UTF-16 BE BOM.
+ * - Rejects files with invalid UTF-8 byte sequences (fatal: true) or raw NUL bytes (UTF-16 without BOM).
+ * - Normalizes CRLF and lone CR (classic Mac) line endings to LF.
+ */
+export function decodeStrictTxtBuffer(buffer: ArrayBuffer): string {
+	const bytes = new Uint8Array(buffer);
+
+	let decoded: string;
+	if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+		try {
+			decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(3));
+		} catch {
+			throw new Error(
+				'File TXT có BOM UTF-8 nhưng chứa byte không hợp lệ. Vui lòng lưu lại file theo chuẩn UTF-8.'
+			);
+		}
+	} else if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+		try {
+			decoded = new TextDecoder('utf-16le', { fatal: true }).decode(bytes.subarray(2));
+		} catch {
+			throw new Error(
+				'File TXT có BOM UTF-16 LE nhưng chứa dữ liệu không hợp lệ. Vui lòng lưu lại file theo chuẩn UTF-8.'
+			);
+		}
+	} else if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+		try {
+			decoded = new TextDecoder('utf-16be', { fatal: true }).decode(bytes.subarray(2));
+		} catch {
+			throw new Error(
+				'File TXT có BOM UTF-16 BE nhưng chứa dữ liệu không hợp lệ. Vui lòng lưu lại file theo chuẩn UTF-8.'
+			);
+		}
+	} else {
+		if (bytes.includes(0x00)) {
+			throw new Error(
+				'File TXT chứa byte NUL (có thể đang ở định dạng UTF-16 không có BOM hoặc file nhị phân). Vui lòng lưu file dạng UTF-8.'
+			);
+		}
+		try {
+			decoded = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+		} catch {
+			throw new Error(
+				'File TXT không đúng bảng mã UTF-8 hợp lệ (phát hiện ký tự lỗi bảng mã). Vui lòng chuyển file sang UTF-8 trước khi tải lên.'
+			);
+		}
+	}
+
+	return decoded.replace(/^\uFEFF/, '').replace(/\r\n|\r/g, '\n');
+}
+
+/**
  * Converts a string into a clean, URL-safe slug filename.
  * @param name - The raw file or title string.
  * @returns Cleaned slug name or 'untitled' if empty.

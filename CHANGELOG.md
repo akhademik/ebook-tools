@@ -4,6 +4,26 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (An Toàn Dropcap, Đếm `{n}` Trên Dòng Escape, Kiểm Tra Encoding, Invalidate EPUB Cũ & XML Guard)
+
+- Thêm/sửa:
+  - **Dropcap An Toàn XML & Quy Tắc Ngoặc Kép + Chữ Cái (`src/lib/epub-packer/xml-builders/chapter-builder.ts`)**:
+    - Sửa regex tự động dropcap dùng Unicode `/giu`, chỉ áp dụng khi đầu đoạn là chữ cái `\p{L}\p{M}*` hoặc dấu mở ngoặc (`“`, `‘`, `"`, `'`, `«`, `‹` và entity tương ứng) đứng liền chữ cái (giữ dropcap 2 ký tự); bỏ qua toàn bộ trường hợp dễ hỏng/sai (`&amp;`, `&lt;`, `&gt;`, `—`, `-`, `…`, `(`, `###`, `{1}` đầu đoạn, emoji).
+  - **Đếm `{n}` Trên Dòng Escape (`src/lib/epub-packer/parser/txt-syntax-validator.ts`)**:
+    - Không còn bỏ qua `{n}` khi đếm trên dòng escape đầu dòng (như `\@ ... {1}`), tránh lọt trùng ID `fnref1` hoặc báo thiếu nhầm khi `{1}` nằm trên dòng escape.
+  - **Kiểm Tra Bảng Mã Nghiêm Ngặt & Dòng CR (`src/lib/utils/text.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`)**:
+    - Bổ sung `decodeStrictTxtBuffer()` hỗ trợ BOM UTF-8 / UTF-16LE / UTF-16BE, từ chối file chứa byte UTF-8 không hợp lệ hoặc byte NUL; chuẩn hóa mọi xuống dòng `\r\n` và `\r` đơn lẻ thành `\n`.
+  - **Xóa / Vô Hiệu EPUB Cũ Khi Dữ Liệu Thay Đổi (`src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/routes/epub-packer/+page.svelte`)**:
+    - Theo dõi chữ ký dữ liệu đóng gói (`computePackInputSignature()`, `hasStaleOutput`, `isDownloadReady`) và `invalidateOutput()`: xóa `epubBlob` cũ, hủy lượt đóng gói dở khi ảnh/nguồn đổi, và khóa nút Tải file nếu thông tin/bìa/font/ảnh chưa được đóng gói lại.
+  - **Lọc XML, Đồng Bộ Tên Ảnh & XML Well-Formed Guard (`src/lib/utils/xml.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/builders/zip-writer.ts`)**:
+    - Lọc `U+FFFE`, `U+FFFF` và surrogate lẻ trong `sanitizeXmlText()` / `escapeXml()`; bỏ `.trim()` trong `reconcileTxtIllustrations()` để bắt đồng bộ tên file thừa dấu cách như `hinh-1 .png`; bổ sung `validateXhtmlWellFormed()` kiểm tra từng trang XHTML và `nav.xhtml` trước khi tạo EPUB.
+  - **Kiểm thử (`tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`)**:
+    - Bổ sung unit tests cho dropcap `&`/`<`/`>`/ngoặc kép/emoji/`###`/`{1}`, dòng escape `\@`, UTF-16 BOM / UTF-8 lỗi, stale `epubBlob`, `U+FFFF`, `hinh-1 .png`, CR `\r`, và `validateXhtmlWellFormed()`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors, 3 pre-existing warnings) ✅ | test unit ✅ (517/517 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass)
+- File chính bị ảnh hưởng: `src/lib/utils/xml.ts`, `src/lib/utils/text.ts`, `src/lib/epub-packer/xml-builders/chapter-builder.ts`, `src/lib/epub-packer/builders/zip-writer.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/routes/epub-packer/+page.svelte`, `tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Chuyển Xoay/Lật Góc SVG Jacket Mẫu 12–17 Sang `<g transform>` Chuẩn EPUB)
 
 - Thêm/sửa:

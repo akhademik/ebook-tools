@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-28 16:13
-- Đã hoàn thành: Siết chặt quy chuẩn chú thích (`Chú thích:` + `{n}` `count === 2`) & đối soát ảnh `[hinh-N]` tại Bước 5; đồng thời chuyển toàn bộ phép xoay/lật góc hoa văn SVG của các mẫu Jacket 12–17 (gồm Mẫu 13) từ CSS `transform` sang `<g transform="...">` nội bộ trong `<svg>` (`jacket-templates.ts`, `intro-css.css`) để hiển thị đồng nhất trên các trình đọc EPUB không hỗ trợ CSS `transform`. Toàn bộ pipeline đạt chuẩn (513/513 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 16:50
+- Đã hoàn thành: Hoàn thiện quy chuẩn TXT → EPUB và kiểm soát chất lượng XHTML đầu ra: sửa dropcap an toàn không cắt HTML entity (`&`, `<`, `>`), bỏ qua ký tự không phải chữ cái / `###` / `{1}` / emoji nhưng giữ special-case ngoặc kép liền chữ cái (2 ký tự); đếm `{n}` trên cả dòng escape `\@`; đọc TXT chặt theo BOM UTF-8 / UTF-16 và chuẩn hóa CR; tự động xóa/vô hiệu `epubBlob` cũ khi dữ liệu đóng gói thay đổi; lọc `U+FFFF`/`U+FFFE`/surrogate lẻ, đồng bộ tên ảnh có khoảng trắng thừa (`hinh-1 .png`) và kiểm tra XML well-formed cho từng XHTML trước khi đóng gói EPUB; cùng cơ chế xoay/lật góc SVG nội bộ cho Jacket 12–17. Toàn bộ pipeline đạt chuẩn (517/517 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

@@ -16,7 +16,7 @@ import {
 	extractTxtIllustrationTags,
 	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
-import { slugify, Logger, getZipEntryUncompressedSize } from '$lib/utils';
+import { slugify, Logger, getZipEntryUncompressedSize, decodeStrictTxtBuffer } from '$lib/utils';
 import {
 	MAX_TXT_FILE_SIZE,
 	MAX_ZIP_FILE_SIZE,
@@ -30,6 +30,7 @@ export interface EpubSourceStateDependencies {
 	getTitle: () => string;
 	onFileLoaded?: (baseName: string, originalFileName?: string) => void;
 	onTxtParsed?: (rawText: string) => void;
+	onSourceContentChanged?: () => void;
 	getIllustrationFiles?: () => IllustrationImageItem[];
 }
 
@@ -137,6 +138,7 @@ export class EpubSourceState {
 				? `Có ${this.epubRawFiles.length} file Markdown, gộp thành ${grouped.length} chương.`
 				: `Tìm thấy ${grouped.length} chương — kiểm tra thứ tự & tiêu đề bên trên trước khi đóng gói.`;
 		this.parseIsError = false;
+		this.deps.onSourceContentChanged?.();
 	}
 
 	async applyTxtGrouping(): Promise<void> {
@@ -202,6 +204,7 @@ export class EpubSourceState {
 			this.parseWarnings = warnings;
 			this.parseStatus = `Đã xử lý file .TXT thành công (${this.epubChapters.length} chương).`;
 			this.parseIsError = false;
+			this.deps.onSourceContentChanged?.();
 			Logger.info(
 				'[EpubSourceState]',
 				'applyTxtGrouping completed, chapters count:',
@@ -219,6 +222,7 @@ export class EpubSourceState {
 			this.parseWarnings = [];
 			this.parseStatus = errorMsg;
 			this.parseIsError = true;
+			this.deps.onSourceContentChanged?.();
 		} finally {
 			if (this.parseAbortController === ac) {
 				this.parseAbortController = null;
@@ -278,8 +282,11 @@ export class EpubSourceState {
 			const base = slugify(file.name.replace(/\.txt$/i, ''));
 			this.deps.onFileLoaded?.(base, file.name);
 			try {
-				Logger.debug('[EpubSourceState]', 'Reading file.text()...');
-				const text = await file.text();
+				Logger.debug('[EpubSourceState]', 'Reading TXT file bytes...');
+				const text =
+					typeof file.arrayBuffer === 'function'
+						? decodeStrictTxtBuffer(await file.arrayBuffer())
+						: (await file.text()).replace(/^\uFEFF/, '').replace(/\r\n|\r/g, '\n');
 				if (this.fileLoadGeneration !== currentGen) {
 					Logger.debug('[EpubSourceState]', 'Aborting TXT load: superseded by newer file load');
 					return;
@@ -289,10 +296,7 @@ export class EpubSourceState {
 					'File text read successfully, character count:',
 					text.length
 				);
-				this.rawTxtText = text
-					.replace(/^\uFEFF/, '')
-					.replace(/\r\n/g, '\n')
-					.normalize('NFC');
+				this.rawTxtText = text.normalize('NFC');
 				this.deps.onTxtParsed?.(this.rawTxtText);
 				if (this.fileLoadGeneration !== currentGen) return;
 				await this.applyTxtGrouping();

@@ -19,7 +19,7 @@ const STRICT_ILLUSTRATION_TAG_REGEX = /^\[(hinh-\d+)\]$/;
  */
 export function extractTxtIllustrationTags(rawText: string): TxtIllustrationTag[] {
 	const lines = String(rawText || '')
-		.replace(/\r\n/g, '\n')
+		.replace(/\r\n|\r/g, '\n')
 		.split('\n');
 	const footnoteIdx = findFootnoteSectionIndex(lines);
 	const contentLines = footnoteIdx !== -1 ? lines.slice(0, footnoteIdx) : lines;
@@ -56,7 +56,7 @@ export function reconcileTxtIllustrations(
 	const filesByBase = new Map<string, string[]>();
 
 	for (const file of uploadedFiles) {
-		const rawBase = (file.name || file.fileName.replace(/\.[^.]+$/, '')).trim().toLowerCase();
+		const rawBase = (file.name || file.fileName.replace(/\.[^.]+$/, '')).toLowerCase();
 		const list = filesByBase.get(rawBase) ?? [];
 		list.push(file.fileName);
 		filesByBase.set(rawBase, list);
@@ -571,7 +571,7 @@ export function parseTxtToChapters(
 	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
 
 	const lines = String(rawText || '')
-		.replace(/\r\n/g, '\n')
+		.replace(/\r\n|\r/g, '\n')
 		.split('\n');
 	const footnoteIdx = findFootnoteSectionIndex(lines);
 

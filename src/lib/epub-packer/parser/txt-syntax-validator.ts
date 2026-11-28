@@ -289,7 +289,7 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 	const errors: TxtSyntaxError[] = [];
 	const warnings: TxtSyntaxWarning[] = [];
 	const lines = String(rawText || '')
-		.replace(/\r\n/g, '\n')
+		.replace(/\r\n|\r/g, '\n')
 		.split('\n');
 
 	// Inspect the single end-of-book "Chú thích:" section strictly
@@ -309,12 +309,13 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 
 		if (!stripped) continue;
 
-		// Check for escaped lines like \[poem]
+		// Check for escaped lines like \[poem] or \@: skip block/heading rules, but still validate inline {n} syntax
 		if (
 			stripped.startsWith('\\') &&
 			stripped.length > 1 &&
 			['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))
 		) {
+			checkFootnoteSyntax(rawLine, lineNum, errors);
 			continue;
 		}
 
@@ -528,15 +529,7 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		const bodyCallsByNum = new Map<string, number[]>();
 		for (let i = 0; i < contentLines.length; i++) {
 			const rawLine = contentLines[i];
-			const trimmed = rawLine.trim();
-			if (!trimmed) continue;
-			if (
-				trimmed.startsWith('\\') &&
-				trimmed.length > 1 &&
-				['@', '~', '>', '#', '*', '/', '_', '['].includes(trimmed.charAt(1))
-			) {
-				continue;
-			}
+			if (!rawLine.trim()) continue;
 			for (const m of rawLine.matchAll(/\{(\d+)\}/g)) {
 				const existing = bodyCallsByNum.get(m[1]) ?? [];
 				existing.push(i + 1);

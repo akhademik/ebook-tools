@@ -1,6 +1,6 @@
 // src/lib/epub-packer/builders/zip-writer.ts
 import JSZip from 'jszip';
-import { Logger } from '$lib/utils';
+import { Logger, validateXhtmlWellFormed } from '$lib/utils';
 import { getFontFileName } from '../templates/fonts';
 import coverCss from '../templates/css-template/cover.css?raw';
 
@@ -123,7 +123,12 @@ export async function assembleEpubZip(
 		'content.opf',
 		buildContentOpf(meta, chapters, !!coverBlob, activeFonts, ornaments, safeImages, hasJacket)
 	);
-	oebps.file('nav.xhtml', buildNavXhtml(meta, chapters));
+	const navXhtml = buildNavXhtml(meta, chapters);
+	const navCheck = validateXhtmlWellFormed(navXhtml);
+	if (!navCheck.valid) {
+		throw new Error(`File nav.xhtml có lỗi cú pháp XML/XHTML: ${navCheck.error}`);
+	}
+	oebps.file('nav.xhtml', navXhtml);
 	oebps.file('toc.ncx', buildTocNcx(meta, chapters));
 
 	const stylesFolder = oebps.folder('styles');
@@ -209,6 +214,12 @@ export async function assembleEpubZip(
 				localCss,
 				ornaments
 			);
+			const xhtmlCheck = validateXhtmlWellFormed(xhtmlContent);
+			if (!xhtmlCheck.valid) {
+				throw new Error(
+					`File ${chapter.fileName}.xhtml có lỗi cú pháp XML/XHTML: ${xhtmlCheck.error}`
+				);
+			}
 			textFolder.file(chapter.fileName + '.xhtml', xhtmlContent);
 		}
 	}

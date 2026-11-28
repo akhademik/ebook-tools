@@ -34,10 +34,17 @@
 		>
 			{epubState.processing ? 'Đang đóng gói...' : 'Đóng gói file EPUB'}
 		</Button>
-		<Button onclick={() => onDownload()} disabled={!epubState.epubBlob} variant="secondary">
+		<Button onclick={() => onDownload()} disabled={!epubState.isDownloadReady} variant="secondary">
 			Tải file .EPUB
 		</Button>
 	</div>
+
+	{#if epubState.hasStaleOutput}
+		<div class="mt-4 p-3 rounded-xl bg-warn/10 border border-warn/30 text-warn text-xs font-medium">
+			Dữ liệu sách đã thay đổi sau lần đóng gói trước. Vui lòng bấm &quot;Đóng gói file EPUB&quot;
+			để tạo bản mới.
+		</div>
+	{/if}
 
 	{#if epubState.source.fileType === 'txt' && !epubState.illustrationValidation.isValid && !epubState.isError}
 		<div

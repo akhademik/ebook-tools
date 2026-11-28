@@ -33,6 +33,7 @@ export class EpubState {
 	source: EpubSourceState;
 
 	epubBlob = $state<Blob | null>(null);
+	packedInputSignature = $state<string | null>(null);
 	status = $state<string>('');
 	isError = $state<boolean>(false);
 	processing = $state<boolean>(false);
@@ -41,9 +42,100 @@ export class EpubState {
 	activePackagingPromise: Promise<void> | null = null;
 	isLockingPack = false;
 
+	computePackInputSignature(): string {
+		return JSON.stringify({
+			fileType: this.source.fileType,
+			chapters: this.source.epubChapters.map((c) => [
+				c.fileName,
+				c.xmlId,
+				c.title,
+				c.html?.length ?? 0
+			]),
+			metadata: [
+				this.metadata.title,
+				this.metadata.author,
+				this.metadata.lang,
+				this.metadata.publisher
+			],
+			jacket: [
+				this.jacket.jacketTemplateId,
+				this.jacket.originalTitle,
+				this.jacket.distributor,
+				this.jacket.translator
+			],
+			fonts: [
+				this.fonts.jacketFont,
+				this.fonts.jacketTitleFont,
+				this.fonts.jacketAuthorFont,
+				this.fonts.jacketMetaFont,
+				this.fonts.h1Font,
+				this.fonts.h2Font,
+				this.fonts.h2SubFont,
+				this.fonts.dropcapFont,
+				this.fonts.quoteFont,
+				this.fonts.quoteAuthorFont
+			],
+			cover: [
+				this.images.coverOriginalUrl,
+				this.images.coverCropTop,
+				this.images.coverCropBottom,
+				this.images.coverCropLeft,
+				this.images.coverCropRight
+			],
+			ornaments: [
+				this.images.chapterOrnamentFile?.name ?? '',
+				this.images.chapterOrnamentBlob?.size ?? 0,
+				this.images.subchapterOrnamentFile?.name ?? '',
+				this.images.subchapterOrnamentBlob?.size ?? 0
+			],
+			illustrations: this.images.illustrationFiles.map((f) => [
+				f.name ?? '',
+				f.fileName,
+				f.size ?? 0
+			])
+		});
+	}
+
 	illustrationValidation = $derived.by<TxtIllustrationValidationResult>(() => {
 		return this.getIllustrationValidation();
 	});
+
+	currentPackSignature = $derived.by(() => this.computePackInputSignature());
+
+	hasStaleOutput = $derived.by(() =>
+		Boolean(
+			this.epubBlob &&
+			this.packedInputSignature !== null &&
+			this.packedInputSignature !== this.currentPackSignature
+		)
+	);
+
+	isDownloadReady = $derived.by(() =>
+		Boolean(
+			this.epubBlob &&
+			!this.hasStaleOutput &&
+			(this.source.fileType !== 'txt' || this.illustrationValidation.isValid)
+		)
+	);
+
+	invalidateOutput(
+		reason = 'Dữ liệu sách đã thay đổi, vui lòng bấm "Đóng gói file EPUB" để tạo bản mới.'
+	): void {
+		const hadOutput = Boolean(this.epubBlob);
+		this.packGeneration++;
+		if (this.packAbortController) {
+			this.packAbortController.abort();
+			this.packAbortController = null;
+		}
+		if (this.processing) {
+			this.processing = false;
+		}
+		this.epubBlob = null;
+		this.packedInputSignature = null;
+		if (hadOutput && !this.isError) {
+			this.status = reason;
+		}
+	}
 
 	getIllustrationValidation(): TxtIllustrationValidationResult {
 		if (this.source.fileType !== 'txt' || !this.source.rawTxtText) {
@@ -87,6 +179,7 @@ export class EpubState {
 				this.metadata.publisher = '';
 				this.jacket.translator = '';
 				this.epubBlob = null;
+				this.packedInputSignature = null;
 			},
 			onTxtParsed: (rawText: string) => {
 				const detected = extractMetadataFromTxt(rawText);
@@ -106,10 +199,18 @@ export class EpubState {
 					this.metadata.publisher = detected.publisher;
 				}
 			},
+			onSourceContentChanged: () => {
+				if (this.epubBlob || this.processing) {
+					this.invalidateOutput('Nội dung nguồn sách đã thay đổi, vui lòng đóng gói lại EPUB.');
+				}
+			},
 			getIllustrationFiles: () => this.images.illustrationFiles
 		});
 
 		this.images.onIllustrationsChanged = () => {
+			if (this.epubBlob || this.processing) {
+				this.invalidateOutput('Ảnh minh họa đã thay đổi, vui lòng đóng gói lại EPUB.');
+			}
 			if (this.source.fileType === 'txt' && this.source.rawTxtText) {
 				this.source.applyTxtGrouping();
 			}
@@ -160,11 +261,13 @@ export class EpubState {
 					illustCheck.errorMessage
 				);
 				this.epubBlob = null;
+				this.packedInputSignature = null;
 				this.status = illustCheck.errorMessage;
 				this.isError = true;
 				return;
 			}
 
+			const packStartSignature = this.computePackInputSignature();
 			const currentGen = ++this.packGeneration;
 			const ac = new AbortController();
 			this.packAbortController = ac;
@@ -328,6 +431,7 @@ export class EpubState {
 
 					Logger.info('[EpubState]', 'buildEpubBlob returned blob successfully');
 					this.epubBlob = blob;
+					this.packedInputSignature = packStartSignature;
 					this.status = `Hoàn tất — ${chaptersSnapshot.length} chương đã được đóng gói thành công! Vui lòng nhấn nút 'Tải file .EPUB' để tải về.`;
 				} catch (err: unknown) {
 					if (ac.signal.aborted || this.packGeneration !== currentGen) return;

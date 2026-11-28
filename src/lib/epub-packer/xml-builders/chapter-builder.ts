@@ -1,5 +1,5 @@
 // src/lib/epub-packer/xml-builders/chapter-builder.ts
-import { escapeXml, Logger } from '$lib/utils';
+import { escapeXml, escapeXmlAttribute, Logger, sanitizeXmlText } from '$lib/utils';
 import type { EpubMetadata, EpubChapterItem, OrnamentsConfig } from '$lib/types';
 
 function protectSpecialBlocks(html: string): { processedHtml: string; protectedBlocks: string[] } {
@@ -273,7 +273,8 @@ export function buildChapterXhtml(
 		`buildChapterXhtml called for: ${chapter.title}, preserveParagraphs: ${preserveParagraphs}`
 	);
 	const shouldPreserve = preserveParagraphs || !!chapter.features?.preserveParagraphs;
-	let content = shouldPreserve ? chapter.html || '' : mergeBrokenParagraphs(chapter.html || '');
+	const sanitizedInput = sanitizeXmlText(chapter.html || '');
+	let content = shouldPreserve ? sanitizedInput : mergeBrokenParagraphs(sanitizedInput);
 	content = content.replace(
 		/<p>\s*###\s*<\/p>/g,
 		'<p class="scene-break-big" role="separator">• • •</p>'
@@ -368,30 +369,35 @@ export function buildChapterXhtml(
 			dropcapOut += content.slice(dropcapLastIdx);
 			content = dropcapOut;
 
-			content = content.replace(
-				/(<h[12][^>]*>[\s\S]*?<\/h[12]>\s*)(<p[^>]*>\s*)((?:<[a-z0-9]+[^>]*>)*)((?:[“‘"’'«‹—-]|&ldquo;|&lsquo;|&quot;|&apos;)*[^<\s])/gi,
-				(match, p1, p2, p3, p4) => {
-					if (
-						/\bno-dropcap\b/i.test(p2) ||
-						/\bhas-dropcap\b/i.test(p2) ||
-						/class=["'][^"']*\bdropcap\b/i.test(p3)
-					) {
-						return match;
-					}
-					let updatedP2: string;
-					if (p2.includes('class=')) {
-						updatedP2 = p2.replace(
-							/class=["']([^"']*)["']/i,
-							(_cMatch: string, classNames: string) => {
-								return `class="${classNames} has-dropcap"`;
-							}
-						);
-					} else {
-						updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
-					}
-					return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + '</span>';
-				}
+			const DROPCAP_OPEN_QUOTE = '(?:[“‘"\'«‹]|&ldquo;|&lsquo;|&quot;|&apos;|&laquo;|&lsaquo;)';
+			const dropcapRegex = new RegExp(
+				`(<h[12][^>]*>[\\s\\S]*?<\\/h[12]>\\s*)(<p[^>]*>\\s*)((?:<(?:b|strong|i|em|u|span)\\b[^>]*>)*)(${DROPCAP_OPEN_QUOTE}*\\p{L}\\p{M}*)`,
+				'giu'
 			);
+			content = content.replace(dropcapRegex, (match, p1, p2, p3, p4) => {
+				if (
+					/\bno-dropcap\b/i.test(p2) ||
+					/\bhas-dropcap\b/i.test(p2) ||
+					/\bscene-break-(?:big|small)\b/i.test(p2) ||
+					/\bsbreak\b/i.test(p2) ||
+					/\brole=["']separator["']/i.test(p2) ||
+					/class=["'][^"']*\bdropcap\b/i.test(p3)
+				) {
+					return match;
+				}
+				let updatedP2: string;
+				if (p2.includes('class=')) {
+					updatedP2 = p2.replace(
+						/class=["']([^"']*)["']/i,
+						(_cMatch: string, classNames: string) => {
+							return `class="${classNames} has-dropcap"`;
+						}
+					);
+				} else {
+					updatedP2 = p2.replace(/<p/i, '<p class="has-dropcap"');
+				}
+				return p1 + updatedP2 + p3 + '<span class="dropcap">' + p4 + '</span>';
+			});
 
 			content = content.replace(/<!--PROTECTED_BLOCK_DROPCAP_(\d+)-->/g, (_m, idx) => {
 				return protectedBlocks[Number(idx)];
@@ -465,7 +471,7 @@ export function buildChapterXhtml(
 	return (
 		'<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n' +
 		'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="' +
-		meta.language +
+		escapeXmlAttribute(meta.language || 'vi') +
 		'">\n' +
 		'<head>\n  <meta charset="utf-8"/>\n' +
 		titleTag +

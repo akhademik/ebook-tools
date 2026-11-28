@@ -16,6 +16,7 @@ import {
 	validateTxtSyntax
 } from '../src/lib/epub-packer/parser/epub-source-parser';
 import { buildChapterXhtml } from '../src/lib/epub-packer/xml-builders/chapter-builder';
+import { escapeXml, validateXhtmlWellFormed } from '../src/lib/utils/xml';
 
 describe('epub-parser tests', () => {
 	describe('cleanHeaderFooterOcr', () => {
@@ -2428,7 +2429,13 @@ Tốc độ đạt 60 km/h và biến tên là ten_bien_nay trong tài liệu.`;
 					);
 
 					const chapters = assignSequentialChapterIds(rawChapters);
-					const xhtml = buildChapterXhtml(chapters[0], 'Sách', false, '', false);
+					const xhtml = buildChapterXhtml(
+						{ title: 'Sách', author: 'A', language: 'vi' },
+						chapters[0],
+						false,
+						'',
+						null
+					);
 					expect(xhtml).not.toContain('<span class="dropcap">[</span>');
 					expect(xhtml).not.toContain('[hinh-9]');
 
@@ -2455,6 +2462,172 @@ Tốc độ đạt 60 km/h và biến tên là ten_bien_nay trong tài liệu.`;
 					);
 					expect(duplicateCheck.isValid).toBe(false);
 					expect(duplicateCheck.duplicateBaseNames.length).toBe(1);
+				});
+
+				it('should count {n} footnotes on escaped lines (\\@) to prevent duplicate IDs and false missing errors', () => {
+					const dupEscapeTxt = `@@ Chương 1
+A{1}.
+\\@ dòng được escape có {1}
+
+Chú thích:
+{1} a`;
+					const vDup = validateTxtSyntax(dupEscapeTxt);
+					expect(vDup.isValid).toBe(false);
+					expect(vDup.errors.some((e) => e.message.includes("'{1}'"))).toBe(true);
+					expect(() => parseTxtToChapters(dupEscapeTxt, {}, 'Sách')).toThrow(/\{1\}/);
+
+					const singleEscapeTxt = `@@ Chương 1
+\\@ dòng được escape có {1}
+
+Chú thích:
+{1} a`;
+					const vSingle = validateTxtSyntax(singleEscapeTxt);
+					expect(vSingle.isValid).toBe(true);
+					const chaps = parseTxtToChapters(singleEscapeTxt, {}, 'Sách');
+					expect(chaps[0].html).toContain('id="fnref1"');
+					expect(chaps[1].html).toContain('id="fn1"');
+				});
+
+				it('should protect XML entities (&, <, >), ignore non-letter leading chars in dropcap, and keep quote+letter 2-char dropcap', () => {
+					const cases = [
+						{
+							body: '& rồi họ đi.',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '&amp; rồi họ đi.'
+						},
+						{
+							body: '<Nhật ký> ngày đầu.',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '&lt;Nhật ký&gt;'
+						},
+						{
+							body: '> Trích đoạn đầu.',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '&gt; Trích đoạn đầu.'
+						},
+						{
+							body: '— Anh đi đâu?',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '— Anh đi đâu?'
+						},
+						{
+							body: '- Anh đi đâu?',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '- Anh đi đâu?'
+						},
+						{
+							body: '… Rồi mọi chuyện',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '… Rồi mọi chuyện'
+						},
+						{
+							body: '(Trích nhật ký)',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '(Trích nhật ký)'
+						},
+						{ body: '###', mustNotContain: '<span class="dropcap">', mustContain: '• • •' },
+						{
+							body: '😀 Hôm nay vui',
+							mustNotContain: '<span class="dropcap">',
+							mustContain: '😀 Hôm nay vui'
+						}
+					];
+
+					for (const c of cases) {
+						const chaps = assignSequentialChapterIds(
+							parseTxtToChapters(`@@ Chương 1\n${c.body}`, {}, 'Sách')
+						);
+						const xhtml = buildChapterXhtml(
+							{ title: 'Sách', author: 'A', language: 'vi' },
+							chaps[0],
+							false,
+							'',
+							null
+						);
+						expect(xhtml).not.toContain(c.mustNotContain);
+						expect(xhtml).toContain(c.mustContain);
+						expect(validateXhtmlWellFormed(xhtml).valid).toBe(true);
+					}
+
+					// Leading {1} footnote link must not turn digit 1 into dropcap
+					const fnFirstChaps = assignSequentialChapterIds(
+						parseTxtToChapters(
+							'@@ Chương 1\n{1} Mở đầu đoạn.\n\nChú thích:\n{1} Giải thích.',
+							{},
+							'Sách'
+						)
+					);
+					const fnXhtml = buildChapterXhtml(
+						{ title: 'Sách', author: 'A', language: 'vi' },
+						fnFirstChaps[0],
+						false,
+						'',
+						null
+					);
+					expect(fnXhtml).not.toContain('<span class="dropcap">');
+					expect(validateXhtmlWellFormed(fnXhtml).valid).toBe(true);
+
+					// Quote + letter special case must produce 2-char dropcap
+					const quoteSamples = [
+						{ input: '"Anh đi đâu?', expected: '<span class="dropcap">&quot;A</span>nh đi đâu?' },
+						{ input: "'Em ơi!", expected: '<span class="dropcap">&apos;E</span>m ơi!' },
+						{ input: '“Mỗi giây phút', expected: '<span class="dropcap">“M</span>ỗi giây phút' }
+					];
+					for (const q of quoteSamples) {
+						const chaps = assignSequentialChapterIds(
+							parseTxtToChapters(`@@ Chương 1\n${q.input}`, {}, 'Sách')
+						);
+						const xhtml = buildChapterXhtml(
+							{ title: 'Sách', author: 'A', language: 'vi' },
+							chaps[0],
+							false,
+							'',
+							null
+						);
+						expect(xhtml).toContain(q.expected);
+						expect(validateXhtmlWellFormed(xhtml).valid).toBe(true);
+					}
+				});
+
+				it('should strip U+FFFF/U+FFFE, reject trailing-space image names like "hinh-1 .png", handle lone CR line endings, and validate XML well-formedness', () => {
+					expect(escapeXml('A\uFFFFB\uFFFEC😀')).toBe('ABC😀');
+
+					const rawWithIllegal = '@@ Chương 1\nĐoạn có \uFFFF ký tự lỗi.';
+					const chapsIllegal = assignSequentialChapterIds(
+						parseTxtToChapters(rawWithIllegal, {}, 'Sách')
+					);
+					const xhtmlIllegal = buildChapterXhtml(
+						{ title: 'Sách', author: 'A', language: 'vi' },
+						chapsIllegal[0],
+						false,
+						'',
+						null
+					);
+					expect(xhtmlIllegal).not.toContain('\uFFFF');
+					expect(validateXhtmlWellFormed(xhtmlIllegal).valid).toBe(true);
+
+					// Trailing space image name must fail reconciliation consistently
+					const spaceCheck = reconcileTxtIllustrations(
+						[{ tag: 'hinh-1', lineNum: 2 }],
+						[{ name: 'hinh-1 ', fileName: 'hinh-1 .png' }]
+					);
+					expect(spaceCheck.isValid).toBe(false);
+					expect(spaceCheck.missingTags).toEqual(['hinh-1']);
+					expect(spaceCheck.unmatchedFiles).toEqual(['hinh-1 .png']);
+
+					// Lone CR line endings (classic Mac)
+					const crTxt = '@@ Chương 1\rDòng một.\rDòng hai.\r@@ Chương 2\rKết thúc.';
+					expect(validateTxtSyntax(crTxt).isValid).toBe(true);
+					const crChaps = parseTxtToChapters(crTxt, {}, 'Sách');
+					expect(crChaps).toHaveLength(2);
+					expect(crChaps[0].html).toContain('<p>Dòng một.</p>');
+					expect(crChaps[0].html).toContain('<p>Dòng hai.</p>');
+
+					// Well-formed XML validator catches unescaped & and duplicate id
+					expect(validateXhtmlWellFormed('<p><span class="dropcap">&</span>amp;</p>').valid).toBe(
+						false
+					);
+					expect(validateXhtmlWellFormed('<p id="a">1</p><p id="a">2</p>').valid).toBe(false);
 				});
 			});
 		});

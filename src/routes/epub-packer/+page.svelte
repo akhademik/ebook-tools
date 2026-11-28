@@ -19,6 +19,14 @@
 	let currentStep = $state(1);
 	let showSyntaxModal = $state(false);
 
+	$effect(() => {
+		if (!epubState.processing && epubState.hasStaleOutput) {
+			epubState.invalidateOutput(
+				'Dữ liệu sách (thông tin, bìa, phông chữ hoặc ảnh) đã thay đổi. Vui lòng bấm "Đóng gói file EPUB" để tạo bản mới.'
+			);
+		}
+	});
+
 	const hasChapters = $derived(epubState.source.epubChapters.length > 0);
 
 	const steps = $derived([
@@ -56,9 +64,9 @@
 		{
 			id: 5,
 			title: 'Đóng gói',
-			subtitle: epubState.epubBlob ? 'Sẵn sàng tải về' : 'Xuất file hoàn chỉnh',
-			badge: epubState.epubBlob ? 'Hoàn tất' : 'Chưa xuất',
-			isCompleted: Boolean(epubState.epubBlob)
+			subtitle: epubState.isDownloadReady ? 'Sẵn sàng tải về' : 'Xuất file hoàn chỉnh',
+			badge: epubState.isDownloadReady ? 'Hoàn tất' : 'Chưa xuất',
+			isCompleted: epubState.isDownloadReady
 		}
 	]);
 
@@ -73,10 +81,10 @@
 			'downloadEpub button clicked',
 			epubState.metadata.epubOutNamePreview
 		);
-		if (epubState.epubBlob) {
+		if (epubState.isDownloadReady && epubState.epubBlob) {
 			triggerDownload(epubState.epubBlob, epubState.metadata.epubOutNamePreview);
 		} else {
-			Logger.warn('[EpubPage]', 'epubState.epubBlob is empty, cannot download');
+			Logger.warn('[EpubPage]', 'epubState output is empty or stale, cannot download');
 		}
 	}
 </script>

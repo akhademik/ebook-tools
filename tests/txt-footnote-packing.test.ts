@@ -234,8 +234,51 @@ Chú thích:
 			await state.processEpub();
 			expect(state.isError).toBe(false);
 			expect(state.epubBlob).not.toBeNull();
+			expect(state.isDownloadReady).toBe(true);
+
+			// Changing metadata marks output stale and disables download
+			state.metadata.title = 'Tiêu Đề Đã Đổi';
+			expect(state.hasStaleOutput).toBe(true);
+			expect(state.isDownloadReady).toBe(false);
+
+			// Removing an illustration clears epubBlob immediately
+			state.images.removeIllustrationFile(0);
+			expect(state.epubBlob).toBeNull();
+			expect(state.isDownloadReady).toBe(false);
 		} finally {
 			vi.unstubAllGlobals();
 		}
+	});
+
+	it('should decode UTF-16 BOM TXT files accurately and reject invalid UTF-8 bytes or NUL-byte files', async () => {
+		// 1. UTF-16 LE with BOM (FF FE)
+		const text = '@@ Chương 1\nNội dung tiếng Việt hợp lệ.';
+		const utf16LeBytes = new Uint8Array(2 + text.length * 2);
+		utf16LeBytes[0] = 0xff;
+		utf16LeBytes[1] = 0xfe;
+		for (let i = 0; i < text.length; i++) {
+			const code = text.charCodeAt(i);
+			utf16LeBytes[2 + i * 2] = code & 0xff;
+			utf16LeBytes[2 + i * 2 + 1] = code >> 8;
+		}
+		const stateUtf16 = new EpubState();
+		await stateUtf16.source.handleFile(
+			new File([utf16LeBytes], 'utf16.txt', { type: 'text/plain' })
+		);
+		expect(stateUtf16.source.parseIsError).toBe(false);
+		expect(stateUtf16.source.epubChapters).toHaveLength(1);
+		expect(stateUtf16.source.epubChapters[0].title).toBe('Chương 1');
+
+		// 2. Invalid UTF-8 byte sequence (e.g. Windows-1252 single byte 0xE9 without UTF-8 continuation)
+		const badUtf8Bytes = new Uint8Array([
+			0x40, 0x40, 0x20, 0x43, 0x68, 0x31, 0x0a, 0xe9, 0x20, 0x61
+		]);
+		const stateBadUtf8 = new EpubState();
+		await stateBadUtf8.source.handleFile(
+			new File([badUtf8Bytes], 'bad-utf8.txt', { type: 'text/plain' })
+		);
+		expect(stateBadUtf8.source.parseIsError).toBe(true);
+		expect(stateBadUtf8.source.parseStatus).toContain('UTF-8');
+		expect(stateBadUtf8.source.epubChapters).toHaveLength(0);
 	});
 });
