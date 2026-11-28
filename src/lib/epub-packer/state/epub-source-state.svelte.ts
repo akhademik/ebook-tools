@@ -4,7 +4,8 @@ import type {
 	EpubChapterItem,
 	CleanedLinesReportItem,
 	CustomDefinition,
-	IllustrationImageItem
+	IllustrationImageItem,
+	TxtIllustrationTag
 } from '$lib/types';
 import {
 	cleanHeaderFooterOcr,
@@ -12,6 +13,7 @@ import {
 	groupChapters,
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
+	extractTxtIllustrationTags,
 	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
 import { slugify, Logger, getZipEntryUncompressedSize } from '$lib/utils';
@@ -38,6 +40,7 @@ export class EpubSourceState {
 
 	fileType = $state<'zip' | 'txt'>('zip');
 	rawTxtText = $state<string>('');
+	txtIllustrationTags = $state<TxtIllustrationTag[]>([]);
 	customDefinitions = $state<CustomDefinition[]>([]);
 	ignoreMarkdownFormat = $state<boolean>(false);
 
@@ -149,6 +152,7 @@ export class EpubSourceState {
 		this.parseAbortController = ac;
 
 		const fallbackTitle = this.deps.getTitle().trim() || 'Chương 1';
+		this.txtIllustrationTags = extractTxtIllustrationTags(this.rawTxtText);
 		const illustrations = this.deps.getIllustrationFiles ? this.deps.getIllustrationFiles() : [];
 		const imagesMap: Record<string, { fileName?: string }> = {};
 		for (const img of illustrations) {
@@ -179,7 +183,7 @@ export class EpubSourceState {
 			const footnoteMap: Record<string, string> = {};
 			for (const chap of this.epubChapters) {
 				if (chap.fileName !== 'notes' && chap.html) {
-					const matches = chap.html.matchAll(/id="fnref(\d+)"/g);
+					const matches = chap.html.matchAll(/id="fnref([0-9_]+)"/g);
 					for (const match of matches) {
 						footnoteMap[match[1]] = chap.fileName;
 					}
@@ -189,7 +193,7 @@ export class EpubSourceState {
 			// Replace placeholders in notes chapter
 			const notesChap = this.epubChapters.find((c) => c.fileName === 'notes');
 			if (notesChap && notesChap.html) {
-				notesChap.html = notesChap.html.replace(/__FNREF_SRC_(\d+)__/g, (_match, n) => {
+				notesChap.html = notesChap.html.replace(/__FNREF_SRC_([0-9_]+)__/g, (_match, n) => {
 					return footnoteMap[n] || 'chap_01';
 				});
 			}
@@ -263,6 +267,7 @@ export class EpubSourceState {
 		this.epubChapters = [];
 		this.epubRawFiles = [];
 		this.rawTxtText = '';
+		this.txtIllustrationTags = [];
 		this.customDefinitions = [];
 		this.ignoreMarkdownFormat = false;
 		this.visibleCleanedCount = 20;

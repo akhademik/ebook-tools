@@ -47,9 +47,37 @@ const BLOSSOM_CORNER_SVG =
 const PETAL_SCROLL_CORNER_SVG =
 	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.15" aria-hidden="true"><path d="M10 10 C18 10, 24 16, 22 22 C16 24, 10 18, 10 10 Z" fill="currentColor" fill-opacity="0.18"/><path d="M22 12 C28 12, 30 18, 24 22 M12 22 C12 28, 18 30, 22 24"/><path d="M30 14 H52 C55 14, 55 19, 51 19 C49 19, 49 16, 51 16"/><path d="M14 30 V52 C14 55, 19 55, 19 51 C19 49, 16 49, 16 51"/></svg>';
 
+type SvgCornerTransform = 'tl' | 'tr' | 'bl' | 'br' | 'rotate180';
+
+/**
+ * Wraps the inner SVG elements in a native `<g transform="...">` group based on its viewBox,
+ * so corner flips/rotations work reliably in EPUB readers that ignore CSS `transform`.
+ */
+function transformCornerSvg(svg: string, mode: SvgCornerTransform): string {
+	if (mode === 'tl') return svg;
+	const match = svg.match(
+		/^(<svg\b[^>]*\bviewBox=["']0\s+0\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)["'][^>]*>)([\s\S]*)(<\/svg>)$/i
+	);
+	if (!match) return svg;
+	const [, openTag, wStr, hStr, inner, closeTag] = match;
+	const w = Number(wStr);
+	const h = Number(hStr);
+	let transformAttr = '';
+	if (mode === 'tr') {
+		transformAttr = `translate(${w}, 0) scale(-1, 1)`;
+	} else if (mode === 'bl') {
+		transformAttr = `translate(0, ${h}) scale(1, -1)`;
+	} else if (mode === 'br') {
+		transformAttr = `translate(${w}, ${h}) scale(-1, -1)`;
+	} else if (mode === 'rotate180') {
+		transformAttr = `rotate(180 ${w / 2} ${h / 2})`;
+	}
+	return `${openTag}<g transform="${transformAttr}">${inner}</g>${closeTag}`;
+}
+
 function createCornerHtml(cornerClass: string, posPrefix: string, svg: string): string[] {
-	return ['tl', 'tr', 'bl', 'br'].map(
-		(pos) => `<div class="${cornerClass} ${posPrefix}-${pos}">${svg}</div>`
+	return (['tl', 'tr', 'bl', 'br'] as const).map(
+		(pos) => `<div class="${cornerClass} ${posPrefix}-${pos}">${transformCornerSvg(svg, pos)}</div>`
 	);
 }
 
@@ -315,7 +343,7 @@ const JACKET_TEMPLATE_SPECS: JacketTemplateSpec[] = [
 		id: 13,
 		headerPrefixHtml: [
 			`<div class="vine-tl">${VINE_CORNER_SVG}</div>`,
-			`<div class="vine-br">${VINE_CORNER_SVG}</div>`,
+			`<div class="vine-br">${transformCornerSvg(VINE_CORNER_SVG, 'rotate180')}</div>`,
 			'<div class="line-tr"></div>',
 			'<div class="line-bl"></div>'
 		]
@@ -324,7 +352,7 @@ const JACKET_TEMPLATE_SPECS: JacketTemplateSpec[] = [
 		id: 14,
 		headerPrefixHtml: [
 			`<div class="leaf-tl">${LEAF_CORNER_SVG}</div>`,
-			`<div class="leaf-br">${LEAF_CORNER_SVG}</div>`,
+			`<div class="leaf-br">${transformCornerSvg(LEAF_CORNER_SVG, 'rotate180')}</div>`,
 			'<div class="parallel-tr"></div>',
 			'<div class="parallel-bl"></div>'
 		]

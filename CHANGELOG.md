@@ -4,6 +4,57 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Chuyển Xoay/Lật Góc SVG Jacket Mẫu 12–17 Sang `<g transform>` Chuẩn EPUB)
+
+- Thêm/sửa:
+  - **Xoay/Lật Góc Hoa Văn SVG Nội Bộ (`src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`)**:
+    - Bổ sung helper `transformCornerSvg()` bọc nội dung bên trong `<svg>` bằng `<g transform="translate(...) scale(...)">` hoặc `<g transform="rotate(180 cx cy)">` theo `viewBox` của từng mẫu (áp dụng cho `Mẫu 12`, `Mẫu 13`, `Mẫu 14`, `Mẫu 15`, `Mẫu 16`, `Mẫu 17`).
+    - Gỡ bỏ `transform: scaleX(-1)` / `scaleY(-1)` / `scale(-1, -1)` / `rotate(180deg)` khỏi CSS của các góc SVG tương ứng trong `intro-css.css` để tránh xoay hai lần và đảm bảo tương thích trên trình đọc EPUB bỏ qua CSS `transform`.
+  - **Kiểm thử (`tests/epub-packer.test.ts`)**:
+    - Bổ sung kiểm tra `<g transform="...">` trong HTML và xác nhận CSS của `Mẫu 12`–`Mẫu 17` không còn thuộc tính `transform:`.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors, 3 pre-existing warnings) ✅ | test unit ✅ (513/513 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass)
+- File chính bị ảnh hưởng: `src/lib/epub-packer/templates/jacket-templates.ts`, `src/lib/epub-packer/templates/css-template/intro-css.css`, `tests/epub-packer.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-28 (Siết Chặt Quy Chuẩn Chú Thích `count === 2` & Đối Soát Ảnh `[hinh-N]` Tại Bước 5)
+
+- Thêm/sửa:
+  - **Quy chuẩn `Chú thích:` & `{n}` Bắt Buộc `count === 2` (`src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `inspectFootnoteSection()` yêu cầu toàn bộ file TXT chỉ có tối đa 1 mục `Chú thích:` (có dấu `:`) ở cuối sách, không có `@@`/`[new]` phía sau, và dòng không rỗng đầu tiên sau `Chú thích:` bắt buộc phải bắt đầu bằng `{n}` (dừng và báo lỗi ngay nếu có nội dung khác trước `{n}`); dọn bỏ dead code `leadingFootnoteProse`.
+    - Bỏ cơ chế ghép chú thích theo chương; nâng kiểm tra `{n}` lên lỗi fail-fast (`errors`) khi tổng số lần xuất hiện `!== 2` (1 lần trong thân bài + 1 lần sau `Chú thích:`, áp dụng cho cả `{2024}`, gọi lặp giữa chương, gọi thiếu/thừa hoặc định nghĩa trùng).
+    - Khắc phục cảnh báo giả cho `km/h` và định danh nhiều dấu gạch dưới như `ten_bien_nay` trong `checkInlineFormatting()`.
+  - **Pattern `[hinh-N]` & Chốt Chặn Đối Soát Ảnh Ở Bước 5 (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/lib/types/epub.type.ts`)**:
+    - Siết thẻ ảnh TXT theo đúng mẫu `^\[(hinh-\d+)\]$` (không dấu, không tiền tố khác, không extension); khi thiếu ảnh ở Bước 1 không còn sinh `<p>[hinh-9]</p>` và không bị dính dropcap.
+    - Bổ sung `extractTxtIllustrationTags()` và `reconcileTxtIllustrations()` đối soát 2 chiều giữa danh sách `[hinh-N]` trong TXT và file ảnh upload (phát hiện thiếu ảnh, lệch tên, dư ảnh hoặc trùng tên gốc), hiển thị cảnh báo/lỗi rõ tại Bước 3 và chặn cứng ở Bước 5 (`processEpub()`) khi chưa khớp 100%.
+  - **Đồng bộ Hướng dẫn & Kiểm thử (`src/lib/epub-packer/components/EpubSyntaxModal.svelte`, `tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`, `tests/stress/profile-p1.test.ts`, `tests/epub-golden.test.ts`, `tests/fixtures/comprehensive-syntax.txt`, `tests-e2e/epub-download-inspection.spec.ts`)**:
+    - Cập nhật tài liệu cú pháp modal và đồng bộ/bổ sung test unit, stress benchmark, E2E cho quy chuẩn mới.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors, 3 pre-existing warnings) ✅ | test unit ✅ (513/513 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass)
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/epub-source-parser.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/lib/epub-packer/components/EpubSyntaxModal.svelte`, `tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`, `tests/stress/profile-p1.test.ts`, `tests/epub-golden.test.ts`, `tests/fixtures/comprehensive-syntax.txt`, `tests-e2e/epub-download-inspection.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
+## 2026-11-28 (Khắc phục Toàn bộ 7 Lỗi Parser TXT → EPUB & Đồng bộ Tài liệu Theo `TASK.MD`)
+
+- Thêm/sửa:
+  - **Giữ nguyên Ngắt dòng TXT Mặc định (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/types/epub.type.ts`)**:
+    - Đặt `features: { preserveParagraphs: !options.mergeBrokenParagraphs }` cho các chương từ TXT (mặc định `true`) để `assignSequentialChapterIds()` không tự ý gọi `mergeBrokenParagraphs()` làm gộp thơ/ca dao hay danh sách chưa có dấu câu; bổ sung tùy chọn `ParseTxtOptions.mergeBrokenParagraphs` (mặc định `false`).
+  - **Chống Thẻ Inline Lồng Chéo & Cảnh báo (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`)**:
+    - Thay thế 3 lượt regex độc lập `*`/`/`/`_` bằng `formatInlineDelimiters()` ghép cặp không cắt chéo, đảm bảo chuỗi như `_đậm /và_ nghiêng/` luôn tạo XHTML hợp lệ thay vì lỗi EPUBCheck FATAL; bổ sung phát hiện và cảnh báo cặp định dạng đan chéo trong `checkInlineFormatting()`.
+  - **Nhận diện Chính xác Mục `Chú thích:` Cuối sách (`src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `findFootnoteSectionIndex()` quét từ cuối lên và yêu cầu dòng không rỗng đầu tiên ngay sau `Chú thích` / `Chú thích:` phải bắt đầu bằng `{n}`, tránh dòng `"Chú thích"` giữa thân sách nuốt toàn bộ các chương sau vào `notes.xhtml`.
+  - **Chuẩn hóa Chú thích `{n}` Trùng lặp, Thiếu, Thừa & `{số}` Văn bản Thường (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`)**:
+    - Cấp ID duy nhất cho từng lần gọi/định nghĩa khi số `{n}` lặp lại giữa các chương (`fnref1`/`fn1`, `fnref1_2`/`fn1_2`...) và cập nhật regex map ngược `fnref([0-9_]+)` trong `EpubSourceState` để mỗi backlink quay về đúng chương gốc.
+    - Giữ nguyên `{số}` (ví dụ `{2024}`) thành văn bản thường nếu không có mục `Chú thích:` hoặc thiếu định nghĩa tương ứng; thay backlink hỏng của chú thích dư (không có chỗ gọi) bằng `<span class="notenum">`; đồng thời phát cảnh báo chi tiết trong `validateTxtSyntax()`.
+  - **Cảnh báo & Chống Thẻ `<img>` Hỏng Khi Thiếu Ảnh Minh họa (`src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `resolveIllustrationFileName()` và `tryRenderIllustrationLine()` hỗ trợ khớp theo tên gốc (`[hinh-1]` ↔ `'hinh-1.jpg'`), và khi `options.images` được truyền từ giao diện mà thiếu ảnh thì cảnh báo rõ dòng lỗi thay vì sinh `<img src="../images/...">` trỏ tới file không tồn tại.
+  - **Đồng bộ Tài liệu & Kiểm thử (`README.md`, `tests/epub-parser.test.ts`, `tests/epub-packer.test.ts`, `tests/txt-footnote-packing.test.ts`)**:
+    - Cập nhật `README.md` làm rõ tính năng nhận diện chương theo từ khóa/heuristic áp dụng cho gói `.ZIP` (file `.TXT` phân chương theo `@@`), và bổ sung 7 test cases mới phủ toàn bộ các kịch bản trên.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors) ✅ | test unit ✅ (510/510 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass) | graphify ✅ (0 import cycles)
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `tests/epub-parser.test.ts`, `tests/epub-packer.test.ts`, `tests/txt-footnote-packing.test.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Chuẩn hóa Tên File Font An Toàn Cho Calibre / EPUB)
 
 - Thêm/sửa:

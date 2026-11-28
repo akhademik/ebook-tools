@@ -246,14 +246,10 @@
 								</td>
 								<td class="py-3 px-3">
 									<span class="text-text-mute">Liên kết chú thích qua lại (Footnotes):</span><br />
-									- Phải có một dòng riêng biệt ghi: <code>Chú thích</code> hoặc
-									<code>Chú thích:</code>
-									(chấp nhận mọi kiểu chữ hoa/thường, có hoặc không có dấu hai chấm).<br />
-									- Chú thích đi theo cặp <code>&#123;n&#125;</code> (trong nội dung truyện) và
-									<code>&#123;n&#125;</code>
-									ở sau dòng
-									<code>Chú thích</code>
-									để tự động tạo liên kết và thẻ <code>&lt;aside&gt;</code> qua lại chính xác.
+									- Phải có đúng một dòng riêng biệt nằm cuối sách ghi: <code>Chú thích:</code> và
+									ngay bên dưới bắt đầu ngay bằng <code>&#123;n&#125;</code>.<br />
+									- Mỗi mã <code>&#123;n&#125;</code> bắt buộc xuất hiện đúng 2 lần (1 lần trong nội
+									dung truyện và 1 lần sau dòng <code>Chú thích:</code>).
 								</td>
 							</tr>
 							<tr>

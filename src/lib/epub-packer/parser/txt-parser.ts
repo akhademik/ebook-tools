@@ -1,10 +1,107 @@
 // src/lib/epub-packer/parser/txt-parser.ts
 import { Logger, escapeXml } from '$lib/utils';
-import type { CustomDefinition, ParseTxtOptions, RawChapterItem } from '$lib/types';
-import { validateTxtSyntax } from './txt-syntax-validator';
+import type {
+	CustomDefinition,
+	ParseTxtOptions,
+	RawChapterItem,
+	TxtIllustrationTag,
+	TxtIllustrationValidationResult
+} from '$lib/types';
+import { findFootnoteSectionIndex, validateTxtSyntax } from './txt-syntax-validator';
 
 export type { ParseTxtOptions, RawChapterItem };
 export { validateTxtSyntax };
+
+const STRICT_ILLUSTRATION_TAG_REGEX = /^\[(hinh-\d+)\]$/;
+
+/**
+ * Extracts all strict `[hinh-N]` illustration tags from the TXT body (excluding "Chú thích:" and escaped lines).
+ */
+export function extractTxtIllustrationTags(rawText: string): TxtIllustrationTag[] {
+	const lines = String(rawText || '')
+		.replace(/\r\n/g, '\n')
+		.split('\n');
+	const footnoteIdx = findFootnoteSectionIndex(lines);
+	const contentLines = footnoteIdx !== -1 ? lines.slice(0, footnoteIdx) : lines;
+	const tags: TxtIllustrationTag[] = [];
+
+	for (let i = 0; i < contentLines.length; i++) {
+		const stripped = contentLines[i].trim();
+		if (!stripped) continue;
+		if (
+			stripped.startsWith('\\') &&
+			stripped.length > 1 &&
+			['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))
+		) {
+			continue;
+		}
+		const match = stripped.match(STRICT_ILLUSTRATION_TAG_REGEX);
+		if (match) {
+			tags.push({ tag: match[1], lineNum: i + 1 });
+		}
+	}
+
+	return tags;
+}
+
+/**
+ * Reconciles TXT `[hinh-N]` tags against uploaded illustration files (two-way strict match).
+ */
+export function reconcileTxtIllustrations(
+	requiredTags: TxtIllustrationTag[],
+	uploadedFiles: Array<{ name?: string; fileName: string }>
+): TxtIllustrationValidationResult {
+	const requiredSet = new Set(requiredTags.map((t) => t.tag));
+	const requiredList = Array.from(requiredSet);
+	const filesByBase = new Map<string, string[]>();
+
+	for (const file of uploadedFiles) {
+		const rawBase = (file.name || file.fileName.replace(/\.[^.]+$/, '')).trim().toLowerCase();
+		const list = filesByBase.get(rawBase) ?? [];
+		list.push(file.fileName);
+		filesByBase.set(rawBase, list);
+	}
+
+	const missingTags = requiredList.filter((tag) => !filesByBase.has(tag));
+	const duplicateBaseNames: string[] = [];
+	const unmatchedFiles: string[] = [];
+
+	for (const [base, fileNames] of filesByBase.entries()) {
+		if (fileNames.length > 1) {
+			duplicateBaseNames.push(`${base} (${fileNames.join(', ')})`);
+		}
+		if (!requiredSet.has(base)) {
+			unmatchedFiles.push(...fileNames);
+		}
+	}
+
+	const isValid =
+		missingTags.length === 0 && unmatchedFiles.length === 0 && duplicateBaseNames.length === 0;
+
+	const parts: string[] = [];
+	if (missingTags.length > 0) {
+		parts.push(
+			`Thiếu ${missingTags.length} ảnh minh họa so với TXT (yêu cầu ${requiredList.length} ảnh, đã tải ${uploadedFiles.length} file): ${missingTags.map((t) => `[${t}]`).join(', ')}.`
+		);
+	}
+	if (unmatchedFiles.length > 0) {
+		parts.push(
+			`File ảnh không khớp hoặc dư so với thẻ [hinh-...] trong TXT: ${unmatchedFiles.join(', ')}.`
+		);
+	}
+	if (duplicateBaseNames.length > 0) {
+		parts.push(`Phát hiện nhiều file ảnh trùng tên gốc: ${duplicateBaseNames.join('; ')}.`);
+	}
+
+	return {
+		isValid,
+		requiredTags: requiredList,
+		missingTags,
+		unmatchedFiles,
+		duplicateBaseNames,
+		errorMessage: isValid ? '' : `Không thể đóng gói EPUB: ${parts.join(' ')}`
+	};
+}
 
 function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -31,7 +128,84 @@ function stripHtmlTags(html: string): string {
 		.trim();
 }
 
-function applyInlineFormatting(text: string, customDefinitions: CustomDefinition[] = []): string {
+function findClosingDelimiter(str: string, openIdx: number, marker: '*' | '/' | '_'): number {
+	for (let j = openIdx + 1; j < str.length; j++) {
+		if (str[j] === marker) {
+			if (j === openIdx + 1 || /\s/.test(str[j - 1])) {
+				return -1;
+			}
+			const after = j + 1 < str.length ? str[j + 1] : '';
+			if (after && /[\p{L}\p{N}]/u.test(after)) {
+				return -1;
+			}
+			return j;
+		}
+	}
+	return -1;
+}
+
+function isValidOpenerAt(str: string, idx: number, marker: '*' | '/' | '_'): boolean {
+	const prev = idx > 0 ? str[idx - 1] : '';
+	if (prev && /[\p{L}\p{N}]/u.test(prev)) return false;
+	const next = idx + 1 < str.length ? str[idx + 1] : '';
+	if (!next || /\s/.test(next) || next === marker) return false;
+	return true;
+}
+
+function isNumericSlashContent(content: string): boolean {
+	const trimmed = content.trim();
+	if (/^\d+$/.test(trimmed)) return true;
+	if (trimmed.length <= 2 && /^\d+$/.test(trimmed.replace(/[^0-9]/g, ''))) return true;
+	return false;
+}
+
+/**
+ * Formats *, /, _ inline delimiters via recursive paired-span matching
+ * so crossed delimiters (e.g. `_a /b_ c/`) never produce overlapping XML tags.
+ */
+function formatInlineDelimiters(str: string): string {
+	let out = '';
+	let i = 0;
+	while (i < str.length) {
+		const ch = str[i];
+		if ((ch === '*' || ch === '/' || ch === '_') && isValidOpenerAt(str, i, ch)) {
+			const closeIdx = findClosingDelimiter(str, i, ch);
+			if (closeIdx !== -1) {
+				const inner = str.slice(i + 1, closeIdx);
+				if (ch === '/' && isNumericSlashContent(inner)) {
+					out += ch;
+					i++;
+					continue;
+				}
+				const tag = ch === '*' ? 'b' : ch === '/' ? 'i' : 'u';
+				out += `<${tag}>${formatInlineDelimiters(inner)}</${tag}>`;
+				i = closeIdx + 1;
+				continue;
+			}
+		}
+		out += ch;
+		i++;
+	}
+	return out;
+}
+
+interface FootnoteEntrySpec {
+	num: string;
+	firstContent: string;
+	extraLines: string[];
+}
+
+interface FootnoteRenderContext {
+	hasFootnotes: boolean;
+	entriesByNum: Map<string, FootnoteEntrySpec>;
+	matchedNums: Set<string>;
+}
+
+function applyInlineFormatting(
+	text: string,
+	customDefinitions: CustomDefinition[] = [],
+	footnoteContext?: FootnoteRenderContext
+): string {
 	let t = escapeXml(String(text || ''));
 
 	// 1. Mask URLs (http://, https://) so slashes and underscores inside URLs are not misidentified
@@ -86,35 +260,8 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 		}
 	}
 
-	// 2. Bold: require word/letter boundaries around asterisks
-	const boldRegex = /(?<![\p{L}\p{N}])\*([^\s*][^*]*[^\s*]|\S)\*(?![\p{L}\p{N}])/gu;
-	t = t.replace(boldRegex, 'XBOLDXOPENX$1XBOLDXCLOSEX');
-
-	// 3. Italic: require non-letter/digit boundaries around slashes to prevent matching km/h/s, fractions, etc.
-	const italicRegex = /(?<![\p{L}\p{N}])\/([^\s/][^/]*[^\s/]|\S)\/(?![\p{L}\p{N}])/gu;
-	t = t.replace(italicRegex, (match, content) => {
-		const trimmed = content.trim();
-		if (/^\d+$/.test(trimmed)) {
-			return match;
-		}
-		if (trimmed.length <= 2 && /^\d+$/.test(trimmed.replace(/[^0-9]/g, ''))) {
-			return match;
-		}
-		return `XITALICXOPENX${content}XITALICXCLOSEX`;
-	});
-
-	// 4. Underline: require non-letter/digit boundaries around underscores to prevent matching snake_case variables (file_name_here)
-	const underlineRegex = /(?<![\p{L}\p{N}])_([^\s_][^_]*[^\s_]|\S)_(?![\p{L}\p{N}])/gu;
-	t = t.replace(underlineRegex, 'XUNDERLINEXOPENX$1XUNDERLINEXCLOSEX');
-
-	// Restore all placeholders
-	t = t
-		.replace(/XBOLDXOPENX/g, '<b>')
-		.replace(/XBOLDXCLOSEX/g, '</b>')
-		.replace(/XITALICXOPENX/g, '<i>')
-		.replace(/XITALICXCLOSEX/g, '</i>')
-		.replace(/XUNDERLINEXOPENX/g, '<u>')
-		.replace(/XUNDERLINEXCLOSEX/g, '</u>');
+	// 2. Bold (*), Italic (/), Underline (_): single-pass non-overlapping span formatting
+	t = formatInlineDelimiters(t);
 
 	t = t.replace(/XCUSTOMXTAGX(\d+)X/g, (_m, idx) => {
 		return customTags[Number(idx)];
@@ -126,49 +273,74 @@ function applyInlineFormatting(text: string, customDefinitions: CustomDefinition
 	});
 
 	t = t.replace(/\{(\d+)\}/g, (_m, n) => {
+		if (!footnoteContext?.hasFootnotes) {
+			return `{${n}}`;
+		}
+		const targetEntry = footnoteContext.entriesByNum.get(n);
+		if (!targetEntry) {
+			return `{${n}}`;
+		}
+		footnoteContext.matchedNums.add(n);
 		return `<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
 	});
 
 	return t;
 }
 
-function isIllustrationTag(
+function resolveIllustrationFileName(
 	tagKey: string,
-	imagesMap: Record<string, { fileName?: string }> = {}
-): string | null {
-	const lowerKey = (tagKey || '').toLowerCase();
-	if (
-		[
-			'letter',
-			'/letter',
-			'letter-box',
-			'/letter-box',
-			'poem',
-			'/poem',
-			'new',
-			'/new',
-			'new:center'
-		].includes(lowerKey) ||
-		lowerKey.startsWith('new:')
-	) {
-		return null;
+	imagesMap: Record<string, { fileName?: string }> = {},
+	allowFallback = true
+): { fileName: string | null; isMissingIllustration: boolean } {
+	if (!/^hinh-\d+$/.test(tagKey)) {
+		return { fileName: null, isMissingIllustration: false };
 	}
-	if (imagesMap[lowerKey]) {
-		return imagesMap[lowerKey].fileName || tagKey;
+	if (imagesMap[tagKey]?.fileName) {
+		return { fileName: imagesMap[tagKey].fileName!, isMissingIllustration: false };
 	}
-	const baseKey = lowerKey.replace(/\.[^.]+$/, '');
-	if (imagesMap[baseKey]) {
-		return imagesMap[baseKey].fileName || tagKey;
+	for (const [mapKey, entry] of Object.entries(imagesMap)) {
+		const mapBase = mapKey.toLowerCase().replace(/\.[^.]+$/, '');
+		const entryBase = (entry?.fileName || '').toLowerCase().replace(/\.[^.]+$/, '');
+		if (mapBase === tagKey || entryBase === tagKey) {
+			return {
+				fileName: entry?.fileName || mapKey || `${tagKey}.jpg`,
+				isMissingIllustration: false
+			};
+		}
 	}
-	const hasImgExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(lowerKey);
-	const isIllustPrefix = /^(hinh|hình|img|image|anh|ảnh|pic|illust|illustration)[_\-\d]/i.test(
-		lowerKey
+	if (!allowFallback) {
+		return { fileName: null, isMissingIllustration: true };
+	}
+	return { fileName: `${tagKey}.jpg`, isMissingIllustration: false };
+}
+
+function tryRenderIllustrationLine(
+	stripped: string,
+	imagesMap: Record<string, { fileName?: string }>,
+	hasExplicitImagesMap: boolean,
+	lineNum: number,
+	warnings: string[] | undefined,
+	indent: string
+): { handled: boolean; html: string } {
+	const illustMatch = stripped.match(STRICT_ILLUSTRATION_TAG_REGEX);
+	if (!illustMatch) return { handled: false, html: '' };
+	const tagKey = illustMatch[1];
+	const { fileName, isMissingIllustration } = resolveIllustrationFileName(
+		tagKey,
+		imagesMap,
+		!hasExplicitImagesMap
 	);
-	if (hasImgExt || isIllustPrefix) {
-		if (hasImgExt) return tagKey;
-		return `${tagKey}.jpg`;
+	if (isMissingIllustration) {
+		const warnMsg = `Dòng ${lineNum}: Thẻ ảnh '[${tagKey}]' chưa có file ảnh minh họa khớp (sẽ kiểm tra trước khi đóng gói ở Bước 5).`;
+		Logger.warn('[epub-parser]', warnMsg);
+		warnings?.push(warnMsg);
+		return { handled: true, html: '' };
 	}
-	return null;
+	if (!fileName) return { handled: false, html: '' };
+	return {
+		handled: true,
+		html: `${indent}<figure class="illust-box">\n${indent}  <img class="illust-img" src="../images/${fileName}" alt="${escapeXml(tagKey)}" />\n${indent}</figure>\n`
+	};
 }
 
 interface TxtParserPendingJob {
@@ -344,9 +516,10 @@ export async function parseTxtToChaptersAsync(
 
 			const serializableOptions: ParseTxtOptions = {
 				customDefinitions: rawDefs,
-				images: rawImages,
+				images: options.images !== undefined ? rawImages : undefined,
 				warnings: [],
-				validateSyntax: options.validateSyntax
+				validateSyntax: options.validateSyntax,
+				mergeBrokenParagraphs: options.mergeBrokenParagraphs
 			};
 
 			try {
@@ -392,25 +565,27 @@ export function parseTxtToChapters(
 
 	const customDefinitions = options.customDefinitions || [];
 
+	const preserveParagraphs = !options.mergeBrokenParagraphs;
+	const hasExplicitImagesMap = options.images !== undefined;
 	const imagesMap = options.images || {};
 	Logger.debug('[epub-parser]', 'parseTxtToChapters starting parse with new conventions.');
 
 	const lines = String(rawText || '')
 		.replace(/\r\n/g, '\n')
 		.split('\n');
-	const footnoteIdx = lines.findIndex((l) => /^\s*chú thích:?\s*$/i.test(l));
+	const footnoteIdx = findFootnoteSectionIndex(lines);
 
 	let mainLines = lines;
 	let hasFootnotes = false;
-	let notesHtml = '';
+	const footnoteEntries: FootnoteEntrySpec[] = [];
+	const footnoteEntriesByNum = new Map<string, FootnoteEntrySpec>();
 
 	if (footnoteIdx !== -1) {
 		mainLines = lines.slice(0, footnoteIdx);
 		hasFootnotes = true;
 
-		notesHtml += `<h1 class="main-chap center">Chú thích:</h1>\n`;
 		const footnoteContentLines = lines.slice(footnoteIdx + 1);
-		let currentNoteOpen = false;
+		let currentEntry: FootnoteEntrySpec | null = null;
 
 		for (const line of footnoteContentLines) {
 			const trimmed = line.trim();
@@ -418,44 +593,39 @@ export function parseTxtToChapters(
 
 			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
 			if (fnMatch) {
-				if (currentNoteOpen) {
-					notesHtml += `</aside>\n`;
-				}
-				const n = fnMatch[1];
-				const content = fnMatch[2].trim();
-				const convertedContent = applyInlineFormatting(content, customDefinitions);
-				notesHtml +=
-					`<aside epub:type="footnote" role="doc-footnote" id="fn${n}" class="note">\n` +
-					`  <p><a class="notenum" role="doc-backlink" href="__FNREF_SRC_${n}__.xhtml#fnref${n}">${n}.</a> ${convertedContent}</p>\n`;
-				currentNoteOpen = true;
-			} else {
-				const converted = applyInlineFormatting(trimmed, customDefinitions);
-				if (currentNoteOpen) {
-					notesHtml += `  <p>${converted}</p>\n`;
-				} else {
-					notesHtml += `<p>${converted}</p>\n`;
-				}
+				const num = fnMatch[1];
+				currentEntry = {
+					num,
+					firstContent: fnMatch[2].trim(),
+					extraLines: []
+				};
+				footnoteEntriesByNum.set(num, currentEntry);
+				footnoteEntries.push(currentEntry);
+			} else if (currentEntry) {
+				currentEntry.extraLines.push(trimmed);
 			}
-		}
-
-		if (currentNoteOpen) {
-			notesHtml += `</aside>\n`;
 		}
 	}
 
+	const footnoteContext: FootnoteRenderContext = {
+		hasFootnotes,
+		entriesByNum: footnoteEntriesByNum,
+		matchedNums: new Set<string>()
+	};
+
 	const rawLines = mainLines;
-	const preprocessedLines: string[] = [];
+	const preprocessedLines: Array<{ text: string; lineNum: number }> = [];
 	let lastWasEmpty = false;
 	for (let i = 0; i < rawLines.length; i++) {
 		const line = rawLines[i];
 		const isEmpty = line.trim() === '';
 		if (isEmpty) {
 			if (!lastWasEmpty) {
-				preprocessedLines.push('');
+				preprocessedLines.push({ text: '', lineNum: i + 1 });
 				lastWasEmpty = true;
 			}
 		} else {
-			preprocessedLines.push(line);
+			preprocessedLines.push({ text: line, lineNum: i + 1 });
 			lastWasEmpty = false;
 		}
 	}
@@ -471,7 +641,8 @@ export function parseTxtToChapters(
 				sources: ['File TXT'],
 				isChapter: true,
 				firstSourcePageNum: chapters.length + 1,
-				hasCustomTitle: false
+				hasCustomTitle: false,
+				features: { preserveParagraphs }
 			};
 			chapters.push(currentChapter);
 		}
@@ -484,7 +655,7 @@ export function parseTxtToChapters(
 	let isInsideNewCenterBlock = false;
 	let lineIdx = 0;
 	while (lineIdx < preprocessedLines.length) {
-		const origLine = preprocessedLines[lineIdx];
+		const { text: origLine, lineNum } = preprocessedLines[lineIdx];
 		const stripped = origLine.trim();
 
 		// Handle letter-box closing tag
@@ -538,7 +709,7 @@ export function parseTxtToChapters(
 				const alignChar = blockHeadingMatch[2];
 				const titleRaw = blockHeadingMatch[3].trim();
 				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
-				const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
+				const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions, footnoteContext);
 				const activeChapter = ensureChapterOpen();
 				if (atCount === 2) {
 					activeChapter.html += `  <h1 class="main-chap ${align} no-toc">${titleFormatted}</h1>\n`;
@@ -549,15 +720,21 @@ export function parseTxtToChapters(
 				continue;
 			}
 
-			const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
-			if (illustMatch) {
-				const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
-				if (finalFileName) {
+			const illustResult = tryRenderIllustrationLine(
+				stripped,
+				imagesMap,
+				hasExplicitImagesMap,
+				lineNum,
+				options.warnings,
+				'  '
+			);
+			if (illustResult.handled) {
+				if (illustResult.html) {
 					const activeChapter = ensureChapterOpen();
-					activeChapter.html += `  <figure class="illust-box">\n    <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n  </figure>\n`;
-					lineIdx++;
-					continue;
+					activeChapter.html += illustResult.html;
 				}
+				lineIdx++;
+				continue;
 			}
 
 			const quoteMatch = stripped.match(/^~(t|p)?\s+(.+)$/);
@@ -566,13 +743,13 @@ export function parseTxtToChapters(
 				const alignChar = quoteMatch[1];
 				const quoteRaw = quoteMatch[2].trim();
 				const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
-				const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
+				const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions, footnoteContext);
 
 				const authorFooters: string[] = [];
 				let nextLineIdx = lineIdx + 1;
 
 				while (nextLineIdx < preprocessedLines.length) {
-					const candidateRaw = preprocessedLines[nextLineIdx];
+					const candidateRaw = preprocessedLines[nextLineIdx].text;
 					if (candidateRaw.trim() === '') {
 						// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 						break;
@@ -589,7 +766,11 @@ export function parseTxtToChapters(
 									: alignChar === 'c'
 										? ' class="center"'
 										: '';
-						const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+						const authorFormatted = applyInlineFormatting(
+							authorRaw,
+							customDefinitions,
+							footnoteContext
+						);
 						authorFooters.push(`<footer${alignClass}>${authorFormatted}</footer>`);
 						nextLineIdx++;
 					} else {
@@ -620,7 +801,11 @@ export function parseTxtToChapters(
 							: alignChar === 'c'
 								? ' class="center"'
 								: '';
-				const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+				const authorFormatted = applyInlineFormatting(
+					authorRaw,
+					customDefinitions,
+					footnoteContext
+				);
 				activeChapter.html += `  <blockquote class="center"><footer${alignClass}>${authorFormatted}</footer></blockquote>\n`;
 				lineIdx++;
 				continue;
@@ -629,7 +814,11 @@ export function parseTxtToChapters(
 			const activeChapter = ensureChapterOpen();
 			if (stripped.startsWith('!D ')) {
 				const textWithoutPrefix = origLine.replace(/^(\s*)!D\s+/, '$1');
-				const formatted = applyInlineFormatting(textWithoutPrefix.trim(), customDefinitions);
+				const formatted = applyInlineFormatting(
+					textWithoutPrefix.trim(),
+					customDefinitions,
+					footnoteContext
+				);
 				activeChapter.html += `  <p class="no-dropcap">${formatted}</p>\n`;
 			} else {
 				const dropcapMatch = stripped.match(/^\[([^\]\n])\]\s+(.+)$/);
@@ -637,10 +826,14 @@ export function parseTxtToChapters(
 					const group1 = dropcapMatch[1];
 					const group2 = dropcapMatch[2];
 					const formattedGroup1 = escapeXml(group1);
-					const formattedGroup2 = applyInlineFormatting(group2, customDefinitions);
+					const formattedGroup2 = applyInlineFormatting(group2, customDefinitions, footnoteContext);
 					activeChapter.html += `  <p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
 				} else {
-					const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+					const formatted = applyInlineFormatting(
+						origLine.trim(),
+						customDefinitions,
+						footnoteContext
+					);
 					activeChapter.html += `  <p>${formatted}</p>\n`;
 				}
 			}
@@ -740,7 +933,11 @@ export function parseTxtToChapters(
 
 		if (isEscaped) {
 			const activeChapter = ensureChapterOpen();
-			const formatted = applyInlineFormatting(lineToProcess.trim(), customDefinitions);
+			const formatted = applyInlineFormatting(
+				lineToProcess.trim(),
+				customDefinitions,
+				footnoteContext
+			);
 			activeChapter.html += `<p>${formatted}</p>\n`;
 			lineIdx++;
 			continue;
@@ -754,7 +951,7 @@ export function parseTxtToChapters(
 			const titleRaw = headingMatch[4].trim();
 
 			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
-			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions);
+			const titleFormatted = applyInlineFormatting(titleRaw, customDefinitions, footnoteContext);
 			const titlePlain = stripHtmlTags(titleFormatted);
 
 			const tocClass = isNoToc ? ' no-toc' : '';
@@ -778,7 +975,8 @@ export function parseTxtToChapters(
 						sources: ['File TXT'],
 						isChapter: true,
 						firstSourcePageNum: chapters.length + 1,
-						hasCustomTitle: true
+						hasCustomTitle: true,
+						features: { preserveParagraphs }
 					};
 					chapters.push(currentChapter);
 				}
@@ -800,13 +998,13 @@ export function parseTxtToChapters(
 			const alignChar = quoteMatch[1];
 			const quoteRaw = quoteMatch[2].trim();
 			const align = alignChar === 't' ? 'left' : alignChar === 'p' ? 'right' : 'center';
-			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions);
+			const quoteFormatted = applyInlineFormatting(quoteRaw, customDefinitions, footnoteContext);
 
 			const authorFooters: string[] = [];
 			let nextLineIdx = lineIdx + 1;
 
 			while (nextLineIdx < preprocessedLines.length) {
-				const candidateRaw = preprocessedLines[nextLineIdx];
+				const candidateRaw = preprocessedLines[nextLineIdx].text;
 				if (candidateRaw.trim() === '') {
 					// Khoảng trắng liền kề sau ~ hoặc giữa các > sẽ break liền mạch
 					break;
@@ -823,7 +1021,11 @@ export function parseTxtToChapters(
 								: alignChar === 'c'
 									? ' class="center"'
 									: '';
-					const authorFormatted = applyInlineFormatting(authorRaw, customDefinitions);
+					const authorFormatted = applyInlineFormatting(
+						authorRaw,
+						customDefinitions,
+						footnoteContext
+					);
 					authorFooters.push(`<footer${alignClass}>${authorFormatted}</footer>`);
 					nextLineIdx++;
 				} else {
@@ -862,21 +1064,31 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
-		if (illustMatch) {
-			const finalFileName = isIllustrationTag(illustMatch[1], imagesMap);
-			if (finalFileName) {
+		const illustResult = tryRenderIllustrationLine(
+			stripped,
+			imagesMap,
+			hasExplicitImagesMap,
+			lineNum,
+			options.warnings,
+			''
+		);
+		if (illustResult.handled) {
+			if (illustResult.html) {
 				const activeChapter = ensureChapterOpen();
-				activeChapter.html += `<figure class="illust-box">\n  <img class="illust-img" src="../images/${finalFileName}" alt="${escapeXml(illustMatch[1])}" />\n</figure>\n`;
-				lineIdx++;
-				continue;
+				activeChapter.html += illustResult.html;
 			}
+			lineIdx++;
+			continue;
 		}
 
 		const activeChapter = ensureChapterOpen();
 		if (stripped.startsWith('!D ')) {
 			const textWithoutPrefix = origLine.replace(/^(\s*)!D\s+/, '$1');
-			const formatted = applyInlineFormatting(textWithoutPrefix.trim(), customDefinitions);
+			const formatted = applyInlineFormatting(
+				textWithoutPrefix.trim(),
+				customDefinitions,
+				footnoteContext
+			);
 			activeChapter.html += `<p class="no-dropcap">${formatted}</p>\n`;
 		} else {
 			const dropcapMatch = stripped.match(/^\[([^\]\n])\]\s+(.+)$/);
@@ -884,10 +1096,14 @@ export function parseTxtToChapters(
 				const group1 = dropcapMatch[1];
 				const group2 = dropcapMatch[2];
 				const formattedGroup1 = escapeXml(group1);
-				const formattedGroup2 = applyInlineFormatting(group2, customDefinitions);
+				const formattedGroup2 = applyInlineFormatting(group2, customDefinitions, footnoteContext);
 				activeChapter.html += `<p class="has-dropcap"><span class="dropcap">${formattedGroup1}</span>${formattedGroup2}</p>\n`;
 			} else {
-				const formatted = applyInlineFormatting(origLine.trim(), customDefinitions);
+				const formatted = applyInlineFormatting(
+					origLine.trim(),
+					customDefinitions,
+					footnoteContext
+				);
 				activeChapter.html += `<p>${formatted}</p>\n`;
 			}
 		}
@@ -928,11 +1144,28 @@ export function parseTxtToChapters(
 			html: '',
 			sources: ['File TXT'],
 			isChapter: true,
-			firstSourcePageNum: 1
+			firstSourcePageNum: 1,
+			features: { preserveParagraphs }
 		});
 	}
 
 	if (hasFootnotes) {
+		let notesHtml = `<h1 class="main-chap center">Chú thích:</h1>\n`;
+		for (const entry of footnoteEntries) {
+			const convertedContent = applyInlineFormatting(entry.firstContent, customDefinitions);
+			const isMatched = footnoteContext.matchedNums.has(entry.num);
+			const numberHtml = isMatched
+				? `<a class="notenum" role="doc-backlink" href="__FNREF_SRC_${entry.num}__.xhtml#fnref${entry.num}">${entry.num}.</a>`
+				: `<span class="notenum">${entry.num}.</span>`;
+			notesHtml +=
+				`<aside epub:type="footnote" role="doc-footnote" id="fn${entry.num}" class="note">\n` +
+				`  <p>${numberHtml} ${convertedContent}</p>\n`;
+			for (const extra of entry.extraLines) {
+				notesHtml += `  <p>${applyInlineFormatting(extra, customDefinitions)}</p>\n`;
+			}
+			notesHtml += `</aside>\n`;
+		}
+
 		const notesChapter = {
 			title: 'Chú thích',
 			html: notesHtml,

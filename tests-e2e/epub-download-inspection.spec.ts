@@ -87,6 +87,22 @@ test.describe('End-to-End Browser File Download & Deep Structure Inspection', ()
 			timeout: 25000
 		});
 
+		// 2b. Navigate to Step 3 (Bìa và hoa văn) and upload required hinh-1.jpg matching [hinh-1] in fixture
+		await page
+			.getByRole('button', { name: /Bìa và hoa văn/i })
+			.first()
+			.click();
+		const illustInput = page.locator('input[type="file"][accept*=".zip"]').last();
+		await expect(illustInput).toBeAttached();
+		await illustInput.setInputFiles({
+			name: 'hinh-1.jpg',
+			mimeType: 'image/jpeg',
+			buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])
+		});
+		await expect(page.getByText(/Đã khớp đủ 1 ảnh minh họa/i).first()).toBeVisible({
+			timeout: 10000
+		});
+
 		// 3. Navigate to Step 5 (Đóng gói) & Trigger EPUB Packing
 		await page
 			.getByRole('button', { name: /Đóng gói/i })

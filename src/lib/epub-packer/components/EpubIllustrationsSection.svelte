@@ -26,8 +26,21 @@
 	</div>
 
 	<p class="text-xs text-text-mute mb-2.5 font-sans">
-		Tự động liên kết thẻ <code>[hinh-1]</code> trong văn bản với file cùng tên (ảnh, PDF hoặc ZIP).
+		Tự động liên kết thẻ <code>[hinh-1]</code>, <code>[hinh-2]</code>... trong văn bản với file cùng
+		tên (ảnh, PDF hoặc ZIP).
 	</p>
+
+	{#if epubState.source.fileType === 'txt' && epubState.illustrationValidation.requiredTags.length > 0 && epubState.images.illustrationFiles.length === 0}
+		<div
+			class="mb-2.5 p-2.5 rounded-xl bg-warn/10 border border-warn/30 text-warn text-xs font-sans"
+		>
+			Văn bản TXT có {epubState.illustrationValidation.requiredTags.length} thẻ ảnh ({epubState.illustrationValidation.requiredTags
+				.slice(0, 5)
+				.map((t) => `[${t}]`)
+				.join(', ')}{epubState.illustrationValidation.requiredTags.length > 5 ? ', ...' : ''}). Vui
+			lòng tải đủ ảnh khớp tên trước khi đóng gói ở Bước 5.
+		</div>
+	{/if}
 
 	<DropZone
 		compact={true}
@@ -89,5 +102,19 @@
 				</div>
 			{/each}
 		</div>
+	{/if}
+
+	{#if epubState.source.fileType === 'txt' && epubState.images.illustrationFiles.length > 0}
+		{#if !epubState.illustrationValidation.isValid}
+			<div
+				class="mt-2.5 p-2.5 rounded-xl bg-danger/10 border border-danger/30 text-danger text-xs font-sans font-medium"
+			>
+				{epubState.illustrationValidation.errorMessage}
+			</div>
+		{:else if epubState.illustrationValidation.requiredTags.length > 0}
+			<div class="mt-2 text-xs text-ok font-sans font-medium">
+				Đã khớp đủ {epubState.illustrationValidation.requiredTags.length} ảnh minh họa với văn bản TXT.
+			</div>
+		{/if}
 	{/if}
 </div>

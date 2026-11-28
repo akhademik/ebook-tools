@@ -944,6 +944,10 @@ describe('epub-packer tests', () => {
 			expect(template12Html).toContain('<div class="bot-bar"></div>');
 			expect(template12Html).toContain('<div class="svg-corner c-tl"><svg');
 			expect(template12Html).toContain('<div class="svg-corner c-br"><svg');
+			expect(template12Html).toContain('<g transform="translate(80, 0) scale(-1, 1)">');
+			expect(template12Html).toContain('<g transform="translate(0, 80) scale(1, -1)">');
+			expect(template12Html).toContain('<g transform="translate(80, 80) scale(-1, -1)">');
+			expect(JACKET_TEMPLATES[11].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			const template13Html = JACKET_TEMPLATES[12].render(
 				'Mật Mã Da Vinci',
@@ -956,8 +960,10 @@ describe('epub-packer tests', () => {
 			expect(template13Html).toContain('<div class="jacket-13">');
 			expect(template13Html).toContain('<div class="vine-tl"><svg');
 			expect(template13Html).toContain('<div class="vine-br"><svg');
+			expect(template13Html).toContain('<g transform="rotate(180 60 60)">');
 			expect(template13Html).toContain('<div class="line-tr"></div>');
 			expect(template13Html).toContain('<div class="line-bl"></div>');
+			expect(JACKET_TEMPLATES[12].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			const template14Html = JACKET_TEMPLATES[13].render(
 				'Mật Mã Da Vinci',
@@ -970,8 +976,10 @@ describe('epub-packer tests', () => {
 			expect(template14Html).toContain('<div class="jacket-14">');
 			expect(template14Html).toContain('<div class="leaf-tl"><svg');
 			expect(template14Html).toContain('<div class="leaf-br"><svg');
+			expect(template14Html).toContain('<g transform="rotate(180 50 40)">');
 			expect(template14Html).toContain('<div class="parallel-tr"></div>');
 			expect(template14Html).toContain('<div class="parallel-bl"></div>');
+			expect(JACKET_TEMPLATES[13].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			const template15Html = JACKET_TEMPLATES[14].render(
 				'Mật Mã Da Vinci',
@@ -984,6 +992,8 @@ describe('epub-packer tests', () => {
 			expect(template15Html).toContain('<div class="jacket-15">');
 			expect(template15Html).toContain('<div class="rose-c r-tl"><svg');
 			expect(template15Html).toContain('<div class="rose-c r-br"><svg');
+			expect(template15Html).toContain('<g transform="translate(64, 64) scale(-1, -1)">');
+			expect(JACKET_TEMPLATES[14].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			const template16Html = JACKET_TEMPLATES[15].render(
 				'Mật Mã Da Vinci',
@@ -996,6 +1006,8 @@ describe('epub-packer tests', () => {
 			expect(template16Html).toContain('<div class="jacket-16">');
 			expect(template16Html).toContain('<div class="c-orn c-tl"><svg');
 			expect(template16Html).toContain('<div class="c-orn c-br"><svg');
+			expect(template16Html).toContain('<g transform="translate(64, 64) scale(-1, -1)">');
+			expect(JACKET_TEMPLATES[15].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			const template17Html = JACKET_TEMPLATES[16].render(
 				'Mật Mã Da Vinci',
@@ -1008,6 +1020,8 @@ describe('epub-packer tests', () => {
 			expect(template17Html).toContain('<div class="jacket-17">');
 			expect(template17Html).toContain('<div class="c-orn c-tl"><svg');
 			expect(template17Html).toContain('<div class="c-orn c-br"><svg');
+			expect(template17Html).toContain('<g transform="translate(64, 64) scale(-1, -1)">');
+			expect(JACKET_TEMPLATES[16].css).not.toMatch(/(?:^|[;\s{])transform\s*:/m);
 
 			// 3. Verify that when user enters custom inputs, template renders user inputs and omits empty fields
 			const customHtml = JACKET_TEMPLATES[0].render(
@@ -1350,11 +1364,14 @@ describe('epub-packer tests', () => {
 [/new]
 *[868] Ngày 9 tháng 2 năm Tuyên Đức thứ 10 [8/3/1435]*
 /Chiếu truyền thiên hạ. Chiếu rằng:/
-/“... Trước đây các quan lại văn võ...”/`;
+/“... Trước đây các quan lại văn võ...”/
+
+Chú thích:
+{642} Ghi chú niên hiệu Anh Tông.`;
 
 			const rawChapters = parseTxtToChapters(txt, {}, 'MTL Gop');
 			const chapters = assignSequentialChapterIds(rawChapters);
-			expect(chapters).toHaveLength(2);
+			expect(chapters).toHaveLength(3);
 			expect(chapters[0].title).toBe('ANH TÔNG');
 			expect(chapters[0].html).toContain('ANH TÔNG<a class="noteref"');
 			expect(chapters[1].hasCustomTitle).toBe(false);

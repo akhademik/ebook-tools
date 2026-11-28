@@ -209,6 +209,7 @@ export interface ParseTxtOptions {
 	warnings?: string[];
 	signal?: AbortSignal;
 	validateSyntax?: boolean;
+	mergeBrokenParagraphs?: boolean;
 }
 
 export interface TxtSyntaxError {
@@ -230,4 +231,18 @@ export interface TxtSyntaxValidationResult {
 	isValid: boolean;
 	errors: TxtSyntaxError[];
 	warnings?: TxtSyntaxWarning[];
+}
+
+export interface TxtIllustrationTag {
+	tag: string;
+	lineNum: number;
+}
+
+export interface TxtIllustrationValidationResult {
+	isValid: boolean;
+	requiredTags: string[];
+	missingTags: string[];
+	unmatchedFiles: string[];
+	duplicateBaseNames: string[];
+	errorMessage: string;
 }
