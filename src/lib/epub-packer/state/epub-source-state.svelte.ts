@@ -4,7 +4,8 @@ import type {
 	EpubChapterItem,
 	CleanedLinesReportItem,
 	CustomDefinition,
-	IllustrationImageItem
+	IllustrationImageItem,
+	TxtIllustrationTag
 } from '$lib/types';
 import {
 	cleanHeaderFooterOcr,
@@ -12,6 +13,7 @@ import {
 	groupChapters,
 	getCleanedLinesReport,
 	assignSequentialChapterIds,
+	extractTxtIllustrationTags,
 	parseTxtToChaptersAsync
 } from '../parser/epub-source-parser';
 import { slugify, Logger, getZipEntryUncompressedSize } from '$lib/utils';
@@ -38,6 +40,7 @@ export class EpubSourceState {
 
 	fileType = $state<'zip' | 'txt'>('zip');
 	rawTxtText = $state<string>('');
+	txtIllustrationTags = $state<TxtIllustrationTag[]>([]);
 	customDefinitions = $state<CustomDefinition[]>([]);
 	ignoreMarkdownFormat = $state<boolean>(false);
 
@@ -149,6 +152,7 @@ export class EpubSourceState {
 		this.parseAbortController = ac;
 
 		const fallbackTitle = this.deps.getTitle().trim() || 'Chương 1';
+		this.txtIllustrationTags = extractTxtIllustrationTags(this.rawTxtText);
 		const illustrations = this.deps.getIllustrationFiles ? this.deps.getIllustrationFiles() : [];
 		const imagesMap: Record<string, { fileName?: string }> = {};
 		for (const img of illustrations) {
@@ -263,6 +267,7 @@ export class EpubSourceState {
 		this.epubChapters = [];
 		this.epubRawFiles = [];
 		this.rawTxtText = '';
+		this.txtIllustrationTags = [];
 		this.customDefinitions = [];
 		this.ignoreMarkdownFormat = false;
 		this.visibleCleanedCount = 20;

@@ -4,6 +4,23 @@ Tài liệu lưu trữ toàn bộ lịch sử phát triển, cập nhật tính 
 
 ---
 
+## 2026-11-28 (Siết Chặt Quy Chuẩn Chú Thích `count === 2` & Đối Soát Ảnh `[hinh-N]` Tại Bước 5)
+
+- Thêm/sửa:
+  - **Quy chuẩn `Chú thích:` & `{n}` Bắt Buộc `count === 2` (`src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`)**:
+    - Bổ sung `inspectFootnoteSection()` yêu cầu toàn bộ file TXT chỉ có tối đa 1 mục `Chú thích:` (có dấu `:`) ở cuối sách, không có `@@`/`[new]` phía sau, và dòng không rỗng đầu tiên sau `Chú thích:` bắt buộc phải bắt đầu bằng `{n}` (dừng và báo lỗi ngay nếu có nội dung khác trước `{n}`); dọn bỏ dead code `leadingFootnoteProse`.
+    - Bỏ cơ chế ghép chú thích theo chương; nâng kiểm tra `{n}` lên lỗi fail-fast (`errors`) khi tổng số lần xuất hiện `!== 2` (1 lần trong thân bài + 1 lần sau `Chú thích:`, áp dụng cho cả `{2024}`, gọi lặp giữa chương, gọi thiếu/thừa hoặc định nghĩa trùng).
+    - Khắc phục cảnh báo giả cho `km/h` và định danh nhiều dấu gạch dưới như `ten_bien_nay` trong `checkInlineFormatting()`.
+  - **Pattern `[hinh-N]` & Chốt Chặn Đối Soát Ảnh Ở Bước 5 (`src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/lib/types/epub.type.ts`)**:
+    - Siết thẻ ảnh TXT theo đúng mẫu `^\[(hinh-\d+)\]$` (không dấu, không tiền tố khác, không extension); khi thiếu ảnh ở Bước 1 không còn sinh `<p>[hinh-9]</p>` và không bị dính dropcap.
+    - Bổ sung `extractTxtIllustrationTags()` và `reconcileTxtIllustrations()` đối soát 2 chiều giữa danh sách `[hinh-N]` trong TXT và file ảnh upload (phát hiện thiếu ảnh, lệch tên, dư ảnh hoặc trùng tên gốc), hiển thị cảnh báo/lỗi rõ tại Bước 3 và chặn cứng ở Bước 5 (`processEpub()`) khi chưa khớp 100%.
+  - **Đồng bộ Hướng dẫn & Kiểm thử (`src/lib/epub-packer/components/EpubSyntaxModal.svelte`, `tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`, `tests/stress/profile-p1.test.ts`, `tests/epub-golden.test.ts`, `tests/fixtures/comprehensive-syntax.txt`, `tests-e2e/epub-download-inspection.spec.ts`)**:
+    - Cập nhật tài liệu cú pháp modal và đồng bộ/bổ sung test unit, stress benchmark, E2E cho quy chuẩn mới.
+- Kết quả pipeline: format ✅ | format:check ✅ | type check (0 err, 0 warn) ✅ | lint (0 errors, 3 pre-existing warnings) ✅ | test unit ✅ (513/513 pass, 24 files) | knip ✅ | build ✅ | test:e2e ✅ (24/24 pass)
+- File chính bị ảnh hưởng: `src/lib/types/epub.type.ts`, `src/lib/epub-packer/parser/txt-syntax-validator.ts`, `src/lib/epub-packer/parser/txt-parser.ts`, `src/lib/epub-packer/parser/epub-source-parser.ts`, `src/lib/epub-packer/state/epub-source-state.svelte.ts`, `src/lib/epub-packer/epub-state.svelte.ts`, `src/lib/epub-packer/components/EpubIllustrationsSection.svelte`, `src/lib/epub-packer/components/EpubPackSection.svelte`, `src/lib/epub-packer/components/EpubSyntaxModal.svelte`, `tests/epub-parser.test.ts`, `tests/txt-footnote-packing.test.ts`, `tests/stress/profile-p1.test.ts`, `tests/epub-golden.test.ts`, `tests/fixtures/comprehensive-syntax.txt`, `tests-e2e/epub-download-inspection.spec.ts`, `README.md`, `CHANGELOG.md`.
+
+---
+
 ## 2026-11-28 (Khắc phục Toàn bộ 7 Lỗi Parser TXT → EPUB & Đồng bộ Tài liệu Theo `TASK.MD`)
 
 - Thêm/sửa:

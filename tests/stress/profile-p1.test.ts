@@ -15,15 +15,23 @@ describe('P1 Benchmark: Baseline Profiling', () => {
 		lines.push('Lời tựa đại tác phẩm thử nghiệm hiệu năng quy mô lớn.');
 		lines.push('[/new]');
 
-		const sampleParagraph =
-			'Đây là một đoạn văn bản tiếng Việt mẫu chứa đầy đủ các ký tự có dấu như ắ, ằ, ẳ, ẵ, ặ, ế, ề, ể, ễ, ệ, ô, ơ, ư. Đoạn văn này có cả định dạng *in đậm*, /in nghiêng/, và liên kết https://example.com/sach-dien-tu/chuong-1. Ngoài ra còn có chú thích {1} và lời thoại ~ Nhân vật chính cất tiếng nói rõ ràng.';
+		const sampleParagraphPrefix =
+			'Đây là một đoạn văn bản tiếng Việt mẫu chứa đầy đủ các ký tự có dấu như ắ, ằ, ẳ, ẵ, ặ, ế, ề, ể, ễ, ệ, ô, ơ, ư. Đoạn văn này có cả định dạng *in đậm*, /in nghiêng/, và liên kết https://example.com/sach-dien-tu/chuong-1. Ngoài ra còn có chú thích ';
+		const sampleParagraphSuffix = ' và lời thoại ~ Nhân vật chính cất tiếng nói rõ ràng.';
 
+		const footnoteDefs: string[] = [];
+		let footnoteCounter = 0;
 		for (let i = 1; i <= chapterCount; i++) {
 			lines.push(`@@t Chương ${i}: Khởi Đầu Của Cuộc Hành Trình Gian Nan Phần ${i}`);
 			for (let p = 1; p <= paragraphsPerChapter; p++) {
-				lines.push(sampleParagraph);
+				footnoteCounter++;
+				lines.push(`${sampleParagraphPrefix}{${footnoteCounter}}${sampleParagraphSuffix}`);
+				footnoteDefs.push(`{${footnoteCounter}} Giải thích cho chú thích số ${footnoteCounter}.`);
 			}
 		}
+
+		lines.push('Chú thích:');
+		lines.push(...footnoteDefs);
 
 		const massiveTxt = lines.join('\n\n');
 		const wordCount = massiveTxt.split(/\s+/).length;

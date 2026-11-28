@@ -232,3 +232,17 @@ export interface TxtSyntaxValidationResult {
 	errors: TxtSyntaxError[];
 	warnings?: TxtSyntaxWarning[];
 }
+
+export interface TxtIllustrationTag {
+	tag: string;
+	lineNum: number;
+}
+
+export interface TxtIllustrationValidationResult {
+	isValid: boolean;
+	requiredTags: string[];
+	missingTags: string[];
+	unmatchedFiles: string[];
+	duplicateBaseNames: string[];
+	errorMessage: string;
+}

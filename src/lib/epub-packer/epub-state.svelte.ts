@@ -6,7 +6,8 @@ import type {
 	CoverBlobItem,
 	OrnamentsConfig,
 	EpubChapterItem,
-	IllustrationImageItem
+	IllustrationImageItem,
+	TxtIllustrationValidationResult
 } from '$lib/types';
 import {
 	Logger,
@@ -15,6 +16,7 @@ import {
 	hasVietnameseDiacritics
 } from '$lib/utils';
 import { findFont } from './templates/fonts';
+import { extractTxtIllustrationTags, reconcileTxtIllustrations } from './parser/epub-source-parser';
 import {
 	EpubMetadataState,
 	EpubJacketState,
@@ -38,6 +40,28 @@ export class EpubState {
 	packAbortController: AbortController | null = null;
 	activePackagingPromise: Promise<void> | null = null;
 	isLockingPack = false;
+
+	illustrationValidation = $derived.by<TxtIllustrationValidationResult>(() => {
+		return this.getIllustrationValidation();
+	});
+
+	getIllustrationValidation(): TxtIllustrationValidationResult {
+		if (this.source.fileType !== 'txt' || !this.source.rawTxtText) {
+			return {
+				isValid: true,
+				requiredTags: [],
+				missingTags: [],
+				unmatchedFiles: [],
+				duplicateBaseNames: [],
+				errorMessage: ''
+			};
+		}
+		const tags =
+			this.source.txtIllustrationTags.length > 0
+				? this.source.txtIllustrationTags
+				: extractTxtIllustrationTags(this.source.rawTxtText);
+		return reconcileTxtIllustrations(tags, this.images.illustrationFiles);
+	}
 
 	constructor() {
 		this.metadata = new EpubMetadataState();
@@ -124,6 +148,19 @@ export class EpubState {
 			if (this.source.epubChapters.length === 0) {
 				Logger.warn('[EpubState]', 'processEpub aborted: epubChapters is empty');
 				this.status = 'Không có chương nào để đóng gói. Vui lòng chọn file hợp lệ.';
+				this.isError = true;
+				return;
+			}
+
+			const illustCheck = this.getIllustrationValidation();
+			if (!illustCheck.isValid) {
+				Logger.warn(
+					'[EpubState]',
+					'processEpub aborted due to illustration mismatch:',
+					illustCheck.errorMessage
+				);
+				this.epubBlob = null;
+				this.status = illustCheck.errorMessage;
 				this.isError = true;
 				return;
 			}

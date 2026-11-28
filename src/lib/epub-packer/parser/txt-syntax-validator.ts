@@ -67,25 +67,97 @@ function findMatchIndices(str: string, regex: RegExp): number[] {
 	return indices;
 }
 
+interface FootnoteSectionInspection {
+	footnoteIdx: number;
+	errors: TxtSyntaxError[];
+}
+
+const FOOTNOTE_HEADER_RE = /^\s*chú thích:\s*$/i;
+
 /**
- * Finds the start line index of the end-of-book footnote section ("Chú thích" / "Chú thích:").
- * Scans from the bottom up and requires the first non-empty line after it to start with `{n}`
- * so a standalone "Chú thích" heading or prose line inside a chapter does not swallow the book.
+ * Inspects the single end-of-book "Chú thích:" section.
+ * Enforces:
+ * - At most one "Chú thích:" header in the entire file.
+ * - The first non-empty line after "Chú thích:" must immediately start with `{n}`.
+ * - No chapter/page markers (`@@`, `[new]`, `[new:center]`) may appear after "Chú thích:".
  */
-export function findFootnoteSectionIndex(lines: string[]): number {
-	for (let i = lines.length - 1; i >= 0; i--) {
-		if (/^\s*chú thích:?\s*$/i.test(lines[i])) {
-			for (let j = i + 1; j < lines.length; j++) {
-				const nextTrimmed = lines[j].trim();
-				if (!nextTrimmed) continue;
-				if (/^\{\d+\}/.test(nextTrimmed)) {
-					return i;
-				}
-				break;
-			}
+function inspectFootnoteSection(lines: string[]): FootnoteSectionInspection {
+	const headerIndices: number[] = [];
+	for (let i = 0; i < lines.length; i++) {
+		if (FOOTNOTE_HEADER_RE.test(lines[i])) {
+			headerIndices.push(i);
 		}
 	}
-	return -1;
+
+	if (headerIndices.length === 0) {
+		return { footnoteIdx: -1, errors: [] };
+	}
+
+	const errors: TxtSyntaxError[] = [];
+	if (headerIndices.length > 1) {
+		for (let k = 0; k < headerIndices.length; k++) {
+			const idx = headerIndices[k];
+			errors.push({
+				lineNum: idx + 1,
+				lineContent: lines[idx],
+				tag: 'chú thích:',
+				message: `Dòng ${idx + 1}: Phát hiện nhiều hơn một mục 'Chú thích:' (tổng cộng ${headerIndices.length} mục). Mỗi file TXT chỉ được phép có duy nhất 1 mục 'Chú thích:' ở cuối sách.`
+			});
+		}
+		return { footnoteIdx: -1, errors };
+	}
+
+	const footnoteIdx = headerIndices[0];
+	let firstNonEmptyIdx = -1;
+	for (let j = footnoteIdx + 1; j < lines.length; j++) {
+		if (lines[j].trim() !== '') {
+			firstNonEmptyIdx = j;
+			break;
+		}
+	}
+
+	if (firstNonEmptyIdx === -1) {
+		errors.push({
+			lineNum: footnoteIdx + 1,
+			lineContent: lines[footnoteIdx],
+			tag: 'chú thích:',
+			message: `Dòng ${footnoteIdx + 1}: Sau 'Chú thích:' không có nội dung chú thích '{n}' nào.`
+		});
+		return { footnoteIdx: -1, errors };
+	}
+
+	const firstTrimmed = lines[firstNonEmptyIdx].trim();
+	if (!/^\{\d+\}/.test(firstTrimmed)) {
+		errors.push({
+			lineNum: firstNonEmptyIdx + 1,
+			lineContent: lines[firstNonEmptyIdx],
+			tag: 'chú thích:',
+			message: `Dòng ${firstNonEmptyIdx + 1}: Ngay sau 'Chú thích:' bắt buộc phải bắt đầu bằng '{n}', phát hiện nội dung không hợp lệ '${firstTrimmed}'.`
+		});
+		return { footnoteIdx: -1, errors };
+	}
+
+	for (let j = footnoteIdx + 1; j < lines.length; j++) {
+		const afterLine = lines[j].trim();
+		if (/^@@/i.test(afterLine) || /^\[(new|new:center)\]$/i.test(afterLine)) {
+			errors.push({
+				lineNum: j + 1,
+				lineContent: lines[j],
+				tag: 'chú thích:',
+				message: `Dòng ${j + 1}: Phát hiện cú pháp '${afterLine}' nằm sau dòng 'Chú thích:' (dòng ${footnoteIdx + 1}). Mục 'Chú thích:' bắt buộc phải nằm ở cuối sách.`
+			});
+		}
+	}
+
+	return { footnoteIdx, errors };
+}
+
+/**
+ * Finds the start line index of the single valid end-of-book "Chú thích:" section.
+ */
+export function findFootnoteSectionIndex(lines: string[]): number {
+	const inspection = inspectFootnoteSection(lines);
+	return inspection.errors.length === 0 ? inspection.footnoteIdx : -1;
 }
 
 /**
@@ -119,7 +191,7 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 	}
 	const textWithoutValidBolds = maskWithSpaces(sanitized, boldPairRegex);
 	// In the remainder, find asterisks that touch text: either '*text' or 'text*' (not isolated ' * ' or ' *')
-	const lingeringBoldMarker = /(?<!\\)(?:(?<=\S)\*(?!\d)|(?<!\d)\*(?=\S))/g;
+	const lingeringBoldMarker = /(?<!\\)(?:(?<=\S)\*(?![\p{L}\p{N}])|(?<![\p{L}\p{N}])\*(?=\S))/gu;
 	const boldIndices = findMatchIndices(textWithoutValidBolds, lingeringBoldMarker);
 	if (boldIndices.length > 0) {
 		const snippets = boldIndices.slice(0, 3).map((idx) => extractContextSnippet(line, idx, 5));
@@ -133,8 +205,8 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 		});
 	}
 
-	// 2. Check underline: First mask identifiers or illustration names like hinh_1, img_01
-	let underlineSanitized = maskWithSpaces(sanitized, /[\p{L}\p{N}]+_[\p{L}\p{N}]+/gu);
+	// 2. Check underline: First mask identifiers or illustration names like hinh_1, img_01, ten_bien_nay
+	let underlineSanitized = maskWithSpaces(sanitized, /[\p{L}\p{N}]+(?:_[\p{L}\p{N}]+)+/gu);
 	const underlinePairRegex = /_([^\s_][^_]*[^\s_]|\S)_/g;
 	for (const m of underlineSanitized.matchAll(underlinePairRegex)) {
 		if (m.index !== undefined) {
@@ -167,8 +239,8 @@ function checkInlineFormatting(line: string, lineNum: number, warnings: TxtSynta
 		}
 		return ' '.repeat(match.length);
 	});
-	// In the remainder, find slashes that touch text: '/text' or 'text/' (not surrounded by space like ' a / b ')
-	const lingeringItalicMarker = /(?<!\\)(?:(?<=\S)\/(?!\d)|(?<!\d)\/(?=\S))/g;
+	// In the remainder, find slashes that touch text: '/text' or 'text/' (not inside words like 'km/h' or spaced ' a / b ')
+	const lingeringItalicMarker = /(?<!\\)(?:(?<=\S)\/(?![\p{L}\p{N}])|(?<![\p{L}\p{N}])\/(?=\S))/gu;
 	const italicIndices = findMatchIndices(textWithoutValidItalics, lingeringItalicMarker);
 	if (italicIndices.length > 0) {
 		const snippets = italicIndices.slice(0, 3).map((idx) => extractContextSnippet(line, idx, 5));
@@ -220,8 +292,12 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		.replace(/\r\n/g, '\n')
 		.split('\n');
 
-	// Ignore everything after the real "Chú thích:" section because footnote entries follow different syntax
-	const footnoteIdx = findFootnoteSectionIndex(lines);
+	// Inspect the single end-of-book "Chú thích:" section strictly
+	const footnoteInspection = inspectFootnoteSection(lines);
+	const footnoteIdx = footnoteInspection.footnoteIdx;
+	if (footnoteInspection.errors.length > 0) {
+		errors.push(...footnoteInspection.errors);
+	}
 	const contentLines = footnoteIdx !== -1 ? lines.slice(0, footnoteIdx) : lines;
 
 	const blockStack: OpenBlockInfo[] = [];
@@ -447,77 +523,81 @@ export function validateTxtSyntax(rawText: string): TxtSyntaxValidationResult {
 		}
 	}
 
-	// Check footnote call vs definition consistency across body and "Chú thích:" section
-	const bodyCalls: Array<{ num: string; lineNum: number }> = [];
-	for (let i = 0; i < contentLines.length; i++) {
-		const rawLine = contentLines[i];
-		const trimmed = rawLine.trim();
-		if (!trimmed) continue;
-		if (
-			trimmed.startsWith('\\') &&
-			trimmed.length > 1 &&
-			['@', '~', '>', '#', '*', '/', '_', '['].includes(trimmed.charAt(1))
-		) {
-			continue;
+	// Strict footnote validation: each {n} must appear exactly 2 times (1 in body + 1 after "Chú thích:")
+	if (footnoteInspection.errors.length === 0) {
+		const bodyCallsByNum = new Map<string, number[]>();
+		for (let i = 0; i < contentLines.length; i++) {
+			const rawLine = contentLines[i];
+			const trimmed = rawLine.trim();
+			if (!trimmed) continue;
+			if (
+				trimmed.startsWith('\\') &&
+				trimmed.length > 1 &&
+				['@', '~', '>', '#', '*', '/', '_', '['].includes(trimmed.charAt(1))
+			) {
+				continue;
+			}
+			for (const m of rawLine.matchAll(/\{(\d+)\}/g)) {
+				const existing = bodyCallsByNum.get(m[1]) ?? [];
+				existing.push(i + 1);
+				bodyCallsByNum.set(m[1], existing);
+			}
 		}
-		for (const m of rawLine.matchAll(/\{(\d+)\}/g)) {
-			bodyCalls.push({ num: m[1], lineNum: i + 1 });
-		}
-	}
 
-	if (footnoteIdx === -1) {
-		for (const call of bodyCalls) {
-			warnings.push({
-				lineNum: call.lineNum,
-				lineContent: contentLines[call.lineNum - 1],
-				tag: `{${call.num}}`,
-				message: `Dòng ${call.lineNum}: Tìm thấy '{${call.num}}' nhưng văn bản không có mục 'Chú thích:'. Đã giữ nguyên dạng văn bản thường để tránh tạo liên kết hỏng.`
-			});
-		}
-	} else {
 		const defsByNum = new Map<string, number[]>();
-		for (let j = footnoteIdx + 1; j < lines.length; j++) {
-			const afterLine = lines[j].trim();
-			const afterLineNum = j + 1;
-			if (/^@@/i.test(afterLine) || /^\[(new|new:center)\]$/i.test(afterLine)) {
-				warnings.push({
-					lineNum: afterLineNum,
-					lineContent: lines[j],
-					tag: 'chú thích:',
-					message: `Dòng ${afterLineNum}: Phát hiện cú pháp '${afterLine}' nằm sau dòng 'Chú thích:' (dòng ${footnoteIdx + 1}). Toàn bộ nội dung sau 'Chú thích:' được coi là chú thích cuối sách và không tạo chương mới.`
-				});
-			}
-			const fnDefMatch = afterLine.match(/^\{(\d+)\}/);
-			if (fnDefMatch) {
-				const num = fnDefMatch[1];
-				const existing = defsByNum.get(num) ?? [];
-				existing.push(afterLineNum);
-				defsByNum.set(num, existing);
+		if (footnoteIdx !== -1) {
+			for (let j = footnoteIdx + 1; j < lines.length; j++) {
+				const afterLine = lines[j].trim();
+				const fnDefMatch = afterLine.match(/^\{(\d+)\}/);
+				if (fnDefMatch) {
+					const num = fnDefMatch[1];
+					const existing = defsByNum.get(num) ?? [];
+					existing.push(j + 1);
+					defsByNum.set(num, existing);
+				}
 			}
 		}
 
-		const callCountByNum = new Map<string, number>();
-		for (const call of bodyCalls) {
-			callCountByNum.set(call.num, (callCountByNum.get(call.num) ?? 0) + 1);
-			if (!defsByNum.has(call.num)) {
-				warnings.push({
-					lineNum: call.lineNum,
-					lineContent: contentLines[call.lineNum - 1],
-					tag: `{${call.num}}`,
-					message: `Dòng ${call.lineNum}: Tìm thấy '{${call.num}}' trong nội dung nhưng thiếu mục '{${call.num}}' trong phần 'Chú thích:'. Đã giữ nguyên văn bản để tránh tạo liên kết hỏng.`
-				});
-			}
-		}
+		const allFootnoteNums = new Set<string>([...bodyCallsByNum.keys(), ...defsByNum.keys()]);
+		for (const num of allFootnoteNums) {
+			const bodyLines = bodyCallsByNum.get(num) ?? [];
+			const defLines = defsByNum.get(num) ?? [];
+			const totalCount = bodyLines.length + defLines.length;
 
-		for (const [num, defLineNums] of defsByNum.entries()) {
-			const callsForNum = callCountByNum.get(num) ?? 0;
-			for (let k = callsForNum; k < defLineNums.length; k++) {
-				const defLineNum = defLineNums[k];
-				warnings.push({
-					lineNum: defLineNum,
-					lineContent: lines[defLineNum - 1],
+			if (bodyLines.length === 1 && defLines.length === 1) {
+				continue;
+			}
+
+			if (footnoteIdx === -1) {
+				errors.push({
+					lineNum: bodyLines[0],
+					lineContent: contentLines[bodyLines[0] - 1],
 					tag: `{${num}}`,
-					message: `Dòng ${defLineNum}: Mục chú thích '{${num}}' trong phần 'Chú thích:' không có vị trí gọi '{${num}}' tương ứng trong nội dung.`
+					message: `Dòng ${bodyLines[0]}: Tìm thấy '{${num}}' (${bodyLines.length} lần trong nội dung) nhưng văn bản không có mục 'Chú thích:' hợp lệ ở cuối sách. Mỗi mã '{n}' bắt buộc xuất hiện đúng 2 lần (1 lần trong nội dung và 1 lần sau 'Chú thích:').`
+				});
+			} else if (bodyLines.length === 1 && defLines.length === 0) {
+				errors.push({
+					lineNum: bodyLines[0],
+					lineContent: contentLines[bodyLines[0] - 1],
+					tag: `{${num}}`,
+					message: `Dòng ${bodyLines[0]}: Mã '{${num}}' chỉ xuất hiện 1 lần trong nội dung nhưng thiếu định nghĩa '{${num}}' sau 'Chú thích:' (bắt buộc đúng 2 lần: 1 lần trong nội dung và 1 lần sau 'Chú thích:').`
+				});
+			} else if (bodyLines.length === 0 && defLines.length === 1) {
+				errors.push({
+					lineNum: defLines[0],
+					lineContent: lines[defLines[0] - 1],
+					tag: `{${num}}`,
+					message: `Dòng ${defLines[0]}: Mục chú thích '{${num}}' sau 'Chú thích:' chỉ xuất hiện 1 lần và không có vị trí gọi '{${num}}' trong nội dung (bắt buộc đúng 2 lần).`
+				});
+			} else {
+				const reportLine = bodyLines.length > 1 ? bodyLines[0] : defLines[0];
+				const reportContent =
+					bodyLines.length > 1 ? contentLines[reportLine - 1] : lines[reportLine - 1];
+				errors.push({
+					lineNum: reportLine,
+					lineContent: reportContent,
+					tag: `{${num}}`,
+					message: `Dòng ${reportLine}: Mã chú thích '{${num}}' xuất hiện tổng cộng ${totalCount} lần (${bodyLines.length} lần trong nội dung, ${defLines.length} lần sau 'Chú thích:'). Mỗi mã '{n}' chỉ được xuất hiện đúng 2 lần (1 lần trong nội dung và 1 lần sau 'Chú thích:').`
 				});
 			}
 		}

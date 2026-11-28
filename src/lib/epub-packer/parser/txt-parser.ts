@@ -1,10 +1,107 @@
 // src/lib/epub-packer/parser/txt-parser.ts
 import { Logger, escapeXml } from '$lib/utils';
-import type { CustomDefinition, ParseTxtOptions, RawChapterItem } from '$lib/types';
+import type {
+	CustomDefinition,
+	ParseTxtOptions,
+	RawChapterItem,
+	TxtIllustrationTag,
+	TxtIllustrationValidationResult
+} from '$lib/types';
 import { findFootnoteSectionIndex, validateTxtSyntax } from './txt-syntax-validator';
 
 export type { ParseTxtOptions, RawChapterItem };
 export { validateTxtSyntax };
+
+const STRICT_ILLUSTRATION_TAG_REGEX = /^\[(hinh-\d+)\]$/;
+
+/**
+ * Extracts all strict `[hinh-N]` illustration tags from the TXT body (excluding "Chú thích:" and escaped lines).
+ */
+export function extractTxtIllustrationTags(rawText: string): TxtIllustrationTag[] {
+	const lines = String(rawText || '')
+		.replace(/\r\n/g, '\n')
+		.split('\n');
+	const footnoteIdx = findFootnoteSectionIndex(lines);
+	const contentLines = footnoteIdx !== -1 ? lines.slice(0, footnoteIdx) : lines;
+	const tags: TxtIllustrationTag[] = [];
+
+	for (let i = 0; i < contentLines.length; i++) {
+		const stripped = contentLines[i].trim();
+		if (!stripped) continue;
+		if (
+			stripped.startsWith('\\') &&
+			stripped.length > 1 &&
+			['@', '~', '>', '#', '*', '/', '_', '['].includes(stripped.charAt(1))
+		) {
+			continue;
+		}
+		const match = stripped.match(STRICT_ILLUSTRATION_TAG_REGEX);
+		if (match) {
+			tags.push({ tag: match[1], lineNum: i + 1 });
+		}
+	}
+
+	return tags;
+}
+
+/**
+ * Reconciles TXT `[hinh-N]` tags against uploaded illustration files (two-way strict match).
+ */
+export function reconcileTxtIllustrations(
+	requiredTags: TxtIllustrationTag[],
+	uploadedFiles: Array<{ name?: string; fileName: string }>
+): TxtIllustrationValidationResult {
+	const requiredSet = new Set(requiredTags.map((t) => t.tag));
+	const requiredList = Array.from(requiredSet);
+	const filesByBase = new Map<string, string[]>();
+
+	for (const file of uploadedFiles) {
+		const rawBase = (file.name || file.fileName.replace(/\.[^.]+$/, '')).trim().toLowerCase();
+		const list = filesByBase.get(rawBase) ?? [];
+		list.push(file.fileName);
+		filesByBase.set(rawBase, list);
+	}
+
+	const missingTags = requiredList.filter((tag) => !filesByBase.has(tag));
+	const duplicateBaseNames: string[] = [];
+	const unmatchedFiles: string[] = [];
+
+	for (const [base, fileNames] of filesByBase.entries()) {
+		if (fileNames.length > 1) {
+			duplicateBaseNames.push(`${base} (${fileNames.join(', ')})`);
+		}
+		if (!requiredSet.has(base)) {
+			unmatchedFiles.push(...fileNames);
+		}
+	}
+
+	const isValid =
+		missingTags.length === 0 && unmatchedFiles.length === 0 && duplicateBaseNames.length === 0;
+
+	const parts: string[] = [];
+	if (missingTags.length > 0) {
+		parts.push(
+			`Thiếu ${missingTags.length} ảnh minh họa so với TXT (yêu cầu ${requiredList.length} ảnh, đã tải ${uploadedFiles.length} file): ${missingTags.map((t) => `[${t}]`).join(', ')}.`
+		);
+	}
+	if (unmatchedFiles.length > 0) {
+		parts.push(
+			`File ảnh không khớp hoặc dư so với thẻ [hinh-...] trong TXT: ${unmatchedFiles.join(', ')}.`
+		);
+	}
+	if (duplicateBaseNames.length > 0) {
+		parts.push(`Phát hiện nhiều file ảnh trùng tên gốc: ${duplicateBaseNames.join('; ')}.`);
+	}
+
+	return {
+		isValid,
+		requiredTags: requiredList,
+		missingTags,
+		unmatchedFiles,
+		duplicateBaseNames,
+		errorMessage: isValid ? '' : `Không thể đóng gói EPUB: ${parts.join(' ')}`
+	};
+}
 
 function escapeRegExp(str: string): string {
 	return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -94,16 +191,14 @@ function formatInlineDelimiters(str: string): string {
 
 interface FootnoteEntrySpec {
 	num: string;
-	idSuffix: string;
 	firstContent: string;
 	extraLines: string[];
 }
 
 interface FootnoteRenderContext {
 	hasFootnotes: boolean;
-	entriesByNum: Map<string, FootnoteEntrySpec[]>;
-	callCounts: Map<string, number>;
-	matchedEntryKeys: Set<string>;
+	entriesByNum: Map<string, FootnoteEntrySpec>;
+	matchedNums: Set<string>;
 }
 
 function applyInlineFormatting(
@@ -181,16 +276,12 @@ function applyInlineFormatting(
 		if (!footnoteContext?.hasFootnotes) {
 			return `{${n}}`;
 		}
-		const defs = footnoteContext.entriesByNum.get(n);
-		if (!defs || defs.length === 0) {
+		const targetEntry = footnoteContext.entriesByNum.get(n);
+		if (!targetEntry) {
 			return `{${n}}`;
 		}
-		const callCount = (footnoteContext.callCounts.get(n) ?? 0) + 1;
-		footnoteContext.callCounts.set(n, callCount);
-		const callSuffix = callCount === 1 ? n : `${n}_${callCount}`;
-		const targetEntry = defs[Math.min(callCount - 1, defs.length - 1)];
-		footnoteContext.matchedEntryKeys.add(targetEntry.idSuffix);
-		return `<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref${callSuffix}" href="notes.xhtml#fn${targetEntry.idSuffix}"><sup>${n}</sup></a>`;
+		footnoteContext.matchedNums.add(n);
+		return `<a class="noteref" epub:type="noteref" role="doc-noteref" id="fnref${n}" href="notes.xhtml#fn${n}"><sup>${n}</sup></a>`;
 	});
 
 	return t;
@@ -201,48 +292,26 @@ function resolveIllustrationFileName(
 	imagesMap: Record<string, { fileName?: string }> = {},
 	allowFallback = true
 ): { fileName: string | null; isMissingIllustration: boolean } {
-	const lowerKey = (tagKey || '').toLowerCase();
-	if (
-		[
-			'letter',
-			'/letter',
-			'letter-box',
-			'/letter-box',
-			'poem',
-			'/poem',
-			'new',
-			'/new',
-			'new:center'
-		].includes(lowerKey) ||
-		lowerKey.startsWith('new:')
-	) {
+	if (!/^hinh-\d+$/.test(tagKey)) {
 		return { fileName: null, isMissingIllustration: false };
 	}
-	if (imagesMap[lowerKey]) {
-		return { fileName: imagesMap[lowerKey].fileName || tagKey, isMissingIllustration: false };
-	}
-	const baseKey = lowerKey.replace(/\.[^.]+$/, '');
-	if (imagesMap[baseKey]) {
-		return { fileName: imagesMap[baseKey].fileName || tagKey, isMissingIllustration: false };
+	if (imagesMap[tagKey]?.fileName) {
+		return { fileName: imagesMap[tagKey].fileName!, isMissingIllustration: false };
 	}
 	for (const [mapKey, entry] of Object.entries(imagesMap)) {
 		const mapBase = mapKey.toLowerCase().replace(/\.[^.]+$/, '');
 		const entryBase = (entry?.fileName || '').toLowerCase().replace(/\.[^.]+$/, '');
-		if (mapBase === baseKey || entryBase === baseKey) {
-			return { fileName: entry?.fileName || mapKey || tagKey, isMissingIllustration: false };
+		if (mapBase === tagKey || entryBase === tagKey) {
+			return {
+				fileName: entry?.fileName || mapKey || `${tagKey}.jpg`,
+				isMissingIllustration: false
+			};
 		}
 	}
-	const hasImgExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(lowerKey);
-	const isIllustPrefix = /^(hinh|hình|img|image|anh|ảnh|pic|illust|illustration)[_\-\d]/i.test(
-		lowerKey
-	);
-	if (hasImgExt || isIllustPrefix) {
-		if (!allowFallback) {
-			return { fileName: null, isMissingIllustration: true };
-		}
-		return { fileName: hasImgExt ? tagKey : `${tagKey}.jpg`, isMissingIllustration: false };
+	if (!allowFallback) {
+		return { fileName: null, isMissingIllustration: true };
 	}
-	return { fileName: null, isMissingIllustration: false };
+	return { fileName: `${tagKey}.jpg`, isMissingIllustration: false };
 }
 
 function tryRenderIllustrationLine(
@@ -252,22 +321,26 @@ function tryRenderIllustrationLine(
 	lineNum: number,
 	warnings: string[] | undefined,
 	indent: string
-): string | null {
-	const illustMatch = stripped.match(/^\[([\p{L}\p{N}_\-.]+)\]$/u);
-	if (!illustMatch) return null;
+): { handled: boolean; html: string } {
+	const illustMatch = stripped.match(STRICT_ILLUSTRATION_TAG_REGEX);
+	if (!illustMatch) return { handled: false, html: '' };
+	const tagKey = illustMatch[1];
 	const { fileName, isMissingIllustration } = resolveIllustrationFileName(
-		illustMatch[1],
+		tagKey,
 		imagesMap,
 		!hasExplicitImagesMap
 	);
 	if (isMissingIllustration) {
-		const warnMsg = `Dòng ${lineNum}: Thẻ ảnh '[${illustMatch[1]}]' chưa có file ảnh minh họa được tải lên.`;
+		const warnMsg = `Dòng ${lineNum}: Thẻ ảnh '[${tagKey}]' chưa có file ảnh minh họa khớp (sẽ kiểm tra trước khi đóng gói ở Bước 5).`;
 		Logger.warn('[epub-parser]', warnMsg);
 		warnings?.push(warnMsg);
-		return null;
+		return { handled: true, html: '' };
 	}
-	if (!fileName) return null;
-	return `${indent}<figure class="illust-box">\n${indent}  <img class="illust-img" src="../images/${fileName}" alt="${escapeXml(illustMatch[1])}" />\n${indent}</figure>\n`;
+	if (!fileName) return { handled: false, html: '' };
+	return {
+		handled: true,
+		html: `${indent}<figure class="illust-box">\n${indent}  <img class="illust-img" src="../images/${fileName}" alt="${escapeXml(tagKey)}" />\n${indent}</figure>\n`
+	};
 }
 
 interface TxtParserPendingJob {
@@ -505,8 +578,7 @@ export function parseTxtToChapters(
 	let mainLines = lines;
 	let hasFootnotes = false;
 	const footnoteEntries: FootnoteEntrySpec[] = [];
-	const footnoteEntriesByNum = new Map<string, FootnoteEntrySpec[]>();
-	const leadingFootnoteProse: string[] = [];
+	const footnoteEntriesByNum = new Map<string, FootnoteEntrySpec>();
 
 	if (footnoteIdx !== -1) {
 		mainLines = lines.slice(0, footnoteIdx);
@@ -522,22 +594,15 @@ export function parseTxtToChapters(
 			const fnMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/);
 			if (fnMatch) {
 				const num = fnMatch[1];
-				const existingList = footnoteEntriesByNum.get(num) ?? [];
-				const occurrenceIdx = existingList.length + 1;
-				const idSuffix = occurrenceIdx === 1 ? num : `${num}_${occurrenceIdx}`;
 				currentEntry = {
 					num,
-					idSuffix,
 					firstContent: fnMatch[2].trim(),
 					extraLines: []
 				};
-				existingList.push(currentEntry);
-				footnoteEntriesByNum.set(num, existingList);
+				footnoteEntriesByNum.set(num, currentEntry);
 				footnoteEntries.push(currentEntry);
 			} else if (currentEntry) {
 				currentEntry.extraLines.push(trimmed);
-			} else {
-				leadingFootnoteProse.push(trimmed);
 			}
 		}
 	}
@@ -545,8 +610,7 @@ export function parseTxtToChapters(
 	const footnoteContext: FootnoteRenderContext = {
 		hasFootnotes,
 		entriesByNum: footnoteEntriesByNum,
-		callCounts: new Map<string, number>(),
-		matchedEntryKeys: new Set<string>()
+		matchedNums: new Set<string>()
 	};
 
 	const rawLines = mainLines;
@@ -656,7 +720,7 @@ export function parseTxtToChapters(
 				continue;
 			}
 
-			const illustHtml = tryRenderIllustrationLine(
+			const illustResult = tryRenderIllustrationLine(
 				stripped,
 				imagesMap,
 				hasExplicitImagesMap,
@@ -664,9 +728,11 @@ export function parseTxtToChapters(
 				options.warnings,
 				'  '
 			);
-			if (illustHtml) {
-				const activeChapter = ensureChapterOpen();
-				activeChapter.html += illustHtml;
+			if (illustResult.handled) {
+				if (illustResult.html) {
+					const activeChapter = ensureChapterOpen();
+					activeChapter.html += illustResult.html;
+				}
 				lineIdx++;
 				continue;
 			}
@@ -998,7 +1064,7 @@ export function parseTxtToChapters(
 			continue;
 		}
 
-		const illustHtml = tryRenderIllustrationLine(
+		const illustResult = tryRenderIllustrationLine(
 			stripped,
 			imagesMap,
 			hasExplicitImagesMap,
@@ -1006,9 +1072,11 @@ export function parseTxtToChapters(
 			options.warnings,
 			''
 		);
-		if (illustHtml) {
-			const activeChapter = ensureChapterOpen();
-			activeChapter.html += illustHtml;
+		if (illustResult.handled) {
+			if (illustResult.html) {
+				const activeChapter = ensureChapterOpen();
+				activeChapter.html += illustResult.html;
+			}
 			lineIdx++;
 			continue;
 		}
@@ -1083,17 +1151,14 @@ export function parseTxtToChapters(
 
 	if (hasFootnotes) {
 		let notesHtml = `<h1 class="main-chap center">Chú thích:</h1>\n`;
-		for (const proseLine of leadingFootnoteProse) {
-			notesHtml += `<p>${applyInlineFormatting(proseLine, customDefinitions)}</p>\n`;
-		}
 		for (const entry of footnoteEntries) {
 			const convertedContent = applyInlineFormatting(entry.firstContent, customDefinitions);
-			const isMatched = footnoteContext.matchedEntryKeys.has(entry.idSuffix);
+			const isMatched = footnoteContext.matchedNums.has(entry.num);
 			const numberHtml = isMatched
-				? `<a class="notenum" role="doc-backlink" href="__FNREF_SRC_${entry.idSuffix}__.xhtml#fnref${entry.idSuffix}">${entry.num}.</a>`
+				? `<a class="notenum" role="doc-backlink" href="__FNREF_SRC_${entry.num}__.xhtml#fnref${entry.num}">${entry.num}.</a>`
 				: `<span class="notenum">${entry.num}.</span>`;
 			notesHtml +=
-				`<aside epub:type="footnote" role="doc-footnote" id="fn${entry.idSuffix}" class="note">\n` +
+				`<aside epub:type="footnote" role="doc-footnote" id="fn${entry.num}" class="note">\n` +
 				`  <p>${numberHtml} ${convertedContent}</p>\n`;
 			for (const extra of entry.extraLines) {
 				notesHtml += `  <p>${applyInlineFormatting(extra, customDefinitions)}</p>\n`;

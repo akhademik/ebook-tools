@@ -365,7 +365,7 @@ Chú thích:
 		expect(chap1!.html).toContain('<div class="poem">');
 		expect(chap1!.html).toContain('<p class="scene-break-small" role="separator">*</p>');
 		expect(chap1!.html).toContain(
-			'<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.jpg" alt="hinh-1.jpg" />\n</figure>'
+			'<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.jpg" alt="hinh-1" />\n</figure>'
 		);
 
 		// Verify chapter 4: Chapter 2 with left align and escapes

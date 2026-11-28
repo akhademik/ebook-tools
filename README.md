@@ -6,8 +6,8 @@
 
 ## Trạng thái hệ thống
 
-- Cập nhật lần cuối: 2026-11-28 14:08
-- Đã hoàn thành: Khắc phục toàn bộ 7 lỗi phân tích TXT → EPUB và sai lệch tài liệu theo `TASK.MD`: giữ nguyên ngắt dòng TXT mặc định (`preserveParagraphs: true`, thêm `ParseTxtOptions.mergeBrokenParagraphs`), thay thế regex inline `*`/`/`/`_` bằng `formatInlineDelimiters()` chống thẻ XML lồng chéo + cảnh báo đan chéo, siết nhận diện mục `Chú thích:` cuối sách (`findFootnoteSectionIndex()`), xử lý `{số}` không phải chú thích / thiếu / thừa / lặp lại giữa các chương với ID & backlink duy nhất (`fnref[0-9_]+`), cảnh báo & tránh `<img>` hỏng khi thiếu ảnh minh họa trong `imagesMap`, và cập nhật tài liệu nhận diện chương cho `.ZIP`/`.TXT`; toàn bộ pipeline đạt chuẩn (510/510 unit tests trong 24 files + 24/24 E2E tests pass).
+- Cập nhật lần cuối: 2026-11-28 16:03
+- Đã hoàn thành: Siết chặt quy chuẩn chú thích & ảnh minh họa TXT → EPUB (`txt-syntax-validator.ts`, `txt-parser.ts`, `EpubSourceState`, `EpubState`, `EpubIllustrationsSection`, `EpubPackSection`, `EpubSyntaxModal`): bắt buộc mỗi file có tối đa 1 mục `Chú thích:` ở cuối sách và dòng không rỗng đầu tiên sau `Chú thích:` phải bắt đầu bằng `{n}` (dừng ngay nếu có nội dung khác hoặc >1 mục `Chú thích:`/`@@` sau chú thích), bắt buộc mọi `{n}` (gồm cả `{2024}`) xuất hiện đúng 2 lần (1 trong thân bài + 1 sau `Chú thích:`), bỏ ghép chú thích theo chương; siết thẻ ảnh theo pattern `[hinh-N]` (không sinh `<p>[hinh-9]</p>` hay dropcap ở Bước 1), đối soát 2 chiều khi tải ảnh ở Bước 3 và chặn đóng gói tại Bước 5 nếu thiếu/dư/lệch tên ảnh; đồng thời sửa cảnh báo giả `km/h` và `ten_bien_nay`. Toàn bộ pipeline đạt chuẩn (513/513 unit tests trong 24 files + 24/24 E2E tests pass).
 - Đang dở: Không có
 - Biết trước còn thiếu / nợ kỹ thuật: Helper ZIP phụ thuộc API nội bộ của JSZip (`_data`, `internalStream`) — đã cô lập hoàn toàn trong `src/lib/utils/zip.ts` (P3). Lưu ý `internalStream` là lớp kiểm soát bổ sung trên đầu ra, không bảo đảm chống OOM tuyệt đối nếu JSZip cấp phát bộ nhớ nội bộ trước khi phát chunk.
 

@@ -39,6 +39,14 @@
 		</Button>
 	</div>
 
+	{#if epubState.source.fileType === 'txt' && !epubState.illustrationValidation.isValid && !epubState.isError}
+		<div
+			class="mt-4 p-3 rounded-xl bg-danger/10 border border-danger/30 text-danger text-xs font-medium"
+		>
+			{epubState.illustrationValidation.errorMessage}
+		</div>
+	{/if}
+
 	{#if epubState.status}
 		<div class="text-sm mt-4 {epubState.isError ? 'text-danger' : 'text-text-mute'}">
 			{epubState.status}

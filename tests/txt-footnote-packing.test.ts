@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { EpubState } from '$lib/epub-packer/epub-state.svelte';
 import { buildEpubBlob } from '$lib/epub-packer/builders/zip-writer';
 import JSZip from 'jszip';
@@ -157,7 +157,7 @@ Chú thích:
 		expect(state.metadata.publisher).toBe('');
 	});
 
-	it('should assign unique IDs and exact chapter backlinks when footnote numbers repeat per chapter', async () => {
+	it('should stop and report error when footnote numbers repeat across chapters (count !== 2)', async () => {
 		const rawTxt = `@@ Chương 1
 Lời mở đầu chương 1 có chú thích{1}.
 
@@ -172,18 +172,70 @@ Chú thích:
 		const fakeFile = new File([rawTxt], 'repeat-notes.txt', { type: 'text/plain' });
 		await state.source.handleFile(fakeFile);
 
-		const chapters = state.source.epubChapters;
-		expect(chapters).toHaveLength(3);
-		const chap1 = chapters[0];
-		const chap2 = chapters[1];
-		const notes = chapters[2];
+		expect(state.source.parseIsError).toBe(true);
+		expect(state.source.epubChapters).toHaveLength(0);
+		expect(state.source.parseStatus).toContain("'{1}'");
+		expect(state.source.parseStatus).toContain('đúng 2 lần');
+	});
 
-		expect(chap1.html).toContain('id="fnref1" href="notes.xhtml#fn1"');
-		expect(chap2.html).toContain('id="fnref1_2" href="notes.xhtml#fn1_2"');
+	it('should allow Step 1 TXT load with [hinh-1]..[hinh-2], block Step 5 on missing/mismatched images, and succeed when matched', async () => {
+		const rawTxt = `@@ Chương 1
+[hinh-1]
+Đoạn văn thứ nhất.
 
-		expect(notes.html).toContain('id="fn1"');
-		expect(notes.html).toContain(`href="${chap1.fileName}.xhtml#fnref1"`);
-		expect(notes.html).toContain('id="fn1_2"');
-		expect(notes.html).toContain(`href="${chap2.fileName}.xhtml#fnref1_2"`);
+@@ Chương 2
+[hinh-2]
+Đoạn văn thứ hai.`;
+
+		const state = new EpubState();
+		const fakeFile = new File([rawTxt], 'book-images.txt', { type: 'text/plain' });
+		await state.source.handleFile(fakeFile);
+
+		// Step 1 must succeed without <p>[hinh-1]</p>
+		expect(state.source.parseIsError).toBe(false);
+		expect(state.source.epubChapters).toHaveLength(2);
+		expect(state.source.epubChapters[0].html).not.toContain('[hinh-1]');
+
+		// Step 5 must stop and error when images are missing
+		await state.processEpub();
+		expect(state.isError).toBe(true);
+		expect(state.epubBlob).toBeNull();
+		expect(state.status).toContain('[hinh-1]');
+		expect(state.status).toContain('[hinh-2]');
+
+		// Upload 2 files where 1 mismatches (9/10 or wrong name scenario) -> still stop at Step 5
+		const img1 = new File([new Uint8Array([0xff, 0xd8, 0xff])], 'hinh-1.jpg', {
+			type: 'image/jpeg'
+		});
+		const wrongImg = new File([new Uint8Array([0xff, 0xd8, 0xff])], 'anh-2.jpg', {
+			type: 'image/jpeg'
+		});
+		await state.images.handleIllustrationFiles([img1, wrongImg]);
+		expect(state.illustrationValidation.isValid).toBe(false);
+		expect(state.illustrationValidation.missingTags).toEqual(['hinh-2']);
+		expect(state.illustrationValidation.unmatchedFiles).toEqual(['anh-2.jpg']);
+
+		await state.processEpub();
+		expect(state.isError).toBe(true);
+		expect(state.epubBlob).toBeNull();
+
+		// Fix to exact matching images -> Step 5 succeeds
+		state.images.clearIllustrationFiles();
+		const img2 = new File([new Uint8Array([0xff, 0xd8, 0xff])], 'hinh-2.png', {
+			type: 'image/png'
+		});
+		await state.images.handleIllustrationFiles([img1, img2]);
+		expect(state.illustrationValidation.isValid).toBe(true);
+		expect(state.source.epubChapters[0].html).toContain('src="../images/hinh-1.jpg"');
+		expect(state.source.epubChapters[1].html).toContain('src="../images/hinh-2.png"');
+
+		vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(new Blob(['font-bytes']))));
+		try {
+			await state.processEpub();
+			expect(state.isError).toBe(false);
+			expect(state.epubBlob).not.toBeNull();
+		} finally {
+			vi.unstubAllGlobals();
+		}
 	});
 });

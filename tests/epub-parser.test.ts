@@ -11,8 +11,11 @@ import {
 	parseTxtToChapters,
 	renderMarkdownBlocks,
 	assignSequentialChapterIds,
+	extractTxtIllustrationTags,
+	reconcileTxtIllustrations,
 	validateTxtSyntax
 } from '../src/lib/epub-packer/parser/epub-source-parser';
+import { buildChapterXhtml } from '../src/lib/epub-packer/xml-builders/chapter-builder';
 
 describe('epub-parser tests', () => {
 	describe('cleanHeaderFooterOcr', () => {
@@ -1019,14 +1022,22 @@ Chú thích:
 			);
 		});
 
-		it('should process footnotes correctly with case-insensitive chú thích separator without colon', () => {
-			const txt = `@@ Chương 1
+		it('should strictly require "Chú thích:" with colon and reject "chú thích" without colon when footnotes are present', () => {
+			const invalidTxt = `@@ Chương 1
 Đây là chương {1}.
 
 chú thích
 {1} Chú thích thứ nhất.`;
 
-			const chapters = parseTxtToChapters(txt, {}, 'Mặc định');
+			expect(() => parseTxtToChapters(invalidTxt, {}, 'Mặc định')).toThrow(/Chú thích:/);
+
+			const validTxt = `@@ Chương 1
+Đây là chương {1}.
+
+chú thích:
+{1} Chú thích thứ nhất.`;
+
+			const chapters = parseTxtToChapters(validTxt, {}, 'Mặc định');
 
 			expect(chapters).toHaveLength(2);
 			expect(chapters[0].title).toBe('Chương 1');
@@ -1297,7 +1308,7 @@ Khi ấy, lượng vàng lưu hành đạt đến một quy mô chưa từng có
 
 		it('should correctly parse the comprehensive test.txt file', () => {
 			const content = `@@ TIỂU THUYẾT THỬ NGHIỆM: VÒNG XOÁY KHÔNG GIAN
-Trong một buổi chiều
+Trong một buổi chiều{1}
 
 @ Khởi nguồn những bí ẩn
 
@@ -1315,7 +1326,7 @@ Trong một buổi chiều
 
 @@ Hồ Sơ Nhân Vật A: Thư Tín Cổ
 [letter]
-Gửi người bạn phương xa...
+Gửi người bạn phương xa...{2}
 [/letter]
 
 [hinh-2]
@@ -1326,7 +1337,7 @@ Gửi người bạn phương xa...
 
 @@p Hồ Sơ Nhân Vật B: Thi Ca Đương Đại (Căn phải)
 [poem]
-Trăng rơi đáy nước lung linh...
+Trăng rơi đáy nước lung linh...{3}
 [/poem]
 
 @p Điểm xuyết vần thơ (Căn phải, có trong TOC)
@@ -1421,16 +1432,16 @@ Chú thích:
 			expect(chapters[3].html).toContain('<u>gạch chân</u>');
 		});
 
-		it('should match illustrations with custom extension from images map', () => {
+		it('should match strict [hinh-N] illustrations with custom extension from images map', () => {
 			const txt = `@@ Chương 1
 [hinh-1]
 Đoạn văn tiếp theo.
-[minh-hoa-2.png]`;
+[hinh-2]`;
 
 			const options = {
 				images: {
 					'hinh-1': { fileName: 'hinh-1.webp' },
-					'minh-hoa-2.png': { fileName: 'minh-hoa-2.png' }
+					'hinh-2': { fileName: 'hinh-2.png' }
 				}
 			};
 
@@ -1439,7 +1450,7 @@ Chú thích:
 				'<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-1.webp" alt="hinh-1" />\n</figure>'
 			);
 			expect(chapters[0].html).toContain(
-				'<figure class="illust-box">\n  <img class="illust-img" src="../images/minh-hoa-2.png" alt="minh-hoa-2.png" />\n</figure>'
+				'<figure class="illust-box">\n  <img class="illust-img" src="../images/hinh-2.png" alt="hinh-2" />\n</figure>'
 			);
 		});
 
@@ -1868,21 +1879,19 @@ Dòng thơ hoa
 				expect(chapters[0].html).not.toContain('[POEM]');
 			});
 
-			it('should warn when content (@@ or [new]) appears after "Chú thích:" line', () => {
+			it('should reject content (@@ or [new]) appearing after "Chú thích:" line', () => {
 				const txt = `@@ Chương 1
 Nội dung có chú thích {1}.
 Chú thích:
 {1} Lời giải thích.
 @@ Chương 2 lạc sau chú thích`;
 				const validation = validateTxtSyntax(txt);
-				expect(validation.isValid).toBe(true); // warning, not blocking error
-				expect(
-					validation.warnings?.some((w) => w.message.includes("nằm sau dòng 'Chú thích:'"))
-				).toBe(true);
+				expect(validation.isValid).toBe(false);
+				expect(validation.errors.some((e) => e.message.includes("nằm sau dòng 'Chú thích:'"))).toBe(
+					true
+				);
 
-				const warnings: string[] = [];
-				parseTxtToChapters(txt, { warnings });
-				expect(warnings.some((w) => w.includes("nằm sau dòng 'Chú thích:'"))).toBe(true);
+				expect(() => parseTxtToChapters(txt)).toThrow(/nằm sau dòng 'Chú thích:'/);
 			});
 
 			it('should consolidate multiple syntax error messages separated by newline', () => {
@@ -2317,53 +2326,135 @@ Nội dung chương 2 bình thường.`;
 					expect(chapters.some((c) => c.fileName === 'notes')).toBe(false);
 				});
 
-				it('should keep plain {2024} without Chú thích section as literal text and warn', () => {
+				it('should stop and error on {2024} without Chú thích: section', () => {
 					const txt = `@@ Chương 1\nNăm {2024} là một dấu mốc.`;
-					const warnings: string[] = [];
-					const chapters = parseTxtToChapters(txt, { warnings }, 'Sách');
-					expect(chapters).toHaveLength(1);
-					expect(chapters[0].html).toContain('<p>Năm {2024} là một dấu mốc.</p>');
-					expect(chapters[0].html).not.toContain('notes.xhtml');
-					expect(warnings.some((w) => w.includes("'{2024}'"))).toBe(true);
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(false);
+					expect(validation.errors.some((e) => e.message.includes("'{2024}'"))).toBe(true);
+					expect(() => parseTxtToChapters(txt, {}, 'Sách')).toThrow(/\{2024\}/);
 				});
 
-				it('should warn on missing/orphan footnotes without generating broken links', () => {
-					const txt = `@@ Chương 1
-Đoạn có {1} hợp lệ và {2} bị thiếu và {2024} lạc.
+				it('should stop and error on missing/orphan/duplicate {n} footnotes (strict count === 2)', () => {
+					const missingAndOrphanTxt = `@@ Chương 1
+Đoạn có {1} hợp lệ và {2} bị thiếu.
 
 Chú thích:
 {1} Giải thích một.
 {3} Giải thích thừa chưa gọi.`;
-					const warnings: string[] = [];
-					const chapters = parseTxtToChapters(txt, { warnings }, 'Sách');
-					expect(chapters[0].html).toContain('href="notes.xhtml#fn1"');
-					expect(chapters[0].html).toContain('và {2} bị thiếu và {2024} lạc.');
-					expect(chapters[0].html).not.toContain('notes.xhtml#fn2');
-					expect(chapters[0].html).not.toContain('notes.xhtml#fn2024');
+					const v1 = validateTxtSyntax(missingAndOrphanTxt);
+					expect(v1.isValid).toBe(false);
+					expect(v1.errors.some((e) => e.message.includes("'{2}'"))).toBe(true);
+					expect(v1.errors.some((e) => e.message.includes("'{3}'"))).toBe(true);
+					expect(() => parseTxtToChapters(missingAndOrphanTxt, {}, 'Sách')).toThrow(/\{2\}/);
 
-					const notes = chapters.find((c) => c.fileName === 'notes');
-					expect(notes?.html).toContain(
-						'<a class="notenum" role="doc-backlink" href="__FNREF_SRC_1__.xhtml#fnref1">1.</a>'
-					);
-					expect(notes?.html).toContain(
-						'<span class="notenum">3.</span> Giải thích thừa chưa gọi.'
-					);
-					expect(notes?.html).not.toContain('__FNREF_SRC_3__');
+					const duplicateCallTxt = `@@ Chương 1
+Lần gọi đầu{1} và lần gọi thứ hai{1}.
 
-					expect(warnings.some((w) => w.includes("thiếu mục '{2}'"))).toBe(true);
-					expect(warnings.some((w) => w.includes("thiếu mục '{2024}'"))).toBe(true);
-					expect(warnings.some((w) => w.includes("Mục chú thích '{3}'"))).toBe(true);
+Chú thích:
+{1} Một giải thích.`;
+					const v2 = validateTxtSyntax(duplicateCallTxt);
+					expect(v2.isValid).toBe(false);
+					expect(v2.errors.some((e) => e.message.includes("'{1}'"))).toBe(true);
+					expect(() => parseTxtToChapters(duplicateCallTxt, {}, 'Sách')).toThrow(/\{1\}/);
+
+					const duplicateDefTxt = `@@ Chương 1
+Lần gọi duy nhất{1}.
+
+Chú thích:
+{1} Định nghĩa A.
+{1} Định nghĩa B.`;
+					const v3 = validateTxtSyntax(duplicateDefTxt);
+					expect(v3.isValid).toBe(false);
+					expect(v3.errors.some((e) => e.message.includes("'{1}'"))).toBe(true);
+					expect(() => parseTxtToChapters(duplicateDefTxt, {}, 'Sách')).toThrow(/\{1\}/);
 				});
 
-				it('should warn and avoid broken <img> when illustration is missing from images map', () => {
-					const txt = `@@ Chương 1\n[hinh-9]\nĐoạn sau ảnh.`;
+				it('should stop and error when Chú thích: has leading prose/separator before {n} or multiple sections', () => {
+					const leadingTextTxt = `@@ Chương 1
+Nội dung có chú thích{1}.
+
+Chú thích:
+(Chú thích của dịch giả)
+{1} Giải thích một.`;
+					const v1 = validateTxtSyntax(leadingTextTxt);
+					expect(v1.isValid).toBe(false);
+					expect(v1.errors.some((e) => e.message.includes("Ngay sau 'Chú thích:' bắt buộc"))).toBe(
+						true
+					);
+					expect(() => parseTxtToChapters(leadingTextTxt, {}, 'Sách')).toThrow(/Chú thích:/);
+
+					const leadingDashTxt = `@@ Chương 1
+Nội dung có chú thích{1}.
+
+Chú thích:
+---
+{1} Giải thích một.`;
+					expect(validateTxtSyntax(leadingDashTxt).isValid).toBe(false);
+
+					const multiHeaderTxt = `@@ Chương 1
+Nội dung{1}.
+
+Chú thích:
+{1} A.
+
+Chú thích:
+{2} B.`;
+					const vMulti = validateTxtSyntax(multiHeaderTxt);
+					expect(vMulti.isValid).toBe(false);
+					expect(
+						vMulti.errors.some((e) => e.message.includes("nhiều hơn một mục 'Chú thích:'"))
+					).toBe(true);
+				});
+
+				it('should not emit false warnings for km/h or multi-underscore identifiers like ten_bien_nay', () => {
+					const txt = `@@ Chương 1
+Tốc độ đạt 60 km/h và biến tên là ten_bien_nay trong tài liệu.`;
+					const validation = validateTxtSyntax(txt);
+					expect(validation.isValid).toBe(true);
+					expect(validation.warnings ?? []).toHaveLength(0);
+				});
+
+				it('should not render <p>[hinh-9]</p> or dropcap when illustration is missing at Step 1 and should detect mismatches in reconciliation', () => {
+					const txt = `@@ Chương 1
+[hinh-9]
+Đoạn sau ảnh.`;
 					const warnings: string[] = [];
-					const chapters = parseTxtToChapters(txt, { images: {}, warnings }, 'Sách');
-					expect(chapters[0].html).toContain('<p>[hinh-9]</p>');
-					expect(chapters[0].html).not.toContain('<img');
+					const rawChapters = parseTxtToChapters(txt, { images: {}, warnings }, 'Sách');
+					expect(rawChapters[0].html).not.toContain('<p>[hinh-9]</p>');
+					expect(rawChapters[0].html).not.toContain('[hinh-9]');
+					expect(rawChapters[0].html).not.toContain('<img');
 					expect(warnings.some((w) => w.includes("'[hinh-9]' chưa có file ảnh minh họa"))).toBe(
 						true
 					);
+
+					const chapters = assignSequentialChapterIds(rawChapters);
+					const xhtml = buildChapterXhtml(chapters[0], 'Sách', false, '', false);
+					expect(xhtml).not.toContain('<span class="dropcap">[</span>');
+					expect(xhtml).not.toContain('[hinh-9]');
+
+					// Strict pattern extraction & two-way reconciliation
+					const tags = extractTxtIllustrationTags(
+						`@@ C1\n[hinh-1]\n[hình-2]\n[hinh-3.jpg]\n[anh-4]\n[hinh-10]`
+					);
+					expect(tags.map((t) => t.tag)).toEqual(['hinh-1', 'hinh-10']);
+
+					const mismatchCheck = reconcileTxtIllustrations(tags, [
+						{ name: 'hinh-1', fileName: 'hinh-1.jpg' },
+						{ name: 'anh-10', fileName: 'anh-10.jpg' }
+					]);
+					expect(mismatchCheck.isValid).toBe(false);
+					expect(mismatchCheck.missingTags).toEqual(['hinh-10']);
+					expect(mismatchCheck.unmatchedFiles).toEqual(['anh-10.jpg']);
+
+					const duplicateCheck = reconcileTxtIllustrations(
+						[{ tag: 'hinh-1', lineNum: 2 }],
+						[
+							{ name: 'hinh-1', fileName: 'hinh-1.jpg' },
+							{ name: 'hinh-1', fileName: 'hinh-1.png' }
+						]
+					);
+					expect(duplicateCheck.isValid).toBe(false);
+					expect(duplicateCheck.duplicateBaseNames.length).toBe(1);
 				});
 			});
 		});
