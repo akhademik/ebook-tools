@@ -845,7 +845,7 @@ describe('epub-packer tests', () => {
 			expect(JACKET_SAMPLE_PLACEHOLDERS.distributor).toBe('NXB Văn hóa Thông tin');
 
 			// 2. Verify all jacket templates render placeholder values in initial preview state
-			expect(JACKET_TEMPLATES.length).toBe(16);
+			expect(JACKET_TEMPLATES.length).toBe(14);
 			for (const template of JACKET_TEMPLATES) {
 				const html = template.render(
 					JACKET_SAMPLE_PLACEHOLDERS.title,
@@ -858,10 +858,11 @@ describe('epub-packer tests', () => {
 				expect(html).toContain('Mật Mã Da Vinci');
 				expect(html).toContain('Dan Brown');
 				expect(template.css).toContain(`.jacket-${template.id}`);
+				expect(template.css).toContain('margin: auto');
 			}
 
-			// Verify Mẫu 11-16 custom structural layouts
-			const template11Html = JACKET_TEMPLATES[10].render(
+			// Verify Mẫu 6-14 custom structural layouts
+			const template6Html = JACKET_TEMPLATES[5].render(
 				'Mật Mã Da Vinci',
 				'',
 				'Dan Brown',
@@ -869,9 +870,66 @@ describe('epub-packer tests', () => {
 				'',
 				''
 			);
-			expect(template11Html).toContain('<div class="jacket-11">');
-			expect(template11Html).toContain('<div class="inner-box">');
-			expect(template11Html).toContain('<div class="ornament">');
+			expect(template6Html).toContain('<div class="jacket-6">');
+			expect(template6Html).toContain('<div class="inner-box">');
+			expect(template6Html).toContain('<div class="ornament">');
+
+			const template7Html = JACKET_TEMPLATES[6].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template7Html).toContain('<div class="dark-band">');
+			expect(template7Html).toContain('<div class="light-band">');
+			expect(template7Html).toContain('<div class="meta-bar">');
+
+			const template8Html = JACKET_TEMPLATES[7].render(
+				'Mật Mã Da Vinci',
+				'',
+				'Dan Brown',
+				'',
+				'',
+				''
+			);
+			expect(template8Html).toContain('<p class="kicker">Dan Brown</p>');
+
+			const template9Html = JACKET_TEMPLATES[8].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'',
+				'',
+				''
+			);
+			expect(template9Html).toContain('<div class="tilted-box">');
+
+			const template10Html = JACKET_TEMPLATES[9].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template10Html).toContain('<div class="stamp-row">');
+			expect(template10Html).toContain('<span class="stamp">Dan Brown</span>');
+			expect(template10Html).toContain('<p class="original">[ The Da Vinci Code ]</p>');
+			expect(template10Html).toContain('<div class="dossier-grid">');
+
+			const template11Html = JACKET_TEMPLATES[10].render(
+				'Mật Mã Da Vinci',
+				'The Da Vinci Code',
+				'Dan Brown',
+				'Đỗ Thu Hà',
+				'1980 Books',
+				''
+			);
+			expect(template11Html).toContain('<div class="director-tag">');
+			expect(template11Html).toContain('<span class="author">Dan Brown</span>');
+			expect(template11Html).toContain('<div class="credit-block">');
 
 			const template12Html = JACKET_TEMPLATES[11].render(
 				'Mật Mã Da Vinci',
@@ -879,56 +937,41 @@ describe('epub-packer tests', () => {
 				'Dan Brown',
 				'Đỗ Thu Hà',
 				'1980 Books',
-				''
+				'NXB Văn hóa Thông tin'
 			);
-			expect(template12Html).toContain('<div class="dark-band">');
-			expect(template12Html).toContain('<div class="light-band">');
-			expect(template12Html).toContain('<div class="meta-bar">');
+			expect(template12Html).toContain('<div class="jacket-12">');
+			expect(template12Html).toContain('<div class="top-bar"></div>');
+			expect(template12Html).toContain('<div class="bot-bar"></div>');
+			expect(template12Html).toContain('<div class="svg-corner c-tl"><svg');
+			expect(template12Html).toContain('<div class="svg-corner c-br"><svg');
 
 			const template13Html = JACKET_TEMPLATES[12].render(
 				'Mật Mã Da Vinci',
-				'',
+				'The Da Vinci Code',
 				'Dan Brown',
-				'',
-				'',
+				'Đỗ Thu Hà',
+				'1980 Books',
 				''
 			);
-			expect(template13Html).toContain('<p class="kicker">Dan Brown</p>');
+			expect(template13Html).toContain('<div class="jacket-13">');
+			expect(template13Html).toContain('<div class="vine-tl"><svg');
+			expect(template13Html).toContain('<div class="vine-br"><svg');
+			expect(template13Html).toContain('<div class="line-tr"></div>');
+			expect(template13Html).toContain('<div class="line-bl"></div>');
 
 			const template14Html = JACKET_TEMPLATES[13].render(
 				'Mật Mã Da Vinci',
 				'The Da Vinci Code',
 				'Dan Brown',
-				'',
-				'',
-				''
-			);
-			expect(template14Html).toContain('<div class="tilted-box">');
-
-			const template15Html = JACKET_TEMPLATES[14].render(
-				'Mật Mã Da Vinci',
-				'The Da Vinci Code',
-				'Dan Brown',
 				'Đỗ Thu Hà',
 				'1980 Books',
 				''
 			);
-			expect(template15Html).toContain('<div class="stamp-row">');
-			expect(template15Html).toContain('<span class="stamp">Dan Brown</span>');
-			expect(template15Html).toContain('<p class="original">[ The Da Vinci Code ]</p>');
-			expect(template15Html).toContain('<div class="dossier-grid">');
-
-			const template16Html = JACKET_TEMPLATES[15].render(
-				'Mật Mã Da Vinci',
-				'The Da Vinci Code',
-				'Dan Brown',
-				'Đỗ Thu Hà',
-				'1980 Books',
-				''
-			);
-			expect(template16Html).toContain('<div class="director-tag">');
-			expect(template16Html).toContain('<span class="author">Dan Brown</span>');
-			expect(template16Html).toContain('<div class="credit-block">');
+			expect(template14Html).toContain('<div class="jacket-14">');
+			expect(template14Html).toContain('<div class="leaf-tl"><svg');
+			expect(template14Html).toContain('<div class="leaf-br"><svg');
+			expect(template14Html).toContain('<div class="parallel-tr"></div>');
+			expect(template14Html).toContain('<div class="parallel-bl"></div>');
 
 			// 3. Verify that when user enters custom inputs, template renders user inputs and omits empty fields
 			const customHtml = JACKET_TEMPLATES[0].render(
